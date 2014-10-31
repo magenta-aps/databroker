@@ -1,0 +1,19 @@
+package dk.magenta.databroker.component;
+
+import dk.magenta.databroker.model.AddressRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+/**
+ * Created by ole on 20/10/14.
+ */
+@Component
+public class DataBean {
+
+
+
+    public String getSomeData() {
+        return "Some data!!";
+    }
+
+}

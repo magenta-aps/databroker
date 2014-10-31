@@ -1,0 +1,15 @@
+<html xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+  layout:decorator="layout">
+  <head>
+    <title>DataBroker : Home</title>
+  </head>
+  <body>
+
+    <div layout:fragment="content">
+        <h1 th:text="#{home.header}"></h1>
+        <p class="lead" th:text="#{home.text}"></p>
+    </div>
+
+  </body>
+</html>
