@@ -1,4 +1,4 @@
-package dk.magenta.databroker.model;
+package dk.magenta.databroker.models.test;
 
 
 import org.springframework.data.jpa.repository.JpaRepository;

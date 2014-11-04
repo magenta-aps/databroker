@@ -1,8 +1,8 @@
 package dk.magenta.databroker.test;
 
 import dk.magenta.databroker.Application;
-import dk.magenta.databroker.model.AddressRepository;
-import dk.magenta.databroker.model.Address;
+import dk.magenta.databroker.models.test.AddressRepository;
+import dk.magenta.databroker.models.test.Address;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

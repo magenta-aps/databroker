@@ -1,4 +1,4 @@
-package dk.magenta.databroker.model;
+package dk.magenta.databroker.models.test;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

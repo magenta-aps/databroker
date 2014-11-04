@@ -1,8 +1,8 @@
 package dk.magenta.databroker.service.rest;
 
 import dk.magenta.databroker.component.DataBean;
-import dk.magenta.databroker.model.Address;
-import dk.magenta.databroker.model.AddressRepository;
+import dk.magenta.databroker.models.test.Address;
+import dk.magenta.databroker.models.test.AddressRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
