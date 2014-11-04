@@ -1,0 +1,32 @@
+package dk.magenta.databroker.inputs.vejregister.records;
+
+import org.json.JSONObject;
+
+/**
+ * Created by lars on 04-11-14.
+ */
+public class Start extends Record {
+
+    public String getRecordType() {
+        return RECORDTYPE_START;
+    }
+
+    private String opgaveNr;
+    private String prodDato;
+    public Start(String line) throws Exception {
+        super(line);
+        this.opgaveNr = substr(line,4,6);
+        this.prodDato = substr(line,10,8);
+        /*
+        System.out.println("    Start { opgaveNr: "+opgaveNr+", prodDato: "+prodDato+" }");
+        */
+    }
+
+
+    public JSONObject toJSON() {
+        JSONObject obj = super.toJSON();
+        obj.put("opgaveNr", this.opgaveNr);
+        obj.put("prodDato", this.prodDato);
+        return obj;
+    }
+}
