@@ -88,9 +88,51 @@
             <scope>test</scope>
         </dependency>
 
-
     </dependencies>
 
-
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>hibernate3-maven-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <components>
+                        <component>
+                            <name>hbm2java</name>
+                            <outputDirectory>src/main/java</outputDirectory>
+                            <implementation>jdbcconfiguration</implementation>
+                        </component>
+                        <component>
+                            <name>hbm2hbmxml</name>
+                            <outputDirectory>src/main/java</outputDirectory>
+                            <implementation>jdbcconfiguration</implementation>
+                        </component>
+                    </components>
+                    <componentProperties>
+                        <revengfile>src/main/resources/model.reveng.xml</revengfile>
+                        <configurationfile>src/main/resources/hibernate.cfg.xml</configurationfile>
+                        <packagename>dk.magenta.databroker.models.adresser</packagename>
+                        <jdk5>true</jdk5>
+                        <ejb3>true</ejb3>
+                    </componentProperties>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>mysql</groupId>
+                        <artifactId>mysql-connector-java</artifactId>
+                        <version>5.1.33</version>
+                        <type>jar</type>
+                        <scope>compile</scope>
+                    </dependency>
+                    <dependency>
+                        <groupId>cglib</groupId>
+                        <artifactId>cglib-nodep</artifactId>
+                        <version>2.1_3</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
