@@ -15,14 +15,12 @@ import com.ibm.icu.text.CharsetMatch;
 public class Vejregister {
 
     public static void main(String[] args) {
-
-        Vejregister register = null;
         try {
-            register = new Vejregister(new File("src/test/resources/vejregister/a370727.txt"));
+            Vejregister register = new Vejregister(new File("src/test/resources/vejregister/a370727.txt"));
+            System.out.println(register.toJSON().toString(2));
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println(register.toJSON().toString(4));
     }
 
     private ArrayList<Record> records;
@@ -69,20 +67,19 @@ public class Vejregister {
         this(new FileInputStream(input), encoding);
     }
 
-    private void addLine(String line) {
-        Record record = this.parseLine(line);
-        if (record != null) {
-            this.records.add(record);
-        }
-    }
-
-
     public JSONArray toJSON() {
         JSONArray array = new JSONArray();
         for (Record record : this.records) {
             array.put(record.toJSON());
         }
         return array;
+    }
+
+    private void addLine(String line) {
+        Record record = this.parseLine(line);
+        if (record != null) {
+            this.records.add(record);
+        }
     }
 
     private Record parseLine(String line) {

@@ -41,8 +41,8 @@ public abstract class Record {
         }
     }
 
-    protected String substr(String line, int pos, int length) {
-        return line.substring(pos-1, Math.min(pos + length - 1, line.length())).trim();
+    protected String substr(String line, int position, int length) {
+        return line.substring(Math.min(position - 1, line.length()), Math.min(position + length - 1, line.length())).trim();
     }
 
     public JSONObject toJSON() {
