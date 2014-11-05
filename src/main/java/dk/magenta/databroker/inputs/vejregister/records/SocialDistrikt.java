@@ -9,8 +9,6 @@ import java.text.ParseException;
  */
 public class SocialDistrikt extends Distrikt {
 
-    protected static int distriktsTekstStart = 35;
-    protected static int distriktsTekstLength = 30;
     public String getRecordType() {
         return RECORDTYPE_SOCIALDIST;
     }

@@ -10,9 +10,10 @@ import java.text.ParseException;
 
 public abstract class Distrikt extends DataRecord {
 
-    protected static int distriktsTekstStart = 35;
-    protected static int distriktsTekstLength = 30;
-
+    protected int getDistriktsTekstStart() { return 35; }
+    protected int getDistriktsTekstLength() {
+        return 30;
+    }
 
     protected String husNrFra;
     protected String husNrTil;
@@ -24,7 +25,7 @@ public abstract class Distrikt extends DataRecord {
         this.husNrFra = substr(line, 12, 4);
         this.husNrTil = substr(line, 16, 4);
         this.ligeUlige = substr(line, 20, 1);
-        this.distriktsTekst = substr(line, distriktsTekstStart, distriktsTekstLength);
+        this.distriktsTekst = substr(line, this.getDistriktsTekstStart(), this.getDistriktsTekstLength());
 
         //System.out.println("    Befolkningsdistrikt { kommuneKode: " + kommuneKode + ", vejKode: " + vejKode +
          //       ", timestamp: " + timestamp + ", husNrFra: " + husNrFra + ", husNrTil: " + husNrTil +

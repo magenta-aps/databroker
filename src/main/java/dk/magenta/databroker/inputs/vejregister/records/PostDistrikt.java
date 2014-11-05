@@ -9,13 +9,17 @@ import java.text.ParseException;
  */
 public class PostDistrikt extends Distrikt {
 
-    protected static int distriktsTekstStart = 37;
-    protected static int distriktsTekstLength = 20;
     public String getRecordType() {
         return RECORDTYPE_POSTDIST;
     }
+    protected int getDistriktsTekstStart() {
+        return 37;
+    }
+    protected int getDistriktsTekstLength() {
+        return 20;
+    }
 
-    String postNr;
+    private String postNr;
     public PostDistrikt(String line) throws ParseException {
         super(line);
         this.postNr = substr(line, 33, 4);

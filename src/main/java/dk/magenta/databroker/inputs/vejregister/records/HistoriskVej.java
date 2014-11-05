@@ -13,8 +13,10 @@ public class HistoriskVej extends DataRecord {
     public String getRecordType() {
         return RECORDTYPE_HISTORISKVEJ;
     }
+    protected int getTimestampStart() {
+        return 12;
+    }
 
-    protected static int timestampStart = 12;
     private String startDato;
     private String slutDato;
     private String vejAdresseringsnavn;

@@ -9,10 +9,11 @@ import java.text.ParseException;
  */
 public class EvakueringsDistrikt extends Distrikt {
 
-    protected static int distriktsTekstStart = 34;
-    protected static int distriktsTekstLength = 30;
     public String getRecordType() {
         return RECORDTYPE_EVAKUERDIST;
+    }
+    protected int getDistriktsTekstStart() {
+        return 34;
     }
 
     private String evakueringsKode;

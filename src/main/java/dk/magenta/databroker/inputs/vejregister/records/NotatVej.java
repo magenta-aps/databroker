@@ -12,7 +12,9 @@ public class NotatVej extends DataRecord {
     public String getRecordType() {
         return RECORDTYPE_NOTATVEJ;
     }
-    protected static int timestampStart = 54;
+    protected int getTimestampStart() {
+        return 54;
+    }
 
     protected String notatNr;
     protected String notatLinie;

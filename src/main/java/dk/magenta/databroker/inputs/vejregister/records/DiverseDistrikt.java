@@ -9,10 +9,11 @@ import java.text.ParseException;
  */
 public class DiverseDistrikt extends Distrikt {
 
-    protected static int distriktsTekstStart = 39;
-    protected static int distriktsTekstLength = 30;
     public String getRecordType() {
         return RECORDTYPE_DIVDIST;
+    }
+    protected int getDistriktsTekstStart() {
+        return 39;
     }
 
     private String distriktType;

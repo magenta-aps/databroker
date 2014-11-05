@@ -9,10 +9,14 @@ import java.text.ParseException;
  */
 public class SogneDistrikt extends Distrikt {
 
-    protected static int distriktsTekstStart = 37;
-    protected static int distriktsTekstLength = 20;
     public String getRecordType() {
         return RECORDTYPE_SOGNEDIST;
+    }
+    protected int getDistriktsTekstStart() {
+        return 37;
+    }
+    protected int getDistriktsTekstLength() {
+        return 20;
     }
 
     private String myndighedsKode;

@@ -14,7 +14,7 @@ public abstract class Record {
     public static final String RECORDTYPE_POSTDIST = "004";
     public static final String RECORDTYPE_NOTATVEJ = "005";
     public static final String RECORDTYPE_BYFORNYDIST = "006";
-    public static final String RECORDTYPE_DIVDIST = "009";
+    public static final String RECORDTYPE_DIVDIST = "007";
     public static final String RECORDTYPE_EVAKUERDIST = "008";
     public static final String RECORDTYPE_KIRKEDIST = "009";
     public static final String RECORDTYPE_SKOLEDIST = "010";

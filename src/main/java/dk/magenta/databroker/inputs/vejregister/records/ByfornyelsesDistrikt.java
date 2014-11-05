@@ -9,10 +9,11 @@ import java.text.ParseException;
  */
 public class ByfornyelsesDistrikt extends Distrikt {
 
-    protected static int distriktsTekstStart = 39;
-    protected static int distriktsTekstLength = 30;
     public String getRecordType() {
         return RECORDTYPE_BYFORNYDIST;
+    }
+    protected int getDistriktsTekstStart() {
+        return 39;
     }
 
     String byfornyKode;

@@ -12,14 +12,15 @@ public abstract class DataRecord extends Record {
     private String vejKode;
     private String timestamp;
 
-    protected static int timestampStart = 21;
-    protected static String recordType = null;
+    protected int getTimestampStart() {
+        return 21;
+    }
 
     public DataRecord(String line) throws ParseException {
         super(line);
         this.kommuneKode = substr(line, 4, 4);
         this.vejKode = substr(line, 8, 4);
-        this.timestamp = substr(line, timestampStart, 12);
+        this.timestamp = substr(line, this.getTimestampStart(), 12);
     }
 
     public JSONObject toJSON() {
