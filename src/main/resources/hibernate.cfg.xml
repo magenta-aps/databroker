@@ -6,11 +6,12 @@
         <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
         <!-- Note that we are pointing directly at the catalog so we can use
              unqualified table names -->
-        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/Adresser</property>
+        <property name="hibernate.connection.url">jdbc:mysql://aarhus.magenta-aps.dk:3306/</property>
         <property name="hibernate.connection.username">databroker</property>
         <property name="hibernate.connection.password">magenta</property>
         <property name="hibernate.dialect">org.hibernate.dialect.MySQL5InnoDBDialect</property>
-        <property name="hibernate.default_schema">Adresser</property>
+        <property name="hibernate.default_schema">DataBrokerCore</property>
+        <property name="hibernate.default_catalog">DataBrokerCore</property>
         <property name="hibernate.show_sql">true</property>
     </session-factory>
 </hibernate-configuration>

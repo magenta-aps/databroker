@@ -126,7 +126,7 @@
                     <componentProperties>
                         <revengfile>src/main/resources/model.reveng.xml</revengfile>
                         <configurationfile>src/main/resources/hibernate.cfg.xml</configurationfile>
-                        <packagename>dk.magenta.databroker.models.adresser</packagename>
+                        <packagename>dk.magenta.databroker.models.core</packagename>
                         <jdk5>true</jdk5>
                         <ejb3>true</ejb3>
                     </componentProperties>
