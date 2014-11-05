@@ -2,6 +2,8 @@ package dk.magenta.databroker.inputs.vejregister.records;
 
 import org.json.JSONObject;
 
+import java.text.ParseException;
+
 /**
  * Created by lars on 04-11-14.
  */
@@ -17,7 +19,7 @@ public abstract class Distrikt extends DataRecord {
     protected String ligeUlige;
     protected String distriktsTekst;
 
-    public Distrikt(String line) throws Exception {
+    public Distrikt(String line) throws ParseException {
         super(line);
         this.husNrFra = substr(line, 12, 4);
         this.husNrTil = substr(line, 16, 4);

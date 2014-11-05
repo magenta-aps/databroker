@@ -2,6 +2,8 @@ package dk.magenta.databroker.inputs.vejregister.records;
 
 import org.json.JSONObject;
 
+import java.text.ParseException;
+
 /**
  * Created by lars on 04-11-14.
  */
@@ -13,7 +15,7 @@ public class Start extends Record {
 
     private String opgaveNr;
     private String prodDato;
-    public Start(String line) throws Exception {
+    public Start(String line) throws ParseException {
         super(line);
         this.opgaveNr = substr(line,4,6);
         this.prodDato = substr(line,10,8);

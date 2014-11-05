@@ -1,5 +1,6 @@
 package dk.magenta.databroker.inputs.vejregister.records;
 import org.json.JSONObject;
+import java.text.ParseException;
 
 /**
  * Created by lars on 04-11-14.
@@ -29,10 +30,14 @@ public abstract class Record {
         return null;
     }
 
-    public Record(String line) throws Exception {
+    public Record(String line) throws ParseException {
+        if (line == null) {
+            throw new ParseException("Invalid NULL input.", 0);
+        }
         String type = substr(line, 1, 3);
-        if (!type.equals(this.getRecordType())) {
-            throw new Exception("Invalid recordtype "+type+" for class "+this.getClass().getName());
+        String thisType = this.getRecordType();
+        if (!type.equals(thisType)) {
+            throw new ParseException("Invalid recordtype "+type+" for class "+this.getClass().getName()+", was expecting the input to begin with "+thisType+". Input was "+line+".", 0);
         }
     }
 

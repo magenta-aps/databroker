@@ -2,6 +2,8 @@ package dk.magenta.databroker.inputs.vejregister.records;
 
 import org.json.JSONObject;
 
+import java.text.ParseException;
+
 /**
  * Created by lars on 04-11-14.
  */
@@ -15,7 +17,7 @@ public class SocialDistrikt extends Distrikt {
 
     private String socialKode;
 
-    public SocialDistrikt(String line) throws Exception {
+    public SocialDistrikt(String line) throws ParseException {
         super(line);
         this.socialKode = substr(line, 33, 2);
         /*

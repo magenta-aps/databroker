@@ -2,6 +2,8 @@ package dk.magenta.databroker.inputs.vejregister.records;
 
 import org.json.JSONObject;
 
+import java.text.ParseException;
+
 /**
  * Created by lars on 04-11-14.
  */
@@ -16,7 +18,7 @@ public class NotatVej extends DataRecord {
     protected String notatLinie;
     protected String startDato;
 
-    public NotatVej(String line) throws Exception {
+    public NotatVej(String line) throws ParseException {
         super(line);
         this.notatNr = substr(line, 12, 2);
         this.notatLinie = substr(line, 14, 40);

@@ -2,6 +2,8 @@ package dk.magenta.databroker.inputs.vejregister.records;
 
 import org.json.JSONObject;
 
+import java.text.ParseException;
+
 /**
  * Created by lars on 04-11-14.
  */
@@ -13,7 +15,7 @@ public abstract class DataRecord extends Record {
     protected static int timestampStart = 21;
     protected static String recordType = null;
 
-    public DataRecord(String line) throws Exception {
+    public DataRecord(String line) throws ParseException {
         super(line);
         this.kommuneKode = substr(line, 4, 4);
         this.vejKode = substr(line, 8, 4);

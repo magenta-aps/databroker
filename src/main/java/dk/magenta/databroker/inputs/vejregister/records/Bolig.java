@@ -2,6 +2,8 @@ package dk.magenta.databroker.inputs.vejregister.records;
 
 import org.json.JSONObject;
 
+import java.text.ParseException;
+
 /**
  * Created by lars on 04-11-14.
  */
@@ -18,7 +20,7 @@ public class Bolig extends DataRecord {
     protected String startDato;
     protected String lokalitet;
 
-    public Bolig(String line) throws Exception {
+    public Bolig(String line) throws ParseException {
         super(line);
 
         this.husNr = substr(line, 12, 4);

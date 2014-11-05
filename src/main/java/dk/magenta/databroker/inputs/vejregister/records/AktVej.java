@@ -2,6 +2,8 @@ package dk.magenta.databroker.inputs.vejregister.records;
 
 import org.json.JSONObject;
 
+import java.text.ParseException;
+
 /**
  * Created by lars on 04-11-14.
  */
@@ -13,15 +15,15 @@ public class AktVej extends DataRecord {
 
     protected static int timestampStart = 12;
 
-    protected String tilKommuneKode;
-    protected String tilVejKode;
-    protected String fraKommuneKode;
-    protected String fraVejKode;
-    protected String startDato;
-    protected String vejAdresseringsnavn;
-    protected String vejNavn;
+    private String tilKommuneKode;
+    private String tilVejKode;
+    private String fraKommuneKode;
+    private String fraVejKode;
+    private String startDato;
+    private String vejAdresseringsnavn;
+    private String vejNavn;
 
-    public AktVej(String line) throws Exception {
+    public AktVej(String line) throws ParseException {
         super(line);
         this.tilKommuneKode = substr(line, 24, 4);
         this.tilVejKode = substr(line, 28, 4);

@@ -2,6 +2,8 @@ package dk.magenta.databroker.inputs.vejregister.records;
 
 import org.json.JSONObject;
 
+import java.text.ParseException;
+
 /**
  * Created by lars on 04-11-14.
  */
@@ -15,7 +17,7 @@ public class Bynavn extends Distrikt {
 
     private String bynavn;
 
-    public Bynavn(String line) throws Exception {
+    public Bynavn(String line) throws ParseException {
         super(line);
         this.bynavn = this.distriktsTekst;
         /*
