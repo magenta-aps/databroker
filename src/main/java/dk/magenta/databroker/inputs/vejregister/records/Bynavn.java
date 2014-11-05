@@ -9,10 +9,14 @@ import java.text.ParseException;
  */
 public class Bynavn extends Distrikt {
 
-    protected static int distriktsTekstStart = 33;
-    protected static int distriktsTekstLength = 34;
     public String getRecordType() {
         return RECORDTYPE_BYNAVN;
+    }
+    protected int getDistriktsTekstStart() {
+        return 33;
+    }
+    protected int getDistriktsTekstLength() {
+        return 34;
     }
 
     private String bynavn;

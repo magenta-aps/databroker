@@ -9,10 +9,11 @@ import java.text.ParseException;
  */
 public class VarmeDistrikt extends Distrikt {
 
-    protected static int distriktsTekstStart = 37;
-    protected static int distriktsTekstLength = 30;
     public String getRecordType() {
         return RECORDTYPE_VARMEDIST;
+    }
+    protected int getDistriktsTekstStart() {
+        return 37;
     }
 
     private String varmeKode;

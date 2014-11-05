@@ -12,7 +12,9 @@ public class Bolig extends DataRecord {
     public String getRecordType() {
         return RECORDTYPE_BOLIG;
     }
-    protected static int timestampStart = 22;
+    protected int getTimestampStart() {
+        return 22;
+    }
 
     protected String husNr;
     protected String etage;

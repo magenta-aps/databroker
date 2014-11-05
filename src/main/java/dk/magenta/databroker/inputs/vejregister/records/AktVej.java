@@ -13,7 +13,9 @@ public class AktVej extends DataRecord {
         return RECORDTYPE_AKTVEJ;
     }
 
-    protected static int timestampStart = 12;
+    protected int getTimestampStart() {
+        return 12;
+    }
 
     private String tilKommuneKode;
     private String tilVejKode;
