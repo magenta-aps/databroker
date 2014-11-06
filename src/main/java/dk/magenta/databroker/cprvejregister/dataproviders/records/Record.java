@@ -8,22 +8,6 @@ import java.text.ParseException;
 public abstract class Record {
 
     public static final String RECORDTYPE_START = "000";
-    public static final String RECORDTYPE_AKTVEJ = "001";
-    public static final String RECORDTYPE_BOLIG = "002";
-    public static final String RECORDTYPE_BYNAVN = "003";
-    public static final String RECORDTYPE_POSTDIST = "004";
-    public static final String RECORDTYPE_NOTATVEJ = "005";
-    public static final String RECORDTYPE_BYFORNYDIST = "006";
-    public static final String RECORDTYPE_DIVDIST = "007";
-    public static final String RECORDTYPE_EVAKUERDIST = "008";
-    public static final String RECORDTYPE_KIRKEDIST = "009";
-    public static final String RECORDTYPE_SKOLEDIST = "010";
-    public static final String RECORDTYPE_BEFOLKDIST = "011";
-    public static final String RECORDTYPE_SOCIALDIST = "012";
-    public static final String RECORDTYPE_SOGNEDIST = "013";
-    public static final String RECORDTYPE_VALGDIST = "014";
-    public static final String RECORDTYPE_VARMEDIST = "015";
-    public static final String RECORDTYPE_HISTORISKVEJ = "016";
     public static final String RECORDTYPE_SLUT = "999";
 
     public String getRecordType() {

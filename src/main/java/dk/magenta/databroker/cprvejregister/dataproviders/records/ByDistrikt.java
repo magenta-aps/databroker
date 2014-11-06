@@ -7,10 +7,10 @@ import java.text.ParseException;
 /**
  * Created by lars on 04-11-14.
  */
-public class Bynavn extends Distrikt {
+public class ByDistrikt extends Distrikt {
 
     public String getRecordType() {
-        return RECORDTYPE_BYNAVN;
+        return RECORDTYPE_BYDISTRIKT;
     }
     protected int getDistriktsTekstStart() {
         return 33;
@@ -21,11 +21,11 @@ public class Bynavn extends Distrikt {
 
     private String bynavn;
 
-    public Bynavn(String line) throws ParseException {
+    public ByDistrikt(String line) throws ParseException {
         super(line);
         this.bynavn = this.distriktsTekst;
         /*
-            System.out.println("    Bynavn { kommuneKode: " + kommuneKode + ", vejKode: " + vejKode +
+            System.out.println("    ByDistrikt { kommuneKode: " + kommuneKode + ", vejKode: " + vejKode +
                     ", timestamp: " + timestamp + ", husNrFra: " + husNrFra + ", husNrTil: " + husNrTil +
                     ", ligeUlige: " + ligeUlige + ", bynavn: " + bynavn + " }");
         */

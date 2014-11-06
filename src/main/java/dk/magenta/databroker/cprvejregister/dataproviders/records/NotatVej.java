@@ -7,7 +7,7 @@ import java.text.ParseException;
 /**
  * Created by lars on 04-11-14.
  */
-public class NotatVej extends DataRecord {
+public class NotatVej extends VejDataRecord {
 
     public String getRecordType() {
         return RECORDTYPE_NOTATVEJ;

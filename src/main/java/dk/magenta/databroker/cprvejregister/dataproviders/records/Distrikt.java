@@ -8,7 +8,7 @@ import java.text.ParseException;
  * Created by lars on 04-11-14.
  */
 
-public abstract class Distrikt extends DataRecord {
+public abstract class Distrikt extends VejDataRecord {
 
     protected int getDistriktsTekstStart() { return 35; }
     protected int getDistriktsTekstLength() {

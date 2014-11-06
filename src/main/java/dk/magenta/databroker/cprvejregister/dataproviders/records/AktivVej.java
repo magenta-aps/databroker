@@ -7,7 +7,7 @@ import java.text.ParseException;
 /**
  * Created by lars on 04-11-14.
  */
-public class AktVej extends DataRecord {
+public class AktivVej extends VejDataRecord {
 
     public String getRecordType() {
         return RECORDTYPE_AKTVEJ;
@@ -25,7 +25,7 @@ public class AktVej extends DataRecord {
     private String vejAdresseringsnavn;
     private String vejNavn;
 
-    public AktVej(String line) throws ParseException {
+    public AktivVej(String line) throws ParseException {
         super(line);
         this.tilKommuneKode = substr(line, 24, 4);
         this.tilVejKode = substr(line, 28, 4);
@@ -34,14 +34,6 @@ public class AktVej extends DataRecord {
         this.startDato = substr(line, 40, 12);
         this.vejAdresseringsnavn = substr(line, 52, 20);
         this.vejNavn = substr(line, 72, 40);
-
-        /*
-        System.out.println("    Aktvej { kommuneKode: " + kommuneKode + ", vejKode: " + vejKode +
-                ", timestamp: " + timestamp + ", tilKommuneKode: " + tilKommuneKode +
-                ", tilVejKode: " + tilVejKode + ", fraKommuneKode: " + fraKommuneKode +
-                ", fraVejKode: " + fraVejKode + ", startDato: " + startDato +
-                ", vejAdresseringsnavn: " + vejAdresseringsnavn + ", vejNavn: " + vejNavn + " }");
-                */
     }
 
     public JSONObject toJSON() {
@@ -55,4 +47,15 @@ public class AktVej extends DataRecord {
         obj.put("vejNavn", this.vejNavn);
         return obj;
     }
+
+    /*
+        To save in database:
+        Locate KommunedelAfNavngivenVej instance by vejkode
+            if one doesn't exist, create one
+        find NavngivenVej instance using the KommunedelAfNavngivenVej instance
+            if one doesn't exist, create one
+        in NavngivenVej instance, set vejnavn, vejadresseringsnavn
+        find Kommune instance by kommuneKode
+        add relation to found Kommune instance
+    */
 }

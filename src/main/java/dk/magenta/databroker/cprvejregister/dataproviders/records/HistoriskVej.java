@@ -7,7 +7,7 @@ import java.text.ParseException;
 /**
  * Created by lars on 05-11-14.
  */
-public class HistoriskVej extends DataRecord {
+public class HistoriskVej extends VejDataRecord {
 
     public String getRecordType() {
         return RECORDTYPE_HISTORISKVEJ;

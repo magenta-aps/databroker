@@ -7,7 +7,7 @@ import java.text.ParseException;
 /**
  * Created by lars on 04-11-14.
  */
-public class Bolig extends DataRecord {
+public class Bolig extends VejDataRecord {
 
     public String getRecordType() {
         return RECORDTYPE_BOLIG;
@@ -16,11 +16,11 @@ public class Bolig extends DataRecord {
         return 22;
     }
 
-    protected String husNr;
-    protected String etage;
-    protected String sidedoer;
-    protected String startDato;
-    protected String lokalitet;
+    private String husNr;
+    private String etage;
+    private String sidedoer;
+    private String startDato;
+    private String lokalitet;
 
     public Bolig(String line) throws ParseException {
         super(line);
