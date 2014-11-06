@@ -1,6 +1,6 @@
 package dk.magenta.databroker.component;
 
-import dk.magenta.databroker.model.AddressRepository;
+import dk.magenta.databroker.core.testmodel.AddressRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

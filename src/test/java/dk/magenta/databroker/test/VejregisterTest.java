@@ -1,30 +1,42 @@
 package dk.magenta.databroker.test;
 
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
+import dk.magenta.databroker.Application;
+import dk.magenta.databroker.core.model.DataProvider;
+import dk.magenta.databroker.core.model.DataProviderRepository;
 import org.json.JSONArray;
-import dk.magenta.databroker.inputs.vejregister.Vejregister;
+import dk.magenta.databroker.cprvejregister.dataproviders.Vejregister;
 
 import org.json.JSONObject;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.IntegrationTest;
+import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
 import static org.junit.Assert.assertTrue;
-
-
-import java.util.HashMap;
 
 /**
  * Created by lars on 05-11-14.
  */
+@RunWith(SpringJUnit4ClassRunner.class)
 @IntegrationTest
+@SpringApplicationConfiguration(classes = Application.class)
 public class VejregisterTest {
 
-    public VejregisterTest(){
+    @Autowired
+    DataProviderRepository repository;
 
+    public VejregisterTest(){
     }
     @Test
     public void testVejregister() {
 
+        DataProvider dbDataProvider = new DataProvider("asdf", "VejRegister", true, 100);
+        Vejregister register = new Vejregister(dbDataProvider);
+        register.pull();
+
+/*
         String sampleData = "00037071520141031\n" +
                 "001040050042003062812000000000000000000190001011200Åbogade             Åbogade                                 \n" +
                 "00201010886054 01  tv200010011108 199803190752000000000000Blok T  \n" +
@@ -67,11 +79,13 @@ public class VejregisterTest {
                 "{\"taeller\":\"02086782\",\"type\":\"Slut\"}]\n");
 
         assertTrue(compareObjects(parsedData, comparison));
+*/
+
     }
 
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         new VejregisterTest().testVejregister();
-    }
+    }*/
 
     private boolean compareObjects(Object obj1, Object obj2) {
         if (obj1 != obj2) {

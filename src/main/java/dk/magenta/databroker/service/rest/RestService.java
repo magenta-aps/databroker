@@ -1,16 +1,12 @@
 package dk.magenta.databroker.service.rest;
 
 import dk.magenta.databroker.component.DataBean;
-import dk.magenta.databroker.models.test.Address;
-import dk.magenta.databroker.models.test.AddressRepository;
+import dk.magenta.databroker.core.testmodel.Address;
+import dk.magenta.databroker.core.testmodel.AddressRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.util.Arrays;
-import java.util.List;
 
 
 @Path("search")
