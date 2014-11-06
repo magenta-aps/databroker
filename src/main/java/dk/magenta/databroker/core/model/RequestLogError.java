@@ -53,7 +53,7 @@ public class RequestLogError  implements java.io.Serializable {
         this.requestLog = requestLog;
     }
     
-    @Column(name="ErrorMessage", nullable=false, length=65535)
+    @Column(name="ErrorMessage", nullable=false, columnDefinition="Text")
     public String getErrorMessage() {
         return this.errorMessage;
     }

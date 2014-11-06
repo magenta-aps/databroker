@@ -57,7 +57,7 @@ public class UpdateType  implements java.io.Serializable {
         this.name = name;
     }
     
-    @Column(name="Description", length=65535)
+    @Column(name="Description", columnDefinition="Text")
     public String getDescription() {
         return this.description;
     }
@@ -65,7 +65,8 @@ public class UpdateType  implements java.io.Serializable {
     public void setDescription(String description) {
         this.description = description;
     }
-@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY, mappedBy="updateType")
+
+    @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY, mappedBy="updateType")
     public Set<UpdateLog> getUpdateLogs() {
         return this.updateLogs;
     }

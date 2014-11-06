@@ -62,7 +62,7 @@ public class ConsumerStatus  implements java.io.Serializable {
         this.name = name;
     }
     
-    @Column(name="Description", nullable=false, length=65535)
+    @Column(name="Description", nullable=false, columnDefinition="Text")
     public String getDescription() {
         return this.description;
     }
