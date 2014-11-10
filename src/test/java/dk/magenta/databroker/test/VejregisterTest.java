@@ -3,8 +3,9 @@ package dk.magenta.databroker.test;
 import dk.magenta.databroker.Application;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.core.model.DataProviderRepository;
-import org.json.JSONArray;
 import dk.magenta.databroker.cprvejregister.dataproviders.VejRegister;
+import org.json.JSONArray;
+
 
 import org.json.JSONObject;
 import org.junit.Test;
@@ -23,9 +24,6 @@ import static org.junit.Assert.assertTrue;
 @IntegrationTest
 @SpringApplicationConfiguration(classes = Application.class)
 public class VejregisterTest {
-
-    @Autowired
-    DataProviderRepository repository;
 
     public VejregisterTest(){
     }
@@ -56,13 +54,13 @@ public class VejregisterTest {
                 "01605500542200612221200190001011200200612221200Gånsager            Gånsager\n" +
                 "99902086782";
 
-        Vejregister register = new Vejregister(sampleData);
+        VejRegister register = new VejRegister(sampleData);
         JSONArray parsedData = register.toJSON();
 
         JSONArray comparison = new JSONArray("[{\"prodDato\":\"20141031\",\"opgaveNr\":\"370715\",\"type\":\"Start\"}," +
-                "{\"vejNavn\":\"Åbogade\",\"vejAdresseringsnavn\":\"Åbogade\",\"timestamp\":\"200306281200\",\"tilVejKode\":\"0000\",\"tilKommuneKode\":\"0000\",\"fraKommuneKode\":\"0000\",\"vejKode\":\"5004\",\"fraVejKode\":\"0000\",\"kommuneKode\":\"0400\",\"startDato\":\"190001011200\",\"type\":\"AktVej\"}," +
+                "{\"vejNavn\":\"Åbogade\",\"vejAdresseringsnavn\":\"Åbogade\",\"timestamp\":\"200306281200\",\"tilVejKode\":\"0000\",\"tilKommuneKode\":\"0000\",\"fraKommuneKode\":\"0000\",\"vejKode\":\"5004\",\"fraVejKode\":\"0000\",\"kommuneKode\":\"0400\",\"startDato\":\"190001011200\",\"type\":\"AktivVej\"}," +
                 "{\"lokalitet\":\"Blok T\",\"timestamp\":\"200010011108\",\"sidedoer\":\"tv\",\"husNr\":\"054\",\"vejKode\":\"0886\",\"kommuneKode\":\"0101\",\"startDato\":\"199803190752\",\"type\":\"Bolig\",\"etage\":\"01\"}," +
-                "{\"ligeUlige\":\"U\",\"timestamp\":\"200311250832\",\"distriktsTekst\":\"Hf. Amager Strand\",\"bynavn\":\"Hf. Amager Strand\",\"vejKode\":\"4870\",\"kommuneKode\":\"0101\",\"type\":\"Bynavn\",\"husNrFra\":\"001\",\"husNrTil\":\"999\"}," +
+                "{\"ligeUlige\":\"U\",\"timestamp\":\"200311250832\",\"distriktsTekst\":\"Hf. Amager Strand\",\"bynavn\":\"Hf. Amager Strand\",\"vejKode\":\"4870\",\"kommuneKode\":\"0101\",\"type\":\"ByDistrikt\",\"husNrFra\":\"001\",\"husNrTil\":\"999\"}," +
                 "{\"ligeUlige\":\"L\",\"timestamp\":\"200209091200\",\"postNr\":\"2300\",\"distriktsTekst\":\"København S\",\"vejKode\":\"4696\",\"kommuneKode\":\"0101\",\"type\":\"PostDistrikt\",\"husNrFra\":\"002\",\"husNrTil\":\"998\"}," +
                 "{\"timestamp\":\"201004121409\",\"notatNr\":\"01\",\"vejKode\":\"0228\",\"kommuneKode\":\"0955\",\"notatLinie\":\"Iliviteqqat\",\"startDato\":\"190001011409\",\"type\":\"NotatVej\"}," +
                 "{\"ligeUlige\":\"L\",\"timestamp\":\"199109231200\",\"distriktsTekst\":\"\",\"vejKode\":\"1210\",\"byfornyKode\":\"050D03\",\"kommuneKode\":\"0185\",\"type\":\"ByfornyelsesDistrikt\",\"husNrFra\":\"028\",\"husNrTil\":\"040Z\"}," +
