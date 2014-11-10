@@ -3,6 +3,7 @@ package dk.magenta.databroker.cprvejregister.dataproviders;
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
 import dk.magenta.databroker.core.DataProvider;
+import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
 import org.json.JSONArray;
 
@@ -19,7 +20,7 @@ import java.util.zip.ZipInputStream;
  */
 public abstract class CprRegister extends DataProvider {
 
-    public CprRegister(dk.magenta.databroker.core.model.DataProvider dbObject) {
+    public CprRegister(DataProviderEntity dbObject) {
         super(dbObject);
     }
 

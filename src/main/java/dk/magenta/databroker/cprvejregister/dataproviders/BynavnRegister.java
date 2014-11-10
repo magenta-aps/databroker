@@ -1,5 +1,6 @@
 package dk.magenta.databroker.cprvejregister.dataproviders;
 
+import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.ByNavn;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.PostNummer;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.Record;
@@ -13,7 +14,7 @@ import java.text.ParseException;
  */
 public class BynavnRegister extends CprRegister {
 
-    public BynavnRegister(dk.magenta.databroker.core.model.DataProvider dbObject) {
+    public BynavnRegister(DataProviderEntity dbObject) {
         super(dbObject);
     }
 

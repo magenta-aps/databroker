@@ -1,8 +1,8 @@
 package dk.magenta.databroker.core;
 
-import dk.magenta.databroker.core.model.DataProviderRepository;
 import org.springframework.http.HttpRequest;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import dk.magenta.databroker.core.model.DataProviderEntity;
 
 import java.util.Properties;
 
@@ -11,14 +11,14 @@ import java.util.Properties;
  * Created by jubk on 05-11-2014.
  */
 public abstract class DataProvider {
-    private dk.magenta.databroker.core.model.DataProvider dbObject;
+    private DataProviderEntity dataProviderEntity;
 
-    public DataProvider(dk.magenta.databroker.core.model.DataProvider dbObject) {
-        this.dbObject = dbObject;
+    public DataProvider(DataProviderEntity dataProviderEntity) {
+        this.dataProviderEntity = dataProviderEntity;
     }
 
-    public dk.magenta.databroker.core.model.DataProvider getDbObject() {
-        return dbObject;
+    public DataProviderEntity getDataProviderEntity() {
+        return dataProviderEntity;
     }
 
     public void pull() {

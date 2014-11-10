@@ -1,5 +1,6 @@
 package dk.magenta.databroker.cprvejregister.dataproviders;
 
+import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
 
 import java.net.MalformedURLException;
@@ -16,7 +17,7 @@ public class VejRegister extends CprRegister {
         return new URL("https://cpr.dk/media/152096/vejregister_hele_landet_pr_141101.zip");
     }
 
-    public VejRegister(dk.magenta.databroker.core.model.DataProvider dbObject) {
+    public VejRegister(DataProviderEntity dbObject) {
         super(dbObject);
     }
 

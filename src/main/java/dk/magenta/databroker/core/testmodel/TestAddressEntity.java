@@ -1,15 +1,13 @@
 package dk.magenta.databroker.core.testmodel;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 
 @Entity
+@Table(name = "TestAddress")
 @XmlRootElement
-public class Address implements Serializable {
+public class TestAddressEntity implements Serializable {
 
     @Id
     @GeneratedValue

@@ -1,8 +1,8 @@
 package dk.magenta.databroker.service.rest;
 
 import dk.magenta.databroker.component.DataBean;
-import dk.magenta.databroker.core.testmodel.Address;
-import dk.magenta.databroker.core.testmodel.AddressRepository;
+import dk.magenta.databroker.core.testmodel.TestAddressEntity;
+import dk.magenta.databroker.core.testmodel.TestAddressRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -17,20 +17,20 @@ public class RestService {
     private DataBean db;
 
     @Autowired
-    private AddressRepository addressRepository;
+    private TestAddressRepository testAddressRepository;
 
     @GET
     @Path("by-street")
-    public Address custom() {
+    public TestAddressEntity custom() {
 
-        Address ad = new Address();
+        TestAddressEntity ad = new TestAddressEntity();
         ad.setStreetName("Solbærhaven");
         ad.setNumber(13);
         ad.setZipCode(8520);
 
-        addressRepository.save(ad);
+        testAddressRepository.save(ad);
 
-        Address ads = addressRepository.findAll().get(0);
+        TestAddressEntity ads = testAddressRepository.findAll().get(0);
         return ads;
 
 

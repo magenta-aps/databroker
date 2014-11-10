@@ -1,5 +1,6 @@
 package dk.magenta.databroker.cprvejregister.dataproviders;
 
+import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
 
 import java.net.MalformedURLException;
@@ -11,7 +12,7 @@ import java.text.ParseException;
  */
 public class MyndighedsRegister extends CprRegister {
 
-    public MyndighedsRegister(dk.magenta.databroker.core.model.DataProvider dbObject) {
+    public MyndighedsRegister(DataProviderEntity dbObject) {
         super(dbObject);
     }
 

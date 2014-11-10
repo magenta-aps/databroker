@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
  */
 
 @Repository
-public interface DataProviderRepository extends JpaRepository<DataProvider, Long> {
+public interface DataProviderRepository extends JpaRepository<DataProviderEntity, Long> {
 }

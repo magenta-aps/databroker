@@ -1,10 +1,10 @@
 package dk.magenta.databroker.test;
 
 import dk.magenta.databroker.Application;
-import dk.magenta.databroker.core.model.DataProvider;
+import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.core.model.DataProviderRepository;
 import org.json.JSONArray;
-import dk.magenta.databroker.cprvejregister.dataproviders.Vejregister;
+import dk.magenta.databroker.cprvejregister.dataproviders.VejRegister;
 
 import org.json.JSONObject;
 import org.junit.Test;
@@ -32,8 +32,8 @@ public class VejregisterTest {
     @Test
     public void testVejregister() {
 
-        DataProvider dbDataProvider = new DataProvider("asdf", "VejRegister", true, 100);
-        Vejregister register = new Vejregister(dbDataProvider);
+        DataProviderEntity dbDataProvider = new DataProviderEntity();
+        VejRegister register = new VejRegister(dbDataProvider);
         register.pull();
 
 /*
