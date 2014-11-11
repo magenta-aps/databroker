@@ -11,7 +11,6 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -28,16 +27,21 @@ public abstract class CprRegister extends DataProvider {
         return null;
     }
 
+    protected RegisterRun createRun() {
+        return new RegisterRun();
+    }
+
     public void pull() {
         System.out.println("Pulling...");
         try {
-            ArrayList<Record> records = new ArrayList<Record>();
+            RegisterRun run = this.createRun();
             URL url = this.getRecordUrl();
             if (url != null) {
-                System.out.println("We have an URL");
+                System.out.println("Loading data from "+url.toString());
                 InputStream input = url.openStream();
 
                 if (url.getFile().endsWith(".zip")) {
+                    System.out.println("Passing data through ZIP filter");
                     ZipInputStream zinput = new ZipInputStream(input);
                     ZipEntry entry = zinput.getNextEntry();
                     input = zinput;
@@ -52,17 +56,39 @@ public abstract class CprRegister extends DataProvider {
                 CharsetMatch match = detector.detect();
                 if (match != null) {
                     encoding = match.getName();
+                    System.out.println("Interpreting data as "+encoding);
                 } else {
                     encoding = "UTF-8";
+                    System.out.println("Falling back to default encoding "+encoding);
                 }
 
                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputstream, encoding.toUpperCase()));
 
+                System.out.println("Reading data");
+                int i=0, j=0;
                 for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-                    this.addLine(line, records);
+                    if (line != null) {
+                        line = line.trim();
+                        if (line.length()>3) {
+                            Record record = this.parseTrimmedLine(line.substring(0, 3), line);
+                            if (record != null) {
+                                this.processRecord(record);
+                                run.saveRecord(record);
+                            }
+                        }
+                    }
+                    i++;
+                    if (i>=100000) {
+                        j++;
+                        System.out.println("    parsed " + (j * i) + " entries");
+                        i=0;
+                    }
                 }
+                System.out.println("    parsed "+(j*100000 + i)+" entries");
+                System.out.println("Input parsed, making sense of it...");
 
-                System.out.println(this.toJSON(records).toString(2));
+                //System.out.println(run.toJSON().toString(2));
+                this.saveRunToDatabase(run);
             }
             else {
                 System.out.println("No url");
@@ -72,14 +98,6 @@ public abstract class CprRegister extends DataProvider {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public JSONArray toJSON(ArrayList<Record> records) {
-        JSONArray array = new JSONArray();
-        for (Record record : records) {
-            array.put(record.toJSON());
-        }
-        return array;
     }
 
     protected Record parseTrimmedLine(String recordType, String line) {
@@ -96,22 +114,12 @@ public abstract class CprRegister extends DataProvider {
         return null;
     }
 
-    private void addLine(String line, ArrayList<Record> records) {
-        Record record = this.parseLine(line);
-        if (record != null) {
-            records.add(record);
-        }
+    protected void saveRunToDatabase(RegisterRun run) {
+        // Override me
     }
 
-    private Record parseLine(String line) {
-        if (line != null) {
-            line = line.trim();
-            if (line.length()>3) {
-                String recordType = line.substring(0, 3);
-                return this.parseTrimmedLine(recordType, line);
-            }
-        }
-        return null;
+    protected void processRecord(Record record) {
+        // Override me
     }
 
 }

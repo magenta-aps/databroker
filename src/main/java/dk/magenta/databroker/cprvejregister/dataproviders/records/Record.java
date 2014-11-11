@@ -1,17 +1,25 @@
 package dk.magenta.databroker.cprvejregister.dataproviders.records;
 import org.json.JSONObject;
 import java.text.ParseException;
+import java.util.HashMap;
 
 /**
  * Created by lars on 04-11-14.
  */
-public abstract class Record {
+public abstract class Record extends HashMap<String, String> {
 
     public static final String RECORDTYPE_START = "000";
     public static final String RECORDTYPE_SLUT = "999";
 
+    private HashMap<String, String> values;
+
     public String getRecordType() {
         return null;
+    }
+
+    public String getRecordClass() {
+        String[] classParts = this.getClass().getCanonicalName().split("\\.");
+        return classParts[classParts.length-1];
     }
 
     public Record(String line) throws ParseException {
@@ -23,6 +31,7 @@ public abstract class Record {
         if (!type.equals(thisType)) {
             throw new ParseException("Invalid recordtype "+type+" for class "+this.getClass().getName()+", was expecting the input to begin with "+thisType+". Input was "+line+".", 0);
         }
+        this.values = new HashMap<String, String>();
     }
 
     protected String substr(String line, int position, int length) {
@@ -31,8 +40,10 @@ public abstract class Record {
 
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
-        String[] classParts = this.getClass().getCanonicalName().split("\\.");
-        obj.put("type", classParts[classParts.length-1]);
+        obj.put("type", this.getRecordClass());
+        for (String key : this.keySet()) {
+            obj.put(key, this.get(key));
+        }
         return obj;
     }
 }
