@@ -7,7 +7,7 @@ import java.util.Collection;
  * Created by jubk on 07-11-2014.
  */
 @Entity
-@Table(name = "DataProvider", schema = "", catalog = "DataBrokerCore")
+@Table(name = "DataProvider")
 public class DataProviderEntity {
     private Integer id;
     private String uuid;

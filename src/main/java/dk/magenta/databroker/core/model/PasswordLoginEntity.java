@@ -6,7 +6,7 @@ import javax.persistence.*;
  * Created by jubk on 07-11-2014.
  */
 @Entity
-@Table(name = "PasswordLogin", schema = "", catalog = "DataBrokerCore")
+@Table(name = "PasswordLogin")
 public class PasswordLoginEntity {
     private Integer id;
     private String login;

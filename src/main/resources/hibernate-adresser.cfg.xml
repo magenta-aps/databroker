@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+    "-//Hibernate/Hibernate Configuration DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory name="AdresserSessionFactory">
+        <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="hibernate.connection.url">jdbc:mysql://aarhus.magenta-aps.dk:3306/DataBrokerAdresser</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQL5InnoDBDialect</property>
+        <property name="hibernate.default_catalog">DataBrokerAdresser</property>
+        <property name="hibernate.show_sql">true</property>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.AdgangspunktEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.AdresseEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.DoerpunktEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.HusnummerEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.ISOpointEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.KommuneEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.KommunedelAfNavngivenVejEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.NavngivenVejEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.PostnummerEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.ReserveretLigeHusnrIntervalEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.ReserveretUligeHusnrIntervalEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.ReserveretVejnavnEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.VejnavneforslagEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.VejnavneomraadeEntity"/>
+    </session-factory>
+</hibernate-configuration>

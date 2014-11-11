@@ -2,10 +2,8 @@
 <!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
 
 <hibernate-configuration>
-    <session-factory>
+    <session-factory name="CoreSessionFactory">
         <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
-        <!-- Note that we are pointing directly at the catalog so we can use
-             unqualified table names -->
         <property name="hibernate.connection.url">jdbc:mysql://aarhus.magenta-aps.dk:3306/DataBrokerCore</property>
         <property name="hibernate.dialect">org.hibernate.dialect.MySQL5InnoDBDialect</property>
         <property name="hibernate.default_catalog">DataBrokerCore</property>

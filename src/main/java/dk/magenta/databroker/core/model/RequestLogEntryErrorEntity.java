@@ -6,7 +6,7 @@ import javax.persistence.*;
  * Created by jubk on 07-11-2014.
  */
 @Entity
-@Table(name = "RequestLogEntryError", schema = "", catalog = "DataBrokerCore")
+@Table(name = "RequestLogEntryError")
 public class RequestLogEntryErrorEntity {
     private Integer id;
     private Long requestLogId;
