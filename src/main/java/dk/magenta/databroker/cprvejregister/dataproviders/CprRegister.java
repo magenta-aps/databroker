@@ -6,6 +6,7 @@ import dk.magenta.databroker.core.DataProvider;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
 import org.json.JSONArray;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -33,6 +34,10 @@ public abstract class CprRegister extends DataProvider {
     }
 
     public void pull() {
+
+    }
+
+    public void pull(JpaRepository repository) {
         System.out.println("Pulling...");
         try {
             RegisterRun run = this.createRun();
@@ -90,7 +95,7 @@ public abstract class CprRegister extends DataProvider {
                 System.out.println("Input parsed, making sense of it...");
 
                 //System.out.println(run.toJSON().toString(2));
-                this.saveRunToDatabase(run);
+                this.saveRunToDatabase(run, repository);
             }
             else {
                 System.out.println("No url");
@@ -117,6 +122,9 @@ public abstract class CprRegister extends DataProvider {
     }
 
     protected void saveRunToDatabase(RegisterRun run) {
+        // Override me
+    }
+    protected void saveRunToDatabase(RegisterRun run, JpaRepository repository) {
         // Override me
     }
 

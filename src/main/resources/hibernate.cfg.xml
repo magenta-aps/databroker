@@ -7,6 +7,7 @@
         <property name="hibernate.connection.url">jdbc:mysql://aarhus.magenta-aps.dk:3306/DataBrokerCore</property>
         <property name="hibernate.dialect">org.hibernate.dialect.MySQL5InnoDBDialect</property>
         <property name="hibernate.default_catalog">DataBrokerCore</property>
+        <property name="hibernate.id.new_generator_mappings">true</property>
         <property name="hibernate.show_sql">true</property>
         <mapping class="dk.magenta.databroker.core.model.ConsumerEntity"/>
         <mapping class="dk.magenta.databroker.core.model.ConsumerStatusEntity"/>

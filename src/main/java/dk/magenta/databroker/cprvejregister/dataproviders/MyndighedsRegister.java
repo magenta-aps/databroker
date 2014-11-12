@@ -12,12 +12,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.data.jpa.repository.JpaRepository;
 //import dk.magenta.databroker.models.adresser.Kommune;
 
 import javax.persistence.EntityManager;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -157,16 +159,28 @@ public class MyndighedsRegister extends CprRegister {
         return null;
     }
 
-    protected void saveRunToDatabase(RegisterRun run) {
+    protected void saveRunToDatabase(RegisterRun run, JpaRepository repository) {
         MyndighedsRegisterRun mrun = (MyndighedsRegisterRun) run;
         List<Myndighed> kommuner = mrun.getMyndigheder("05");
-        for (Myndighed kommune : kommuner) {
-            KommuneEntity kommuneEntity = new KommuneEntity();
-            kommuneEntity.setNavn(kommune.get("myndighedsNavn"));
-            kommuneEntity.setKommunekode(Integer.parseInt(kommune.get("myndighedsKode")));
-            // Vi har nu skabt en Kommune-instans. Gem den somehow
-            //this.kommuneRepository.save(kommuneEntity);
+        KommuneRepository kommuneRepository = (KommuneRepository) repository;
+
+        List<KommuneEntity> existingList = kommuneRepository.findAll();
+        HashMap<Integer, KommuneEntity> existingMap = new HashMap<Integer,KommuneEntity>();
+        for (KommuneEntity entity : existingList) {
+            existingMap.put(entity.getKommunekode(), entity);
         }
+
+        for (Myndighed kommune : kommuner) {
+            int kommuneKode = Integer.parseInt(kommune.get("myndighedsKode"));
+            KommuneEntity kommuneEntity = existingMap.get(kommuneKode);
+            if (kommuneEntity == null) {
+                kommuneEntity = new KommuneEntity();
+                kommuneEntity.setKommunekode(kommuneKode);
+            }
+            kommuneEntity.setNavn(kommune.get("myndighedsNavn"));
+            kommuneRepository.save(kommuneEntity);
+        }
+        repository.flush();
     }
 
     public static void main(String[] args) {

@@ -17,6 +17,7 @@ import static org.junit.Assert.assertEquals;
 @SpringApplicationConfiguration(classes = Application.class)
 public class SimpleTest {
 
+    //@SuppressWarnings("SpringJavaAutowiringInspection")
     @Autowired
     private TestAddressRepository addressRepository;
 
@@ -28,7 +29,7 @@ public class SimpleTest {
         ad.setStreetName("My street");
         ad.setNumber(10);
         ad.setZipCode(8000);
-
+System.out.println(addressRepository);
         addressRepository.save(ad);
 
         TestAddressEntity ads = addressRepository.findAll().get(0);

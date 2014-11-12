@@ -3,7 +3,10 @@ package dk.magenta.databroker.test;
 import dk.magenta.databroker.Application;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.core.model.DataProviderRepository;
+import dk.magenta.databroker.core.testmodel.TestAddressRepository;
+import dk.magenta.databroker.cprvejregister.dataproviders.MyndighedsRegister;
 import dk.magenta.databroker.cprvejregister.dataproviders.VejRegister;
+import dk.magenta.databroker.cprvejregister.model.KommuneRepository;
 import org.json.JSONArray;
 
 
@@ -25,14 +28,22 @@ import static org.junit.Assert.assertTrue;
 @SpringApplicationConfiguration(classes = Application.class)
 public class VejregisterTest {
 
+    //@SuppressWarnings("SpringJavaAutowiringInspection")
+
+    @Autowired
+    private KommuneRepository kommuneRepository;
+
+
     public VejregisterTest(){
     }
     @Test
     public void testVejregister() {
 
-        DataProviderEntity dbDataProvider = new DataProviderEntity();
-        VejRegister register = new VejRegister(dbDataProvider);
-        register.pull();
+        MyndighedsRegister myndighedsregister = new MyndighedsRegister(new DataProviderEntity());
+        myndighedsregister.pull(kommuneRepository);
+
+        //VejRegister vejregister = new VejRegister(new DataProviderEntity());
+        //vejregister.pull();
 
 /*
         String sampleData = "00037071520141031\n" +

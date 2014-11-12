@@ -5,9 +5,9 @@
 <hibernate-configuration>
     <session-factory name="AdresserSessionFactory">
         <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
-        <property name="hibernate.connection.url">jdbc:mysql://aarhus.magenta-aps.dk:3306/DataBrokerAdresser</property>
+        <property name="hibernate.connection.url">jdbc:mysql://aarhus.magenta-aps.dk:3306/</property>
         <property name="hibernate.dialect">org.hibernate.dialect.MySQL5InnoDBDialect</property>
-        <property name="hibernate.default_catalog">DataBrokerAdresser</property>
+        <property name="hibernate.default_catalog">DataBrokerCore</property>
         <property name="hibernate.show_sql">true</property>
         <mapping class="dk.magenta.databroker.cprvejregister.model.AdgangspunktEntity"/>
         <mapping class="dk.magenta.databroker.cprvejregister.model.AdresseEntity"/>
