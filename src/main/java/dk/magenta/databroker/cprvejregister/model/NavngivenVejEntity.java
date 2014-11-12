@@ -23,6 +23,7 @@ public class NavngivenVejEntity {
     private Collection<VejnavneforslagEntity> vejnavneforslag;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.TABLE)
     @Column(name = "navngiven_vej_id", nullable = false, insertable = true, updatable = true)
     public int getId() {
         return id;

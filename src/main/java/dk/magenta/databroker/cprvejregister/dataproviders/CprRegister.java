@@ -12,7 +12,7 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
-import java.util.Date;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -38,6 +38,12 @@ public abstract class CprRegister extends DataProvider {
     }
 
     public void pull(JpaRepository repository) {
+        ArrayList<JpaRepository> repositories = new ArrayList<JpaRepository>();
+        repositories.add(repository);
+        this.pull(repositories);
+    }
+
+        public void pull(List<JpaRepository> repositories) {
         System.out.println("Pulling...");
         try {
             RegisterRun run = this.createRun();
@@ -92,10 +98,10 @@ public abstract class CprRegister extends DataProvider {
                     }
                 }
                 System.out.println("    parsed "+(j*100000 + i)+" entries in "+(0.001 * (new Date().getTime() - startTime.getTime())) +" seconds");
-                System.out.println("Input parsed, making sense of it...");
+                System.out.println("Input parsed, making sense of it");
 
                 //System.out.println(run.toJSON().toString(2));
-                this.saveRunToDatabase(run, repository);
+                this.saveRunToDatabase(run, repositories);
             }
             else {
                 System.out.println("No url");
@@ -126,6 +132,12 @@ public abstract class CprRegister extends DataProvider {
     }
     protected void saveRunToDatabase(RegisterRun run, JpaRepository repository) {
         // Override me
+    }
+    protected void saveRunToDatabase(RegisterRun run, List<JpaRepository> repositories) {
+        // Override me if needed
+        if (repositories.size() == 1) {
+            this.saveRunToDatabase(run, repositories.get(0));
+        }
     }
 
     protected void processRecord(Record record) {

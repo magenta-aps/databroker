@@ -7,6 +7,8 @@ import dk.magenta.databroker.core.testmodel.TestAddressRepository;
 import dk.magenta.databroker.cprvejregister.dataproviders.MyndighedsRegister;
 import dk.magenta.databroker.cprvejregister.dataproviders.VejRegister;
 import dk.magenta.databroker.cprvejregister.model.KommuneRepository;
+import dk.magenta.databroker.cprvejregister.model.KommunedelAfNavngivenVejRepository;
+import dk.magenta.databroker.cprvejregister.model.NavngivenVejRepository;
 import org.json.JSONArray;
 
 
@@ -16,7 +18,10 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.util.ArrayList;
 
 import static org.junit.Assert.assertTrue;
 
@@ -33,17 +38,28 @@ public class VejregisterTest {
     @Autowired
     private KommuneRepository kommuneRepository;
 
+    @Autowired
+    private KommunedelAfNavngivenVejRepository kommunedelAfNavngivenVejRepository;
+
+    @Autowired
+    private NavngivenVejRepository navngivenVejRepository;
+
 
     public VejregisterTest(){
     }
     @Test
     public void testVejregister() {
 
+        ArrayList<JpaRepository> repositories = new ArrayList<JpaRepository>();
+        repositories.add(this.kommuneRepository);
+        repositories.add(this.kommunedelAfNavngivenVejRepository);
+        repositories.add(this.navngivenVejRepository);
+
         MyndighedsRegister myndighedsregister = new MyndighedsRegister(new DataProviderEntity());
         myndighedsregister.pull(kommuneRepository);
 
-        //VejRegister vejregister = new VejRegister(new DataProviderEntity());
-        //vejregister.pull();
+        VejRegister vejregister = new VejRegister(new DataProviderEntity());
+        vejregister.pull(repositories);
 
 /*
         String sampleData = "00037071520141031\n" +

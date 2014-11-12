@@ -160,6 +160,7 @@ public class MyndighedsRegister extends CprRegister {
     }
 
     protected void saveRunToDatabase(RegisterRun run, JpaRepository repository) {
+        System.out.println("Storing Kommune entries in database");
         MyndighedsRegisterRun mrun = (MyndighedsRegisterRun) run;
         List<Myndighed> kommuner = mrun.getMyndigheder("05");
         KommuneRepository kommuneRepository = (KommuneRepository) repository;
@@ -170,17 +171,30 @@ public class MyndighedsRegister extends CprRegister {
             existingMap.put(entity.getKommunekode(), entity);
         }
 
+        int createdCount = 0;
+        int updatedCount = 0;
         for (Myndighed kommune : kommuner) {
             int kommuneKode = Integer.parseInt(kommune.get("myndighedsKode"));
+            String kommuneNavn = kommune.get("myndighedsNavn");
             KommuneEntity kommuneEntity = existingMap.get(kommuneKode);
             if (kommuneEntity == null) {
                 kommuneEntity = new KommuneEntity();
                 kommuneEntity.setKommunekode(kommuneKode);
+                kommuneEntity.setNavn(kommuneNavn);
+                createdCount++;
+            } else if (!kommuneEntity.getNavn().equals(kommuneNavn)) {
+                kommuneEntity.setNavn(kommuneNavn);
+                updatedCount++;
             }
-            kommuneEntity.setNavn(kommune.get("myndighedsNavn"));
             kommuneRepository.save(kommuneEntity);
         }
         repository.flush();
+        System.out.println("Stored Kommune entries in database:");
+        if (createdCount>0 || updatedCount>0) {
+            System.out.println("    " + createdCount + " new entries created\n    " + updatedCount + " existing entries updated");
+        } else {
+            System.out.println("    no changes necessary; old dataset matches new dataset");
+        }
     }
 
     public static void main(String[] args) {
