@@ -7,7 +7,7 @@ import java.util.Collection;
  * Created by jubk on 11/10/14.
  */
 @Entity
-@Table(name = "Adgangspunkt")
+@Table(name = "adgangspunkt")
 public class AdgangspunktEntity {
     private int id;
     private String adgangspunktUuid;
