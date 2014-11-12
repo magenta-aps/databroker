@@ -10,6 +10,8 @@ import java.util.Collection;
 @Table(name = "postnummer")
 public class PostnummerEntity {
     private int id;
+    private int nummer;
+    private String navn;
     private Collection<AdgangspunktEntity> adgangspunkter;
 
     @Id
@@ -20,6 +22,26 @@ public class PostnummerEntity {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    @Basic
+    @Column(name = "nummer", nullable = false, insertable = true, updatable = true)
+    public int getNummer() {
+        return nummer;
+    }
+
+    public void setNummer(int nummer) {
+        this.nummer = nummer;
+    }
+
+    @Basic
+    @Column(name = "navn", nullable = true, insertable = true, updatable = true, length = 36)
+    public String getNavn() {
+        return navn;
+    }
+
+    public void setNavn(String navn) {
+        this.navn = navn;
     }
 
     @Override

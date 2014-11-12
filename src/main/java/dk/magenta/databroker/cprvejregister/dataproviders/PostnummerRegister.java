@@ -1,7 +1,10 @@
 package dk.magenta.databroker.cprvejregister.dataproviders;
 
 import dk.magenta.databroker.core.model.DataProviderEntity;
+import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.Level1Container;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.Record;
+import dk.magenta.databroker.cprvejregister.model.PostnummerEntity;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
@@ -52,6 +55,23 @@ public class PostnummerRegister extends CprRegister {
             e.printStackTrace();
         }
         return null;
+    }
+
+    protected void saveRunToDatabase(RegisterRun run) {
+        Level1Container<PostnummerEntity> created = new Level1Container<PostnummerEntity>();
+        for (Record record : run.getAll()) {
+            if (record.getRecordType().equals(PostNummer.RECORDTYPE_POSTNUMMER)) {
+                PostNummer postnummer = (PostNummer) record;
+                String nummer = postnummer.get("postNr");
+                String navn = postnummer.get("postDistriktTekst");
+                if (!created.containsKey(nummer)) {
+                    PostnummerEntity postnummerEntity = new PostnummerEntity();
+                    postnummerEntity.setNummer(Integer.parseInt(nummer));
+                    postnummerEntity.setNavn(navn);
+                    created.put(nummer, postnummerEntity);
+                }
+            }
+        }
     }
 
     public static void main(String[] args) {

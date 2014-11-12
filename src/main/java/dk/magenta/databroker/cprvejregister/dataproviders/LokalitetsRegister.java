@@ -2,6 +2,9 @@ package dk.magenta.databroker.cprvejregister.dataproviders;
 
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
+import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.*;
+import dk.magenta.databroker.cprvejregister.model.AdresseEntity;
+import dk.magenta.databroker.cprvejregister.model.HusnummerEntity;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -31,6 +34,9 @@ public class LokalitetsRegister extends CprRegister {
         }
     }
 
+    private class KommuneContainer extends Level3Container<HusnummerEntity> {
+    }
+
     public LokalitetsRegister(DataProviderEntity dbObject) {
         super(dbObject);
     }
@@ -54,8 +60,39 @@ public class LokalitetsRegister extends CprRegister {
         return null;
     }
 
+    protected void saveRunToDatabase(RegisterRun run) {
+
+        try {
+            KommuneContainer created = new KommuneContainer();
+            for (Record record : run.getAll()) {
+                if (record.getRecordType().equals(Lokalitet.RECORDTYPE_LOKALITET)) {
+                    Lokalitet lokalitet = (Lokalitet) record;
+                    String kommuneKode = lokalitet.get("kommuneKode");
+                    String vejKode = lokalitet.get("vejKode");
+                    String husKode = lokalitet.get("husNr");
+
+                    HusnummerEntity husNummerEntity = created.get(kommuneKode, vejKode, husKode);
+                    if (husNummerEntity == null) {
+                        husNummerEntity = new HusnummerEntity();
+                        husNummerEntity.setHusnummerbetegnelse(husKode);
+                        // find NavngivenVej med kommuneKode og vejKode i databasen
+                        // husNummerEntity.setNavngivenVej();
+                        created.put(kommuneKode, vejKode, husKode, husNummerEntity);
+                    }
+                    AdresseEntity adresseEntity = new AdresseEntity();
+                    adresseEntity.setDoerbetegnelse(lokalitet.get("sidedoer"));
+                    adresseEntity.setEtagebetegnelse(lokalitet.get("etage"));
+                    adresseEntity.setHusnummer(husNummerEntity);
+                    // Gem adresseEntity i databasen
+                }
+            }
+        } catch (Exception e) {
+        }
+    }
+
     public static void main(String[] args) {
-        new LokalitetsRegister(null).pull();
+        LokalitetsRegister register = new LokalitetsRegister(null);
+        register.pull();
         System.out.println("Finished");
     }
 }

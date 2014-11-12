@@ -1,6 +1,7 @@
 package dk.magenta.databroker.cprvejregister.model;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Collection;
 
 /**
@@ -8,7 +9,7 @@ import java.util.Collection;
  */
 @Entity
 @Table(name = "kommune")
-public class KommuneEntity {
+public class KommuneEntity implements Serializable {
     private int kommuneId;
     private int kommunekode;
     private String navn;

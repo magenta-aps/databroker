@@ -11,6 +11,7 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
+import java.util.Date;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -65,6 +66,7 @@ public abstract class CprRegister extends DataProvider {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputstream, encoding.toUpperCase()));
 
                 System.out.println("Reading data");
+                Date startTime = new Date();
                 int i=0, j=0;
                 for (String line = reader.readLine(); line != null; line = reader.readLine()) {
                     if (line != null) {
@@ -84,7 +86,7 @@ public abstract class CprRegister extends DataProvider {
                         i=0;
                     }
                 }
-                System.out.println("    parsed "+(j*100000 + i)+" entries");
+                System.out.println("    parsed "+(j*100000 + i)+" entries in "+(0.001 * (new Date().getTime() - startTime.getTime())) +" seconds");
                 System.out.println("Input parsed, making sense of it...");
 
                 //System.out.println(run.toJSON().toString(2));

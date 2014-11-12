@@ -1,16 +1,30 @@
 package dk.magenta.databroker.cprvejregister.dataproviders;
 
+import dk.magenta.databroker.Application;
 import dk.magenta.databroker.core.model.DataProviderEntity;
+import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.Level2Container;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
+import dk.magenta.databroker.cprvejregister.model.KommuneEntity;
+import dk.magenta.databroker.cprvejregister.model.KommuneRepository;
+import org.apache.cxf.service.invoker.SessionFactory;
+import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.support.AbstractApplicationContext;
 //import dk.magenta.databroker.models.adresser.Kommune;
 
+import javax.persistence.EntityManager;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created by lars on 04-11-14.
  */
+@SpringApplicationConfiguration(classes = Application.class)
 public class MyndighedsRegister extends CprRegister {
 
     public abstract class MyndighedsDataRecord extends Record {
@@ -68,7 +82,50 @@ public class MyndighedsRegister extends CprRegister {
         }
     }
 
+    //------------------------------------------------------------------------------------------------------------------
 
+    public class MyndighedsRegisterRun extends RegisterRun {
+
+        private Level2Container<Myndighed> myndigheder;
+        public MyndighedsRegisterRun() {
+            super();
+            this.myndigheder = new Level2Container<Myndighed>();
+        }
+        public void saveRecord(Record record) {
+            if (record.getRecordType().equals(MyndighedsDataRecord.RECORDTYPE_MYNDIGHED)) {
+                this.saveRecord((Myndighed) record);
+            }
+        }
+        public void saveRecord(Myndighed myndighed) {
+            super.saveRecord(myndighed);
+            String myndighedsType = myndighed.get("myndighedsType");
+            String myndighedsKode = myndighed.get("myndighedsKode");
+            if (!myndigheder.put(myndighedsType, myndighedsKode, myndighed, true)) {
+                System.out.println("Collision on myndighedsType "+myndighedsType+", myndighedsKode "+myndighedsKode+" ("+myndigheder.get(myndighedsType, myndighedsKode).get("myndighedsNavn")+" vs "+myndighed.get("myndighedsNavn")+")");
+            }
+        }
+
+        public Myndighed getMyndighed(String myndighedsType, String myndighedsKode) {
+            return this.myndigheder.get(myndighedsType, myndighedsKode);
+        }
+        public List<Myndighed> getMyndigheder(String myndighedsType) {
+            return this.myndigheder.getList(myndighedsType);
+        }
+        public Set<String> getMyndighedsTyper() {
+            return this.myndigheder.keySet();
+        }
+        public Set<String> getMyndighedsKoder(String myndighedsType) {
+            if (this.myndigheder.containsKey(myndighedsType)) {
+                return this.myndigheder.get(myndighedsType).keySet();
+            }
+            return null;
+        }
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+    //@SuppressWarnings("SpringJavaAutowiringInspection")
+    //@Autowired
+    //private KommuneRepository kommuneRepository;
 
     public MyndighedsRegister(DataProviderEntity dbObject) {
         super(dbObject);
@@ -76,6 +133,9 @@ public class MyndighedsRegister extends CprRegister {
 
     public URL getRecordUrl() throws MalformedURLException {
         return new URL("https://cpr.dk/media/219468/a370716.txt");
+    }
+    protected RegisterRun createRun() {
+        return new MyndighedsRegisterRun();
     }
 
     protected Record parseTrimmedLine(String recordType, String line) {
@@ -98,26 +158,15 @@ public class MyndighedsRegister extends CprRegister {
     }
 
     protected void saveRunToDatabase(RegisterRun run) {
-        /*for (Record record : run.getByType(MyndighedsDataRecord.RECORDTYPE_MYNDIGHED)) {
-            Myndighed myndighed = (Myndighed) record;
-            System.out.println("For myndighed (myndighedsNavn:"+myndighed.get("myndighedsNavn")+", myndighedsKode:"+myndighed.get("myndighedsKode")+", myndighedsType: "+myndighed.get("myndighedsType")+") findes relationerne:");
-
-            String myndighedsKode = myndighed.get("myndighedsKode");
-            List<Record> relations = run.findRecord("KommuneRelation", "myndighedsKode", myndighedsKode);
-            if (relations != null) {
-                for (Record r : relations) {
-                    System.out.println("    kommuneKode: " + r.get("kommuneKode")+", myndighedsKode:"+r.get("myndighedsKode")+", myndighedsType: "+r.get("myndighedsType"));
-                }
-            }
-        }*/
-        /*List<Record> relations = run.findRecord("Myndighed", "myndighedsType", "05"); // hvis vi ikke har yderligere brug for lookups, flyt dette til pull() og gem data efterhånden som vi parser
-        if (relations != null) {
-            for (Record r : relations) {
-                System.out.println("Kommune(" + r.get("myndighedsKode")+", " + r.get("myndighedsNavn")+")");
-                Kommune kommune = new Kommune(Integer.parseInt(r.get("myndighedsKode")), r.get("myndighedsNavn"));
-                // Vi har nu skabt en Kommune-instans. Gem den somehow
-            }
-        }*/
+        MyndighedsRegisterRun mrun = (MyndighedsRegisterRun) run;
+        List<Myndighed> kommuner = mrun.getMyndigheder("05");
+        for (Myndighed kommune : kommuner) {
+            KommuneEntity kommuneEntity = new KommuneEntity();
+            kommuneEntity.setNavn(kommune.get("myndighedsNavn"));
+            kommuneEntity.setKommunekode(Integer.parseInt(kommune.get("myndighedsKode")));
+            // Vi har nu skabt en Kommune-instans. Gem den somehow
+            //this.kommuneRepository.save(kommuneEntity);
+        }
     }
 
     public static void main(String[] args) {

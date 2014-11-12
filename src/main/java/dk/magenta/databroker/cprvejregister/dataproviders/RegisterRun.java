@@ -24,7 +24,7 @@ public class RegisterRun {
     }
 
     public void saveRecord(Record record) {
-        //this.allRecords.add(record);
+        this.allRecords.add(record);
     }
 
 /*
