@@ -18,7 +18,7 @@ public class KommuneEntity implements Serializable {
     private Collection<ReserveretVejnavnEntity> reserveredeVejnavne;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "kommune_id", nullable = false, insertable = false, updatable = false)
     public int getKommuneId() {
         return kommuneId;

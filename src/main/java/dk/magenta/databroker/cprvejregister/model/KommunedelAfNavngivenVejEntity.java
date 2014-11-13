@@ -17,7 +17,7 @@ public class KommunedelAfNavngivenVejEntity {
     private Collection<ReserveretUligeHusnrIntervalEntity> reserveredeUligeHusnrIntervaller;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "kommunedel_af_navngiven_vej_id", nullable = false, insertable = true, updatable = true)
     public int getId() {
         return id;

@@ -23,7 +23,7 @@ public class NavngivenVejEntity {
     private Collection<VejnavneforslagEntity> vejnavneforslag;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "navngiven_vej_id", nullable = false, insertable = true, updatable = true)
     public int getId() {
         return id;
@@ -155,7 +155,7 @@ public class NavngivenVejEntity {
     }
 
     @OneToOne
-    @JoinColumn(name = "vejnavneomraade_id", referencedColumnName = "vejnavneomraade_id", nullable = false)
+    @JoinColumn(name = "vejnavneomraade_id", referencedColumnName = "vejnavneomraade_id", nullable = true)
     public VejnavneomraadeEntity getVejnavneomraade() {
         return vejnavneomraade;
     }
