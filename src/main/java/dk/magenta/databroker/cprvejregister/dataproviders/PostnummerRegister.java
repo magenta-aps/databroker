@@ -4,10 +4,13 @@ import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.Level1Container;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.Record;
 import dk.magenta.databroker.cprvejregister.model.PostnummerEntity;
+import dk.magenta.databroker.cprvejregister.model.PostnummerRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
+import java.util.*;
 
 /**
  * Created by lars on 04-11-14.
@@ -34,6 +37,36 @@ public class PostnummerRegister extends CprRegister {
         }
     }
 
+
+    public class PostnummerRegisterRun extends RegisterRun {
+
+        private HashMap<Integer, String> postdistrikter;
+
+        public PostnummerRegisterRun() {
+            super();
+            this.postdistrikter = new HashMap<Integer, String>();
+        }
+
+        public void saveRecord(Record record) {
+            if (record.getRecordType().equals(PostNummer.RECORDTYPE_POSTNUMMER)) {
+                this.saveRecord((PostNummer) record);
+            }
+        }
+
+        public void saveRecord(PostNummer postnummer) {
+            super.saveRecord(postnummer);
+            String nummer = postnummer.get("postNr");
+            if (nummer != null) {
+                this.postdistrikter.put(Integer.parseInt(nummer, 10), postnummer.get("postDistriktTekst"));
+            }
+        }
+
+        public HashMap<Integer, String> getPostdistrikter() {
+            return this.postdistrikter;
+        }
+    }
+
+
     public PostnummerRegister(DataProviderEntity dbObject) {
         super(dbObject);
     }
@@ -41,6 +74,11 @@ public class PostnummerRegister extends CprRegister {
     public URL getRecordUrl() throws MalformedURLException {
         return new URL("https://cpr.dk/media/152114/a370712.txt");
     }
+
+    protected RegisterRun createRun() {
+        return new PostnummerRegisterRun();
+    }
+
 
     protected Record parseTrimmedLine(String recordType, String line) {
         Record r = super.parseTrimmedLine(recordType, line);
@@ -57,21 +95,43 @@ public class PostnummerRegister extends CprRegister {
         return null;
     }
 
-    protected void saveRunToDatabase(RegisterRun run) {
-        Level1Container<PostnummerEntity> created = new Level1Container<PostnummerEntity>();
-        for (Record record : run.getAll()) {
-            if (record.getRecordType().equals(PostNummer.RECORDTYPE_POSTNUMMER)) {
-                PostNummer postnummer = (PostNummer) record;
-                String nummer = postnummer.get("postNr");
-                String navn = postnummer.get("postDistriktTekst");
-                if (!created.containsKey(nummer)) {
-                    PostnummerEntity postnummerEntity = new PostnummerEntity();
-                    postnummerEntity.setNummer(Integer.parseInt(nummer));
-                    postnummerEntity.setNavn(navn);
-                    created.put(nummer, postnummerEntity);
-                }
-            }
+    protected void saveRunToDatabase(RegisterRun run, Map<String, JpaRepository> repositories) {
+        PostnummerRepository postnummerRepository = (PostnummerRepository) repositories.get("postnummerRepository");
+        PostnummerRegisterRun prun = (PostnummerRegisterRun) run;
+
+        if (postnummerRepository == null) {
+            System.err.println("Insufficient repositories");
+            return;
         }
+
+        System.out.println("Storing PostnummerEntities in database");
+
+        Map<Integer, String> postDistrikter = prun.getPostdistrikter();
+        for (Integer nummer : postDistrikter.keySet()) {
+            String navn = postDistrikter.get(nummer);
+            PostnummerEntity postnummerEntity = postnummerRepository.findByNummer(nummer);
+            boolean updatePostnummerEntity = false;
+            if (postnummerEntity == null) {
+                postnummerEntity = new PostnummerEntity();
+                postnummerEntity.setNummer(nummer);
+                updatePostnummerEntity = true;
+                this.countCreatedItem();
+            }
+            if (!navn.equals(postnummerEntity.getNavn())) {
+                postnummerEntity.setNavn(navn);
+                if (!updatePostnummerEntity) {
+                    countUpdatedItem();
+                }
+                updatePostnummerEntity = true;
+            }
+            if (updatePostnummerEntity) {
+                postnummerRepository.saveAndFlush(postnummerEntity);
+            }
+            this.printInputProcessed();
+        }
+        this.printFinalInputsProcessed();
+        System.out.println("Stored PostnummerEntities in database:");
+        this.printModifications();
     }
 
     public static void main(String[] args) {

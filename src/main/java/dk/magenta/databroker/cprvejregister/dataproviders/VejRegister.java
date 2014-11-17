@@ -5,6 +5,7 @@ import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.Record;
 import dk.magenta.databroker.cprvejregister.model.*;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -315,19 +316,7 @@ public class VejRegister extends CprRegister {
         public void setAktiveVeje(Level2Container<AktivVej> aktiveVeje) {
             this.aktiveVeje = aktiveVeje;
         }
-/*
-        public VejRegister.AktivVej getAktivVej(String kommuneKode, String vejKode) {
-            return this.aktiveVeje.get(kommuneKode, vejKode);
-        }
-        public Set<Integer> getKommuneKoder() {
-            return (Set<String>) this.aktiveVeje.keySet();
-        }
-        public Set<String> getVejKoder(String kommuneKode) {
-            if (this.aktiveVeje.containsKey(kommuneKode)) {
-                return this.aktiveVeje.get(kommuneKode).keySet();
-            }
-            return null;
-        }*/
+
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -408,96 +397,49 @@ public class VejRegister extends CprRegister {
         return null;
     }
 
-    protected void saveRunToDatabase(RegisterRun run, List<JpaRepository> repositories) {
+    protected void saveRunToDatabase(RegisterRun run, Map<String, JpaRepository> repositories) {
         try {
             VejRegisterRun vrun = (VejRegisterRun) run;
-            KommuneContainer created = new KommuneContainer();
 
+            KommunedelAfNavngivenVejRepository kommunedelAfNavngivenVejRepository = (KommunedelAfNavngivenVejRepository) repositories.get("kommunedelAfNavngivenVejRepository");
+            NavngivenVejRepository navngivenVejRepository = (NavngivenVejRepository) repositories.get("navngivenVejRepository");
+            KommuneRepository kommuneRepository = (KommuneRepository) repositories.get("kommuneRepository");
 
-            KommunedelAfNavngivenVejRepository kommunedelAfNavngivenVejRepository = null;
-            NavngivenVejRepository navngivenVejRepository = null;
-            KommuneRepository kommuneRepository = null;
-
-            for (JpaRepository repository : repositories) {
-                try {
-                    kommunedelAfNavngivenVejRepository = (KommunedelAfNavngivenVejRepository) repository;
-                    continue;
-                } catch (ClassCastException e) {}
-                try {
-                    navngivenVejRepository = (NavngivenVejRepository) repository;
-                    continue;
-                } catch (ClassCastException e) {}
-                try {
-                    kommuneRepository = (KommuneRepository) repository;
-                    continue;
-                } catch (ClassCastException e) {}
-            }
             if (kommunedelAfNavngivenVejRepository == null || navngivenVejRepository == null || kommuneRepository == null) {
                 System.err.println("Insufficient repositories");
                 return;
             }
+            System.out.println("Storing NavngivenvejEntities and KommunedelAfNavngivenvejEntries in database");
 
-            List<KommuneEntity> existingList = kommuneRepository.findAll();
-            HashMap<Integer, KommuneEntity> kommuneMap = new HashMap<Integer,KommuneEntity>();
-            for (KommuneEntity entity : existingList) {
-                kommuneMap.put(entity.getKommunekode(), entity);
-            }
-
-            List<KommunedelAfNavngivenVejEntity> kmdVejEntities = kommunedelAfNavngivenVejRepository.findAll();
-            Level2Container<KommunedelAfNavngivenVejEntity> existingKmdVejMap = new Level2Container<KommunedelAfNavngivenVejEntity>();
-            for (KommunedelAfNavngivenVejEntity entity : kmdVejEntities) {
-                existingKmdVejMap.put(""+entity.getKommune().getKommunekode(), ""+entity.getVejkode(), entity);
-            }
-
-
-            ArrayList<ArrayList<KommunedelAfNavngivenVejEntity>> delvejEntities = new ArrayList<ArrayList<KommunedelAfNavngivenVejEntity>>();
-            ArrayList<ArrayList<NavngivenVejEntity>> navngivenVejEntities = new ArrayList<ArrayList<NavngivenVejEntity>>();
-
-            ArrayList<KommunedelAfNavngivenVejEntity> currentDelvejEntities = new ArrayList<KommunedelAfNavngivenVejEntity>();
-            delvejEntities.add(currentDelvejEntities);
-
-            ArrayList<NavngivenVejEntity> currentVejEntities = new ArrayList<NavngivenVejEntity>();
-            navngivenVejEntities.add(currentVejEntities);
+            SegmentedList<KommunedelAfNavngivenVejEntity> delvejEntities = new SegmentedList<KommunedelAfNavngivenVejEntity>(10000);
+            //SegmentedList<NavngivenVejEntity> navngivenVejEntities = new SegmentedList<NavngivenVejEntity>(10000);
 
             Level2Container<AktivVej> aktiveVeje = vrun.getAktiveVeje();
+
             for (String kommuneKode : aktiveVeje.keySet()) {
                 for (String vejKode : aktiveVeje.get(kommuneKode).keySet()) {
                     AktivVej aktivVej = aktiveVeje.get(kommuneKode, vejKode);
                     if (aktivVej != null) {
                         int vKode = Integer.parseInt(vejKode, 10);
                         int kKode = Integer.parseInt(kommuneKode, 10);
-                        KommunedelAfNavngivenVejEntity delvejEntity = existingKmdVejMap.get("" + kKode, "" + vKode);
-                        boolean changedDelvej = false;
 
-                        if (delvejEntity == null) {
-                            delvejEntity = new KommunedelAfNavngivenVejEntity();
-                            delvejEntity.setVejkode(vKode);
-                            delvejEntity.setKommune(kommuneMap.get(kKode));
-                            changedDelvej = true;
-                        }
+                        KommuneEntity kommune = kommuneRepository.findByKommunekode(kKode);
 
-                        created.put(kommuneKode, vejKode, delvejEntity);
-
-
-                   /* }
-                }
-            }
-
-            System.out.println("hephey 2");
-
-            for (String kommuneKode : aktiveVeje.keySet()) {
-                for (String vejKode : aktiveVeje.get(kommuneKode).keySet()) {
-                    AktivVej aktivVej = aktiveVeje.get(kommuneKode, vejKode);
-                    if (aktivVej != null) {*/
-                        //int kKode = Integer.parseInt(kommuneKode, 10);
-
-
-                        KommuneEntity kommune = kommuneMap.get(kKode);
                         if (kommune == null) {
                             System.out.println("Kommune with id "+kKode+" ("+kommuneKode+") not found for vej "+aktivVej.get("vejNavn"));
                         } else {
 
-                            //KommunedelAfNavngivenVejEntity delvejEntity = created.get(kommuneKode, vejKode);
+                            KommunedelAfNavngivenVejEntity delvejEntity = kommunedelAfNavngivenVejRepository.findByKommunekodeAndVejkode(kKode, vKode);
+
+                            boolean updatedDelvej = false;
+
+                            if (delvejEntity == null) {
+                                delvejEntity = new KommunedelAfNavngivenVejEntity();
+                                delvejEntity.setVejkode(vKode);
+                                delvejEntity.setKommune(kommune);
+                                this.countCreatedItem();
+                                updatedDelvej = true;
+                            }
 
                             NavngivenVejEntity navngivenVejEntity = delvejEntity.getNavngivenVej();
 
@@ -508,7 +450,7 @@ public class VejRegister extends CprRegister {
                                     if (!fraVejKode.isEmpty() && !fraVejKode.equals("0000")) {
                                         AktivVej other = aktiveVeje.get(fraKommuneKode, fraVejKode);
                                         if (other != null) {
-                                            KommunedelAfNavngivenVejEntity andenVejEntity = created.get(fraKommuneKode, fraVejKode);
+                                            KommunedelAfNavngivenVejEntity andenVejEntity = kommunedelAfNavngivenVejRepository.findByKommunekodeAndVejkode(Integer.parseInt(fraKommuneKode, 10), Integer.parseInt(fraVejKode, 10));
                                             if (andenVejEntity != null) {
                                                 navngivenVejEntity = andenVejEntity.getNavngivenVej();
                                             }
@@ -526,7 +468,7 @@ public class VejRegister extends CprRegister {
                                     if (!tilVejKode.isEmpty() && !tilVejKode.equals("0000")) {
                                         AktivVej other = aktiveVeje.get(tilKommuneKode, tilVejKode);
                                         if (other != null) {
-                                            KommunedelAfNavngivenVejEntity andenVejEntity = created.get(tilKommuneKode, tilVejKode);
+                                            KommunedelAfNavngivenVejEntity andenVejEntity = kommunedelAfNavngivenVejRepository.findByKommunekodeAndVejkode(Integer.parseInt(tilKommuneKode, 10), Integer.parseInt(tilVejKode, 10));
                                             if (andenVejEntity != null) {
                                                 navngivenVejEntity = andenVejEntity.getNavngivenVej();
                                             }
@@ -543,75 +485,35 @@ public class VejRegister extends CprRegister {
                                 navngivenVejEntity.setVejaddresseringsnavn(aktivVej.get("vejAdresseringsnavn"));
                                 navngivenVejEntity.setAnsvarligKommune(kommune);
                                 navngivenVejEntity.setNavngivenVejUuid(UUID.randomUUID().toString());
-
-                                if (currentVejEntities.size() >= 10000) {
-                                    currentVejEntities = new ArrayList<NavngivenVejEntity>();
-                                    navngivenVejEntities.add(currentVejEntities);
-                                }
-
-                                currentVejEntities.add(navngivenVejEntity);
-                            }
-
-
-                            if (currentDelvejEntities.size() >= 10000) {
-                                currentDelvejEntities = new ArrayList<KommunedelAfNavngivenVejEntity>();
-                                delvejEntities.add(currentDelvejEntities);
+                                //navngivenVejEntities.addItem(navngivenVejEntity);
+                                navngivenVejRepository.saveAndFlush(navngivenVejEntity);
                             }
 
                             if (delvejEntity.getNavngivenVej() == null || !delvejEntity.getNavngivenVej().equals(navngivenVejEntity)) {
                                 delvejEntity.setNavngivenVej(navngivenVejEntity);
-                                changedDelvej = true;
+                                if (!updatedDelvej) {
+                                    this.countUpdatedItem();
+                                    updatedDelvej = true;
+                                }
                             }
-                            if (changedDelvej) {
-                                currentDelvejEntities.add(delvejEntity);
+
+                            if (updatedDelvej) {
+                                kommunedelAfNavngivenVejRepository.saveAndFlush(delvejEntity);
                             }
                         }
+                        this.printInputProcessed();
                     } else {
                         System.out.println("NULL road at kommuneKode: "+kommuneKode+", vejKode: "+vejKode);
                     }
                 }
             }
 
-            System.out.println("Saving NavngivenvejEntities to database");
-            int i = 0;
-            for (List<NavngivenVejEntity> current : navngivenVejEntities) {
-                navngivenVejRepository.save(current);
-                navngivenVejRepository.flush();
-                i += current.size();
-                System.out.println("    saved "+i+" entities");
-            }
-
-            System.out.println("Saving KommunedelAfNavngivenVejEntities to database");
-            i = 0;
-            for (List<KommunedelAfNavngivenVejEntity> current : delvejEntities) {
-                kommunedelAfNavngivenVejRepository.save(current);
-                kommunedelAfNavngivenVejRepository.flush();
-                i += current.size();
-                System.out.println("    saved "+i+" entities");
-            }
+            this.printFinalInputsProcessed();
+            System.out.println("Stored KommunedelAfNavngivenVejEntities to database:");
+            this.printModifications();
 
         } catch (ClassCastException e) {}
     }
-
-    protected void processRecord(Record record) {
-        if (record.getRecordType() == VejDataRecord.RECORDTYPE_AKTVEJ) {
-            AktivVej vej = (AktivVej) record;
-            //System.out.println("AktivVej("+vej.get("vejNavn")+")");
-            //Registrering registrering = new Registrering();
-            //Virkning virkning = new Virkning();
-            //Vejnavneomraade vejnavneomraade = new Vejnavneomraade();
-            //String navngivenVejUuid = UUID.randomUUID().toString();
-            //Kommune kommune = this.findKommune(1234);
-            //System.out.println("NavngivenVej("+registrering+", "+virkning+", "+kommune+", "+vejnavneomraade+", "+navngivenVejUuid+")");
-            //NavngivenVej vej = new NavngivenVej(registrering, virkning, kommune, vejnavneomraade, navngivenVejUuid);
-            // Vi har nu skabt en NavngivenVej-instans. Gem den somehow
-        }
-    }
-
-    /*private Kommune findKommune(int kommuneKode) {
-        //this.getDbObject().
-        return null;
-    }*/
 
     public static void main(String[] args) {
         new VejRegister(null).pull();

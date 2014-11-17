@@ -67,7 +67,7 @@ public class KommunedelAfNavngivenVejEntity {
         this.navngivenVej = navngivenVej;
     }
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "kommune_id", referencedColumnName = "kommune_id", nullable = false)
     public KommuneEntity getKommune() {
         return kommune;

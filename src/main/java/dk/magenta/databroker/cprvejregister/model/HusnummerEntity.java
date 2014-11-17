@@ -17,6 +17,7 @@ public class HusnummerEntity {
     private AdgangspunktEntity tilknyttetAdgangspunkt;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "husnummer_id", nullable = false, insertable = true, updatable = true)
     public int getId() {
         return id;
@@ -79,7 +80,7 @@ public class HusnummerEntity {
         this.adresser = adresser;
     }
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "navngiven_vej_id", referencedColumnName = "navngiven_vej_id", nullable = false)
     public NavngivenVejEntity getNavngivenVej() {
         return navngivenVej;
@@ -89,8 +90,8 @@ public class HusnummerEntity {
         this.navngivenVej = navngivenVej;
     }
 
-    @ManyToOne
-    @JoinColumn(name = "tilknyttet_adgangspunkt_id", referencedColumnName = "adgangspunkt_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tilknyttet_adgangspunkt_id", referencedColumnName = "adgangspunkt_id", nullable = true)
     public AdgangspunktEntity getTilknyttetAdgangspunkt() {
         return tilknyttetAdgangspunkt;
     }

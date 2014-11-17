@@ -4,11 +4,11 @@ import dk.magenta.databroker.Application;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.core.model.DataProviderRepository;
 import dk.magenta.databroker.core.testmodel.TestAddressRepository;
+import dk.magenta.databroker.cprvejregister.dataproviders.LokalitetsRegister;
 import dk.magenta.databroker.cprvejregister.dataproviders.MyndighedsRegister;
+import dk.magenta.databroker.cprvejregister.dataproviders.PostnummerRegister;
 import dk.magenta.databroker.cprvejregister.dataproviders.VejRegister;
-import dk.magenta.databroker.cprvejregister.model.KommuneRepository;
-import dk.magenta.databroker.cprvejregister.model.KommunedelAfNavngivenVejRepository;
-import dk.magenta.databroker.cprvejregister.model.NavngivenVejRepository;
+import dk.magenta.databroker.cprvejregister.model.*;
 import org.json.JSONArray;
 
 
@@ -22,6 +22,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import static org.junit.Assert.assertTrue;
 
@@ -38,28 +39,71 @@ public class VejregisterTest {
     @Autowired
     private KommuneRepository kommuneRepository;
 
+    public KommuneRepository getKommuneRepository() {
+        return kommuneRepository;
+    }
+
     @Autowired
     private KommunedelAfNavngivenVejRepository kommunedelAfNavngivenVejRepository;
+
+    public KommunedelAfNavngivenVejRepository getKommunedelAfNavngivenVejRepository() {
+        return kommunedelAfNavngivenVejRepository;
+    }
 
     @Autowired
     private NavngivenVejRepository navngivenVejRepository;
 
+    public NavngivenVejRepository getNavngivenVejRepository() {
+        return navngivenVejRepository;
+    }
+
+    @Autowired
+    private HusnummerRepository husnummerRepository;
+
+    public HusnummerRepository getHusnummerRepository() {
+        return husnummerRepository;
+    }
+
+    @Autowired
+    private AdresseRepository adresseRepository;
+
+    public AdresseRepository getAdresseRepository() {
+        return adresseRepository;
+    }
+
+    @Autowired
+    private PostnummerRepository postnummerRepository;
+
+    public PostnummerRepository getPostnummerRepository() {
+        return postnummerRepository;
+    }
 
     public VejregisterTest(){
     }
     @Test
     public void testVejregister() {
 
-        ArrayList<JpaRepository> repositories = new ArrayList<JpaRepository>();
-        repositories.add(this.kommuneRepository);
-        repositories.add(this.kommunedelAfNavngivenVejRepository);
-        repositories.add(this.navngivenVejRepository);
+        HashMap<String, JpaRepository> repositories = new HashMap<String, JpaRepository>();
+        repositories.put("kommuneRepository", this.kommuneRepository);
+        repositories.put("kommunedelAfNavngivenVejRepository", this.kommunedelAfNavngivenVejRepository);
+        repositories.put("navngivenVejRepository", this.navngivenVejRepository);
+        repositories.put("husnummerRepository", this.husnummerRepository);
+        repositories.put("adresseRepository", this.adresseRepository);
+        repositories.put("postnummerRepository", this.postnummerRepository);
 
         MyndighedsRegister myndighedsregister = new MyndighedsRegister(new DataProviderEntity());
-        myndighedsregister.pull(kommuneRepository);
+        myndighedsregister.pull(repositories);
 
         VejRegister vejregister = new VejRegister(new DataProviderEntity());
         vejregister.pull(repositories);
+/*
+        LokalitetsRegister lokalitetsregister = new LokalitetsRegister(new DataProviderEntity());
+        lokalitetsregister.pull(repositories);
+
+        PostnummerRegister postnummerRegister = new PostnummerRegister(new DataProviderEntity());
+        postnummerRegister.pull(repositories);
+*/
+
 
 /*
         String sampleData = "00037071520141031\n" +

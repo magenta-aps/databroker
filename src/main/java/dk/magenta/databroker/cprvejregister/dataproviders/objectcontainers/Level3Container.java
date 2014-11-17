@@ -51,4 +51,12 @@ public class Level3Container<T> extends HashMap<String, Level2Container<T>> {
         list.addAll(this.get(ident3).getList(ident2));
         return list;
     }
+
+    public int totalSize() {
+        int count = 0;
+        for (String key : this.keySet()) {
+            count += this.get(key).totalSize();
+        }
+        return count;
+    }
 }

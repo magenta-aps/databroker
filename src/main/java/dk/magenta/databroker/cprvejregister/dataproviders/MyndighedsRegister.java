@@ -21,6 +21,7 @@ import java.net.URL;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -159,42 +160,39 @@ public class MyndighedsRegister extends CprRegister {
         return null;
     }
 
-    protected void saveRunToDatabase(RegisterRun run, JpaRepository repository) {
-        System.out.println("Storing Kommune entries in database");
+    protected void saveRunToDatabase(RegisterRun run, Map<String, JpaRepository> repositories) {
+        this.saveRunToDatabase(run, (KommuneRepository) repositories.get("kommuneRepository"));
+    }
+
+    protected void saveRunToDatabase(RegisterRun run, KommuneRepository repository) {
+        if (repository == null) {
+            System.err.println("Insufficient repositories");
+            return;
+        }
+        System.out.println("Storing KommuneEntities in database");
         MyndighedsRegisterRun mrun = (MyndighedsRegisterRun) run;
         List<Myndighed> kommuner = mrun.getMyndigheder("05");
-        KommuneRepository kommuneRepository = (KommuneRepository) repository;
 
-        List<KommuneEntity> existingList = kommuneRepository.findAll();
-        HashMap<Integer, KommuneEntity> existingMap = new HashMap<Integer,KommuneEntity>();
-        for (KommuneEntity entity : existingList) {
-            existingMap.put(entity.getKommunekode(), entity);
-        }
-
-        int createdCount = 0;
-        int updatedCount = 0;
         for (Myndighed kommune : kommuner) {
             int kommuneKode = Integer.parseInt(kommune.get("myndighedsKode"));
             String kommuneNavn = kommune.get("myndighedsNavn");
-            KommuneEntity kommuneEntity = existingMap.get(kommuneKode);
+            KommuneEntity kommuneEntity = repository.findByKommunekode(kommuneKode);
             if (kommuneEntity == null) {
                 kommuneEntity = new KommuneEntity();
                 kommuneEntity.setKommunekode(kommuneKode);
                 kommuneEntity.setNavn(kommuneNavn);
-                createdCount++;
+                this.countCreatedItem();
             } else if (!kommuneEntity.getNavn().equals(kommuneNavn)) {
                 kommuneEntity.setNavn(kommuneNavn);
-                updatedCount++;
+                this.countUpdatedItem();
             }
-            kommuneRepository.save(kommuneEntity);
+            repository.save(kommuneEntity);
+            this.printInputProcessed();
         }
+        this.printFinalInputsProcessed();
         repository.flush();
-        System.out.println("Stored Kommune entries in database:");
-        if (createdCount>0 || updatedCount>0) {
-            System.out.println("    " + createdCount + " new entries created\n    " + updatedCount + " existing entries updated");
-        } else {
-            System.out.println("    no changes necessary; old dataset matches new dataset");
-        }
+        System.out.println("Stored KommuneEntities in database:");
+        this.printModifications();
     }
 
     public static void main(String[] args) {

@@ -22,6 +22,7 @@ public class AdgangspunktEntity {
     private Collection<HusnummerEntity> husnumre;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "adgangspunkt_id", nullable = false, insertable = true, updatable = true)
     public int getId() {
         return id;
@@ -112,7 +113,7 @@ public class AdgangspunktEntity {
         return result;
     }
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ligger_i_postnummer_id", referencedColumnName = "postnummer_id", nullable = false)
     public PostnummerEntity getLiggerIPostnummer() {
         return liggerIPostnummer;
@@ -122,7 +123,7 @@ public class AdgangspunktEntity {
         this.liggerIPostnummer = liggerIPostnummer;
     }
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "position_id", referencedColumnName = "iso_point_id", nullable = false)
     public ISOpointEntity getPosition() {
         return position;
@@ -132,7 +133,7 @@ public class AdgangspunktEntity {
         this.position = position;
     }
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "adgangspunktsretning_id", referencedColumnName = "iso_point_id", nullable = false)
     public ISOpointEntity getAdgangspunktsretning() {
         return adgangspunktsretning;
@@ -142,7 +143,7 @@ public class AdgangspunktEntity {
         this.adgangspunktsretning = adgangspunktsretning;
     }
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "husnummerretning_id", referencedColumnName = "iso_point_id", nullable = false)
     public ISOpointEntity getHusnummerretning() {
         return husnummerretning;

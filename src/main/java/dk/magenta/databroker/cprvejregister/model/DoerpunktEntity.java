@@ -18,6 +18,7 @@ public class DoerpunktEntity {
     private ISOpointEntity position;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "doerpunkt_id", nullable = false, insertable = true, updatable = true)
     public int getId() {
         return id;
@@ -105,7 +106,7 @@ public class DoerpunktEntity {
         this.adresser = adresser;
     }
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "position_id", referencedColumnName = "iso_point_id", nullable = false)
     public ISOpointEntity getPosition() {
         return position;

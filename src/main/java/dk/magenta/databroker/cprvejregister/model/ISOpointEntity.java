@@ -14,6 +14,7 @@ public class ISOpointEntity {
     private Double z;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "iso_point_id", nullable = false, insertable = true, updatable = true)
     public int getId() {
         return id;

@@ -20,6 +20,7 @@ public class VejnavneomraadeEntity {
     private ISOpointEntity vejtilslutningspunkt;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "vejnavneomraade_id", nullable = false, insertable = true, updatable = true)
     public int getVejnavneomraadeId() {
         return vejnavneomraadeId;
@@ -133,7 +134,7 @@ public class VejnavneomraadeEntity {
         this.navngivneVeje = navngivneVeje;
     }
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vejtilslutningspunkt_id", referencedColumnName = "iso_point_id", nullable = false)
     public ISOpointEntity getVejtilslutningspunkt() {
         return vejtilslutningspunkt;

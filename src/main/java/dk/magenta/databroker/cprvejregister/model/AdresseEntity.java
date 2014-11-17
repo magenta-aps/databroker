@@ -17,6 +17,7 @@ public class AdresseEntity {
     private DoerpunktEntity doerpunkt;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "adresse_id", nullable = false, insertable = true, updatable = true)
     public int getId() {
         return id;
@@ -94,7 +95,7 @@ public class AdresseEntity {
         return result;
     }
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "husnummer_id", referencedColumnName = "husnummer_id", nullable = false)
     public HusnummerEntity getHusnummer() {
         return husnummer;
@@ -104,7 +105,7 @@ public class AdresseEntity {
         this.husnummer = husnummer;
     }
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "doerpunkt_id", referencedColumnName = "doerpunkt_id")
     public DoerpunktEntity getDoerpunkt() {
         return doerpunkt;

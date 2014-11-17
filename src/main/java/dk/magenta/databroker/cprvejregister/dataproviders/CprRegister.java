@@ -37,19 +37,13 @@ public abstract class CprRegister extends DataProvider {
 
     }
 
-    public void pull(JpaRepository repository) {
-        ArrayList<JpaRepository> repositories = new ArrayList<JpaRepository>();
-        repositories.add(repository);
-        this.pull(repositories);
-    }
-
-        public void pull(List<JpaRepository> repositories) {
+    public void pull(Map<String, JpaRepository> repositories) {
         System.out.println("Pulling...");
         try {
             RegisterRun run = this.createRun();
             URL url = this.getRecordUrl();
             if (url != null) {
-                System.out.println("Loading data from "+url.toString());
+                System.out.println("Loading data from " + url.toString());
                 InputStream input = url.openStream();
 
                 if (url.getFile().endsWith(".zip")) {
@@ -68,21 +62,21 @@ public abstract class CprRegister extends DataProvider {
                 CharsetMatch match = detector.detect();
                 if (match != null) {
                     encoding = match.getName();
-                    System.out.println("Interpreting data as "+encoding);
+                    System.out.println("Interpreting data as " + encoding);
                 } else {
                     encoding = "UTF-8";
-                    System.out.println("Falling back to default encoding "+encoding);
+                    System.out.println("Falling back to default encoding " + encoding);
                 }
 
                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputstream, encoding.toUpperCase()));
 
                 System.out.println("Reading data");
                 Date startTime = new Date();
-                int i=0, j=0;
+                int i = 0, j = 0;
                 for (String line = reader.readLine(); line != null; line = reader.readLine()) {
                     if (line != null) {
                         line = line.trim();
-                        if (line.length()>3) {
+                        if (line.length() > 3) {
                             Record record = this.parseTrimmedLine(line.substring(0, 3), line);
                             if (record != null) {
                                 this.processRecord(record);
@@ -91,19 +85,18 @@ public abstract class CprRegister extends DataProvider {
                         }
                     }
                     i++;
-                    if (i>=100000) {
+                    if (i >= 100000) {
                         j++;
                         System.out.println("    parsed " + (j * i) + " entries");
-                        i=0;
+                        i = 0;
                     }
                 }
-                System.out.println("    parsed "+(j*100000 + i)+" entries in "+(0.001 * (new Date().getTime() - startTime.getTime())) +" seconds");
+                System.out.println("    parsed " + (j * 100000 + i) + " entries in " + (0.001 * (new Date().getTime() - startTime.getTime())) + " seconds");
                 System.out.println("Input parsed, making sense of it");
 
                 //System.out.println(run.toJSON().toString(2));
                 this.saveRunToDatabase(run, repositories);
-            }
-            else {
+            } else {
                 System.out.println("No url");
             }
         } catch (MalformedURLException e) {
@@ -111,6 +104,7 @@ public abstract class CprRegister extends DataProvider {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println("Pull complete");
     }
 
     protected Record parseTrimmedLine(String recordType, String line) {
@@ -130,10 +124,12 @@ public abstract class CprRegister extends DataProvider {
     protected void saveRunToDatabase(RegisterRun run) {
         // Override me
     }
+
     protected void saveRunToDatabase(RegisterRun run, JpaRepository repository) {
         // Override me
     }
-    protected void saveRunToDatabase(RegisterRun run, List<JpaRepository> repositories) {
+
+    protected void saveRunToDatabase(RegisterRun run, Map<String, JpaRepository> repositories) {
         // Override me if needed
         if (repositories.size() == 1) {
             this.saveRunToDatabase(run, repositories.get(0));
@@ -142,6 +138,52 @@ public abstract class CprRegister extends DataProvider {
 
     protected void processRecord(Record record) {
         // Override me
+    }
+
+
+    private int inputsProcessed = 0;
+    private int inputChunks = 0;
+
+    protected void printInputProcessed() {
+        this.inputsProcessed++;
+        if (this.inputsProcessed >= 1000) {
+            this.inputsProcessed = 0;
+            this.inputChunks++;
+            System.out.println("    " + (inputChunks * 1000) + " inputs processed");
+        }
+    }
+
+    protected void printFinalInputsProcessed() {
+        System.out.println("Processed " + this.inputsProcessed + " inputs");
+    }
+
+
+    private int itemsCreated = 0;
+    private int itemsUpdated = 0;
+
+    protected void countCreatedItem() {
+        this.itemsCreated++;
+    }
+
+    protected void countUpdatedItem() {
+        this.itemsUpdated++;
+    }
+
+    protected void printModifications() {
+        if (this.itemsCreated > 0 || this.itemsUpdated > 0) {
+            System.out.println("    " + this.itemsCreated + " new entries created\n    " + this.itemsUpdated + " existing entries updated");
+        } else {
+            System.out.println("    no changes necessary; old dataset matches new dataset");
+        }
+    }
+
+
+    private long ticTime = 0;
+    protected void tic() {
+        this.ticTime = new Date().getTime();
+    }
+    protected long toc() {
+        return new Date().getTime() - this.ticTime;
     }
 
 }

@@ -15,6 +15,7 @@ public class ReserveretLigeHusnrIntervalEntity {
     private KommunedelAfNavngivenVejEntity kommunedelAfNavngivenVej;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "reserveret_lige_husnr_interval_id", nullable = false, insertable = true, updatable = true)
     public int getId() {
         return id;
@@ -79,7 +80,7 @@ public class ReserveretLigeHusnrIntervalEntity {
         return result;
     }
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
             name = "kommunedel_af_navngiven_vej_id",
             referencedColumnName = "kommunedel_af_navngiven_vej_id",

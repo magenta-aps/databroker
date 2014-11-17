@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository;
  * Created by lars on 11-11-14.
  */
 public interface KommuneRepository extends JpaRepository<KommuneEntity, Long> {
+
+    public KommuneEntity findByKommunekode(int kommunekode);
 }

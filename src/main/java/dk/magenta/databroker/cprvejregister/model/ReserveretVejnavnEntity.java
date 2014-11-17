@@ -19,6 +19,7 @@ public class ReserveretVejnavnEntity {
     private KommuneEntity reserveretAfKommune;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "reserveret_vejnavn_id", nullable = false, insertable = true, updatable = true)
     public int getId() {
         return id;
@@ -122,7 +123,7 @@ public class ReserveretVejnavnEntity {
         return result;
     }
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reserveret_af_kommune_id", referencedColumnName = "kommune_id", nullable = false)
     public KommuneEntity getReserveretAfKommune() {
         return reserveretAfKommune;

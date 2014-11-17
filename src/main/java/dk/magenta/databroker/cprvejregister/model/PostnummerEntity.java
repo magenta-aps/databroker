@@ -15,6 +15,7 @@ public class PostnummerEntity {
     private Collection<AdgangspunktEntity> adgangspunkter;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "postnummer_id", nullable = false, insertable = true, updatable = true)
     public int getId() {
         return id;

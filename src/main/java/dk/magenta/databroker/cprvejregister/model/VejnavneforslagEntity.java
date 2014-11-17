@@ -13,6 +13,7 @@ public class VejnavneforslagEntity {
     private NavngivenVejEntity navngivenVej;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "vejnavneforslag_id", nullable = false, insertable = true, updatable = true)
     public int getId() {
         return id;
@@ -52,7 +53,7 @@ public class VejnavneforslagEntity {
         return result;
     }
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "navngiven_vej_id", referencedColumnName = "navngiven_vej_id", nullable = false)
     public NavngivenVejEntity getNavngivenVej() {
         return navngivenVej;
