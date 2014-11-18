@@ -21,11 +21,37 @@ import java.util.zip.ZipInputStream;
  */
 public abstract class CprRegister extends DataProvider {
 
+    protected class EntityModificationCounter {
+
+        private int itemsCreated = 0;
+        private int itemsUpdated = 0;
+
+        public void countCreatedItem() {
+            this.itemsCreated++;
+        }
+
+        public void countUpdatedItem() {
+            this.itemsUpdated++;
+        }
+
+        public void printModifications() {
+            if (this.itemsCreated > 0 || this.itemsUpdated > 0) {
+                System.out.println("    " + this.itemsCreated + " new entries created\n    " + this.itemsUpdated + " existing entries updated");
+            } else {
+                System.out.println("    no changes necessary; old dataset matches new dataset");
+            }
+        }
+    }
+
     public CprRegister(DataProviderEntity dbObject) {
         super(dbObject);
     }
 
     public URL getRecordUrl() throws MalformedURLException {
+        return null;
+    }
+
+    protected String getEncoding() {
         return null;
     }
 
@@ -55,17 +81,21 @@ public abstract class CprRegister extends DataProvider {
 
                 BufferedInputStream inputstream = new BufferedInputStream(input);
 
-                String encoding;
-                // Try to guess the encoding based on the stream contents
-                CharsetDetector detector = new CharsetDetector();
-                detector.setText(inputstream);
-                CharsetMatch match = detector.detect();
-                if (match != null) {
-                    encoding = match.getName();
-                    System.out.println("Interpreting data as " + encoding);
+                String encoding = this.getEncoding();
+                if (encoding != null) {
+                    System.out.println("Using explicit encoding " + encoding);
                 } else {
-                    encoding = "UTF-8";
-                    System.out.println("Falling back to default encoding " + encoding);
+                    // Try to guess the encoding based on the stream contents
+                    CharsetDetector detector = new CharsetDetector();
+                    detector.setText(inputstream);
+                    CharsetMatch match = detector.detect();
+                    if (match != null) {
+                        encoding = match.getName();
+                        System.out.println("Interpreting data as " + encoding);
+                    } else {
+                        encoding = "UTF-8";
+                        System.out.println("Falling back to default encoding " + encoding);
+                    }
                 }
 
                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputstream, encoding.toUpperCase()));
@@ -91,7 +121,7 @@ public abstract class CprRegister extends DataProvider {
                         i = 0;
                     }
                 }
-                System.out.println("    parsed " + (j * 100000 + i) + " entries in " + (0.001 * (new Date().getTime() - startTime.getTime())) + " seconds");
+                System.out.println("    parsed " + (j * 100000 + i) + " entries in " + String.format("%.3f", 0.001 * (new Date().getTime() - startTime.getTime())) + " seconds");
                 System.out.println("Input parsed, making sense of it");
 
                 //System.out.println(run.toJSON().toString(2));
@@ -143,40 +173,27 @@ public abstract class CprRegister extends DataProvider {
 
     private int inputsProcessed = 0;
     private int inputChunks = 0;
+    private long startTime = 0;
+
+    protected void startInputProcessing() {
+        this.startTime = new Date().getTime();
+    }
 
     protected void printInputProcessed() {
         this.inputsProcessed++;
         if (this.inputsProcessed >= 1000) {
             this.inputsProcessed = 0;
             this.inputChunks++;
-            System.out.println("    " + (inputChunks * 1000) + " inputs processed");
+            System.out.println("    " + (this.inputChunks * 1000) + " inputs processed");
         }
     }
 
     protected void printFinalInputsProcessed() {
-        System.out.println("Processed " + this.inputsProcessed + " inputs");
+        String timeStr = this.startTime != 0 ?
+                " in "+String.format("%.3f", 0.001 * (new Date().getTime() - this.startTime))+" seconds" :
+                "";
+        System.out.println("Processed " + (1000 * this.inputChunks + this.inputsProcessed) + " inputs" + timeStr + ".");
     }
-
-
-    private int itemsCreated = 0;
-    private int itemsUpdated = 0;
-
-    protected void countCreatedItem() {
-        this.itemsCreated++;
-    }
-
-    protected void countUpdatedItem() {
-        this.itemsUpdated++;
-    }
-
-    protected void printModifications() {
-        if (this.itemsCreated > 0 || this.itemsUpdated > 0) {
-            System.out.println("    " + this.itemsCreated + " new entries created\n    " + this.itemsUpdated + " existing entries updated");
-        } else {
-            System.out.println("    no changes necessary; old dataset matches new dataset");
-        }
-    }
-
 
     private long ticTime = 0;
     protected void tic() {

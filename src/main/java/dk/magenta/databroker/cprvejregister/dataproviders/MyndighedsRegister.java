@@ -38,9 +38,9 @@ public class MyndighedsRegister extends CprRegister {
         }
         public MyndighedsDataRecord(String line) throws ParseException {
             super(line);
-            this.put("myndighedsKode", substr(line, 4, 4));
-            this.put("myndighedsType", substr(line, 8, 2));
-            this.put("timestamp", substr(line, this.getTimestampStart(), 12));
+            this.obtain("myndighedsKode", 4, 4);
+            this.obtain("myndighedsType", 8, 2);
+            this.obtain("timestamp", this.getTimestampStart(), 12);
         }
     }
 
@@ -53,22 +53,22 @@ public class MyndighedsRegister extends CprRegister {
         }
         public Myndighed(String line) throws ParseException {
             super(line);
-            this.put("myndighedsGruppe", substr(line, 10, 1));
-            this.put("telefon", substr(line, 23, 8));
-            this.put("startDato", substr(line, 31, 12));
-            this.put("slutDato", substr(line, 43, 12));
-            this.put("myndighedsNavn", substr(line, 55, 20));
-            this.put("myndighedsAdressat", substr(line, 75, 34));
-            this.put("adresselinie1", substr(line, 109, 34));
-            this.put("adresselinie2", substr(line, 143, 34));
-            this.put("adresselinie3", substr(line, 177, 34));
-            this.put("adresselinie4", substr(line, 211, 34));
-            this.put("telefax", substr(line, 245, 8));
-            this.put("myndighedsNavnFull", substr(line, 253, 60));
-            this.put("email", substr(line, 313, 100));
-            this.put("landekodeA2", substr(line, 413, 2));
-            this.put("landekodeA3", substr(line, 415, 3));
-            this.put("landekodeN", substr(line, 418, 3));
+            this.obtain("myndighedsGruppe", 10, 1);
+            this.obtain("telefon", 23, 8);
+            this.obtain("startDato", 31, 12);
+            this.obtain("slutDato", 43, 12);
+            this.obtain("myndighedsNavn", 55, 20);
+            this.obtain("myndighedsAdressat", 75, 34);
+            this.obtain("adresselinie1", 109, 34);
+            this.obtain("adresselinie2", 143, 34);
+            this.obtain("adresselinie3", 177, 34);
+            this.obtain("adresselinie4", 211, 34);
+            this.obtain("telefax", 245, 8);
+            this.obtain("myndighedsNavnFull", 253, 60);
+            this.obtain("email", 313, 100);
+            this.obtain("landekodeA2", 413, 2);
+            this.obtain("landekodeA3", 415, 3);
+            this.obtain("landekodeN", 418, 3);
         }
     }
 
@@ -81,13 +81,17 @@ public class MyndighedsRegister extends CprRegister {
         }
         public KommuneRelation(String line) throws ParseException {
             super(line);
-            this.put("kommuneKode", substr(line, 11, 4));
+            this.obtain("kommuneKode", 11, 4);
         }
     }
 
     //------------------------------------------------------------------------------------------------------------------
 
     public class MyndighedsRegisterRun extends RegisterRun {
+
+        private String getEncoding() {
+            return "ISO-8859-1";
+        }
 
         private Level2Container<Myndighed> myndigheder;
         public MyndighedsRegisterRun() {
@@ -172,19 +176,20 @@ public class MyndighedsRegister extends CprRegister {
         System.out.println("Storing KommuneEntities in database");
         MyndighedsRegisterRun mrun = (MyndighedsRegisterRun) run;
         List<Myndighed> kommuner = mrun.getMyndigheder("05");
+        EntityModificationCounter counter = new EntityModificationCounter();
 
         for (Myndighed kommune : kommuner) {
-            int kommuneKode = Integer.parseInt(kommune.get("myndighedsKode"));
+            int kommuneKode = kommune.getInt("myndighedsKode");
             String kommuneNavn = kommune.get("myndighedsNavn");
             KommuneEntity kommuneEntity = repository.findByKommunekode(kommuneKode);
             if (kommuneEntity == null) {
                 kommuneEntity = new KommuneEntity();
                 kommuneEntity.setKommunekode(kommuneKode);
                 kommuneEntity.setNavn(kommuneNavn);
-                this.countCreatedItem();
+                counter.countCreatedItem();
             } else if (!kommuneEntity.getNavn().equals(kommuneNavn)) {
                 kommuneEntity.setNavn(kommuneNavn);
-                this.countUpdatedItem();
+                counter.countUpdatedItem();
             }
             repository.save(kommuneEntity);
             this.printInputProcessed();
@@ -192,7 +197,7 @@ public class MyndighedsRegister extends CprRegister {
         this.printFinalInputsProcessed();
         repository.flush();
         System.out.println("Stored KommuneEntities in database:");
-        this.printModifications();
+        counter.printModifications();
     }
 
     public static void main(String[] args) {

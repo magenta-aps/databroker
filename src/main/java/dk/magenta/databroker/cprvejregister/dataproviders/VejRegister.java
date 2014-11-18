@@ -42,9 +42,9 @@ public class VejRegister extends CprRegister {
 
         public VejDataRecord(String line) throws ParseException {
             super(line);
-            this.put("kommuneKode", substr(line, 4, 4));
-            this.put("vejKode", substr(line, 8, 4));
-            this.put("timestamp", substr(line, this.getTimestampStart(), 12));
+            this.obtain("kommuneKode", 4, 4);
+            this.obtain("vejKode", 8, 4);
+            this.obtain("timestamp", this.getTimestampStart(), 12);
         }
     }
 
@@ -56,10 +56,10 @@ public class VejRegister extends CprRegister {
 
         public Distrikt(String line) throws ParseException {
             super(line);
-            this.put("husNrFra", substr(line, 12, 4));
-            this.put("husNrTil", substr(line, 16, 4));
-            this.put("ligeUlige", substr(line, 20, 1));
-            this.put("distriktsTekst", substr(line, this.getDistriktsTekstStart(), this.getDistriktsTekstLength()));
+            this.obtain("husNrFra", 12, 4);
+            this.obtain("husNrTil", 16, 4);
+            this.obtain("ligeUlige", 20, 1);
+            this.obtain("distriktsTekst", this.getDistriktsTekstStart(), this.getDistriktsTekstLength());
         }
     }
 
@@ -73,13 +73,13 @@ public class VejRegister extends CprRegister {
 
         public AktivVej(String line) throws ParseException {
             super(line);
-            this.put("tilKommuneKode", substr(line, 24, 4));
-            this.put("tilVejKode", substr(line, 28, 4));
-            this.put("fraKommuneKode", substr(line, 32, 4));
-            this.put("fraVejKode", substr(line, 36, 4));
-            this.put("startDato", substr(line, 40, 12));
-            this.put("vejAdresseringsnavn", substr(line, 52, 20));
-            this.put("vejNavn", substr(line, 72, 40));
+            this.obtain("tilKommuneKode", 24, 4);
+            this.obtain("tilVejKode", 28, 4);
+            this.obtain("fraKommuneKode", 32, 4);
+            this.obtain("fraVejKode", 36, 4);
+            this.obtain("startDato", 40, 12);
+            this.obtain("vejAdresseringsnavn", 52, 20);
+            this.obtain("vejNavn", 72, 40);
         }
     }
 
@@ -93,11 +93,11 @@ public class VejRegister extends CprRegister {
 
         public Bolig(String line) throws ParseException {
             super(line);
-            this.put("husNr", substr(line, 12, 4));
-            this.put("etage", substr(line, 16, 2));
-            this.put("sidedoer", substr(line, 18, 4));
-            this.put("startDato", substr(line, 35, 12));
-            this.put("lokalitet", substr(line, 59, 34));
+            this.obtain("husNr", 12, 4);
+            this.obtain("etage", 16, 2);
+            this.obtain("sidedoer", 18, 4);
+            this.obtain("startDato", 35, 12);
+            this.obtain("lokalitet", 59, 34);
 
         }
     }
@@ -130,7 +130,7 @@ public class VejRegister extends CprRegister {
         }
         public PostDistrikt(String line) throws ParseException {
             super(line);
-            this.put("postNr", substr(line, 33, 4));
+            this.obtain("postNr", 33, 4);
         }
     }
 
@@ -143,9 +143,9 @@ public class VejRegister extends CprRegister {
         }
         public NotatVej(String line) throws ParseException {
             super(line);
-            this.put("notatNr", substr(line, 12, 2));
-            this.put("notatLinie", substr(line, 14, 40));
-            this.put("startDato", substr(line, 66, 12));
+            this.obtain("notatNr", 12, 2);
+            this.obtain("notatLinie", 14, 40);
+            this.obtain("startDato", 66, 12);
         }
     }
 
@@ -158,7 +158,7 @@ public class VejRegister extends CprRegister {
         }
         public ByfornyelsesDistrikt(String line) throws ParseException {
             super(line);
-            this.put("byfornyKode", substr(line, 33, 6));
+            this.obtain("byfornyKode", 33, 6);
         }
     }
 
@@ -171,8 +171,8 @@ public class VejRegister extends CprRegister {
         }
         public DiverseDistrikt(String line) throws ParseException {
             super(line);
-            this.put("distriktType", substr(line, 33, 2));
-            this.put("diverseDistriktsKode", substr(line, 35, 4));
+            this.obtain("distriktType", 33, 2);
+            this.obtain("diverseDistriktsKode", 35, 4);
         }
     }
 
@@ -185,7 +185,7 @@ public class VejRegister extends CprRegister {
         }
         public EvakueringsDistrikt(String line) throws ParseException {
             super(line);
-            this.put("evakueringsKode", substr(line, 33, 1));
+            this.obtain("evakueringsKode", 33, 1);
         }
     }
 
@@ -195,7 +195,7 @@ public class VejRegister extends CprRegister {
         }
         public KirkeDistrikt(String line) throws ParseException {
             super(line);
-            this.put("kirkeKode", substr(line, 33, 2));
+            this.obtain("kirkeKode", 33, 2);
         }
     }
 
@@ -205,7 +205,7 @@ public class VejRegister extends CprRegister {
         }
         public SkoleDistrikt(String line) throws ParseException {
             super(line);
-            this.put("skoleKode", substr(line, 33, 2));
+            this.obtain("skoleKode", 33, 2);
         }
     }
 
@@ -218,7 +218,7 @@ public class VejRegister extends CprRegister {
         }
         public BefolkningsDistrikt(String line) throws ParseException {
             super(line);
-            this.put("befolkningsKode", substr(line, 33, 4));
+            this.obtain("befolkningsKode", 33, 4);
         }
     }
 
@@ -228,7 +228,7 @@ public class VejRegister extends CprRegister {
         }
         public SocialDistrikt(String line) throws ParseException {
             super(line);
-            this.put("socialKode", substr(line, 33, 2));
+            this.obtain("socialKode", 33, 2);
         }
     }
 
@@ -244,7 +244,7 @@ public class VejRegister extends CprRegister {
         }
         public SogneDistrikt(String line) throws ParseException {
             super(line);
-            this.put("myndighedsKode", substr(line, 33, 4));
+            this.obtain("myndighedsKode", 33, 4);
             this.put("myndighedsNavn", this.get("distriktsTekst"));
         }
     }
@@ -255,7 +255,7 @@ public class VejRegister extends CprRegister {
         }
         public ValgDistrikt(String line) throws ParseException {
             super(line);
-            this.put("valgKode", substr(line, 33, 2));
+            this.obtain("valgKode", 33, 2);
         }
     }
 
@@ -268,7 +268,7 @@ public class VejRegister extends CprRegister {
         }
         public VarmeDistrikt(String line) throws ParseException {
             super(line);
-            this.put("varmeKode", substr(line, 33, 4));
+            this.obtain("varmeKode", 33, 4);
         }
     }
 
@@ -281,10 +281,10 @@ public class VejRegister extends CprRegister {
         }
         public HistoriskVej(String line) throws ParseException {
             super(line);
-            this.put("startDato", substr(line, 24, 12));
-            this.put("slutDato", substr(line, 36, 12));
-            this.put("vejAdresseringsnavn", substr(line, 48, 20));
-            this.put("vejNavn", substr(line, 68, 40));
+            this.obtain("startDato", 24, 12);
+            this.obtain("slutDato", 36, 12);
+            this.obtain("vejAdresseringsnavn", 48, 20);
+            this.obtain("vejNavn", 68, 40);
         }
     }
 
@@ -302,8 +302,8 @@ public class VejRegister extends CprRegister {
         }
         public void saveRecord(AktivVej vej) {
             super.saveRecord(vej);
-            String vejKode = vej.get("vejKode");
-            String kommuneKode = vej.get("kommuneKode");
+            int vejKode = vej.getInt("vejKode");
+            int kommuneKode = vej.getInt("kommuneKode");
             if (!aktiveVeje.put(kommuneKode, vejKode, vej, true)) {
                 System.out.println("Collision on kommuneKode "+kommuneKode+", vejKode "+vejKode+" ("+aktiveVeje.get(kommuneKode, vejKode).get("vejNavn")+" vs "+vej.get("vejNavn")+")");
             }
@@ -312,11 +312,6 @@ public class VejRegister extends CprRegister {
         public Level2Container<AktivVej> getAktiveVeje() {
             return aktiveVeje;
         }
-
-        public void setAktiveVeje(Level2Container<AktivVej> aktiveVeje) {
-            this.aktiveVeje = aktiveVeje;
-        }
-
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -411,46 +406,48 @@ public class VejRegister extends CprRegister {
             }
             System.out.println("Storing NavngivenvejEntities and KommunedelAfNavngivenvejEntries in database");
 
-            SegmentedList<KommunedelAfNavngivenVejEntity> delvejEntities = new SegmentedList<KommunedelAfNavngivenVejEntity>(10000);
+            //SegmentedList<KommunedelAfNavngivenVejEntity> delvejEntities = new SegmentedList<KommunedelAfNavngivenVejEntity>(10000);
             //SegmentedList<NavngivenVejEntity> navngivenVejEntities = new SegmentedList<NavngivenVejEntity>(10000);
 
             Level2Container<AktivVej> aktiveVeje = vrun.getAktiveVeje();
+            EntityModificationCounter delvejCounter = new EntityModificationCounter();
+            EntityModificationCounter navngivenvejCounter = new EntityModificationCounter();
+            this.startInputProcessing();
 
-            for (String kommuneKode : aktiveVeje.keySet()) {
-                for (String vejKode : aktiveVeje.get(kommuneKode).keySet()) {
+            for (int kommuneKode : aktiveVeje.intKeySet()) {
+                for (int vejKode : aktiveVeje.get(kommuneKode).intKeySet()) {
                     AktivVej aktivVej = aktiveVeje.get(kommuneKode, vejKode);
                     if (aktivVej != null) {
-                        int vKode = Integer.parseInt(vejKode, 10);
-                        int kKode = Integer.parseInt(kommuneKode, 10);
-
-                        KommuneEntity kommune = kommuneRepository.findByKommunekode(kKode);
+                        KommuneEntity kommune = kommuneRepository.findByKommunekode(kommuneKode);
 
                         if (kommune == null) {
-                            System.out.println("Kommune with id "+kKode+" ("+kommuneKode+") not found for vej "+aktivVej.get("vejNavn"));
+                            //System.out.println("Kommune with id "+kommuneKode+" not found for vej "+aktivVej.get("vejNavn"));
                         } else {
 
-                            KommunedelAfNavngivenVejEntity delvejEntity = kommunedelAfNavngivenVejRepository.findByKommunekodeAndVejkode(kKode, vKode);
+                            KommunedelAfNavngivenVejEntity delvejEntity = kommunedelAfNavngivenVejRepository.findByKommunekodeAndVejkode(kommuneKode, vejKode);
+
+                            String vejNavn = aktivVej.get("vejNavn");
+                            String vejAdresseringsnavn = aktivVej.get("vejAdresseringsnavn");
 
                             boolean updatedDelvej = false;
-
                             if (delvejEntity == null) {
                                 delvejEntity = new KommunedelAfNavngivenVejEntity();
-                                delvejEntity.setVejkode(vKode);
+                                delvejEntity.setVejkode(vejKode);
                                 delvejEntity.setKommune(kommune);
-                                this.countCreatedItem();
+                                delvejCounter.countCreatedItem();
                                 updatedDelvej = true;
                             }
 
                             NavngivenVejEntity navngivenVejEntity = delvejEntity.getNavngivenVej();
 
                             if (navngivenVejEntity == null) {
-                                String fraKommuneKode = aktivVej.get("fraKommuneKode");
-                                if (!fraKommuneKode.isEmpty() && !fraKommuneKode.equals("0000")) {
-                                    String fraVejKode = aktivVej.get("fraVejKode");
-                                    if (!fraVejKode.isEmpty() && !fraVejKode.equals("0000")) {
+                                int fraKommuneKode = aktivVej.getInt("fraKommuneKode");
+                                if (fraKommuneKode != 0) {
+                                    int fraVejKode = aktivVej.getInt("fraVejKode");
+                                    if (fraVejKode != 0) {
                                         AktivVej other = aktiveVeje.get(fraKommuneKode, fraVejKode);
                                         if (other != null) {
-                                            KommunedelAfNavngivenVejEntity andenVejEntity = kommunedelAfNavngivenVejRepository.findByKommunekodeAndVejkode(Integer.parseInt(fraKommuneKode, 10), Integer.parseInt(fraVejKode, 10));
+                                            KommunedelAfNavngivenVejEntity andenVejEntity = kommunedelAfNavngivenVejRepository.findByKommunekodeAndVejkode(fraKommuneKode, fraVejKode);
                                             if (andenVejEntity != null) {
                                                 navngivenVejEntity = andenVejEntity.getNavngivenVej();
                                             }
@@ -462,13 +459,13 @@ public class VejRegister extends CprRegister {
                             }
 
                             if (navngivenVejEntity == null) {
-                                String tilKommuneKode = aktivVej.get("tilKommuneKode");
-                                if (!tilKommuneKode.isEmpty() && !tilKommuneKode.equals("0000")) {
-                                    String tilVejKode = aktivVej.get("tilVejKode");
-                                    if (!tilVejKode.isEmpty() && !tilVejKode.equals("0000")) {
+                                int tilKommuneKode = aktivVej.getInt("tilKommuneKode");
+                                if (tilKommuneKode != 0) {
+                                    int tilVejKode = aktivVej.getInt("tilVejKode");
+                                    if (tilVejKode != 0) {
                                         AktivVej other = aktiveVeje.get(tilKommuneKode, tilVejKode);
                                         if (other != null) {
-                                            KommunedelAfNavngivenVejEntity andenVejEntity = kommunedelAfNavngivenVejRepository.findByKommunekodeAndVejkode(Integer.parseInt(tilKommuneKode, 10), Integer.parseInt(tilVejKode, 10));
+                                            KommunedelAfNavngivenVejEntity andenVejEntity = kommunedelAfNavngivenVejRepository.findByKommunekodeAndVejkode(tilKommuneKode, tilVejKode);
                                             if (andenVejEntity != null) {
                                                 navngivenVejEntity = andenVejEntity.getNavngivenVej();
                                             }
@@ -479,20 +476,51 @@ public class VejRegister extends CprRegister {
                                 }
                             }
 
+
+                            boolean updatedNavngivenVej = false;
                             if (navngivenVejEntity == null) {
                                 navngivenVejEntity = new NavngivenVejEntity();
-                                navngivenVejEntity.setVejnavn(aktivVej.get("vejNavn"));
-                                navngivenVejEntity.setVejaddresseringsnavn(aktivVej.get("vejAdresseringsnavn"));
-                                navngivenVejEntity.setAnsvarligKommune(kommune);
                                 navngivenVejEntity.setNavngivenVejUuid(UUID.randomUUID().toString());
+                                navngivenvejCounter.countCreatedItem();
+                                updatedNavngivenVej = true;
+                            }
+
+
+                            if (!vejNavn.equals(navngivenVejEntity.getVejnavn())) {
+                                navngivenVejEntity.setVejnavn(vejNavn);
+                                if (!updatedNavngivenVej) {
+                                    navngivenvejCounter.countUpdatedItem();
+                                    updatedNavngivenVej = true;
+                                }
+                            }
+                            if (!vejAdresseringsnavn.equals(navngivenVejEntity.getVejaddresseringsnavn())) {
+                                navngivenVejEntity.setVejaddresseringsnavn(vejAdresseringsnavn);
+                                if (!updatedNavngivenVej) {
+                                    navngivenvejCounter.countUpdatedItem();
+                                    updatedNavngivenVej = true;
+                                }
+                            }
+                            if (!kommune.equals(navngivenVejEntity.getAnsvarligKommune())) {
+                                navngivenVejEntity.setAnsvarligKommune(kommune);
+                                if (!updatedNavngivenVej) {
+                                    navngivenvejCounter.countUpdatedItem();
+                                    updatedNavngivenVej = true;
+                                }
+                            }
+
+
+                            if (updatedNavngivenVej) {
                                 //navngivenVejEntities.addItem(navngivenVejEntity);
                                 navngivenVejRepository.saveAndFlush(navngivenVejEntity);
                             }
 
+
+
+
                             if (delvejEntity.getNavngivenVej() == null || !delvejEntity.getNavngivenVej().equals(navngivenVejEntity)) {
                                 delvejEntity.setNavngivenVej(navngivenVejEntity);
                                 if (!updatedDelvej) {
-                                    this.countUpdatedItem();
+                                    delvejCounter.countUpdatedItem();
                                     updatedDelvej = true;
                                 }
                             }
@@ -510,7 +538,9 @@ public class VejRegister extends CprRegister {
 
             this.printFinalInputsProcessed();
             System.out.println("Stored KommunedelAfNavngivenVejEntities to database:");
-            this.printModifications();
+            delvejCounter.printModifications();
+            System.out.println("Stored NavngivenVejEntities to database:");
+            navngivenvejCounter.printModifications();
 
         } catch (ClassCastException e) {}
     }

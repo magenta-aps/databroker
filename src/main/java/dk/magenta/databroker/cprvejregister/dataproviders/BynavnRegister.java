@@ -19,14 +19,14 @@ public class BynavnRegister extends CprRegister {
         }
         public ByNavn(String line) throws ParseException {
             super(line);
-            this.put("kommuneKode", substr(line, 4, 4));
-            this.put("vejKode", substr(line, 8, 4));
-            this.put("myndighedsNavn", substr(line, 12, 20));
-            this.put("vejadresseringsNavn", substr(line, 32, 20));
-            this.put("husNrFra", substr(line, 52, 4));
-            this.put("husNrTil", substr(line, 56, 4));
-            this.put("ligeUlige", substr(line, 60, 1));
-            this.put("byNavn", substr(line, 61, 34));
+            this.obtain("kommuneKode", 4, 4);
+            this.obtain("vejKode", 8, 4);
+            this.obtain("myndighedsNavn", 12, 20);
+            this.obtain("vejadresseringsNavn", 32, 20);
+            this.obtain("husNrFra", 52, 4);
+            this.obtain("husNrTil", 56, 4);
+            this.obtain("ligeUlige", 60, 1);
+            this.obtain("byNavn", 61, 34);
         }
     }
 

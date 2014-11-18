@@ -7,7 +7,7 @@ import java.util.Collection;
  * Created by jubk on 11/10/14.
  */
 @Entity
-@Table(name = "kommunedel_af_navngiven_vej")
+@Table(name = "kommunedel_af_navngiven_vej", indexes = { @Index(name="kommune", columnList="kommune_id"), @Index(name="navngivenVej", columnList="navngiven_vej_id") })
 public class KommunedelAfNavngivenVejEntity {
     private int id;
     private int vejkode;

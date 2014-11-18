@@ -25,14 +25,14 @@ public class LokalitetsRegister extends CprRegister {
         }
         public Lokalitet(String line) throws ParseException {
             super(line);
-            this.put("kommuneKode", substr(line, 4, 4));
-            this.put("vejKode", substr(line, 8, 4));
-            this.put("myndighedsNavn", substr(line, 12, 20));
-            this.put("vejadresseringsNavn", substr(line, 32, 20));
-            this.put("husNr", substr(line, 52, 4));
-            this.put("etage", substr(line, 56, 2));
-            this.put("sidedoer", substr(line, 58, 4));
-            this.put("lokalitet", substr(line, 62, 34));
+            this.obtain("kommuneKode", 4, 4);
+            this.obtain("vejKode", 8, 4);
+            this.obtain("myndighedsNavn", 12, 20);
+            this.obtain("vejadresseringsNavn", 32, 20);
+            this.obtain("husNr", 52, 4);
+            this.obtain("etage", 56, 2);
+            this.obtain("sidedoer", 58, 4);
+            this.obtain("lokalitet", 62, 34);
         }
     }
 
@@ -45,6 +45,10 @@ public class LokalitetsRegister extends CprRegister {
 
     public URL getRecordUrl() throws MalformedURLException {
         return new URL("https://cpr.dk/media/152108/a370714.txt");
+    }
+
+    protected String getEncoding() {
+        return "ISO-8859-1";
     }
 
     protected Record parseTrimmedLine(String recordType, String line) {
@@ -76,6 +80,9 @@ public class LokalitetsRegister extends CprRegister {
 
         System.out.println("Storing HusnummerEntities in database");
 
+        EntityModificationCounter husnummerCounter = new EntityModificationCounter();
+        EntityModificationCounter adresseCounter = new EntityModificationCounter();
+
         //SegmentedList<HusnummerEntity> husnummerEntities = new SegmentedList<HusnummerEntity>(10000);
         //SegmentedList<AdresseEntity> adresseEntities = new SegmentedList<AdresseEntity>(10000);
 
@@ -90,51 +97,40 @@ public class LokalitetsRegister extends CprRegister {
             }
         }*/
 
-        Pattern leadingZero = Pattern.compile("^0+");
         try {
+            this.startInputProcessing();
             for (Record record : run.getAll()) {
                 if (record.getRecordType().equals(Lokalitet.RECORDTYPE_LOKALITET)) {
                     Lokalitet lokalitet = (Lokalitet) record;
-                    int kommuneKode = Integer.parseInt(lokalitet.get("kommuneKode"), 10);
-                    int vejKode = Integer.parseInt(lokalitet.get("vejKode"), 10);
-                    String husKode = leadingZero.matcher(lokalitet.get("husNr")).replaceFirst("");
+                    int kommuneKode = lokalitet.getInt("kommuneKode");
+                    int vejKode = lokalitet.getInt("vejKode");
+                    String husKode = lokalitet.get("husNr");
                     String sidedoer = lokalitet.get("sidedoer");
                     String etage = lokalitet.get("etage");
                     String status = "hephey";
 
-/*
-                    List<HusnummerEntity> husNummerEntities = husnummerRepository.findByKommunekodeAndVejkodeAndHusnr(kommuneKode, vejKode, husKode);
-                    HusnummerEntity husNummerEntity = husNummerEntities.size()>0 ? husNummerEntities.get(0) : null;
-*/
-
-                    HusnummerEntity husNummerEntity = null;
-                    AdresseEntity adresseEntity = null;
-
-                    if (husNummerEntity == null) {
-                        husNummerEntity = husnummerRepository.findFirstByKommunekodeAndVejkodeAndHusnr(kommuneKode, vejKode, husKode);
-                        adresseEntity = adresseRepository.findByHusnummerAndDoerbetegnelseAndEtagebetegnelse(husNummerEntity, sidedoer, etage);
-                    }
+                    HusnummerEntity husNummerEntity = husnummerRepository.findFirstByKommunekodeAndVejkodeAndHusnr(kommuneKode, vejKode, husKode);
+                    AdresseEntity adresseEntity = adresseRepository.findByHusnummerAndDoerbetegnelseAndEtagebetegnelse(husNummerEntity, sidedoer, etage);
 
                     boolean updateHusnummerEntity = false;
                     if (husNummerEntity == null) {
-                        //System.out.println("create new");
                         husNummerEntity = new HusnummerEntity();
                         husNummerEntity.setHusnummerUuid(UUID.randomUUID().toString());
                         updateHusnummerEntity = true;
-                        this.countCreatedItem();
+                        husnummerCounter.countCreatedItem();
                     }
                     if (!husKode.equals(husNummerEntity.getHusnummerbetegnelse())) {
                         husNummerEntity.setHusnummerbetegnelse(husKode);
                         if (!updateHusnummerEntity) {
-                            this.countUpdatedItem();
+                            husnummerCounter.countUpdatedItem();
                         }
                         updateHusnummerEntity = true;
                     }
                     NavngivenVejEntity navngivenVejEntity = navngivenVejRepository.findByKommunekodeAndVejkode(kommuneKode, vejKode);
-                    if (husNummerEntity.getNavngivenVej() != navngivenVejEntity) {
+                    if (husNummerEntity.getNavngivenVej() == null || husNummerEntity.getNavngivenVej().getId() != navngivenVejEntity.getId()) {
                         husNummerEntity.setNavngivenVej(navngivenVejEntity);
                         if (!updateHusnummerEntity) {
-                            this.countUpdatedItem();
+                            husnummerCounter.countUpdatedItem();
                         }
                         updateHusnummerEntity = true;
                     }
@@ -147,23 +143,36 @@ public class LokalitetsRegister extends CprRegister {
                     if (adresseEntity == null) {
                         adresseEntity = new AdresseEntity();
                         adresseEntity.setAdresseUuid(UUID.randomUUID().toString());
+                        adresseCounter.countCreatedItem();
                         updateAdresseEntity = true;
                     }
                     if (!sidedoer.equals(adresseEntity.getDoerbetegnelse())) {
                         adresseEntity.setDoerbetegnelse(sidedoer);
-                        updateAdresseEntity = true;
+                        if (!updateAdresseEntity) {
+                            adresseCounter.countUpdatedItem();
+                            updateAdresseEntity = true;
+                        }
                     }
                     if (!etage.equals(adresseEntity.getEtagebetegnelse())) {
                         adresseEntity.setEtagebetegnelse(etage);
-                        updateAdresseEntity = true;
+                        if (!updateAdresseEntity) {
+                            adresseCounter.countUpdatedItem();
+                            updateAdresseEntity = true;
+                        }
                     }
-                    if (adresseEntity.getHusnummer() != husNummerEntity) {
+                    if (adresseEntity.getHusnummer() == null || husNummerEntity.getId() != adresseEntity.getHusnummer().getId()) {
                         adresseEntity.setHusnummer(husNummerEntity);
-                        updateAdresseEntity = true;
+                        if (!updateAdresseEntity) {
+                            adresseCounter.countUpdatedItem();
+                            updateAdresseEntity = true;
+                        }
                     }
                     if (!status.equals(adresseEntity.getStatus())) {
                         adresseEntity.setStatus(status);
-                        updateAdresseEntity = true;
+                        if (!updateAdresseEntity) {
+                            adresseCounter.countUpdatedItem();
+                            updateAdresseEntity = true;
+                        }
                     }
                     if (updateAdresseEntity) {
                         //adresseEntities.addItem(adresseEntity);
@@ -174,8 +183,10 @@ public class LokalitetsRegister extends CprRegister {
                 }
             }
             this.printFinalInputsProcessed();
+            System.out.println("Stored HusnummerEntities to database");
+            husnummerCounter.printModifications();
             System.out.println("Stored AdresseEntities to database");
-            this.printModifications();
+            adresseCounter.printModifications();
 
         } catch (Exception e) {
             e.printStackTrace();

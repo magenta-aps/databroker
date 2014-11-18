@@ -25,26 +25,26 @@ public class PostnummerRegister extends CprRegister {
         }
         public PostNummer(String line) throws ParseException {
             super(line);
-            this.put("kommuneKode", substr(line, 4, 4));
-            this.put("vejKode", substr(line, 8, 4));
-            this.put("myndighedsNavn", substr(line, 12, 20));
-            this.put("vejadresseringsNavn", substr(line, 32, 20));
-            this.put("husNrFra", substr(line, 52, 4));
-            this.put("husNrTil", substr(line, 56, 4));
-            this.put("ligeUlige", substr(line, 60, 1));
-            this.put("postNr", substr(line, 61, 4));
-            this.put("postDistriktTekst", substr(line, 65, 20));
+            this.obtain("kommuneKode", 4, 4);
+            this.obtain("vejKode", 8, 4);
+            this.obtain("myndighedsNavn", 12, 20);
+            this.obtain("vejadresseringsNavn", 32, 20);
+            this.obtain("husNrFra", 52, 4);
+            this.obtain("husNrTil", 56, 4);
+            this.obtain("ligeUlige", 60, 1);
+            this.obtain("postNr", 61, 4);
+            this.obtain("postDistriktTekst", 65, 20);
         }
     }
 
 
     public class PostnummerRegisterRun extends RegisterRun {
 
-        private HashMap<Integer, String> postdistrikter;
+        private HashMap<String, String> postdistrikter;
 
         public PostnummerRegisterRun() {
             super();
-            this.postdistrikter = new HashMap<Integer, String>();
+            this.postdistrikter = new HashMap<String, String>();
         }
 
         public void saveRecord(Record record) {
@@ -57,11 +57,11 @@ public class PostnummerRegister extends CprRegister {
             super.saveRecord(postnummer);
             String nummer = postnummer.get("postNr");
             if (nummer != null) {
-                this.postdistrikter.put(Integer.parseInt(nummer, 10), postnummer.get("postDistriktTekst"));
+                this.postdistrikter.put(nummer, postnummer.get("postDistriktTekst"));
             }
         }
 
-        public HashMap<Integer, String> getPostdistrikter() {
+        public HashMap<String, String> getPostdistrikter() {
             return this.postdistrikter;
         }
     }
@@ -98,6 +98,7 @@ public class PostnummerRegister extends CprRegister {
     protected void saveRunToDatabase(RegisterRun run, Map<String, JpaRepository> repositories) {
         PostnummerRepository postnummerRepository = (PostnummerRepository) repositories.get("postnummerRepository");
         PostnummerRegisterRun prun = (PostnummerRegisterRun) run;
+        EntityModificationCounter counter = new EntityModificationCounter();
 
         if (postnummerRepository == null) {
             System.err.println("Insufficient repositories");
@@ -106,21 +107,22 @@ public class PostnummerRegister extends CprRegister {
 
         System.out.println("Storing PostnummerEntities in database");
 
-        Map<Integer, String> postDistrikter = prun.getPostdistrikter();
-        for (Integer nummer : postDistrikter.keySet()) {
+        Map<String, String> postDistrikter = prun.getPostdistrikter();
+        for (String nummer : postDistrikter.keySet()) {
             String navn = postDistrikter.get(nummer);
-            PostnummerEntity postnummerEntity = postnummerRepository.findByNummer(nummer);
+            int postNummer = Integer.parseInt(nummer, 10);
+            PostnummerEntity postnummerEntity = postnummerRepository.findByNummer(postNummer);
             boolean updatePostnummerEntity = false;
             if (postnummerEntity == null) {
                 postnummerEntity = new PostnummerEntity();
-                postnummerEntity.setNummer(nummer);
+                postnummerEntity.setNummer(postNummer);
                 updatePostnummerEntity = true;
-                this.countCreatedItem();
+                counter.countCreatedItem();
             }
             if (!navn.equals(postnummerEntity.getNavn())) {
                 postnummerEntity.setNavn(navn);
                 if (!updatePostnummerEntity) {
-                    countUpdatedItem();
+                    counter.countUpdatedItem();
                 }
                 updatePostnummerEntity = true;
             }
@@ -131,7 +133,7 @@ public class PostnummerRegister extends CprRegister {
         }
         this.printFinalInputsProcessed();
         System.out.println("Stored PostnummerEntities in database:");
-        this.printModifications();
+        counter.printModifications();
     }
 
     public static void main(String[] args) {

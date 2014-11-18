@@ -6,7 +6,7 @@ import javax.persistence.*;
  * Created by jubk on 11/10/14.
  */
 @Entity
-@Table(name = "adresse")
+@Table(name = "adresse", indexes = { @Index(name="husnummer", columnList="husnummer_id") })
 public class AdresseEntity {
     private int id;
     private String adresseUuid;

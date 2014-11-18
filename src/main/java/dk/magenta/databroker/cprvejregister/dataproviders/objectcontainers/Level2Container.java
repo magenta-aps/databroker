@@ -1,8 +1,6 @@
 package dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by lars on 11-11-14.
@@ -17,6 +15,14 @@ public class Level2Container<T> extends HashMap<String, Level1Container<T>> {
         return null;
     }
 
+    public T get(int ident2, int ident1) {
+        return this.get(""+ident2, ""+ident1);
+    }
+
+    public Level1Container<T> get(int ident2) {
+        return this.get(""+ident2);
+    }
+
     public void put(String ident2, String ident1, T value) {
         if (!this.containsKey(ident2)) {
             this.put(ident2, new Level1Container<T>());
@@ -29,6 +35,14 @@ public class Level2Container<T> extends HashMap<String, Level1Container<T>> {
             this.put(ident2, new Level1Container<T>());
         }
         return this.get(ident2).put(ident1, value, reportCollision);
+    }
+
+    public void put(int ident2, int ident1, T value) {
+        this.put(""+ident2, ""+ident1, value);
+    }
+
+    public boolean put(int ident2, int ident1, T value, boolean reportCollision) {
+        return this.put(""+ident2, ""+ident1, value, reportCollision);
     }
 
     public List<T> getList() {
@@ -51,5 +65,13 @@ public class Level2Container<T> extends HashMap<String, Level1Container<T>> {
             count += this.get(key).size();
         }
         return count;
+    }
+
+    public Set<Integer> intKeySet() {
+        HashSet<Integer> intSet = new HashSet<Integer>();
+        for (String key : this.keySet()) {
+            intSet.add(Integer.parseInt(key, 10));
+        }
+        return intSet;
     }
 }

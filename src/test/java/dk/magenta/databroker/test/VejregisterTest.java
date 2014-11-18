@@ -91,18 +91,18 @@ public class VejregisterTest {
         repositories.put("adresseRepository", this.adresseRepository);
         repositories.put("postnummerRepository", this.postnummerRepository);
 
-        MyndighedsRegister myndighedsregister = new MyndighedsRegister(new DataProviderEntity());
-        myndighedsregister.pull(repositories);
+        //MyndighedsRegister myndighedsregister = new MyndighedsRegister(new DataProviderEntity());
+        //myndighedsregister.pull(repositories);
 
-        VejRegister vejregister = new VejRegister(new DataProviderEntity());
-        vejregister.pull(repositories);
-/*
+        //VejRegister vejregister = new VejRegister(new DataProviderEntity());
+        //vejregister.pull(repositories);
+
         LokalitetsRegister lokalitetsregister = new LokalitetsRegister(new DataProviderEntity());
         lokalitetsregister.pull(repositories);
 
         PostnummerRegister postnummerRegister = new PostnummerRegister(new DataProviderEntity());
         postnummerRegister.pull(repositories);
-*/
+
 
 
 /*

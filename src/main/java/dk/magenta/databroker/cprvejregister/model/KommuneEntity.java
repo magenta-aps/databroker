@@ -8,7 +8,7 @@ import java.util.Collection;
  * Created by jubk on 11/10/14.
  */
 @Entity
-@Table(name = "kommune")
+@Table(name = "kommune", indexes = { @Index(name = "kommunekode", columnList = "kommunekode") })
 public class KommuneEntity implements Serializable {
     private int kommuneId;
     private int kommunekode;
