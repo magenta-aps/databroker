@@ -21,9 +21,12 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -80,7 +83,7 @@ public class VejregisterTest {
 
     public VejregisterTest(){
     }
-    @Test
+    /*@Test
     public void testVejregister() {
 
         HashMap<String, JpaRepository> repositories = new HashMap<String, JpaRepository>();
@@ -102,60 +105,109 @@ public class VejregisterTest {
 
         PostnummerRegister postnummerRegister = new PostnummerRegister(new DataProviderEntity());
         postnummerRegister.pull(repositories);
+    }*/
+
+
+    
+
+
+    @Test
+    public void testMyndighedsRegister() {
+        HashMap<String, JpaRepository> repositories = new HashMap<String, JpaRepository>();
+        repositories.put("kommuneRepository", this.kommuneRepository);
+        MyndighedsRegister myndighedsregister = new MyndighedsRegister(new DataProviderEntity());
+        myndighedsregister.read(new File("src/test/resources/vejregister/kommuner1.txt"), repositories);
+
+        KommuneEntity entry;
+
+        entry = this.kommuneRepository.findByKommunekode(751);
+        assertNotNull(entry);
+        assertEquals(entry.getKommunekode(), 751);
+        assertEquals(entry.getNavn(), "Aarhus");
+
+        myndighedsregister.read(new File("src/test/resources/vejregister/kommuner2.txt"), repositories);
+
+        entry = this.kommuneRepository.findByKommunekode(751);
+        assertNotNull(entry);
+        assertEquals(entry.getKommunekode(), 751);
+        assertEquals(entry.getNavn(), "Århus");
+    }
+
+    @Test
+    public void testVejRegister() {
+        HashMap<String, JpaRepository> repositories = new HashMap<String, JpaRepository>();
+        repositories.put("kommuneRepository", this.kommuneRepository);
+        repositories.put("kommunedelAfNavngivenVejRepository", this.kommunedelAfNavngivenVejRepository);
+        repositories.put("navngivenVejRepository", this.navngivenVejRepository);
+
+        VejRegister vejregister = new VejRegister(new DataProviderEntity());
+        vejregister.read(new File("src/test/resources/vejregister/aktiveveje.txt"), repositories);
+        NavngivenVejEntity entry1;
+        KommunedelAfNavngivenVejEntity entry2;
+
+        entry1 = this.navngivenVejRepository.findByKommunekodeAndVejkode(751, 9651);
+        assertNotNull(entry1);
+        assertEquals(entry1.getVejnavn(), "Åbogade");
+
+        entry2 = this.kommunedelAfNavngivenVejRepository.findByKommunekodeAndVejkode(751, 9651);
+        assertNotNull(entry2);
+        assertEquals(entry2.getVejkode(), 9651);
+        assertEquals(entry2.getNavngivenVej(), entry1);
+    }
+
+    @Test
+    public void testLokalitetsRegister() {
+        HashMap<String, JpaRepository> repositories = new HashMap<String, JpaRepository>();
+        repositories.put("kommunedelAfNavngivenVejRepository", this.kommunedelAfNavngivenVejRepository);
+        repositories.put("navngivenVejRepository", this.navngivenVejRepository);
+        repositories.put("husnummerRepository", this.husnummerRepository);
+        repositories.put("adresseRepository", this.adresseRepository);
+
+        LokalitetsRegister lokalitetsregister = new LokalitetsRegister(new DataProviderEntity());
+        lokalitetsregister.read(new File("src/test/resources/vejregister/lokaliteter.txt"), repositories);
+
+        HusnummerEntity entry1;
+        AdresseEntity entry2;
+
+        entry1 = this.husnummerRepository.findFirstByKommunekodeAndVejkodeAndHusnr(751, 9651, "15");
+        assertNotNull(entry1);
+        assertEquals(entry1.getHusnummerbetegnelse(), "15");
+
+        entry2 = this.adresseRepository.findByHusnummerAndDoerbetegnelseAndEtagebetegnelse(entry1, "", "");
+        assertNotNull(entry2);
+        //assertEquals(entry2.getHusnummer(), entry1);
+    }
+
+    @Test
+    public void testPostnummerRegister() {
+        HashMap<String, JpaRepository> repositories = new HashMap<String, JpaRepository>();
+        repositories.put("postnummerRepository", this.postnummerRepository);
+
+        PostnummerRegister postnummerRegister = new PostnummerRegister(new DataProviderEntity());
+        postnummerRegister.read(new File("src/test/resources/vejregister/postnumre1.txt"), repositories);
+        PostnummerEntity entry;
+
+        entry = this.postnummerRepository.findByNummer(2100);
+        assertNotNull(entry);
+        assertEquals(entry.getNavn(), "København Ø");
+        assertEquals(entry.getNummer(), 2100);
+
+        entry = this.postnummerRepository.findByNummer(3953);
+        assertNotNull(entry);
+        assertEquals(entry.getNavn(), "Qeqertarssuaq");
+        assertEquals(entry.getNummer(), 3953);
+
+        postnummerRegister.read(new File("src/test/resources/vejregister/postnumre2.txt"), repositories);
+        entry = this.postnummerRepository.findByNummer(3953);
+        assertNotNull(entry);
+        assertEquals(entry.getNavn(), "Qeqertarssuaq City");
+        assertEquals(entry.getNummer(), 3953);
+    }
+
 
 
 
 /*
-        String sampleData = "00037071520141031\n" +
-                "001040050042003062812000000000000000000190001011200Åbogade             Åbogade                                 \n" +
-                "00201010886054 01  tv200010011108 199803190752000000000000Blok T  \n" +
-                "00301014870001 999 U200311250832Hf. Amager Strand                 \n" +
-                "00401014696002 998 L2002090912002300København S \n" +
-                "0050955022801Iliviteqqat                             201004121409190001011409\n" +
-                "00601851210028 040ZL199109231200050D03      \n" +
-                "00701010004001 999 U1995021018051207  Vesterbro                     \n" +
-                "00803360001001 999 U2006122212001Vest                          \n" +
-                "00901870958001 025 U20081010115802Egholmskolen, Festsalen       \n" +
-                "01002501248002 020 L20140812135820Falkenborgskolen              \n" +
-                "01101570007001 999 U1999122910351204Tranegård                     \n" +
-                "01205619762019 043 U20061004120661Esbjerg                       \n" +
-                "01304612994001 013 U1991092312007777Thomas Kingos,Odense\n" +
-                "01401010040001 999 U200708290757072. Sundbyvester               \n" +
-                "01501510060001 027 U1991092312005100\n" +
-                "01605500542200612221200190001011200200612221200Gånsager            Gånsager\n" +
-                "99902086782";
-
-        VejRegister register = new VejRegister(sampleData);
-        JSONArray parsedData = register.toJSON();
-
-        JSONArray comparison = new JSONArray("[{\"prodDato\":\"20141031\",\"opgaveNr\":\"370715\",\"type\":\"Start\"}," +
-                "{\"vejNavn\":\"Åbogade\",\"vejAdresseringsnavn\":\"Åbogade\",\"timestamp\":\"200306281200\",\"tilVejKode\":\"0000\",\"tilKommuneKode\":\"0000\",\"fraKommuneKode\":\"0000\",\"vejKode\":\"5004\",\"fraVejKode\":\"0000\",\"kommuneKode\":\"0400\",\"startDato\":\"190001011200\",\"type\":\"AktivVej\"}," +
-                "{\"lokalitet\":\"Blok T\",\"timestamp\":\"200010011108\",\"sidedoer\":\"tv\",\"husNr\":\"054\",\"vejKode\":\"0886\",\"kommuneKode\":\"0101\",\"startDato\":\"199803190752\",\"type\":\"Bolig\",\"etage\":\"01\"}," +
-                "{\"ligeUlige\":\"U\",\"timestamp\":\"200311250832\",\"distriktsTekst\":\"Hf. Amager Strand\",\"bynavn\":\"Hf. Amager Strand\",\"vejKode\":\"4870\",\"kommuneKode\":\"0101\",\"type\":\"ByDistrikt\",\"husNrFra\":\"001\",\"husNrTil\":\"999\"}," +
-                "{\"ligeUlige\":\"L\",\"timestamp\":\"200209091200\",\"postNr\":\"2300\",\"distriktsTekst\":\"København S\",\"vejKode\":\"4696\",\"kommuneKode\":\"0101\",\"type\":\"PostDistrikt\",\"husNrFra\":\"002\",\"husNrTil\":\"998\"}," +
-                "{\"timestamp\":\"201004121409\",\"notatNr\":\"01\",\"vejKode\":\"0228\",\"kommuneKode\":\"0955\",\"notatLinie\":\"Iliviteqqat\",\"startDato\":\"190001011409\",\"type\":\"NotatVej\"}," +
-                "{\"ligeUlige\":\"L\",\"timestamp\":\"199109231200\",\"distriktsTekst\":\"\",\"vejKode\":\"1210\",\"byfornyKode\":\"050D03\",\"kommuneKode\":\"0185\",\"type\":\"ByfornyelsesDistrikt\",\"husNrFra\":\"028\",\"husNrTil\":\"040Z\"}," +
-                "{\"ligeUlige\":\"U\",\"timestamp\":\"199502101805\",\"distriktsTekst\":\"Vesterbro\",\"vejKode\":\"0004\",\"kommuneKode\":\"0101\",\"diverseDistriktsKode\":\"07\",\"type\":\"DiverseDistrikt\",\"husNrFra\":\"001\",\"distriktType\":\"12\",\"husNrTil\":\"999\"}," +
-                "{\"ligeUlige\":\"U\",\"timestamp\":\"200612221200\",\"distriktsTekst\":\"Vest\",\"evakueringsKode\":\"1\",\"vejKode\":\"0001\",\"kommuneKode\":\"0336\",\"type\":\"EvakueringsDistrikt\",\"husNrFra\":\"001\",\"husNrTil\":\"999\"}," +
-                "{\"ligeUlige\":\"U\",\"timestamp\":\"200810101158\",\"kirkeKode\":\"02\",\"distriktsTekst\":\"Egholmskolen, Festsalen\",\"vejKode\":\"0958\",\"kommuneKode\":\"0187\",\"type\":\"KirkeDistrikt\",\"husNrFra\":\"001\",\"husNrTil\":\"025\"}," +
-                "{\"ligeUlige\":\"L\",\"timestamp\":\"201408121358\",\"distriktsTekst\":\"Falkenborgskolen\",\"vejKode\":\"1248\",\"kommuneKode\":\"0250\",\"type\":\"SkoleDistrikt\",\"husNrFra\":\"002\",\"skoleKode\":\"20\",\"husNrTil\":\"020\"}," +
-                "{\"ligeUlige\":\"U\",\"timestamp\":\"199912291035\",\"distriktsTekst\":\"Tranegård\",\"befolkningsKode\":\"1204\",\"vejKode\":\"0007\",\"kommuneKode\":\"0157\",\"type\":\"BefolkningsDistrikt\",\"husNrFra\":\"001\",\"husNrTil\":\"999\"}," +
-                "{\"ligeUlige\":\"U\",\"timestamp\":\"200610041206\",\"distriktsTekst\":\"Esbjerg\",\"vejKode\":\"9762\",\"kommuneKode\":\"0561\",\"socialKode\":\"61\",\"type\":\"SocialDistrikt\",\"husNrFra\":\"019\",\"husNrTil\":\"043\"}," +
-                "{\"ligeUlige\":\"U\",\"timestamp\":\"199109231200\",\"distriktsTekst\":\"Thomas Kingos,Odense\",\"vejKode\":\"2994\",\"kommuneKode\":\"0461\",\"myndighedsNavn\":\"Thomas Kingos,Odense\",\"myndighedsKode\":\"7777\",\"type\":\"SogneDistrikt\",\"husNrFra\":\"001\",\"husNrTil\":\"013\"}," +
-                "{\"ligeUlige\":\"U\",\"timestamp\":\"200708290757\",\"valgKode\":\"07\",\"distriktsTekst\":\"2. Sundbyvester\",\"vejKode\":\"0040\",\"kommuneKode\":\"0101\",\"type\":\"ValgDistrikt\",\"husNrFra\":\"001\",\"husNrTil\":\"999\"}," +
-                "{\"ligeUlige\":\"U\",\"timestamp\":\"199109231200\",\"distriktsTekst\":\"\",\"vejKode\":\"0060\",\"kommuneKode\":\"0151\",\"type\":\"VarmeDistrikt\",\"husNrFra\":\"001\",\"varmeKode\":\"5100\",\"husNrTil\":\"027\"}," +
-                "{\"vejNavn\":\"Gånsager\",\"vejAdresseringsnavn\":\"Gånsager\",\"timestamp\":\"200612221200\",\"slutDato\":\"200612221200\",\"vejKode\":\"0542\",\"kommuneKode\":\"0550\",\"startDato\":\"190001011200\",\"type\":\"HistoriskVej\"}," +
-                "{\"taeller\":\"02086782\",\"type\":\"Slut\"}]\n");
-
-        assertTrue(compareObjects(parsedData, comparison));
-*/
-
-    }
-
-/*    public static void main(String[] args) {
-        new VejregisterTest().testVejregister();
-    }*/
-
     private boolean compareObjects(Object obj1, Object obj2) {
         if (obj1 != obj2) {
             if (obj1 != null && obj2 == null) {
@@ -207,5 +259,5 @@ public class VejregisterTest {
         }
         return true;
     }
-
+*/
 }

@@ -66,65 +66,17 @@ public abstract class CprRegister extends DataProvider {
     public void pull(Map<String, JpaRepository> repositories) {
         System.out.println("Pulling...");
         try {
-            RegisterRun run = this.createRun();
             URL url = this.getRecordUrl();
             if (url != null) {
                 System.out.println("Loading data from " + url.toString());
                 InputStream input = url.openStream();
-
                 if (url.getFile().endsWith(".zip")) {
                     System.out.println("Passing data through ZIP filter");
                     ZipInputStream zinput = new ZipInputStream(input);
                     ZipEntry entry = zinput.getNextEntry();
                     input = zinput;
                 }
-
-                BufferedInputStream inputstream = new BufferedInputStream(input);
-
-                String encoding = this.getEncoding();
-                if (encoding != null) {
-                    System.out.println("Using explicit encoding " + encoding);
-                } else {
-                    // Try to guess the encoding based on the stream contents
-                    CharsetDetector detector = new CharsetDetector();
-                    detector.setText(inputstream);
-                    CharsetMatch match = detector.detect();
-                    if (match != null) {
-                        encoding = match.getName();
-                        System.out.println("Interpreting data as " + encoding);
-                    } else {
-                        encoding = "UTF-8";
-                        System.out.println("Falling back to default encoding " + encoding);
-                    }
-                }
-
-                BufferedReader reader = new BufferedReader(new InputStreamReader(inputstream, encoding.toUpperCase()));
-
-                System.out.println("Reading data");
-                Date startTime = new Date();
-                int i = 0, j = 0;
-                for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-                    if (line != null) {
-                        line = line.trim();
-                        if (line.length() > 3) {
-                            Record record = this.parseTrimmedLine(line.substring(0, 3), line);
-                            if (record != null) {
-                                this.processRecord(record);
-                                run.add(record);
-                            }
-                        }
-                    }
-                    i++;
-                    if (i >= 100000) {
-                        j++;
-                        System.out.println("    parsed " + (j * i) + " entries");
-                        i = 0;
-                    }
-                }
-                System.out.println("    parsed " + (j * 100000 + i) + " entries in " + String.format("%.3f", 0.001 * (new Date().getTime() - startTime.getTime())) + " seconds");
-                System.out.println("Input parsed, making sense of it");
-
-                //System.out.println(run.toJSON().toString(2));
+                RegisterRun run = this.parse(input);
                 this.saveRunToDatabase(run, repositories);
             } else {
                 System.out.println("No url");
@@ -134,7 +86,90 @@ public abstract class CprRegister extends DataProvider {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("Pull complete");
+    }
+
+    public void read(File inputfile, Map<String, JpaRepository> repositories) {
+        try {
+            if (inputfile.canRead()) {
+                System.out.println("Loading data from " + inputfile.getAbsolutePath());
+                InputStream input = new FileInputStream(inputfile);
+                if (inputfile.getAbsolutePath().endsWith(".zip")) {
+                    System.out.println("Passing data through ZIP filter");
+                    ZipInputStream zinput = new ZipInputStream(input);
+                    ZipEntry entry = zinput.getNextEntry();
+                    input = zinput;
+                }
+                RegisterRun run = this.parse(input);
+                this.saveRunToDatabase(run, repositories);
+            } else {
+                System.out.println("Can't read from file "+inputfile.getAbsolutePath());
+            }
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private RegisterRun parse(InputStream input) {
+        try {
+            RegisterRun run = this.createRun();
+            BufferedInputStream inputstream = new BufferedInputStream(input);
+
+            String encoding = this.getEncoding();
+            if (encoding != null) {
+                System.out.println("Using explicit encoding " + encoding);
+            } else {
+                // Try to guess the encoding based on the stream contents
+                CharsetDetector detector = new CharsetDetector();
+                detector.setText(inputstream);
+                CharsetMatch match = detector.detect();
+                if (match != null) {
+                    encoding = match.getName();
+                    System.out.println("Interpreting data as " + encoding);
+                } else {
+                    encoding = "UTF-8";
+                    System.out.println("Falling back to default encoding " + encoding);
+                }
+            }
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputstream, encoding.toUpperCase()));
+
+            System.out.println("Reading data");
+            Date startTime = new Date();
+            int i = 0, j = 0;
+            for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+                if (line != null) {
+                    line = line.trim();
+                    if (line.length() > 3) {
+                        Record record = this.parseTrimmedLine(line.substring(0, 3), line);
+                        if (record != null) {
+                            this.processRecord(record);
+                            run.add(record);
+                        }
+                    }
+                }
+                i++;
+                if (i >= 100000) {
+                    j++;
+                    System.out.println("    parsed " + (j * i) + " entries");
+                    i = 0;
+                }
+            }
+            System.out.println("    parsed " + (j * 100000 + i) + " entries in " + String.format("%.3f", 0.001 * (new Date().getTime() - startTime.getTime())) + " seconds");
+            System.out.println("Input parsed, making sense of it");
+
+            //System.out.println(run.toJSON().toString(2));
+            System.out.println("Pull complete");
+            return run;
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Pull failed");
+        return null;
     }
 
     protected Record parseTrimmedLine(String recordType, String line) {
