@@ -93,13 +93,13 @@ public class LokalitetsRegister extends CprRegister {
 
             Collection<KommunedelAfNavngivenVejEntity> dele = n.getKommunedeleAfNavngivenVej();
             for (KommunedelAfNavngivenVejEntity del : dele) {
-                navngivenVejEntities.put(""+del.getKommune().getKommunekode(), ""+del.getVejkode(), n);
+                navngivenVejEntities.add(""+del.getKommune().getKommunekode(), ""+del.getVejkode(), n);
             }
         }*/
 
         try {
             this.startInputProcessing();
-            for (Record record : run.getAll()) {
+            for (Record record : run) {
                 if (record.getRecordType().equals(Lokalitet.RECORDTYPE_LOKALITET)) {
                     Lokalitet lokalitet = (Lokalitet) record;
                     int kommuneKode = lokalitet.getInt("kommuneKode");

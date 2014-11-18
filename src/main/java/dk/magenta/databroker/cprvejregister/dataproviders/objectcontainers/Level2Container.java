@@ -55,7 +55,9 @@ public class Level2Container<T> extends HashMap<String, Level1Container<T>> {
 
     public List<T> getList(String ident2) {
         ArrayList<T> list = new ArrayList<T>();
-        list.addAll(this.get(ident2).getList());
+        if (this.containsKey(ident2)) {
+            list.addAll(this.get(ident2).getList());
+        }
         return list;
     }
 

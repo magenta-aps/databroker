@@ -5,7 +5,6 @@ import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.Record;
 import dk.magenta.databroker.cprvejregister.model.*;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -295,18 +294,17 @@ public class VejRegister extends CprRegister {
             super();
             this.aktiveVeje = new Level2Container<AktivVej>();
         }
-        public void saveRecord(Record record) {
+        public boolean add(Record record) {
             if (record.getRecordType().equals(VejDataRecord.RECORDTYPE_AKTVEJ)) {
-                this.saveRecord((AktivVej) record);
+                AktivVej vej = (AktivVej) record;
+                int vejKode = vej.getInt("vejKode");
+                int kommuneKode = vej.getInt("kommuneKode");
+                if (!aktiveVeje.put(kommuneKode, vejKode, vej, true)) {
+                    System.out.println("Collision on kommuneKode "+kommuneKode+", vejKode "+vejKode+" ("+aktiveVeje.get(kommuneKode, vejKode).get("vejNavn")+" vs "+vej.get("vejNavn")+")");
+                }
+                super.add(vej);
             }
-        }
-        public void saveRecord(AktivVej vej) {
-            super.saveRecord(vej);
-            int vejKode = vej.getInt("vejKode");
-            int kommuneKode = vej.getInt("kommuneKode");
-            if (!aktiveVeje.put(kommuneKode, vejKode, vej, true)) {
-                System.out.println("Collision on kommuneKode "+kommuneKode+", vejKode "+vejKode+" ("+aktiveVeje.get(kommuneKode, vejKode).get("vejNavn")+" vs "+vej.get("vejNavn")+")");
-            }
+            return false;
         }
 
         public Level2Container<AktivVej> getAktiveVeje() {

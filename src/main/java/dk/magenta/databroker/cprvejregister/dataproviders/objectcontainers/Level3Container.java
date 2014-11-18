@@ -56,13 +56,17 @@ public class Level3Container<T> extends HashMap<String, Level2Container<T>> {
 
     public List<T> getList(String ident3) {
         ArrayList<T> list = new ArrayList<T>();
-        list.addAll(this.get(ident3).getList());
+        if (this.containsKey(ident3)) {
+            list.addAll(this.get(ident3).getList());
+        }
         return list;
     }
 
     public List<T> getList(String ident3, String ident2) {
         ArrayList<T> list = new ArrayList<T>();
-        list.addAll(this.get(ident3).getList(ident2));
+        if (this.containsKey(ident3)) {
+            list.addAll(this.get(ident3).getList(ident2));
+        }
         return list;
     }
 

@@ -5,7 +5,6 @@ import com.ibm.icu.text.CharsetMatch;
 import dk.magenta.databroker.core.DataProvider;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
-import org.json.JSONArray;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.io.*;
@@ -56,6 +55,7 @@ public abstract class CprRegister extends DataProvider {
     }
 
     protected RegisterRun createRun() {
+
         return new RegisterRun();
     }
 
@@ -110,7 +110,7 @@ public abstract class CprRegister extends DataProvider {
                             Record record = this.parseTrimmedLine(line.substring(0, 3), line);
                             if (record != null) {
                                 this.processRecord(record);
-                                run.saveRecord(record);
+                                run.add(record);
                             }
                         }
                     }
@@ -155,15 +155,8 @@ public abstract class CprRegister extends DataProvider {
         // Override me
     }
 
-    protected void saveRunToDatabase(RegisterRun run, JpaRepository repository) {
-        // Override me
-    }
-
     protected void saveRunToDatabase(RegisterRun run, Map<String, JpaRepository> repositories) {
-        // Override me if needed
-        if (repositories.size() == 1) {
-            this.saveRunToDatabase(run, repositories.get(0));
-        }
+        // Override me
     }
 
     protected void processRecord(Record record) {

@@ -1,7 +1,6 @@
 package dk.magenta.databroker.cprvejregister.dataproviders;
 
 import dk.magenta.databroker.core.model.DataProviderEntity;
-import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.Level1Container;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.Record;
 import dk.magenta.databroker.cprvejregister.model.PostnummerEntity;
 import dk.magenta.databroker.cprvejregister.model.PostnummerRepository;
@@ -47,18 +46,16 @@ public class PostnummerRegister extends CprRegister {
             this.postdistrikter = new HashMap<String, String>();
         }
 
-        public void saveRecord(Record record) {
+        public boolean add(Record record) {
             if (record.getRecordType().equals(PostNummer.RECORDTYPE_POSTNUMMER)) {
-                this.saveRecord((PostNummer) record);
+                PostNummer postnummer = (PostNummer) record;
+                String nummer = postnummer.get("postNr");
+                if (nummer != null) {
+                    this.postdistrikter.put(nummer, postnummer.get("postDistriktTekst"));
+                }
+                return super.add(postnummer);
             }
-        }
-
-        public void saveRecord(PostNummer postnummer) {
-            super.saveRecord(postnummer);
-            String nummer = postnummer.get("postNr");
-            if (nummer != null) {
-                this.postdistrikter.put(nummer, postnummer.get("postDistriktTekst"));
-            }
+            return false;
         }
 
         public HashMap<String, String> getPostdistrikter() {
@@ -73,6 +70,10 @@ public class PostnummerRegister extends CprRegister {
 
     public URL getRecordUrl() throws MalformedURLException {
         return new URL("https://cpr.dk/media/152114/a370712.txt");
+    }
+
+    protected String getEncoding() {
+        return "ISO-8859-1";
     }
 
     protected RegisterRun createRun() {
@@ -120,6 +121,7 @@ public class PostnummerRegister extends CprRegister {
                 counter.countCreatedItem();
             }
             if (!navn.equals(postnummerEntity.getNavn())) {
+                System.out.println(navn+" vs "+postnummerEntity.getNavn());
                 postnummerEntity.setNavn(navn);
                 if (!updatePostnummerEntity) {
                     counter.countUpdatedItem();

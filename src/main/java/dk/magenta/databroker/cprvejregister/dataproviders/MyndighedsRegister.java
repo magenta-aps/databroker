@@ -6,20 +6,13 @@ import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.Level
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
 import dk.magenta.databroker.cprvejregister.model.KommuneEntity;
 import dk.magenta.databroker.cprvejregister.model.KommuneRepository;
-import org.apache.cxf.service.invoker.SessionFactory;
-import org.hibernate.Session;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.data.jpa.repository.JpaRepository;
 //import dk.magenta.databroker.models.adresser.Kommune;
 
-import javax.persistence.EntityManager;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -89,27 +82,22 @@ public class MyndighedsRegister extends CprRegister {
 
     public class MyndighedsRegisterRun extends RegisterRun {
 
-        private String getEncoding() {
-            return "ISO-8859-1";
-        }
-
         private Level2Container<Myndighed> myndigheder;
         public MyndighedsRegisterRun() {
             super();
             this.myndigheder = new Level2Container<Myndighed>();
         }
-        public void saveRecord(Record record) {
+        public boolean add(Record record) {
             if (record.getRecordType().equals(MyndighedsDataRecord.RECORDTYPE_MYNDIGHED)) {
-                this.saveRecord((Myndighed) record);
+                Myndighed myndighed = (Myndighed) record;
+                String myndighedsType = myndighed.get("myndighedsType");
+                String myndighedsKode = myndighed.get("myndighedsKode");
+                if (!myndigheder.put(myndighedsType, myndighedsKode, myndighed, true)) {
+                    System.out.println("Collision on myndighedsType "+myndighedsType+", myndighedsKode "+myndighedsKode+" ("+myndigheder.get(myndighedsType, myndighedsKode).get("myndighedsNavn")+" vs "+myndighed.get("myndighedsNavn")+")");
+                }
+                return super.add(myndighed);
             }
-        }
-        public void saveRecord(Myndighed myndighed) {
-            super.saveRecord(myndighed);
-            String myndighedsType = myndighed.get("myndighedsType");
-            String myndighedsKode = myndighed.get("myndighedsKode");
-            if (!myndigheder.put(myndighedsType, myndighedsKode, myndighed, true)) {
-                System.out.println("Collision on myndighedsType "+myndighedsType+", myndighedsKode "+myndighedsKode+" ("+myndigheder.get(myndighedsType, myndighedsKode).get("myndighedsNavn")+" vs "+myndighed.get("myndighedsNavn")+")");
-            }
+            return false;
         }
 
         public Myndighed getMyndighed(String myndighedsType, String myndighedsKode) {
@@ -141,6 +129,11 @@ public class MyndighedsRegister extends CprRegister {
     public URL getRecordUrl() throws MalformedURLException {
         return new URL("https://cpr.dk/media/219468/a370716.txt");
     }
+
+    protected String getEncoding() {
+        return "ISO-8859-1";
+    }
+
     protected RegisterRun createRun() {
         return new MyndighedsRegisterRun();
     }
@@ -175,7 +168,7 @@ public class MyndighedsRegister extends CprRegister {
         }
         System.out.println("Storing KommuneEntities in database");
         MyndighedsRegisterRun mrun = (MyndighedsRegisterRun) run;
-        List<Myndighed> kommuner = mrun.getMyndigheder("05");
+        List<Myndighed> kommuner = mrun.getMyndigheder("5");
         EntityModificationCounter counter = new EntityModificationCounter();
 
         for (Myndighed kommune : kommuner) {
