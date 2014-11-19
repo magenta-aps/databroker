@@ -26,6 +26,15 @@ public class VirkningEntity {
     @Column(nullable = true, insertable = true, updatable = true)
     private String note;
 
+    public VirkningEntity() {
+    }
+
+    public VirkningEntity(Timestamp fra, Timestamp til, String aktoerUUID) {
+        this.fra = fra;
+        this.til = til;
+        this.aktoerUUID = aktoerUUID;
+    }
+
     public VirkningEntity(Timestamp fra, Timestamp til, String aktoerUUID, String note) {
         this.fra = fra;
         this.til = til;

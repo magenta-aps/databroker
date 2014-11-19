@@ -25,8 +25,12 @@ public abstract class DobbeltHistorikEntity<
     @Column(nullable = true, insertable = true, updatable = true)
     private String brugervendtNoegle;
 
-    @OneToMany(mappedBy = "entitet")
+    @OneToMany(mappedBy = "entitet", cascade = CascadeType.ALL)
     private Collection<R> registreringer;
+
+    public DobbeltHistorikEntity() {
+        this.registreringer = new ArrayList<R>();
+    }
 
     public DobbeltHistorikEntity(String uuid, String brugervendtNoegle) {
         this.uuid = uuid;

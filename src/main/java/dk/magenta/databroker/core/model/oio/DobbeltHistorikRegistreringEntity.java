@@ -27,8 +27,11 @@ public class DobbeltHistorikRegistreringEntity<
         @OneToOne(optional = false)
         private RegistreringEntity registrering;
 
-        @OneToMany(mappedBy = "entitetsRegistrering")
+        @OneToMany(mappedBy = "entitetsRegistrering", cascade = CascadeType.ALL)
         private Collection<V> registreringsVirkninger;
+
+        public DobbeltHistorikRegistreringEntity() {
+        }
 
         public DobbeltHistorikRegistreringEntity(
                 E entitet, RegistreringEntity registrering, Collection<VirkningEntity> virkninger

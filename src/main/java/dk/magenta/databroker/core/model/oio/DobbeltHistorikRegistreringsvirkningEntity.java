@@ -20,8 +20,11 @@ public class DobbeltHistorikRegistreringsvirkningEntity<
     @OneToOne(optional = false)
     private VirkningEntity virkning;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     private R entitetsRegistrering;
+
+    public DobbeltHistorikRegistreringsvirkningEntity() {
+    }
 
     public DobbeltHistorikRegistreringsvirkningEntity(R entitetsRegistrering, VirkningEntity virkning) {
         this.entitetsRegistrering = entitetsRegistrering;

@@ -10,20 +10,24 @@ import java.util.Collection;
 @Entity
 @Table(name = "core_oio_registrering_livscyklus")
 public class RegistreringLivscyklusEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(nullable = false, insertable = true, updatable = true)
     private Long id;
 
+    @Column(nullable = false, insertable = true, updatable = true, unique = true)
     private String navn;
 
     @OneToMany(mappedBy = "livscyklus")
     private Collection<RegistreringEntity> registreringer;
 
+    public RegistreringLivscyklusEntity() {
+    }
+
     public RegistreringLivscyklusEntity(String navn) {
         this.navn = navn;
     }
-
 
     public Long getId() {
         return id;
