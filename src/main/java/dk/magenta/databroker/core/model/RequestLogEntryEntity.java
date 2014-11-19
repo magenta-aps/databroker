@@ -7,7 +7,7 @@ import java.sql.Timestamp;
  * Created by jubk on 07-11-2014.
  */
 @Entity
-@Table(name = "RequestLogEntry")
+@Table(name = "core_request_log_entry")
 public class RequestLogEntryEntity {
     private Long id;
     private Integer consumerId;

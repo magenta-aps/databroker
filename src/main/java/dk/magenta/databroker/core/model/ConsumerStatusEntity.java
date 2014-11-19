@@ -7,7 +7,7 @@ import java.util.Collection;
  * Created by jubk on 07-11-2014.
  */
 @Entity
-@Table(name = "ConsumerStatus")
+@Table(name = "core_consumer_status")
 public class ConsumerStatusEntity {
     private Integer id;
     private String name;

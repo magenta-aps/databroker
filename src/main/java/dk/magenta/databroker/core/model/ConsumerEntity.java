@@ -7,7 +7,7 @@ import java.util.Collection;
  * Created by jubk on 07-11-2014.
  */
 @Entity
-@Table(name = "Consumer")
+@Table(name = "core_consumer")
 public class ConsumerEntity {
     private Integer id;
     private String uuid;

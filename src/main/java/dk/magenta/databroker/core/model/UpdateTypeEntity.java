@@ -7,7 +7,7 @@ import java.util.Collection;
  * Created by jubk on 07-11-2014.
  */
 @Entity
-@Table(name = "UpdateType")
+@Table(name = "core_update_type")
 public class UpdateTypeEntity {
     private Integer id;
     private String name;

@@ -6,7 +6,7 @@ import javax.persistence.*;
  * Created by jubk on 07-11-2014.
  */
 @Entity
-@Table(name = "IpAuthentication")
+@Table(name = "core_ip_authentication")
 public class IpAuthenticationEntity {
     private Integer id;
     private Integer consumerId;

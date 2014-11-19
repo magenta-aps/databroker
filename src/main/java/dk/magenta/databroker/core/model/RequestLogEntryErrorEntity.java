@@ -6,7 +6,7 @@ import javax.persistence.*;
  * Created by jubk on 07-11-2014.
  */
 @Entity
-@Table(name = "RequestLogEntryError")
+@Table(name = "core_request_log_entry_error")
 public class RequestLogEntryErrorEntity {
     private Integer id;
     private Long requestLogId;

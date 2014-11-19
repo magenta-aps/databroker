@@ -6,7 +6,7 @@ import javax.persistence.*;
  * Created by jubk on 07-11-2014.
  */
 @Entity
-@Table(name = "UpdateLogEntry")
+@Table(name = "core_update_log_entry")
 public class UpdateLogEntryEntity {
     private Long id;
     private Integer sourceDataProviderId;
