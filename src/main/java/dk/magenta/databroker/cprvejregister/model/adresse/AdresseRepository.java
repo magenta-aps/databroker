@@ -1,5 +1,6 @@
-package dk.magenta.databroker.cprvejregister.model;
+package dk.magenta.databroker.cprvejregister.model.adresse;
 
+import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**

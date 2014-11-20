@@ -1,5 +1,7 @@
 package dk.magenta.databroker.cprvejregister.model;
 
+import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
+
 import javax.persistence.*;
 import java.util.Collection;
 

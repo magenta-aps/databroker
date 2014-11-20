@@ -1,8 +1,6 @@
-package dk.magenta.databroker.cprvejregister.model;
+package dk.magenta.databroker.cprvejregister.model.kommune;
 
-import dk.magenta.databroker.core.testmodel.TestAddressEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 /**
  * Created by lars on 11-11-14.

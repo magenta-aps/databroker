@@ -2,17 +2,24 @@ package dk.magenta.databroker.test;
 
 import dk.magenta.databroker.Application;
 import dk.magenta.databroker.core.model.DataProviderEntity;
-import dk.magenta.databroker.core.model.DataProviderRepository;
-import dk.magenta.databroker.core.testmodel.TestAddressRepository;
 import dk.magenta.databroker.cprvejregister.dataproviders.LokalitetsRegister;
 import dk.magenta.databroker.cprvejregister.dataproviders.MyndighedsRegister;
 import dk.magenta.databroker.cprvejregister.dataproviders.PostnummerRegister;
 import dk.magenta.databroker.cprvejregister.dataproviders.VejRegister;
-import dk.magenta.databroker.cprvejregister.model.*;
-import org.json.JSONArray;
+import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
+import dk.magenta.databroker.cprvejregister.model.adresse.AdresseRepository;
 
 
-import org.json.JSONObject;
+import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
+import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerRepository;
+import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
+import dk.magenta.databroker.cprvejregister.model.kommune.KommuneRepository;
+import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
+import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejRepository;
+import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
+import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejRepository;
+import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerEntity;
+import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +29,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
@@ -108,7 +114,7 @@ public class VejregisterTest {
     }*/
 
 
-    
+
 
 
     @Test

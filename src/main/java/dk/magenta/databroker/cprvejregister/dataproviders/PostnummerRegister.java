@@ -2,8 +2,8 @@ package dk.magenta.databroker.cprvejregister.dataproviders;
 
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.Record;
-import dk.magenta.databroker.cprvejregister.model.PostnummerEntity;
-import dk.magenta.databroker.cprvejregister.model.PostnummerRepository;
+import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerEntity;
+import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.net.MalformedURLException;

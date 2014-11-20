@@ -13,20 +13,21 @@ public abstract class DobbeltHistorikEntity<
         R extends DobbeltHistorikRegistreringEntity<E, R, V>,
         V extends DobbeltHistorikRegistreringsvirkningEntity<E, R, V>
         > {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(nullable = false, insertable = true, updatable = true)
     private Long id;
 
-    @Column(nullable = false, insertable = true, updatable = true)
+    @Column(nullable = false, insertable = true, updatable = true, unique = true)
     private String uuid;
-
 
     @Column(nullable = true, insertable = true, updatable = true)
     private String brugervendtNoegle;
 
     @OneToMany(mappedBy = "entitet", cascade = CascadeType.ALL)
     private Collection<R> registreringer;
+
 
     public DobbeltHistorikEntity() {
         this.registreringer = new ArrayList<R>();
@@ -70,8 +71,26 @@ public abstract class DobbeltHistorikEntity<
         this.registreringer.add(registrering);
     }
 
-    public void addToRegistreringer(RegistreringEntity reg, Collection<VirkningEntity> virkninger) {
-        R dhReg = (R)new DobbeltHistorikRegistreringEntity<E, R, V>((E)this, reg, virkninger);
+    public R addToRegistreringer(RegistreringEntity reg, Collection<VirkningEntity> virkninger) {
+        R dhReg = (R) new DobbeltHistorikRegistreringEntity<E, R, V>((E)this, reg, virkninger);
         this.registreringer.add(dhReg);
+        return dhReg;
+    }
+
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null || this.getClass() != other.getClass()) {
+            return false;
+        }
+        DobbeltHistorikEntity that = (DobbeltHistorikEntity) other;
+        if (this.getId() != that.getId()) {
+            return false;
+        }
+        if (this.getUuid() != null ? !this.getUuid().equals(that.getUuid()) : that.getUuid() != null) {
+            return false;
+        }
+        return true;
     }
 }

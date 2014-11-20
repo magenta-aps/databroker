@@ -1,5 +1,8 @@
 package dk.magenta.databroker.cprvejregister.model;
 
+import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
+import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerEntity;
+
 import javax.persistence.*;
 import java.util.Collection;
 

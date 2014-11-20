@@ -3,7 +3,12 @@ import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.*;
 
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.Record;
-import dk.magenta.databroker.cprvejregister.model.*;
+import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
+import dk.magenta.databroker.cprvejregister.model.kommune.KommuneRepository;
+import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
+import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejRepository;
+import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
+import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.net.MalformedURLException;

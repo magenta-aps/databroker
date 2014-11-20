@@ -1,6 +1,6 @@
-package dk.magenta.databroker.cprvejregister.model;
+package dk.magenta.databroker.cprvejregister.model.husnummer;
 
-import org.springframework.data.domain.PageRequest;
+import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

@@ -3,14 +3,19 @@ package dk.magenta.databroker.cprvejregister.dataproviders;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
 import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.*;
-import dk.magenta.databroker.cprvejregister.model.*;
+import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
+import dk.magenta.databroker.cprvejregister.model.adresse.AdresseRepository;
+import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
+import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerRepository;
+import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejRepository;
+import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
+import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.*;
-import java.util.regex.Pattern;
 
 /**
  * Created by lars on 04-11-14.

@@ -1,4 +1,4 @@
-package dk.magenta.databroker.cprvejregister.model;
+package dk.magenta.databroker.cprvejregister.model.navngivenvej;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

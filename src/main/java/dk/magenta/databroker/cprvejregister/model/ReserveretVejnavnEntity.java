@@ -1,5 +1,7 @@
 package dk.magenta.databroker.cprvejregister.model;
 
+import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
+
 import javax.persistence.*;
 import java.sql.Date;
 
