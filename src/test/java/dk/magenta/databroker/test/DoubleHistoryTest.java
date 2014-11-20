@@ -3,6 +3,7 @@ package dk.magenta.databroker.test;
 import dk.magenta.databroker.Application;
 import dk.magenta.databroker.core.model.oio.*;
 import dk.magenta.databroker.jubk.model.JubkEntity;
+import dk.magenta.databroker.jubk.model.JubkRegistreringEntity;
 import dk.magenta.databroker.jubk.model.JubkRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -60,7 +61,9 @@ public class DoubleHistoryTest {
 
         JubkEntity entity = new JubkEntity(UUID.randomUUID().toString(), "asdf");
 
-        entity.addToRegistreringer(oioReg, virkninger);
+        JubkRegistreringEntity reg = new JubkRegistreringEntity(entity, oioReg, virkninger);
+        reg.setCustom("hurra");
+        entity.addToRegistreringer(reg);
 
         jubkRepo.save(entity);
     }

@@ -1,6 +1,6 @@
 package dk.magenta.databroker.jubk.model;
 
-import dk.magenta.databroker.core.model.oio.DobbeltHistorikRegistreringsvirkningEntity;
+import dk.magenta.databroker.core.model.oio.DobbeltHistorikVirkning;
 import dk.magenta.databroker.core.model.oio.VirkningEntity;
 
 import javax.persistence.Entity;
@@ -12,7 +12,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "jubk_jubk_registreringsvirkning")
-public class JubkRegistreringsvirkningEntity extends DobbeltHistorikRegistreringsvirkningEntity<
+public class JubkRegistreringsvirkningEntity extends DobbeltHistorikVirkning<
         JubkEntity,
         JubkRegistreringEntity,
         JubkRegistreringsvirkningEntity> {

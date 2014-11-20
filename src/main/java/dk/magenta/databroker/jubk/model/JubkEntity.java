@@ -1,6 +1,6 @@
 package dk.magenta.databroker.jubk.model;
 
-import dk.magenta.databroker.core.model.oio.DobbeltHistorikEntity;
+import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -10,7 +10,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "jubk_jubk")
-public class JubkEntity extends DobbeltHistorikEntity<
+public class JubkEntity extends DobbeltHistorikBase<
         JubkEntity,
         JubkRegistreringEntity,
         JubkRegistreringsvirkningEntity
