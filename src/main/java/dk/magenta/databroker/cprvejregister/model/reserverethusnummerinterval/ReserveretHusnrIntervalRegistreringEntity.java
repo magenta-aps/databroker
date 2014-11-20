@@ -1,6 +1,6 @@
 package dk.magenta.databroker.cprvejregister.model.reserverethusnummerinterval;
 
-import dk.magenta.databroker.core.model.oio.DobbeltHistorikRegistreringEntity;
+import dk.magenta.databroker.core.model.oio.DobbeltHistorikRegistrering;
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.core.model.oio.VirkningEntity;
 
@@ -14,7 +14,7 @@ import java.util.Collection;
 @Entity
 @Table(name = "reserveret_husnr_interval_registrering")
 public class ReserveretHusnrIntervalRegistreringEntity
-        extends DobbeltHistorikRegistreringEntity<ReserveretHusnrIntervalEntity, ReserveretHusnrIntervalRegistreringEntity, ReserveretHusnrIntervalRegistreringsVirkningEntity> {
+        extends DobbeltHistorikRegistrering<ReserveretHusnrIntervalEntity, ReserveretHusnrIntervalRegistreringEntity, ReserveretHusnrIntervalRegistreringsVirkningEntity> {
 
         public ReserveretHusnrIntervalRegistreringEntity() {
         }

@@ -1,8 +1,7 @@
 package dk.magenta.databroker.cprvejregister.model.isopunkt;
 
-import dk.magenta.databroker.core.model.oio.DobbeltHistorikRegistreringsvirkningEntity;
+import dk.magenta.databroker.core.model.oio.DobbeltHistorikVirkning;
 import dk.magenta.databroker.core.model.oio.VirkningEntity;
-import dk.magenta.databroker.cprvejregister.model.vejnavneomraade.VejnavneomraadeEntity;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -13,7 +12,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "isopunkt_registreringsvirkning")
-public class IsoPunktRegistreringsVirkningEntity extends DobbeltHistorikRegistreringsvirkningEntity<
+public class IsoPunktRegistreringsVirkningEntity extends DobbeltHistorikVirkning<
         IsoPunktEntity,
         IsoPunktRegistreringEntity,
         IsoPunktRegistreringsVirkningEntity> {

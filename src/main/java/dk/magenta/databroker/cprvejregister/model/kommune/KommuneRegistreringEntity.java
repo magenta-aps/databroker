@@ -1,9 +1,8 @@
 package dk.magenta.databroker.cprvejregister.model.kommune;
 
-import dk.magenta.databroker.core.model.oio.DobbeltHistorikRegistreringEntity;
+import dk.magenta.databroker.core.model.oio.DobbeltHistorikRegistrering;
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.core.model.oio.VirkningEntity;
-import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -15,7 +14,7 @@ import java.util.Collection;
 @Entity
 @Table(name = "kommune_registrering")
 public class KommuneRegistreringEntity
-        extends DobbeltHistorikRegistreringEntity<KommuneEntity, KommuneRegistreringEntity, KommuneRegistreringsVirkningEntity> {
+        extends DobbeltHistorikRegistrering<KommuneEntity, KommuneRegistreringEntity, KommuneRegistreringsVirkningEntity> {
 
         public KommuneRegistreringEntity() {
         }

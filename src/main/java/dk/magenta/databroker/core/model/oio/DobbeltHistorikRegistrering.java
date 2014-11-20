@@ -1,7 +1,5 @@
 package dk.magenta.databroker.core.model.oio;
 
-import org.hibernate.annotations.Cascade;
-
 import javax.persistence.*;
 import java.util.*;
 
@@ -9,10 +7,10 @@ import java.util.*;
  * Created by jubk on 11/12/14.
  */
 @MappedSuperclass
-public class DobbeltHistorikRegistreringEntity<
-        E extends DobbeltHistorikEntity<E, R, V>,
-        R extends DobbeltHistorikRegistreringEntity<E, R, V>,
-        V extends DobbeltHistorikRegistreringsvirkningEntity<E, R, V>
+public class DobbeltHistorikRegistrering<
+        E extends DobbeltHistorikBase<E, R, V>,
+        R extends DobbeltHistorikRegistrering<E, R, V>,
+        V extends DobbeltHistorikVirkning<E, R, V>
         > {
 
         @Id
@@ -30,10 +28,10 @@ public class DobbeltHistorikRegistreringEntity<
         @OneToMany(mappedBy = "entitetsRegistrering", cascade = CascadeType.ALL)
         private Collection<V> registreringsVirkninger;
 
-        public DobbeltHistorikRegistreringEntity() {
+        public DobbeltHistorikRegistrering() {
         }
 
-        public DobbeltHistorikRegistreringEntity(
+        public DobbeltHistorikRegistrering(
                 E entitet, RegistreringEntity registrering, Collection<VirkningEntity> virkninger
         ) {
                 this.entitet = entitet;
@@ -41,7 +39,7 @@ public class DobbeltHistorikRegistreringEntity<
                 this.registreringsVirkninger = new ArrayList<V>();
 
                 for(VirkningEntity v: virkninger) {
-                        V regVirkning = (V)new DobbeltHistorikRegistreringsvirkningEntity<E, R, V>(
+                        V regVirkning = (V)new DobbeltHistorikVirkning<E, R, V>(
                                 (R)this, v
                         );
                         this.registreringsVirkninger.add(regVirkning);

@@ -1,6 +1,6 @@
 package dk.magenta.databroker.cprvejregister.model.husnummer;
 
-import dk.magenta.databroker.core.model.oio.DobbeltHistorikEntity;
+import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
@@ -15,7 +15,7 @@ import java.util.Collection;
 @Entity
 @Table(name = "husnummer", indexes = { @Index(name="navngivenVej", columnList="navngiven_vej_id"), @Index(name="adgangspunkt", columnList="tilknyttet_adgangspunkt_id") })
 public class HusnummerEntity
-        extends DobbeltHistorikEntity<HusnummerEntity, HusnummerRegistreringEntity, HusnummerRegistreringsVirkningEntity>
+        extends DobbeltHistorikBase<HusnummerEntity, HusnummerRegistreringEntity, HusnummerRegistreringsVirkningEntity>
         implements Serializable {
 
     @Basic

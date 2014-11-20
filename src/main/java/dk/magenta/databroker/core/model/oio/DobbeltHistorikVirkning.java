@@ -1,16 +1,15 @@
 package dk.magenta.databroker.core.model.oio;
 
 import javax.persistence.*;
-import java.util.Collection;
 
 /**
  * Created by jubk on 11/12/14.
  */
 @MappedSuperclass
-public class DobbeltHistorikRegistreringsvirkningEntity<
-        E extends DobbeltHistorikEntity<E, R, V>,
-        R extends DobbeltHistorikRegistreringEntity<E, R, V>,
-        V extends DobbeltHistorikRegistreringsvirkningEntity<E, R, V>
+public class DobbeltHistorikVirkning<
+        E extends DobbeltHistorikBase<E, R, V>,
+        R extends DobbeltHistorikRegistrering<E, R, V>,
+        V extends DobbeltHistorikVirkning<E, R, V>
         > {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -23,10 +22,10 @@ public class DobbeltHistorikRegistreringsvirkningEntity<
     @ManyToOne
     private R entitetsRegistrering;
 
-    public DobbeltHistorikRegistreringsvirkningEntity() {
+    public DobbeltHistorikVirkning() {
     }
 
-    public DobbeltHistorikRegistreringsvirkningEntity(R entitetsRegistrering, VirkningEntity virkning) {
+    public DobbeltHistorikVirkning(R entitetsRegistrering, VirkningEntity virkning) {
         this.entitetsRegistrering = entitetsRegistrering;
         this.virkning = virkning;
     }

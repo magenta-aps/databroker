@@ -1,9 +1,8 @@
 package dk.magenta.databroker.cprvejregister.model.reserveretvejnavn;
 
-import dk.magenta.databroker.core.model.oio.DobbeltHistorikRegistreringEntity;
+import dk.magenta.databroker.core.model.oio.DobbeltHistorikRegistrering;
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.core.model.oio.VirkningEntity;
-import dk.magenta.databroker.cprvejregister.model.vejnavneforslag.VejnavneforslagEntity;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -15,7 +14,7 @@ import java.util.Collection;
 @Entity
 @Table(name = "reserveret_vejnavn_registrering")
 public class ReserveretVejnavnRegistreringEntity
-        extends DobbeltHistorikRegistreringEntity<ReserveretVejnavnEntity, ReserveretVejnavnRegistreringEntity, ReserveretVejnavnRegistreringsVirkningEntity> {
+        extends DobbeltHistorikRegistrering<ReserveretVejnavnEntity, ReserveretVejnavnRegistreringEntity, ReserveretVejnavnRegistreringsVirkningEntity> {
 
         public ReserveretVejnavnRegistreringEntity() {
         }

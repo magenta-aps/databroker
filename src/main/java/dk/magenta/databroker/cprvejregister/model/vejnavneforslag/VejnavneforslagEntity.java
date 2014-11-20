@@ -1,6 +1,6 @@
 package dk.magenta.databroker.cprvejregister.model.vejnavneforslag;
 
-import dk.magenta.databroker.core.model.oio.DobbeltHistorikEntity;
+import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
 
 import javax.persistence.*;
@@ -12,7 +12,7 @@ import java.io.Serializable;
 @Entity
 @Table(name = "vejnavneforslag", indexes = { @Index(name="navn", columnList="navn") } )
 public class VejnavneforslagEntity
-        extends DobbeltHistorikEntity<VejnavneforslagEntity, VejnavneforslagRegistreringEntity, VejnavneforslagRegistreringsVirkningEntity>
+        extends DobbeltHistorikBase<VejnavneforslagEntity, VejnavneforslagRegistreringEntity, VejnavneforslagRegistreringsVirkningEntity>
         implements Serializable {
 
     @Basic

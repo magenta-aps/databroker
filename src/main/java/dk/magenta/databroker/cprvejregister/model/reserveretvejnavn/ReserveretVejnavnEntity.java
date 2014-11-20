@@ -1,6 +1,6 @@
 package dk.magenta.databroker.cprvejregister.model.reserveretvejnavn;
 
-import dk.magenta.databroker.core.model.oio.DobbeltHistorikEntity;
+import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
 
 import javax.persistence.*;
@@ -13,7 +13,7 @@ import java.sql.Date;
 @Entity
 @Table(name = "reserveret_vejnavn")
 public class ReserveretVejnavnEntity
-        extends DobbeltHistorikEntity<ReserveretVejnavnEntity, ReserveretVejnavnRegistreringEntity, ReserveretVejnavnRegistreringsVirkningEntity>
+        extends DobbeltHistorikBase<ReserveretVejnavnEntity, ReserveretVejnavnRegistreringEntity, ReserveretVejnavnRegistreringsVirkningEntity>
         implements Serializable {
 
     @Basic

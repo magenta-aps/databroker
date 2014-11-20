@@ -1,6 +1,6 @@
 package dk.magenta.databroker.cprvejregister.model.reserverethusnummerinterval;
 
-import dk.magenta.databroker.core.model.oio.DobbeltHistorikRegistreringsvirkningEntity;
+import dk.magenta.databroker.core.model.oio.DobbeltHistorikVirkning;
 import dk.magenta.databroker.core.model.oio.VirkningEntity;
 
 import javax.persistence.Entity;
@@ -12,7 +12,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "reserveret_husnr_interval_registreringsvirkning")
-public class ReserveretHusnrIntervalRegistreringsVirkningEntity extends DobbeltHistorikRegistreringsvirkningEntity<
+public class ReserveretHusnrIntervalRegistreringsVirkningEntity extends DobbeltHistorikVirkning<
         ReserveretHusnrIntervalEntity,
         ReserveretHusnrIntervalRegistreringEntity,
         ReserveretHusnrIntervalRegistreringsVirkningEntity> {

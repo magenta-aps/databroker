@@ -1,8 +1,7 @@
 package dk.magenta.databroker.cprvejregister.model.navngivenvej;
 
-import dk.magenta.databroker.core.model.oio.DobbeltHistorikRegistreringsvirkningEntity;
+import dk.magenta.databroker.core.model.oio.DobbeltHistorikVirkning;
 import dk.magenta.databroker.core.model.oio.VirkningEntity;
-import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -13,7 +12,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "navngiven_vej_registreringsvirkning")
-public class NavngivenVejRegistreringsVirkningEntity extends DobbeltHistorikRegistreringsvirkningEntity<
+public class NavngivenVejRegistreringsVirkningEntity extends DobbeltHistorikVirkning<
         NavngivenVejEntity,
         NavngivenVejRegistreringEntity,
         NavngivenVejRegistreringsVirkningEntity> {

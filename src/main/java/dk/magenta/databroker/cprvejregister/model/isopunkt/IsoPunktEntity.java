@@ -1,6 +1,6 @@
 package dk.magenta.databroker.cprvejregister.model.isopunkt;
 
-import dk.magenta.databroker.core.model.oio.DobbeltHistorikEntity;
+import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -10,7 +10,7 @@ import java.io.Serializable;
  */
 @Entity
 @Table(name = "isopunkt")
-public class IsoPunktEntity extends DobbeltHistorikEntity<IsoPunktEntity, IsoPunktRegistreringEntity, IsoPunktRegistreringsVirkningEntity>
+public class IsoPunktEntity extends DobbeltHistorikBase<IsoPunktEntity, IsoPunktRegistreringEntity, IsoPunktRegistreringsVirkningEntity>
         implements Serializable {
 
     @Basic

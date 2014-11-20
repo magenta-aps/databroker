@@ -1,6 +1,6 @@
 package dk.magenta.databroker.cprvejregister.model.doerpunkt;
 
-import dk.magenta.databroker.core.model.oio.DobbeltHistorikEntity;
+import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.cprvejregister.model.isopunkt.IsoPunktEntity;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
 
@@ -14,7 +14,7 @@ import java.util.Collection;
 @Entity
 @Table(name = "doerpunkt")
 public class DoerpunktEntity
-        extends DobbeltHistorikEntity<DoerpunktEntity, DoerpunktRegistreringEntity, DoerpunktRegistreringsVirkningEntity>
+        extends DobbeltHistorikBase<DoerpunktEntity, DoerpunktRegistreringEntity, DoerpunktRegistreringsVirkningEntity>
         implements Serializable {
 
     @Basic

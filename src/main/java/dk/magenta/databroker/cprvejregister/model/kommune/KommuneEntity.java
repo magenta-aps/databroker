@@ -1,6 +1,6 @@
 package dk.magenta.databroker.cprvejregister.model.kommune;
 
-import dk.magenta.databroker.core.model.oio.DobbeltHistorikEntity;
+import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
 import dk.magenta.databroker.cprvejregister.model.reserveretvejnavn.ReserveretVejnavnEntity;
@@ -15,7 +15,7 @@ import java.util.Collection;
 @Entity
 @Table(name = "kommune", indexes = { @Index(name = "kommunekode", columnList = "kommunekode") })
 public class KommuneEntity
-        extends DobbeltHistorikEntity<KommuneEntity, KommuneRegistreringEntity, KommuneRegistreringsVirkningEntity>
+        extends DobbeltHistorikBase<KommuneEntity, KommuneRegistreringEntity, KommuneRegistreringsVirkningEntity>
         implements Serializable {
 
     @Basic

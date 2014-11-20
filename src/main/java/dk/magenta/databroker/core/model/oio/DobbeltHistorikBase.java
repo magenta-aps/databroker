@@ -8,10 +8,10 @@ import java.util.Collection;
  * Created by jubk on 11/12/14.
  */
 @MappedSuperclass
-public abstract class DobbeltHistorikEntity<
-        E extends DobbeltHistorikEntity<E, R, V>,
-        R extends DobbeltHistorikRegistreringEntity<E, R, V>,
-        V extends DobbeltHistorikRegistreringsvirkningEntity<E, R, V>
+public abstract class DobbeltHistorikBase<
+        E extends DobbeltHistorikBase<E, R, V>,
+        R extends DobbeltHistorikRegistrering<E, R, V>,
+        V extends DobbeltHistorikVirkning<E, R, V>
         > {
 
     @Id
@@ -29,11 +29,11 @@ public abstract class DobbeltHistorikEntity<
     private Collection<R> registreringer;
 
 
-    public DobbeltHistorikEntity() {
+    public DobbeltHistorikBase() {
         this.registreringer = new ArrayList<R>();
     }
 
-    public DobbeltHistorikEntity(String uuid, String brugervendtNoegle) {
+    public DobbeltHistorikBase(String uuid, String brugervendtNoegle) {
         this.uuid = uuid;
         this.brugervendtNoegle = brugervendtNoegle;
         this.registreringer = new ArrayList<R>();
@@ -72,7 +72,7 @@ public abstract class DobbeltHistorikEntity<
     }
 
     public R addToRegistreringer(RegistreringEntity reg, Collection<VirkningEntity> virkninger) {
-        R dhReg = (R) new DobbeltHistorikRegistreringEntity<E, R, V>((E)this, reg, virkninger);
+        R dhReg = (R) new DobbeltHistorikRegistrering<E, R, V>((E)this, reg, virkninger);
         this.registreringer.add(dhReg);
         return dhReg;
     }
@@ -84,7 +84,7 @@ public abstract class DobbeltHistorikEntity<
         if (other == null || this.getClass() != other.getClass()) {
             return false;
         }
-        DobbeltHistorikEntity that = (DobbeltHistorikEntity) other;
+        DobbeltHistorikBase that = (DobbeltHistorikBase) other;
         if (this.getId() != that.getId()) {
             return false;
         }
