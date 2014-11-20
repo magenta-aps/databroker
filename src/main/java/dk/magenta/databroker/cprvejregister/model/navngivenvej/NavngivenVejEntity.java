@@ -2,8 +2,8 @@ package dk.magenta.databroker.cprvejregister.model.navngivenvej;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikEntity;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
-import dk.magenta.databroker.cprvejregister.model.VejnavneforslagEntity;
-import dk.magenta.databroker.cprvejregister.model.VejnavneomraadeEntity;
+import dk.magenta.databroker.cprvejregister.model.vejnavneforslag.VejnavneforslagEntity;
+import dk.magenta.databroker.cprvejregister.model.vejnavneomraade.VejnavneomraadeEntity;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
 
@@ -15,7 +15,7 @@ import java.util.Collection;
  * Created by jubk on 11/10/14.
  */
 @Entity
-@Table(name = "navngiven_vej")
+@Table(name = "navngiven_vej", indexes = { @Index(name="vejnavn", columnList="vejnavn") } )
 public class NavngivenVejEntity
         extends DobbeltHistorikEntity<NavngivenVejEntity, NavngivenVejRegistreringEntity, NavngivenVejRegistreringsVirkningEntity>
         implements Serializable {
@@ -47,11 +47,11 @@ public class NavngivenVejEntity
     private Collection<KommunedelAfNavngivenVejEntity> kommunedeleAfNavngivenVej;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ansvarlig_kommune_id", referencedColumnName = "kommune_id", nullable = false)
+    @JoinColumn(name = "ansvarlig_kommune_id", nullable = false)
     private KommuneEntity ansvarligKommune;
 
     @OneToOne
-    @JoinColumn(name = "vejnavneomraade_id", referencedColumnName = "vejnavneomraade_id", nullable = true)
+    @JoinColumn(name = "vejnavneomraade_id", nullable = true)
     private VejnavneomraadeEntity vejnavneomraade;
 
     @OneToMany(mappedBy = "navngivenVej")

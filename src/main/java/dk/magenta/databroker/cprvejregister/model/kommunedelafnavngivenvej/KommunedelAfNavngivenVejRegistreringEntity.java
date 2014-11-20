@@ -13,7 +13,7 @@ import java.util.Collection;
  * Created by jubk on 11/12/14.
  */
 @Entity
-@Table(name = "jubk_jubk_registrering")
+@Table(name = "kommunedel_af_navngiven_vej_registrering")
 public class KommunedelAfNavngivenVejRegistreringEntity
         extends DobbeltHistorikRegistreringEntity<KommunedelAfNavngivenVejEntity, KommunedelAfNavngivenVejRegistreringEntity, KommunedelAfNavngivenVejRegistreringsVirkningEntity> {
 

@@ -9,19 +9,19 @@
         <property name="hibernate.dialect">org.hibernate.dialect.MySQL5InnoDBDialect</property>
         <property name="hibernate.default_catalog">DataBrokerCore</property>
         <property name="hibernate.show_sql">true</property>
-        <mapping class="dk.magenta.databroker.cprvejregister.model.AdgangspunktEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktEntity"/>
         <mapping class="dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity"/>
-        <mapping class="dk.magenta.databroker.cprvejregister.model.DoerpunktEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.doerpunkt.DoerpunktEntity"/>
         <mapping class="dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity"/>
-        <mapping class="dk.magenta.databroker.cprvejregister.model.ISOpointEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.isopunkt.IsoPunktEntity"/>
         <mapping class="dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity"/>
         <mapping class="dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity"/>
         <mapping class="dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity"/>
         <mapping class="dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerEntity"/>
-        <mapping class="dk.magenta.databroker.cprvejregister.model.ReserveretLigeHusnrIntervalEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.reserverethusnummerinterval.ReserveretHusnrIntervalEntity"/>
         <mapping class="dk.magenta.databroker.cprvejregister.model.ReserveretUligeHusnrIntervalEntity"/>
-        <mapping class="dk.magenta.databroker.cprvejregister.model.ReserveretVejnavnEntity"/>
-        <mapping class="dk.magenta.databroker.cprvejregister.model.VejnavneforslagEntity"/>
-        <mapping class="dk.magenta.databroker.cprvejregister.model.VejnavneomraadeEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.reserveretvejnavn.ReserveretVejnavnEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.vejnavneforslag.VejnavneforslagEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.vejnavneomraade.VejnavneomraadeEntity"/>
     </session-factory>
 </hibernate-configuration>

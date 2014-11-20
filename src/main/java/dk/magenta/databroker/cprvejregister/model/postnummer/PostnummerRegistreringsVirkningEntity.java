@@ -12,7 +12,7 @@ import javax.persistence.Table;
  */
 
 @Entity
-@Table(name = "jubk_jubk_registreringsvirkning")
+@Table(name = "postnummer_registreringsvirkning")
 public class PostnummerRegistreringsVirkningEntity extends DobbeltHistorikRegistreringsvirkningEntity<
         PostnummerEntity,
         PostnummerRegistreringEntity,

@@ -1,7 +1,7 @@
 package dk.magenta.databroker.cprvejregister.model.postnummer;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikEntity;
-import dk.magenta.databroker.cprvejregister.model.AdgangspunktEntity;
+import dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktEntity;
 
 import javax.persistence.*;
 import java.io.Serializable;

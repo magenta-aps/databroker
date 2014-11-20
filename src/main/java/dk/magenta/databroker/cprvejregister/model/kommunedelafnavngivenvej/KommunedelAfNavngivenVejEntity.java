@@ -1,8 +1,7 @@
 package dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikEntity;
-import dk.magenta.databroker.cprvejregister.model.ReserveretLigeHusnrIntervalEntity;
-import dk.magenta.databroker.cprvejregister.model.ReserveretUligeHusnrIntervalEntity;
+import dk.magenta.databroker.cprvejregister.model.reserverethusnummerinterval.ReserveretHusnrIntervalEntity;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
 
@@ -14,7 +13,7 @@ import java.util.Collection;
  * Created by jubk on 11/10/14.
  */
 @Entity
-@Table(name = "kommunedel_af_navngiven_vej", indexes = { @Index(name="kommune", columnList="kommune_id"), @Index(name="navngivenVej", columnList="navngiven_vej_id") })
+@Table(name = "kommunedel_af_navngiven_vej", indexes = { @Index(name="kommune", columnList="kommune_id"), @Index(name="navngivenVej", columnList="navngiven_vej_id"), @Index(name="vejkode", columnList="vejkode") })
 public class KommunedelAfNavngivenVejEntity
         extends DobbeltHistorikEntity<KommunedelAfNavngivenVejEntity, KommunedelAfNavngivenVejRegistreringEntity, KommunedelAfNavngivenVejRegistreringsVirkningEntity>
         implements Serializable {
@@ -24,18 +23,15 @@ public class KommunedelAfNavngivenVejEntity
     private int vejkode;
 
     @ManyToOne
-    @JoinColumn(name = "navngiven_vej_id", referencedColumnName = "navngiven_vej_id", nullable = false)
+    @JoinColumn(name = "navngiven_vej_id", nullable = false)
     private NavngivenVejEntity navngivenVej;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "kommune_id", referencedColumnName = "kommune_id", nullable = false)
+    @JoinColumn(name = "kommune_id", nullable = false)
     private KommuneEntity kommune;
 
     @OneToMany(mappedBy = "kommunedelAfNavngivenVej")
-    private Collection<ReserveretLigeHusnrIntervalEntity> reserveredeLigeHusnrIntervalller;
-
-    @OneToMany(mappedBy = "kommunedelAfNavngivenVej")
-    private Collection<ReserveretUligeHusnrIntervalEntity> reserveredeUligeHusnrIntervaller;
+    private Collection<ReserveretHusnrIntervalEntity> reserveredeHusnrIntervaller;
 
 
     public int getVejkode() {
@@ -62,20 +58,12 @@ public class KommunedelAfNavngivenVejEntity
         this.kommune = kommune;
     }
 
-    public Collection<ReserveretLigeHusnrIntervalEntity> getReserveredeLigeHusnrIntervalller() {
-        return this.reserveredeLigeHusnrIntervalller;
+    public Collection<ReserveretHusnrIntervalEntity> getReserveredeHusnrIntervalller() {
+        return this.reserveredeHusnrIntervaller;
     }
 
-    public void setReserveredeLigeHusnrIntervalller(Collection<ReserveretLigeHusnrIntervalEntity> reserveredeLigeHusnrIntervalller) {
-        this.reserveredeLigeHusnrIntervalller = reserveredeLigeHusnrIntervalller;
-    }
-
-    public Collection<ReserveretUligeHusnrIntervalEntity> getReserveredeUligeHusnrIntervaller() {
-        return this.reserveredeUligeHusnrIntervaller;
-    }
-
-    public void setReserveredeUligeHusnrIntervaller(Collection<ReserveretUligeHusnrIntervalEntity> reserveredeUligeHusnrIntervaller) {
-        this.reserveredeUligeHusnrIntervaller = reserveredeUligeHusnrIntervaller;
+    public void setReserveredeHusnrIntervalller(Collection<ReserveretHusnrIntervalEntity> reserveredeHusnrIntervalller) {
+        this.reserveredeHusnrIntervaller = reserveredeHusnrIntervalller;
     }
 
 

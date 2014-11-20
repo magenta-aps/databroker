@@ -11,7 +11,7 @@ import javax.persistence.Table;
  */
 
 @Entity
-@Table(name = "jubk_jubk_registreringsvirkning")
+@Table(name = "husnummer_registreringsvirkning")
 public class HusnummerRegistreringsVirkningEntity extends DobbeltHistorikRegistreringsvirkningEntity<HusnummerEntity, HusnummerRegistreringEntity, HusnummerRegistreringsVirkningEntity> {
 
         public HusnummerRegistreringsVirkningEntity() {

@@ -1,7 +1,7 @@
 package dk.magenta.databroker.cprvejregister.model.adresse;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikEntity;
-import dk.magenta.databroker.cprvejregister.model.DoerpunktEntity;
+import dk.magenta.databroker.cprvejregister.model.doerpunkt.DoerpunktEntity;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
 
 import javax.persistence.*;
@@ -27,7 +27,13 @@ public class AdresseEntity
     @Basic
     @Column(name = "etagebetegnelse", nullable = true, insertable = true, updatable = true, length = 255)
     private String etagebetegnelse;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "husnummer_id", nullable = false)
     private HusnummerEntity husnummer;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "doerpunkt_id", nullable = true)
     private DoerpunktEntity doerpunkt;
 
     public String getStatus() {
@@ -52,6 +58,22 @@ public class AdresseEntity
 
     public void setEtagebetegnelse(String etagebetegnelse) {
         this.etagebetegnelse = etagebetegnelse;
+    }
+
+    public HusnummerEntity getHusnummer() {
+        return this.husnummer;
+    }
+
+    public void setHusnummer(HusnummerEntity husnummer) {
+        this.husnummer = husnummer;
+    }
+
+    public DoerpunktEntity getDoerpunkt() {
+        return this.doerpunkt;
+    }
+
+    public void setDoerpunkt(DoerpunktEntity doerpunkt) {
+        this.doerpunkt = doerpunkt;
     }
 
     @Override
@@ -92,23 +114,4 @@ public class AdresseEntity
         return (int) result;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "husnummer_id", referencedColumnName = "husnummer_id", nullable = false)
-    public HusnummerEntity getHusnummer() {
-        return this.husnummer;
-    }
-
-    public void setHusnummer(HusnummerEntity husnummer) {
-        this.husnummer = husnummer;
-    }
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "doerpunkt_id", referencedColumnName = "doerpunkt_id")
-    public DoerpunktEntity getDoerpunkt() {
-        return this.doerpunkt;
-    }
-
-    public void setDoerpunkt(DoerpunktEntity doerpunkt) {
-        this.doerpunkt = doerpunkt;
-    }
 }

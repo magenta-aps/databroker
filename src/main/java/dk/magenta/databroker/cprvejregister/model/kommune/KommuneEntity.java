@@ -3,7 +3,7 @@ package dk.magenta.databroker.cprvejregister.model.kommune;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikEntity;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
-import dk.magenta.databroker.cprvejregister.model.ReserveretVejnavnEntity;
+import dk.magenta.databroker.cprvejregister.model.reserveretvejnavn.ReserveretVejnavnEntity;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -19,7 +19,7 @@ public class KommuneEntity
         implements Serializable {
 
     @Basic
-    @Column(name = "kommunekode", nullable = false, insertable = true, updatable = true)
+    @Column(name = "kommunekode", nullable = false, insertable = true, updatable = true, unique = true)
     private int kommunekode;
 
     @Basic

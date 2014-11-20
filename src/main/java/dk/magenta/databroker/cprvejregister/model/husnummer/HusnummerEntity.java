@@ -1,7 +1,7 @@
 package dk.magenta.databroker.cprvejregister.model.husnummer;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikEntity;
-import dk.magenta.databroker.cprvejregister.model.AdgangspunktEntity;
+import dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
 
@@ -13,7 +13,7 @@ import java.util.Collection;
  * Created by jubk on 11/10/14.
  */
 @Entity
-@Table(name = "husnummer", indexes = { @Index(name="navngivenVej", columnList="navngiven_vej_id") })
+@Table(name = "husnummer", indexes = { @Index(name="navngivenVej", columnList="navngiven_vej_id"), @Index(name="adgangspunkt", columnList="tilknyttet_adgangspunkt_id") })
 public class HusnummerEntity
         extends DobbeltHistorikEntity<HusnummerEntity, HusnummerRegistreringEntity, HusnummerRegistreringsVirkningEntity>
         implements Serializable {
@@ -26,11 +26,11 @@ public class HusnummerEntity
     private Collection<AdresseEntity> adresser;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "navngiven_vej_id", referencedColumnName = "navngiven_vej_id", nullable = false)
+    @JoinColumn(name = "navngiven_vej_id", nullable = false)
     private NavngivenVejEntity navngivenVej;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tilknyttet_adgangspunkt_id", referencedColumnName = "adgangspunkt_id", nullable = true)
+    @JoinColumn(name = "tilknyttet_adgangspunkt_id", nullable = true)
     private AdgangspunktEntity tilknyttetAdgangspunkt;
 
 

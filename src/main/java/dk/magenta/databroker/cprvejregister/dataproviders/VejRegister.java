@@ -483,7 +483,7 @@ public class VejRegister extends CprRegister {
                             boolean updatedNavngivenVej = false;
                             if (navngivenVejEntity == null) {
                                 navngivenVejEntity = new NavngivenVejEntity();
-                                navngivenVejEntity.setNavngivenVejUuid(UUID.randomUUID().toString());
+                                navngivenVejEntity.setUuid(UUID.randomUUID().toString());
                                 navngivenvejCounter.countCreatedItem();
                                 updatedNavngivenVej = true;
                             }

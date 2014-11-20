@@ -14,7 +14,7 @@ import java.util.Collection;
  * Created by jubk on 11/12/14.
  */
 @Entity
-@Table(name = "jubk_jubk_registrering")
+@Table(name = "adresse_registrering")
 public class AdresseRegistreringEntity
         extends DobbeltHistorikRegistreringEntity<AdresseEntity, AdresseRegistreringEntity, AdresseRegistreringsVirkningEntity> {
 

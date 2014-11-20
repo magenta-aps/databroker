@@ -120,7 +120,7 @@ public class LokalitetsRegister extends CprRegister {
                     boolean updateHusnummerEntity = false;
                     if (husNummerEntity == null) {
                         husNummerEntity = new HusnummerEntity();
-                        husNummerEntity.setHusnummerUuid(UUID.randomUUID().toString());
+                        husNummerEntity.setUuid(UUID.randomUUID().toString());
                         updateHusnummerEntity = true;
                         husnummerCounter.countCreatedItem();
                     }
@@ -147,7 +147,7 @@ public class LokalitetsRegister extends CprRegister {
                     boolean updateAdresseEntity = false;
                     if (adresseEntity == null) {
                         adresseEntity = new AdresseEntity();
-                        adresseEntity.setAdresseUuid(UUID.randomUUID().toString());
+                        adresseEntity.setUuid(UUID.randomUUID().toString());
                         adresseCounter.countCreatedItem();
                         updateAdresseEntity = true;
                     }
