@@ -28,7 +28,7 @@ public class DataProviderEntity {
     }
 
     @Basic
-    @Column(name = "UUID", nullable = false, insertable = true, updatable = true, length = 36)
+    @Column(name = "UUID", nullable = false, insertable = true, updatable = true, length = 36, unique = true)
     public String getUuid() {
         return uuid;
     }
