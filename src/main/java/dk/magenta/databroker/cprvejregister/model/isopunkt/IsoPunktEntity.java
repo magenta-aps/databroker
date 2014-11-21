@@ -1,9 +1,14 @@
 package dk.magenta.databroker.cprvejregister.model.isopunkt;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
+import dk.magenta.databroker.core.model.oio.RegistreringEntity;
+import dk.magenta.databroker.core.model.oio.VirkningEntity;
+import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Created by jubk on 11/10/14.
@@ -47,6 +52,20 @@ public class IsoPunktEntity extends DobbeltHistorikBase<IsoPunktEntity, IsoPunkt
 
     public void setZ(Double z) {
         this.z = z;
+    }
+
+    public static IsoPunktEntity create() {
+        IsoPunktEntity entity = new IsoPunktEntity();
+        entity.generateNewUUID();
+        return entity;
+    }
+
+    protected IsoPunktRegistreringEntity createRegistreringEntity(RegistreringEntity oioRegistrering, List<VirkningEntity> virkninger) {
+        return new IsoPunktRegistreringEntity(this, oioRegistrering, virkninger);
+    }
+
+    public JpaRepository getRepository(RepositoryCollection repositoryCollection) {
+        return repositoryCollection.isoPunktRepository;
     }
 
     @Override

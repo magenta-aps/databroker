@@ -2,10 +2,13 @@ package dk.magenta.databroker.test;
 
 import dk.magenta.databroker.Application;
 import dk.magenta.databroker.core.model.DataProviderEntity;
+import dk.magenta.databroker.core.model.oio.RegistreringRepository;
+import dk.magenta.databroker.core.model.oio.VirkningEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.LokalitetsRegister;
 import dk.magenta.databroker.cprvejregister.dataproviders.MyndighedsRegister;
 import dk.magenta.databroker.cprvejregister.dataproviders.PostnummerRegister;
 import dk.magenta.databroker.cprvejregister.dataproviders.VejRegister;
+import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseRepository;
 
@@ -29,7 +32,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
+import java.sql.Timestamp;
 import java.util.HashMap;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -87,35 +92,41 @@ public class VejregisterTest {
         return postnummerRepository;
     }
 
+
+    @Autowired
+    private RegistreringRepository registreringRepository;
+
+
     public VejregisterTest(){
     }
-    /*@Test
+    @Test
     public void testVejregister() {
 
-        HashMap<String, JpaRepository> repositories = new HashMap<String, JpaRepository>();
-        repositories.put("kommuneRepository", this.kommuneRepository);
-        repositories.put("kommunedelAfNavngivenVejRepository", this.kommunedelAfNavngivenVejRepository);
-        repositories.put("navngivenVejRepository", this.navngivenVejRepository);
-        repositories.put("husnummerRepository", this.husnummerRepository);
-        repositories.put("adresseRepository", this.adresseRepository);
-        repositories.put("postnummerRepository", this.postnummerRepository);
+        RepositoryCollection repositories = new RepositoryCollection();
+        repositories.kommuneRepository = this.kommuneRepository;
+        repositories.kommunedelAfNavngivenVejRepository = this.kommunedelAfNavngivenVejRepository;
+        repositories.navngivenVejRepository = this.navngivenVejRepository;
+        repositories.husnummerRepository = this.husnummerRepository;
+        repositories.adresseRepository = this.adresseRepository;
+        repositories.postnummerRepository = this.postnummerRepository;
+        repositories.registreringRepository = this.registreringRepository;
 
         MyndighedsRegister myndighedsregister = new MyndighedsRegister(new DataProviderEntity());
         myndighedsregister.pull(repositories);
 
         VejRegister vejregister = new VejRegister(new DataProviderEntity());
         vejregister.pull(repositories);
-
+/*
         LokalitetsRegister lokalitetsregister = new LokalitetsRegister(new DataProviderEntity());
         lokalitetsregister.pull(repositories);
 
         PostnummerRegister postnummerRegister = new PostnummerRegister(new DataProviderEntity());
-        postnummerRegister.pull(repositories);
-    }*/
+        postnummerRegister.pull(repositories);*/
+    }
 
 
 
-
+/*
 
     @Test
     public void testMyndighedsRegister() {
@@ -209,7 +220,7 @@ public class VejregisterTest {
         assertEquals(entry.getNavn(), "Qeqertarssuaq City");
         assertEquals(entry.getNummer(), 3953);
     }
-
+*/
 
 
 

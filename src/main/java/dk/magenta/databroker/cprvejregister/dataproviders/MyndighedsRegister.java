@@ -2,20 +2,26 @@ package dk.magenta.databroker.cprvejregister.dataproviders;
 
 import dk.magenta.databroker.Application;
 import dk.magenta.databroker.core.model.DataProviderEntity;
+import dk.magenta.databroker.core.model.oio.RegistreringEntity;
+import dk.magenta.databroker.core.model.oio.RegistreringLivscyklusStatus;
+import dk.magenta.databroker.core.model.oio.RegistreringRepository;
+import dk.magenta.databroker.core.model.oio.VirkningEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.Level2Container;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
+import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
+import dk.magenta.databroker.cprvejregister.model.kommune.KommuneRegistreringEntity;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneRepository;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.JpaRepository;
 //import dk.magenta.databroker.models.adresser.Kommune;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.Timestamp;
 import java.text.ParseException;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by lars on 04-11-14.
@@ -157,12 +163,16 @@ public class MyndighedsRegister extends CprRegister {
         return null;
     }
 
-    protected void saveRunToDatabase(RegisterRun run, Map<String, JpaRepository> repositories) {
-        this.saveRunToDatabase(run, (KommuneRepository) repositories.get("kommuneRepository"));
-    }
+    protected void saveRunToDatabase(RegisterRun run, RepositoryCollection repositories) {
 
-    protected void saveRunToDatabase(RegisterRun run, KommuneRepository repository) {
-        if (repository == null) {
+        KommuneRepository kommuneRepository = repositories.kommuneRepository;
+
+        RegistreringRepository registreringRepository = repositories.registreringRepository;
+        RegistreringEntity createRegistrering = registreringRepository.createNew(this);
+        RegistreringEntity updateRegistrering = registreringRepository.createUpdate(this);
+
+
+        if (kommuneRepository == null) {
             System.err.println("Insufficient repositories");
             return;
         }
@@ -174,21 +184,32 @@ public class MyndighedsRegister extends CprRegister {
         for (Myndighed kommune : kommuner) {
             int kommuneKode = kommune.getInt("myndighedsKode");
             String kommuneNavn = kommune.get("myndighedsNavn");
-            KommuneEntity kommuneEntity = repository.findByKommunekode(kommuneKode);
+            KommuneEntity kommuneEntity = kommuneRepository.findByKommunekode(kommuneKode);
+
+            List<VirkningEntity> virkninger = new ArrayList<VirkningEntity>();
+
             if (kommuneEntity == null) {
-                kommuneEntity = new KommuneEntity();
+                kommuneEntity = KommuneEntity.create();
                 kommuneEntity.setKommunekode(kommuneKode);
                 kommuneEntity.setNavn(kommuneNavn);
                 counter.countCreatedItem();
+
+                kommuneEntity.save(repositories, createRegistrering);
+
             } else if (!kommuneEntity.getNavn().equals(kommuneNavn)) {
                 kommuneEntity.setNavn(kommuneNavn);
                 counter.countUpdatedItem();
+
+                kommuneEntity.save(repositories, updateRegistrering);
             }
-            repository.save(kommuneEntity);
+
+
+
+
             this.printInputProcessed();
         }
         this.printFinalInputsProcessed();
-        repository.flush();
+        kommuneRepository.flush();
         System.out.println("Stored KommuneEntities in database:");
         counter.printModifications();
     }

@@ -1,10 +1,15 @@
 package dk.magenta.databroker.cprvejregister.model.reserverethusnummerinterval;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
+import dk.magenta.databroker.core.model.oio.RegistreringEntity;
+import dk.magenta.databroker.core.model.oio.VirkningEntity;
+import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Created by jubk on 11/10/14.
@@ -76,6 +81,20 @@ public class ReserveretHusnrIntervalEntity
         this.kommunedelAfNavngivenVej = kommunedelAfNavngivenVej;
     }
 
+
+    public static ReserveretHusnrIntervalEntity create() {
+        ReserveretHusnrIntervalEntity entity = new ReserveretHusnrIntervalEntity();
+        entity.generateNewUUID();
+        return entity;
+    }
+
+    protected ReserveretHusnrIntervalRegistreringEntity createRegistreringEntity(RegistreringEntity oioRegistrering, List<VirkningEntity> virkninger) {
+        return new ReserveretHusnrIntervalRegistreringEntity(this, oioRegistrering, virkninger);
+    }
+
+    public JpaRepository getRepository(RepositoryCollection repositoryCollection) {
+        return repositoryCollection.reserveretHusnrIntervalRepository;
+    }
 
     @Override
     public boolean equals(Object o) {

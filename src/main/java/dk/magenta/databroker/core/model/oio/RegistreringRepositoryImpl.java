@@ -5,17 +5,19 @@ import dk.magenta.databroker.core.model.DataProviderEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.Timestamp;
+import java.util.Date;
 
 interface RegistreringRepositoryCustom {
-    public RegistreringEntity createNew(
-            DataProvider sourceDataProvider, String note
-    );
+    public RegistreringEntity createNew(DataProvider sourceDataProvider, String note);
+
+    public RegistreringEntity createNew(DataProvider sourceDataProvider);
 
     public RegistreringEntity importNew(
             Timestamp registreringstidspunk, String aktoerUUID, String note, RegistreringLivscyklusStatus status
     );
 
     public RegistreringEntity createUpdate(DataProvider sourceDataProvider, String note);
+    public RegistreringEntity createUpdate(DataProvider sourceDataProvider);
 }
 
 public class RegistreringRepositoryImpl implements RegistreringRepositoryCustom {
@@ -45,6 +47,17 @@ public class RegistreringRepositoryImpl implements RegistreringRepositoryCustom 
     @Override
     public RegistreringEntity createUpdate(DataProvider sourceDataProvider, String note) {
         return this.create(sourceDataProvider, note, RegistreringLivscyklusStatus.RETTET);
+    }
+
+    @Override
+    public RegistreringEntity createNew(DataProvider sourceDataProvider) {
+        String note = "Created by dataprovider "+sourceDataProvider.getClass().getName();
+        return this.createNew(sourceDataProvider, note);
+    }
+    @Override
+    public RegistreringEntity createUpdate(DataProvider sourceDataProvider) {
+        String note = "Updated by dataprovider "+sourceDataProvider.getClass().getName();
+        return this.createUpdate(sourceDataProvider, note);
     }
 
     @Override

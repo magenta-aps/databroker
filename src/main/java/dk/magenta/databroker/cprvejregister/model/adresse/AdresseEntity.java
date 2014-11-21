@@ -1,11 +1,17 @@
 package dk.magenta.databroker.cprvejregister.model.adresse;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
+import dk.magenta.databroker.core.model.oio.RegistreringEntity;
+import dk.magenta.databroker.core.model.oio.VirkningEntity;
+import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.doerpunkt.DoerpunktEntity;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
+import dk.magenta.databroker.cprvejregister.model.kommune.KommuneRegistreringEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Created by jubk on 11/10/14.
@@ -74,6 +80,20 @@ public class AdresseEntity
 
     public void setDoerpunkt(DoerpunktEntity doerpunkt) {
         this.doerpunkt = doerpunkt;
+    }
+
+    public static AdresseEntity create() {
+        AdresseEntity entity = new AdresseEntity();
+        entity.generateNewUUID();
+        return entity;
+    }
+
+    protected AdresseRegistreringEntity createRegistreringEntity(RegistreringEntity oioRegistrering, List<VirkningEntity> virkninger) {
+        return new AdresseRegistreringEntity(this, oioRegistrering, virkninger);
+    }
+
+    public JpaRepository getRepository(RepositoryCollection repositoryCollection) {
+        return repositoryCollection.adresseRepository;
     }
 
     @Override

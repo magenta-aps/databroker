@@ -1,13 +1,18 @@
 package dk.magenta.databroker.cprvejregister.model.adgangspunkt;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
+import dk.magenta.databroker.core.model.oio.RegistreringEntity;
+import dk.magenta.databroker.core.model.oio.VirkningEntity;
+import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.isopunkt.IsoPunktEntity;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
 import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Created by jubk on 11/10/14.
@@ -126,6 +131,19 @@ public class AdgangspunktEntity
         this.husnumre = husnumre;
     }
 
+    public static AdgangspunktEntity create() {
+        AdgangspunktEntity entity = new AdgangspunktEntity();
+        entity.generateNewUUID();
+        return entity;
+    }
+
+    protected AdgangspunktRegistreringEntity createRegistreringEntity(RegistreringEntity oioRegistrering, List<VirkningEntity> virkninger) {
+        return new AdgangspunktRegistreringEntity(this, oioRegistrering, virkninger);
+    }
+
+    public JpaRepository getRepository(RepositoryCollection repositoryCollection) {
+        return repositoryCollection.adgangspunktRepository;
+    }
 
     @Override
     public boolean equals(Object o) {

@@ -1,15 +1,20 @@
 package dk.magenta.databroker.cprvejregister.model.navngivenvej;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
+import dk.magenta.databroker.core.model.oio.RegistreringEntity;
+import dk.magenta.databroker.core.model.oio.VirkningEntity;
+import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
 import dk.magenta.databroker.cprvejregister.model.vejnavneforslag.VejnavneforslagEntity;
 import dk.magenta.databroker.cprvejregister.model.vejnavneomraade.VejnavneomraadeEntity;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Created by jubk on 11/10/14.
@@ -139,6 +144,12 @@ public class NavngivenVejEntity
     }
 
 
+    public static NavngivenVejEntity create() {
+        NavngivenVejEntity entity = new NavngivenVejEntity();
+        entity.generateNewUUID();
+        return entity;
+    }
+
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
@@ -177,6 +188,15 @@ public class NavngivenVejEntity
         result = 31 * result + (this.beskrivelse != null ? this.beskrivelse.hashCode() : 0);
         result = 31 * result + (this.retskrivningskontrol != null ? this.retskrivningskontrol.hashCode() : 0);
         return (int) result;
+    }
+
+
+    protected NavngivenVejRegistreringEntity createRegistreringEntity(RegistreringEntity oioRegistrering, List<VirkningEntity> virkninger) {
+        return new NavngivenVejRegistreringEntity(this, oioRegistrering, virkninger);
+    }
+
+    public JpaRepository getRepository(RepositoryCollection repositoryCollection) {
+        return repositoryCollection.navngivenVejRepository;
     }
 
 }

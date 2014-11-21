@@ -1,8 +1,15 @@
 package dk.magenta.databroker.core.model.oio;
 
+import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
+import org.springframework.data.jpa.repository.JpaRepository;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by jubk on 11/12/14.
@@ -77,6 +84,10 @@ public abstract class DobbeltHistorikBase<
         return dhReg;
     }
 
+    public void generateNewUUID() {
+        this.uuid = UUID.randomUUID().toString();
+    }
+
     public boolean equals(Object other) {
         if (this == other) {
             return true;
@@ -93,4 +104,21 @@ public abstract class DobbeltHistorikBase<
         }
         return true;
     }
+
+
+
+    public void save(RepositoryCollection repositories, RegistreringEntity oioReg) {
+        this.save(repositories, oioReg, new ArrayList<VirkningEntity>());
+    }
+    public void save(RepositoryCollection repositories, RegistreringEntity oioReg, List<VirkningEntity> virkninger) {
+        JpaRepository entityRepository = this.getRepository(repositories);
+        this.addToRegistreringer(this.createRegistreringEntity(oioReg, virkninger));
+        entityRepository.save(this);
+    }
+
+    protected abstract R createRegistreringEntity(RegistreringEntity oioRegistrering, List<VirkningEntity> virkninger);
+    // Subclasses must implement their own logic, creating a new R with the given parameters
+
+    public abstract JpaRepository getRepository(RepositoryCollection repositoryCollection);
+    // Subclasses must implement their own logic, returning the correct item from the repositoryCollection
 }

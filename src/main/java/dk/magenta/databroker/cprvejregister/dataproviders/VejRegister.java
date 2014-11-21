@@ -1,8 +1,12 @@
 package dk.magenta.databroker.cprvejregister.dataproviders;
+import dk.magenta.databroker.core.model.oio.RegistreringEntity;
+import dk.magenta.databroker.core.model.oio.RegistreringLivscyklusStatus;
+import dk.magenta.databroker.core.model.oio.RegistreringRepository;
 import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.*;
 
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.Record;
+import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneRepository;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
@@ -395,13 +399,17 @@ public class VejRegister extends CprRegister {
         return null;
     }
 
-    protected void saveRunToDatabase(RegisterRun run, Map<String, JpaRepository> repositories) {
+    protected void saveRunToDatabase(RegisterRun run, RepositoryCollection repositories) {
         try {
             VejRegisterRun vrun = (VejRegisterRun) run;
 
-            KommunedelAfNavngivenVejRepository kommunedelAfNavngivenVejRepository = (KommunedelAfNavngivenVejRepository) repositories.get("kommunedelAfNavngivenVejRepository");
-            NavngivenVejRepository navngivenVejRepository = (NavngivenVejRepository) repositories.get("navngivenVejRepository");
-            KommuneRepository kommuneRepository = (KommuneRepository) repositories.get("kommuneRepository");
+            KommunedelAfNavngivenVejRepository kommunedelAfNavngivenVejRepository = repositories.kommunedelAfNavngivenVejRepository;
+            NavngivenVejRepository navngivenVejRepository = repositories.navngivenVejRepository;
+            KommuneRepository kommuneRepository = repositories.kommuneRepository;
+
+            RegistreringRepository registreringRepository = repositories.registreringRepository;
+            RegistreringEntity createRegistrering = registreringRepository.createNew(this);
+            RegistreringEntity updateRegistrering = registreringRepository.createUpdate(this);
 
             if (kommunedelAfNavngivenVejRepository == null || navngivenVejRepository == null || kommuneRepository == null) {
                 System.err.println("Insufficient repositories");
@@ -432,13 +440,14 @@ public class VejRegister extends CprRegister {
                             String vejNavn = aktivVej.get("vejNavn");
                             String vejAdresseringsnavn = aktivVej.get("vejAdresseringsnavn");
 
+                            boolean createdDelvej = false;
                             boolean updatedDelvej = false;
                             if (delvejEntity == null) {
-                                delvejEntity = new KommunedelAfNavngivenVejEntity();
+                                delvejEntity = KommunedelAfNavngivenVejEntity.create();
                                 delvejEntity.setVejkode(vejKode);
                                 delvejEntity.setKommune(kommune);
                                 delvejCounter.countCreatedItem();
-                                updatedDelvej = true;
+                                updatedDelvej = createdDelvej = true;
                             }
 
                             NavngivenVejEntity navngivenVejEntity = delvejEntity.getNavngivenVej();
@@ -481,11 +490,12 @@ public class VejRegister extends CprRegister {
 
 
                             boolean updatedNavngivenVej = false;
+                            boolean createdNavngivenVej = false;
                             if (navngivenVejEntity == null) {
-                                navngivenVejEntity = new NavngivenVejEntity();
+                                navngivenVejEntity = NavngivenVejEntity.create();
                                 navngivenVejEntity.setUuid(UUID.randomUUID().toString());
                                 navngivenvejCounter.countCreatedItem();
-                                updatedNavngivenVej = true;
+                                updatedNavngivenVej = createdNavngivenVej = true;
                             }
 
 
@@ -512,9 +522,10 @@ public class VejRegister extends CprRegister {
                             }
 
 
-                            if (updatedNavngivenVej) {
-                                //navngivenVejEntities.addItem(navngivenVejEntity);
-                                navngivenVejRepository.saveAndFlush(navngivenVejEntity);
+                            if (createdNavngivenVej) {
+                                navngivenVejEntity.save(repositories, createRegistrering);
+                            } else if (updatedNavngivenVej) {
+                                navngivenVejEntity.save(repositories, updateRegistrering);
                             }
 
 
@@ -528,8 +539,10 @@ public class VejRegister extends CprRegister {
                                 }
                             }
 
-                            if (updatedDelvej) {
-                                kommunedelAfNavngivenVejRepository.saveAndFlush(delvejEntity);
+                            if (createdDelvej) {
+                                delvejEntity.save(repositories, createRegistrering);
+                            } else if (updatedDelvej) {
+                                delvejEntity.save(repositories, updateRegistrering);
                             }
                         }
                         this.printInputProcessed();

@@ -38,10 +38,10 @@ public class DoubleHistoryTest {
 
         Timestamp now = new Timestamp(System.currentTimeMillis());
 
-        RegistreringEntity oioReg = regRepo.createNew(
+        /*RegistreringEntity oioReg = regRepo.createNew(
                 now, UUID.randomUUID().toString(), null, RegistreringLivscyklusStatus.OPRETTET
         );
-        regRepo.save(oioReg);
+        regRepo.save(oioReg);*/
 
         List<VirkningEntity> virkninger = new ArrayList<VirkningEntity>();
         UUID virkningSourceUUID = UUID.randomUUID();
@@ -61,9 +61,9 @@ public class DoubleHistoryTest {
 
         JubkEntity entity = new JubkEntity(UUID.randomUUID().toString(), "asdf");
 
-        JubkRegistreringEntity reg = new JubkRegistreringEntity(entity, oioReg, virkninger);
+        /*JubkRegistreringEntity reg = new JubkRegistreringEntity(entity, oioReg, virkninger);
         reg.setCustom("hurra");
-        entity.addToRegistreringer(reg);
+        entity.addToRegistreringer(reg);*/
 
         jubkRepo.save(entity);
     }

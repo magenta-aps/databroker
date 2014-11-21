@@ -1,13 +1,18 @@
 package dk.magenta.databroker.cprvejregister.model.husnummer;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
+import dk.magenta.databroker.core.model.oio.RegistreringEntity;
+import dk.magenta.databroker.core.model.oio.VirkningEntity;
+import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Created by jubk on 11/10/14.
@@ -66,6 +71,19 @@ public class HusnummerEntity
         this.tilknyttetAdgangspunkt = tilknyttetAdgangspunkt;
     }
 
+    public static HusnummerEntity create() {
+        HusnummerEntity entity = new HusnummerEntity();
+        entity.generateNewUUID();
+        return entity;
+    }
+
+    protected HusnummerRegistreringEntity createRegistreringEntity(RegistreringEntity oioRegistrering, List<VirkningEntity> virkninger) {
+        return new HusnummerRegistreringEntity(this, oioRegistrering, virkninger);
+    }
+
+    public JpaRepository getRepository(RepositoryCollection repositoryCollection) {
+        return repositoryCollection.husnummerRepository;
+    }
 
     @Override
     public boolean equals(Object other) {

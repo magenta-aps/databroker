@@ -1,13 +1,18 @@
 package dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
+import dk.magenta.databroker.core.model.oio.RegistreringEntity;
+import dk.magenta.databroker.core.model.oio.VirkningEntity;
+import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.reserverethusnummerinterval.ReserveretHusnrIntervalEntity;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Created by jubk on 11/10/14.
@@ -67,6 +72,12 @@ public class KommunedelAfNavngivenVejEntity
     }
 
 
+    public static KommunedelAfNavngivenVejEntity create() {
+        KommunedelAfNavngivenVejEntity entity = new KommunedelAfNavngivenVejEntity();
+        entity.generateNewUUID();
+        return entity;
+    }
+
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
@@ -87,6 +98,14 @@ public class KommunedelAfNavngivenVejEntity
         long result = getId();
         result = 31 * result + this.vejkode;
         return (int) result;
+    }
+
+    protected KommunedelAfNavngivenVejRegistreringEntity createRegistreringEntity(RegistreringEntity oioRegistrering, List<VirkningEntity> virkninger) {
+        return new KommunedelAfNavngivenVejRegistreringEntity(this, oioRegistrering, virkninger);
+    }
+
+    public JpaRepository getRepository(RepositoryCollection repositoryCollection) {
+        return repositoryCollection.kommunedelAfNavngivenVejRepository;
     }
 
 }

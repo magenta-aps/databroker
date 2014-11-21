@@ -4,12 +4,16 @@ import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
 import dk.magenta.databroker.core.DataProvider;
 import dk.magenta.databroker.core.model.DataProviderEntity;
+import dk.magenta.databroker.core.model.oio.*;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
+import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import org.springframework.data.jpa.repository.JpaRepository;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.*;
 import java.util.zip.ZipEntry;
@@ -63,7 +67,7 @@ public abstract class CprRegister extends DataProvider {
 
     }
 
-    public void pull(Map<String, JpaRepository> repositories) {
+    public void pull(RepositoryCollection repositories) {
         System.out.println("Pulling...");
         try {
             URL url = this.getRecordUrl();
@@ -88,7 +92,7 @@ public abstract class CprRegister extends DataProvider {
         }
     }
 
-    public void read(File inputfile, Map<String, JpaRepository> repositories) {
+    public void read(File inputfile, RepositoryCollection repositories) {
         try {
             if (inputfile.canRead()) {
                 System.out.println("Loading data from " + inputfile.getAbsolutePath());
@@ -190,7 +194,7 @@ public abstract class CprRegister extends DataProvider {
         // Override me
     }
 
-    protected void saveRunToDatabase(RegisterRun run, Map<String, JpaRepository> repositories) {
+    protected void saveRunToDatabase(RegisterRun run, RepositoryCollection repositories) {
         // Override me
     }
 

@@ -1,11 +1,17 @@
 package dk.magenta.databroker.cprvejregister.model.reserveretvejnavn;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
+import dk.magenta.databroker.core.model.oio.RegistreringEntity;
+import dk.magenta.databroker.core.model.oio.VirkningEntity;
+import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
+import dk.magenta.databroker.cprvejregister.model.vejnavneforslag.VejnavneforslagRegistreringEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Date;
+import java.util.List;
 
 /**
  * Created by jubk on 11/10/14.
@@ -87,6 +93,21 @@ public class ReserveretVejnavnEntity
 
     public void setReserveretAfKommune(KommuneEntity reserveretAfKommune) {
         this.reserveretAfKommune = reserveretAfKommune;
+    }
+
+
+    public static ReserveretVejnavnEntity create() {
+        ReserveretVejnavnEntity entity = new ReserveretVejnavnEntity();
+        entity.generateNewUUID();
+        return entity;
+    }
+
+    protected ReserveretVejnavnRegistreringEntity createRegistreringEntity(RegistreringEntity oioRegistrering, List<VirkningEntity> virkninger) {
+        return new ReserveretVejnavnRegistreringEntity(this, oioRegistrering, virkninger);
+    }
+
+    public JpaRepository getRepository(RepositoryCollection repositoryCollection) {
+        return repositoryCollection.reserveretVejnavnRepository;
     }
 
     @Override

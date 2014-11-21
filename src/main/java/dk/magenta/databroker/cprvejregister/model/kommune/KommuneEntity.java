@@ -1,13 +1,19 @@
 package dk.magenta.databroker.cprvejregister.model.kommune;
 
-import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
+import dk.magenta.databroker.core.model.oio.*;
+import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
 import dk.magenta.databroker.cprvejregister.model.reserveretvejnavn.ReserveretVejnavnEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by jubk on 11/10/14.
@@ -75,6 +81,19 @@ public class KommuneEntity
         this.reserveredeVejnavne = reserveredeVejnavne;
     }
 
+    public static KommuneEntity create() {
+        KommuneEntity entity = new KommuneEntity();
+        entity.generateNewUUID();
+        return entity;
+    }
+
+    protected KommuneRegistreringEntity createRegistreringEntity(RegistreringEntity oioRegistrering, List<VirkningEntity> virkninger) {
+        return new KommuneRegistreringEntity(this, oioRegistrering, virkninger);
+    }
+
+    public JpaRepository getRepository(RepositoryCollection repositoryCollection) {
+        return repositoryCollection.kommuneRepository;
+    }
 
     @Override
     public boolean equals(Object other) {
