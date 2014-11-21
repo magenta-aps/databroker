@@ -16,10 +16,12 @@ import java.util.Collection;
 public class ReserveretVejnavnRegistreringEntity
         extends DobbeltHistorikRegistrering<ReserveretVejnavnEntity, ReserveretVejnavnRegistreringEntity, ReserveretVejnavnRegistreringsVirkningEntity> {
 
-        public ReserveretVejnavnRegistreringEntity() {
+        public ReserveretVejnavnRegistreringEntity(ReserveretVejnavnEntity entitet) {
+                super(entitet);
         }
 
-        public ReserveretVejnavnRegistreringEntity(ReserveretVejnavnEntity entitet, RegistreringEntity registrering, Collection<VirkningEntity> virkninger) {
-                super(entitet, registrering, virkninger);
+        @Override
+        protected ReserveretVejnavnRegistreringsVirkningEntity createVirkningEntity() {
+                return new ReserveretVejnavnRegistreringsVirkningEntity(this);
         }
 }

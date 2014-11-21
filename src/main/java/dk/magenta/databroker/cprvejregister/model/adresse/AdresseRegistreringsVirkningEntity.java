@@ -17,10 +17,7 @@ public class AdresseRegistreringsVirkningEntity extends DobbeltHistorikVirkning<
         AdresseRegistreringEntity,
         AdresseRegistreringsVirkningEntity> {
 
-        public AdresseRegistreringsVirkningEntity() {
-        }
-
-        public AdresseRegistreringsVirkningEntity(AdresseRegistreringEntity entitetsRegistrering, VirkningEntity virkning) {
-                super(entitetsRegistrering, virkning);
+        public AdresseRegistreringsVirkningEntity(AdresseRegistreringEntity entitetsRegistrering) {
+                super(entitetsRegistrering);
         }
 }

@@ -17,10 +17,7 @@ public class AdgangspunktRegistreringsVirkningEntity extends DobbeltHistorikVirk
         AdgangspunktRegistreringEntity,
         AdgangspunktRegistreringsVirkningEntity> {
 
-        public AdgangspunktRegistreringsVirkningEntity() {
-        }
-
-        public AdgangspunktRegistreringsVirkningEntity(AdgangspunktRegistreringEntity entitetsRegistrering, VirkningEntity virkning) {
-                super(entitetsRegistrering, virkning);
+        public AdgangspunktRegistreringsVirkningEntity(AdgangspunktRegistreringEntity entitetsRegistrering) {
+                super(entitetsRegistrering);
         }
 }

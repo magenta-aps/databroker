@@ -17,10 +17,7 @@ public class ReserveretVejnavnRegistreringsVirkningEntity extends DobbeltHistori
         ReserveretVejnavnRegistreringEntity,
         ReserveretVejnavnRegistreringsVirkningEntity> {
 
-        public ReserveretVejnavnRegistreringsVirkningEntity() {
-        }
-
-        public ReserveretVejnavnRegistreringsVirkningEntity(ReserveretVejnavnRegistreringEntity entitetsRegistrering, VirkningEntity virkning) {
-                super(entitetsRegistrering, virkning);
+        public ReserveretVejnavnRegistreringsVirkningEntity(ReserveretVejnavnRegistreringEntity entitetsRegistrering) {
+                super(entitetsRegistrering);
         }
 }

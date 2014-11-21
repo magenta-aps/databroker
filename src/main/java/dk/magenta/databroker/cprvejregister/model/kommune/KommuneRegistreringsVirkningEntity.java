@@ -17,10 +17,7 @@ public class KommuneRegistreringsVirkningEntity extends DobbeltHistorikVirkning<
         KommuneRegistreringEntity,
         KommuneRegistreringsVirkningEntity> {
 
-        public KommuneRegistreringsVirkningEntity() {
-        }
-
-        public KommuneRegistreringsVirkningEntity(KommuneRegistreringEntity entitetsRegistrering, VirkningEntity virkning) {
-                super(entitetsRegistrering, virkning);
+        public KommuneRegistreringsVirkningEntity(KommuneRegistreringEntity entitetsRegistrering) {
+                super(entitetsRegistrering);
         }
 }

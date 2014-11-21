@@ -19,9 +19,11 @@ import java.util.List;
  */
 @Entity
 @Table(name = "kommunedel_af_navngiven_vej", indexes = { @Index(name="kommune", columnList="kommune_id"), @Index(name="navngivenVej", columnList="navngiven_vej_id"), @Index(name="vejkode", columnList="vejkode") })
-public class KommunedelAfNavngivenVejEntity
-        extends DobbeltHistorikBase<KommunedelAfNavngivenVejEntity, KommunedelAfNavngivenVejRegistreringEntity, KommunedelAfNavngivenVejRegistreringsVirkningEntity>
-        implements Serializable {
+public class KommunedelAfNavngivenVejEntity implements Serializable {
+    @Id
+    @Column
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    Long id;
 
     @Basic
     @Column(name = "vejkode", nullable = false, insertable = true, updatable = true)
@@ -38,6 +40,13 @@ public class KommunedelAfNavngivenVejEntity
     @OneToMany(mappedBy = "kommunedelAfNavngivenVej")
     private Collection<ReserveretHusnrIntervalEntity> reserveredeHusnrIntervaller;
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public int getVejkode() {
         return this.vejkode;
@@ -73,9 +82,7 @@ public class KommunedelAfNavngivenVejEntity
 
 
     public static KommunedelAfNavngivenVejEntity create() {
-        KommunedelAfNavngivenVejEntity entity = new KommunedelAfNavngivenVejEntity();
-        entity.generateNewUUID();
-        return entity;
+        return new KommunedelAfNavngivenVejEntity();
     }
 
     @Override
@@ -98,10 +105,6 @@ public class KommunedelAfNavngivenVejEntity
         long result = getId();
         result = 31 * result + this.vejkode;
         return (int) result;
-    }
-
-    protected KommunedelAfNavngivenVejRegistreringEntity createRegistreringEntity(RegistreringEntity oioRegistrering, List<VirkningEntity> virkninger) {
-        return new KommunedelAfNavngivenVejRegistreringEntity(this, oioRegistrering, virkninger);
     }
 
     public JpaRepository getRepository(RepositoryCollection repositoryCollection) {

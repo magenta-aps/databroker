@@ -16,10 +16,12 @@ import java.util.Collection;
 public class AdgangspunktRegistreringEntity
         extends DobbeltHistorikRegistrering<AdgangspunktEntity, AdgangspunktRegistreringEntity, AdgangspunktRegistreringsVirkningEntity> {
 
-        public AdgangspunktRegistreringEntity() {
+        public AdgangspunktRegistreringEntity(AdgangspunktEntity entitet) {
+                super(entitet);
         }
 
-        public AdgangspunktRegistreringEntity(AdgangspunktEntity entitet, RegistreringEntity registrering, Collection<VirkningEntity> virkninger) {
-                super(entitet, registrering, virkninger);
+        @Override
+        protected AdgangspunktRegistreringsVirkningEntity createVirkningEntity() {
+                return new AdgangspunktRegistreringsVirkningEntity(this);
         }
 }

@@ -77,10 +77,6 @@ public class HusnummerEntity
         return entity;
     }
 
-    protected HusnummerRegistreringEntity createRegistreringEntity(RegistreringEntity oioRegistrering, List<VirkningEntity> virkninger) {
-        return new HusnummerRegistreringEntity(this, oioRegistrering, virkninger);
-    }
-
     public JpaRepository getRepository(RepositoryCollection repositoryCollection) {
         return repositoryCollection.husnummerRepository;
     }
@@ -109,4 +105,8 @@ public class HusnummerEntity
         return (int) result;
     }
 
+    @Override
+    protected HusnummerRegistreringEntity createRegistreringEntity() {
+        return new HusnummerRegistreringEntity(this);
+    }
 }

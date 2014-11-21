@@ -14,10 +14,7 @@ import javax.persistence.Table;
 @Table(name = "husnummer_registreringsvirkning")
 public class HusnummerRegistreringsVirkningEntity extends DobbeltHistorikVirkning<HusnummerEntity, HusnummerRegistreringEntity, HusnummerRegistreringsVirkningEntity> {
 
-        public HusnummerRegistreringsVirkningEntity() {
-        }
-
-        public HusnummerRegistreringsVirkningEntity(HusnummerRegistreringEntity entitetsRegistrering, VirkningEntity virkning) {
-                super(entitetsRegistrering, virkning);
+        public HusnummerRegistreringsVirkningEntity(HusnummerRegistreringEntity entitetsRegistrering) {
+                super(entitetsRegistrering);
         }
 }

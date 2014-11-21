@@ -17,10 +17,7 @@ public class NavngivenVejRegistreringsVirkningEntity extends DobbeltHistorikVirk
         NavngivenVejRegistreringEntity,
         NavngivenVejRegistreringsVirkningEntity> {
 
-        public NavngivenVejRegistreringsVirkningEntity() {
-        }
-
-        public NavngivenVejRegistreringsVirkningEntity(NavngivenVejRegistreringEntity entitetsRegistrering, VirkningEntity virkning) {
-                super(entitetsRegistrering, virkning);
+        public NavngivenVejRegistreringsVirkningEntity(NavngivenVejRegistreringEntity entitetsRegistrering) {
+                super(entitetsRegistrering);
         }
 }

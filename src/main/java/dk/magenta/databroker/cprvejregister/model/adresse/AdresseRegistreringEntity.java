@@ -16,10 +16,12 @@ import java.util.Collection;
 public class AdresseRegistreringEntity
         extends DobbeltHistorikRegistrering<AdresseEntity, AdresseRegistreringEntity, AdresseRegistreringsVirkningEntity> {
 
-        public AdresseRegistreringEntity() {
+        public AdresseRegistreringEntity(AdresseEntity entitet) {
+                super(entitet);
         }
 
-        public AdresseRegistreringEntity(AdresseEntity entitet, RegistreringEntity registrering, Collection<VirkningEntity> virkninger) {
-                super(entitet, registrering, virkninger);
+        @Override
+        protected AdresseRegistreringsVirkningEntity createVirkningEntity() {
+                return new AdresseRegistreringsVirkningEntity(this);
         }
 }

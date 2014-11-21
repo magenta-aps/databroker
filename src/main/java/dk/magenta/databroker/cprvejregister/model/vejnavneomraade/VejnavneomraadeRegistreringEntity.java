@@ -16,10 +16,12 @@ import java.util.Collection;
 public class VejnavneomraadeRegistreringEntity
         extends DobbeltHistorikRegistrering<VejnavneomraadeEntity, VejnavneomraadeRegistreringEntity, VejnavneomraadeRegistreringsVirkningEntity> {
 
-        public VejnavneomraadeRegistreringEntity() {
+        public VejnavneomraadeRegistreringEntity(VejnavneomraadeEntity entitet) {
+                super(entitet);
         }
 
-        public VejnavneomraadeRegistreringEntity(VejnavneomraadeEntity entitet, RegistreringEntity registrering, Collection<VirkningEntity> virkninger) {
-                super(entitet, registrering, virkninger);
+        @Override
+        protected VejnavneomraadeRegistreringsVirkningEntity createVirkningEntity() {
+                return new VejnavneomraadeRegistreringsVirkningEntity(this);
         }
 }

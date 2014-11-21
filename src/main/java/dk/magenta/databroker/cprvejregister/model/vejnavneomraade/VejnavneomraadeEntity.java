@@ -111,10 +111,6 @@ public class VejnavneomraadeEntity
         return entity;
     }
 
-    protected VejnavneomraadeRegistreringEntity createRegistreringEntity(RegistreringEntity oioRegistrering, List<VirkningEntity> virkninger) {
-        return new VejnavneomraadeRegistreringEntity(this, oioRegistrering, virkninger);
-    }
-
     public JpaRepository getRepository(RepositoryCollection repositoryCollection) {
         return repositoryCollection.vejnavneomraadeRepository;
     }
@@ -159,4 +155,8 @@ public class VejnavneomraadeEntity
         return (int) result;
     }
 
+    @Override
+    protected VejnavneomraadeRegistreringEntity createRegistreringEntity() {
+        return new VejnavneomraadeRegistreringEntity(this);
+    }
 }

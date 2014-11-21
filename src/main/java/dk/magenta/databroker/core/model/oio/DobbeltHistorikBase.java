@@ -14,12 +14,13 @@ import java.util.UUID;
 /**
  * Created by jubk on 11/12/14.
  */
+
 @MappedSuperclass
 public abstract class DobbeltHistorikBase<
         E extends DobbeltHistorikBase<E, R, V>,
         R extends DobbeltHistorikRegistrering<E, R, V>,
         V extends DobbeltHistorikVirkning<E, R, V>
-        > {
+        >  {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -35,6 +36,11 @@ public abstract class DobbeltHistorikBase<
     @OneToMany(mappedBy = "entitet", cascade = CascadeType.ALL)
     private Collection<R> registreringer;
 
+    @OneToOne(optional = true)
+    private R latestRegistrering;
+
+    @OneToOne(optional = true)
+    private R preferredRegistrering;
 
     public DobbeltHistorikBase() {
         this.registreringer = new ArrayList<R>();
@@ -70,18 +76,28 @@ public abstract class DobbeltHistorikBase<
         return registreringer;
     }
 
-    public void setRegistreringer(Collection<R> registreringer) {
+    private void setRegistreringer(Collection<R> registreringer) {
         this.registreringer = registreringer;
     }
 
-    public void addToRegistreringer(R registrering) {
+    private void addToRegistreringer(R registrering) {
         this.registreringer.add(registrering);
     }
 
-    public R addToRegistreringer(RegistreringEntity reg, Collection<VirkningEntity> virkninger) {
-        R dhReg = (R) new DobbeltHistorikRegistrering<E, R, V>((E)this, reg, virkninger);
-        this.registreringer.add(dhReg);
-        return dhReg;
+    public R getLatestRegistrering() {
+        return latestRegistrering;
+    }
+
+    public void setLatestRegistrering(R latestRegistrering) {
+        this.latestRegistrering = latestRegistrering;
+    }
+
+    public R getPreferredRegistrering() {
+        return preferredRegistrering;
+    }
+
+    public void setPreferredRegistrering(R preferredRegistrering) {
+        this.preferredRegistrering = preferredRegistrering;
     }
 
     public void generateNewUUID() {
@@ -105,20 +121,49 @@ public abstract class DobbeltHistorikBase<
         return true;
     }
 
+    protected abstract R createRegistreringEntity();
 
+    private R createRegistreringEntity(RegistreringEntity forOIORegistrering) {
+        R newReg = this.createRegistreringEntity();
+        newReg.setRegistrering(forOIORegistrering);
+        return newReg;
+    }
+
+    public R addRegistrering(RegistreringEntity fromOIORegistrering) {
+        return this.addRegistrering(fromOIORegistrering, null);
+    }
+
+    public R addRegistrering(RegistreringEntity fromOIORegistrering, List<VirkningEntity> virkninger) {
+        R newReg = this.createRegistreringEntity(fromOIORegistrering);
+        if(virkninger != null) {
+            for(VirkningEntity v : virkninger) {
+                newReg.addToRegistreringsVirkninger(v);
+            }
+        }
+        this.addToRegistreringer(newReg);
+        if(
+                this.latestRegistrering == null || fromOIORegistrering.getRegistreringFra().after(
+                        this.latestRegistrering.getRegistrering().getRegistreringFra()
+                )) {
+            this.latestRegistrering = newReg;
+        }
+        return newReg;
+    }
+
+
+    /*
+    public abstract JpaRepository getRepository(RepositoryCollection repositoryCollection);
+    // Subclasses must implement their own logic, returning the correct item from the repositoryCollection
 
     public void save(RepositoryCollection repositories, RegistreringEntity oioReg) {
         this.save(repositories, oioReg, new ArrayList<VirkningEntity>());
     }
     public void save(RepositoryCollection repositories, RegistreringEntity oioReg, List<VirkningEntity> virkninger) {
         JpaRepository entityRepository = this.getRepository(repositories);
-        this.addToRegistreringer(this.createRegistreringEntity(oioReg, virkninger));
+        this.addRegistrering(oioReg, virkninger);
         entityRepository.save(this);
     }
+    */
 
-    protected abstract R createRegistreringEntity(RegistreringEntity oioRegistrering, List<VirkningEntity> virkninger);
-    // Subclasses must implement their own logic, creating a new R with the given parameters
 
-    public abstract JpaRepository getRepository(RepositoryCollection repositoryCollection);
-    // Subclasses must implement their own logic, returning the correct item from the repositoryCollection
 }

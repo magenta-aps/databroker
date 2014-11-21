@@ -28,10 +28,6 @@ public class KommuneEntity
     @Column(name = "kommunekode", nullable = false, insertable = true, updatable = true, unique = true)
     private int kommunekode;
 
-    @Basic
-    @Column(name = "navn", nullable = false, insertable = true, updatable = true, length = 255)
-    private String navn;
-
     @OneToMany(mappedBy = "kommune")
     private Collection<KommunedelAfNavngivenVejEntity> kommunedeleAfNavngivenVej;
 
@@ -47,14 +43,6 @@ public class KommuneEntity
 
     public void setKommunekode(int kommunekode) {
         this.kommunekode = kommunekode;
-    }
-
-    public String getNavn() {
-        return this.navn;
-    }
-
-    public void setNavn(String navn) {
-        this.navn = navn;
     }
 
     public Collection<KommunedelAfNavngivenVejEntity> getKommunedeleAfNavngivenVej() {
@@ -87,10 +75,6 @@ public class KommuneEntity
         return entity;
     }
 
-    protected KommuneRegistreringEntity createRegistreringEntity(RegistreringEntity oioRegistrering, List<VirkningEntity> virkninger) {
-        return new KommuneRegistreringEntity(this, oioRegistrering, virkninger);
-    }
-
     public JpaRepository getRepository(RepositoryCollection repositoryCollection) {
         return repositoryCollection.kommuneRepository;
     }
@@ -107,9 +91,6 @@ public class KommuneEntity
         if (this.kommunekode != that.kommunekode) {
             return false;
         }
-        if (this.navn != null ? !this.navn.equals(that.navn) : that.navn != null) {
-            return false;
-        }
 
         return true;
     }
@@ -118,8 +99,17 @@ public class KommuneEntity
     public int hashCode() {
         long result = this.getId();
         result = 31 * result + this.kommunekode;
-        result = 31 * result + (this.navn != null ? this.navn.hashCode() : 0);
         return (int) result;
     }
 
+    @Override
+    protected KommuneRegistreringEntity createRegistreringEntity() {
+        return new KommuneRegistreringEntity(this);
+    }
+
+    public KommuneRegistreringEntity addRegistrering(String navn, RegistreringEntity fromOIORegistrering, List<VirkningEntity> virkninger) {
+        KommuneRegistreringEntity reg = super.addRegistrering(fromOIORegistrering, virkninger);
+        reg.setNavn(navn);
+        return reg;
+    }
 }

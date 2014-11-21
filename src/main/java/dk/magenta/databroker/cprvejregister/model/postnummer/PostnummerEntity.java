@@ -64,10 +64,6 @@ public class PostnummerEntity
         return entity;
     }
 
-    protected PostnummerRegistreringEntity createRegistreringEntity(RegistreringEntity oioRegistrering, List<VirkningEntity> virkninger) {
-        return new PostnummerRegistreringEntity(this, oioRegistrering, virkninger);
-    }
-
     public JpaRepository getRepository(RepositoryCollection repositoryCollection) {
         return repositoryCollection.postnummerRepository;
     }
@@ -86,4 +82,8 @@ public class PostnummerEntity
         return (int) (long) this.getId();
     }
 
+    @Override
+    protected PostnummerRegistreringEntity createRegistreringEntity() {
+        return new PostnummerRegistreringEntity(this);
+    }
 }

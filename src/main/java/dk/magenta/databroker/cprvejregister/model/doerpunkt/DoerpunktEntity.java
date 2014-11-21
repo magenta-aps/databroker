@@ -88,10 +88,6 @@ public class DoerpunktEntity
         return entity;
     }
 
-    protected DoerpunktRegistreringEntity createRegistreringEntity(RegistreringEntity oioRegistrering, List<VirkningEntity> virkninger) {
-        return new DoerpunktRegistreringEntity(this, oioRegistrering, virkninger);
-    }
-
     public JpaRepository getRepository(RepositoryCollection repositoryCollection) {
         return repositoryCollection.doerpunktRepository;
     }
@@ -127,4 +123,8 @@ public class DoerpunktEntity
         return (int) result;
     }
 
+    @Override
+    protected DoerpunktRegistreringEntity createRegistreringEntity() {
+        return new DoerpunktRegistreringEntity(this);
+    }
 }

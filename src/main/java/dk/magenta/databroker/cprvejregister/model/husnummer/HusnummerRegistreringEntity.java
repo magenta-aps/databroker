@@ -16,10 +16,12 @@ import java.util.Collection;
 public class HusnummerRegistreringEntity
         extends DobbeltHistorikRegistrering<HusnummerEntity, HusnummerRegistreringEntity, HusnummerRegistreringsVirkningEntity> {
 
-        public HusnummerRegistreringEntity() {
+        public HusnummerRegistreringEntity(HusnummerEntity entitet) {
+                super(entitet);
         }
 
-        public HusnummerRegistreringEntity(HusnummerEntity entitet, RegistreringEntity registrering, Collection<VirkningEntity> virkninger) {
-                super(entitet, registrering, virkninger);
+        @Override
+        protected HusnummerRegistreringsVirkningEntity createVirkningEntity() {
+                return new HusnummerRegistreringsVirkningEntity(this);
         }
 }

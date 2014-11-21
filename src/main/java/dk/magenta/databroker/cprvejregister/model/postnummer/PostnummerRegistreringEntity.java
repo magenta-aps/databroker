@@ -16,10 +16,12 @@ import java.util.Collection;
 public class PostnummerRegistreringEntity
         extends DobbeltHistorikRegistrering<PostnummerEntity, PostnummerRegistreringEntity, PostnummerRegistreringsVirkningEntity> {
 
-        public PostnummerRegistreringEntity() {
+        public PostnummerRegistreringEntity(PostnummerEntity entitet) {
+                super(entitet);
         }
 
-        public PostnummerRegistreringEntity(PostnummerEntity entitet, RegistreringEntity registrering, Collection<VirkningEntity> virkninger) {
-                super(entitet, registrering, virkninger);
+        @Override
+        protected PostnummerRegistreringsVirkningEntity createVirkningEntity() {
+                return new PostnummerRegistreringsVirkningEntity(this);
         }
 }

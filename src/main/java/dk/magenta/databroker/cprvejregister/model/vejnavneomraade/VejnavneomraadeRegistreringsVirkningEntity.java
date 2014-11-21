@@ -17,10 +17,7 @@ public class VejnavneomraadeRegistreringsVirkningEntity extends DobbeltHistorikV
         VejnavneomraadeRegistreringEntity,
         VejnavneomraadeRegistreringsVirkningEntity> {
 
-        public VejnavneomraadeRegistreringsVirkningEntity() {
-        }
-
-        public VejnavneomraadeRegistreringsVirkningEntity(VejnavneomraadeRegistreringEntity entitetsRegistrering, VirkningEntity virkning) {
-                super(entitetsRegistrering, virkning);
+        public VejnavneomraadeRegistreringsVirkningEntity(VejnavneomraadeRegistreringEntity entitetsRegistrering) {
+                super(entitetsRegistrering);
         }
 }

@@ -191,20 +191,16 @@ public class MyndighedsRegister extends CprRegister {
             if (kommuneEntity == null) {
                 kommuneEntity = KommuneEntity.create();
                 kommuneEntity.setKommunekode(kommuneKode);
-                kommuneEntity.setNavn(kommuneNavn);
+
+                kommuneEntity.addRegistrering(kommuneNavn, createRegistrering, null);
+                kommuneRepository.save(kommuneEntity);
                 counter.countCreatedItem();
-
-                kommuneEntity.save(repositories, createRegistrering);
-
-            } else if (!kommuneEntity.getNavn().equals(kommuneNavn)) {
-                kommuneEntity.setNavn(kommuneNavn);
+            } else if (!kommuneEntity.getLatestRegistrering().getNavn().equals(kommuneNavn)) {
+                kommuneEntity.addRegistrering(kommuneNavn, createRegistrering, null);
                 counter.countUpdatedItem();
-
-                kommuneEntity.save(repositories, updateRegistrering);
             }
 
-
-
+            kommuneRepository.save(kommuneEntity);
 
             this.printInputProcessed();
         }

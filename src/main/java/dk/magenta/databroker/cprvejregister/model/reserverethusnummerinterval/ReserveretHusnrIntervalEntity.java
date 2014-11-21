@@ -16,9 +16,11 @@ import java.util.List;
  */
 @Entity
 @Table(name = "reserveret_husnr_interval")
-public class ReserveretHusnrIntervalEntity
-        extends DobbeltHistorikBase<ReserveretHusnrIntervalEntity, ReserveretHusnrIntervalRegistreringEntity, ReserveretHusnrIntervalRegistreringsVirkningEntity>
-        implements Serializable {
+public class ReserveretHusnrIntervalEntity implements Serializable {
+    @Id
+    @Column
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
 
     @Basic
     @Column(name = "interval_start", nullable = true, insertable = true, updatable = true)
@@ -40,6 +42,13 @@ public class ReserveretHusnrIntervalEntity
     @JoinColumn(name = "kommunedel_af_navngiven_vej_id", referencedColumnName = "id", nullable = false)
     private KommunedelAfNavngivenVejEntity kommunedelAfNavngivenVej;
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public Integer getIntervalStart() {
         return this.intervalStart;
@@ -83,13 +92,7 @@ public class ReserveretHusnrIntervalEntity
 
 
     public static ReserveretHusnrIntervalEntity create() {
-        ReserveretHusnrIntervalEntity entity = new ReserveretHusnrIntervalEntity();
-        entity.generateNewUUID();
-        return entity;
-    }
-
-    protected ReserveretHusnrIntervalRegistreringEntity createRegistreringEntity(RegistreringEntity oioRegistrering, List<VirkningEntity> virkninger) {
-        return new ReserveretHusnrIntervalRegistreringEntity(this, oioRegistrering, virkninger);
+        return new ReserveretHusnrIntervalEntity();
     }
 
     public JpaRepository getRepository(RepositoryCollection repositoryCollection) {

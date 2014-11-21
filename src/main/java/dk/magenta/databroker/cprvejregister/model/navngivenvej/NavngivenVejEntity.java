@@ -190,13 +190,12 @@ public class NavngivenVejEntity
         return (int) result;
     }
 
-
-    protected NavngivenVejRegistreringEntity createRegistreringEntity(RegistreringEntity oioRegistrering, List<VirkningEntity> virkninger) {
-        return new NavngivenVejRegistreringEntity(this, oioRegistrering, virkninger);
-    }
-
     public JpaRepository getRepository(RepositoryCollection repositoryCollection) {
         return repositoryCollection.navngivenVejRepository;
     }
 
+    @Override
+    protected NavngivenVejRegistreringEntity createRegistreringEntity() {
+        return new NavngivenVejRegistreringEntity(this);
+    }
 }

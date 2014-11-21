@@ -137,10 +137,6 @@ public class AdgangspunktEntity
         return entity;
     }
 
-    protected AdgangspunktRegistreringEntity createRegistreringEntity(RegistreringEntity oioRegistrering, List<VirkningEntity> virkninger) {
-        return new AdgangspunktRegistreringEntity(this, oioRegistrering, virkninger);
-    }
-
     public JpaRepository getRepository(RepositoryCollection repositoryCollection) {
         return repositoryCollection.adgangspunktRepository;
     }
@@ -181,4 +177,8 @@ public class AdgangspunktEntity
         return (int) result;
     }
 
+    @Override
+    protected AdgangspunktRegistreringEntity createRegistreringEntity() {
+        return new AdgangspunktRegistreringEntity(this);
+    }
 }

@@ -22,12 +22,11 @@ public class DobbeltHistorikVirkning<
     @ManyToOne
     private R entitetsRegistrering;
 
-    public DobbeltHistorikVirkning() {
+    private DobbeltHistorikVirkning() {
     }
 
-    public DobbeltHistorikVirkning(R entitetsRegistrering, VirkningEntity virkning) {
+    public DobbeltHistorikVirkning(R entitetsRegistrering) {
         this.entitetsRegistrering = entitetsRegistrering;
-        this.virkning = virkning;
     }
 
     public Long getId() {

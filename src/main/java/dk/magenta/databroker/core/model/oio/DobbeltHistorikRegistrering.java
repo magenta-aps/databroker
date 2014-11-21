@@ -7,7 +7,7 @@ import java.util.*;
  * Created by jubk on 11/12/14.
  */
 @MappedSuperclass
-public class DobbeltHistorikRegistrering<
+public abstract class DobbeltHistorikRegistrering<
         E extends DobbeltHistorikBase<E, R, V>,
         R extends DobbeltHistorikRegistrering<E, R, V>,
         V extends DobbeltHistorikVirkning<E, R, V>
@@ -28,22 +28,15 @@ public class DobbeltHistorikRegistrering<
         @OneToMany(mappedBy = "entitetsRegistrering", cascade = CascadeType.ALL)
         private Collection<V> registreringsVirkninger;
 
-        public DobbeltHistorikRegistrering() {
+        private DobbeltHistorikRegistrering() {
+                this.registreringsVirkninger = new ArrayList<V>();
         }
 
         public DobbeltHistorikRegistrering(
-                E entitet, RegistreringEntity registrering, Collection<VirkningEntity> virkninger
+                E entitet
         ) {
                 this.entitet = entitet;
-                this.registrering = registrering;
                 this.registreringsVirkninger = new ArrayList<V>();
-
-                for(VirkningEntity v: virkninger) {
-                        V regVirkning = (V)new DobbeltHistorikVirkning<E, R, V>(
-                                (R)this, v
-                        );
-                        this.registreringsVirkninger.add(regVirkning);
-                }
         }
 
         public Long getId() {
@@ -70,8 +63,20 @@ public class DobbeltHistorikRegistrering<
                 return registreringsVirkninger;
         }
 
-        public void setRegistreringsVirkninger(Collection<V> registreringsVirkninger) {
-                this.registreringsVirkninger = registreringsVirkninger;
+        protected abstract V createVirkningEntity();
+
+        public V createVirkningEntity(VirkningEntity oioVirkning) {
+                V newVirk = this.createVirkningEntity();
+                newVirk.setVirkning(oioVirkning);
+                return newVirk;
+        }
+
+        public void addToRegistreringsVirkninger(V registreringsVirkninger) {
+                this.registreringsVirkninger.add(registreringsVirkninger);
+        }
+
+        public void addToRegistreringsVirkninger(VirkningEntity virk) {
+                this.addToRegistreringsVirkninger(this.createVirkningEntity(virk));
         }
 
 }

@@ -15,8 +15,11 @@ import java.util.List;
  */
 @Entity
 @Table(name = "isopunkt")
-public class IsoPunktEntity extends DobbeltHistorikBase<IsoPunktEntity, IsoPunktRegistreringEntity, IsoPunktRegistreringsVirkningEntity>
-        implements Serializable {
+public class IsoPunktEntity implements Serializable {
+    @Id
+    @Column
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
 
     @Basic
     @Column(name = "x", nullable = true, insertable = true, updatable = true, precision = 0)
@@ -29,6 +32,14 @@ public class IsoPunktEntity extends DobbeltHistorikBase<IsoPunktEntity, IsoPunkt
     @Basic
     @Column(name = "z", nullable = true, insertable = true, updatable = true, precision = 0)
     private Double z;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public Double getX() {
         return this.x;
@@ -55,13 +66,7 @@ public class IsoPunktEntity extends DobbeltHistorikBase<IsoPunktEntity, IsoPunkt
     }
 
     public static IsoPunktEntity create() {
-        IsoPunktEntity entity = new IsoPunktEntity();
-        entity.generateNewUUID();
-        return entity;
-    }
-
-    protected IsoPunktRegistreringEntity createRegistreringEntity(RegistreringEntity oioRegistrering, List<VirkningEntity> virkninger) {
-        return new IsoPunktRegistreringEntity(this, oioRegistrering, virkninger);
+        return new IsoPunktEntity();
     }
 
     public JpaRepository getRepository(RepositoryCollection repositoryCollection) {

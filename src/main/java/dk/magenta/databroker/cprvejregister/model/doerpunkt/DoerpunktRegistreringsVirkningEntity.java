@@ -17,10 +17,7 @@ public class DoerpunktRegistreringsVirkningEntity extends DobbeltHistorikVirknin
         DoerpunktRegistreringEntity,
         DoerpunktRegistreringsVirkningEntity> {
 
-        public DoerpunktRegistreringsVirkningEntity() {
-        }
-
-        public DoerpunktRegistreringsVirkningEntity(DoerpunktRegistreringEntity entitetsRegistrering, VirkningEntity virkning) {
-                super(entitetsRegistrering, virkning);
+        public DoerpunktRegistreringsVirkningEntity(DoerpunktRegistreringEntity entitetsRegistrering) {
+                super(entitetsRegistrering);
         }
 }

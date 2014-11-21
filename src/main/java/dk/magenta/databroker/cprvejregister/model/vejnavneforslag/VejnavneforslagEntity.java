@@ -17,9 +17,11 @@ import java.util.List;
  */
 @Entity
 @Table(name = "vejnavneforslag", indexes = { @Index(name="navn", columnList="navn") } )
-public class VejnavneforslagEntity
-        extends DobbeltHistorikBase<VejnavneforslagEntity, VejnavneforslagRegistreringEntity, VejnavneforslagRegistreringsVirkningEntity>
-        implements Serializable {
+public class VejnavneforslagEntity implements Serializable {
+    @Id
+    @Column
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
 
     @Basic
     @Column(name = "navn", nullable = true, insertable = true, updatable = true, length = 255)
@@ -29,6 +31,13 @@ public class VejnavneforslagEntity
     @JoinColumn(name = "navngiven_vej_id", nullable = false)
     private NavngivenVejEntity navngivenVej;
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getNavn() {
         return this.navn;
@@ -48,13 +57,7 @@ public class VejnavneforslagEntity
 
 
     public static VejnavneforslagEntity create() {
-        VejnavneforslagEntity entity = new VejnavneforslagEntity();
-        entity.generateNewUUID();
-        return entity;
-    }
-
-    protected VejnavneforslagRegistreringEntity createRegistreringEntity(RegistreringEntity oioRegistrering, List<VirkningEntity> virkninger) {
-        return new VejnavneforslagRegistreringEntity(this, oioRegistrering, virkninger);
+        return new VejnavneforslagEntity();
     }
 
     public JpaRepository getRepository(RepositoryCollection repositoryCollection) {

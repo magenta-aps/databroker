@@ -17,10 +17,7 @@ public class PostnummerRegistreringsVirkningEntity extends DobbeltHistorikVirkni
         PostnummerRegistreringEntity,
         PostnummerRegistreringsVirkningEntity> {
 
-        public PostnummerRegistreringsVirkningEntity() {
-        }
-
-        public PostnummerRegistreringsVirkningEntity(PostnummerRegistreringEntity entitetsRegistrering, VirkningEntity virkning) {
-                super(entitetsRegistrering, virkning);
+        public PostnummerRegistreringsVirkningEntity(PostnummerRegistreringEntity entitetsRegistrering) {
+                super(entitetsRegistrering);
         }
 }

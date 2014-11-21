@@ -88,10 +88,6 @@ public class AdresseEntity
         return entity;
     }
 
-    protected AdresseRegistreringEntity createRegistreringEntity(RegistreringEntity oioRegistrering, List<VirkningEntity> virkninger) {
-        return new AdresseRegistreringEntity(this, oioRegistrering, virkninger);
-    }
-
     public JpaRepository getRepository(RepositoryCollection repositoryCollection) {
         return repositoryCollection.adresseRepository;
     }
@@ -134,4 +130,8 @@ public class AdresseEntity
         return (int) result;
     }
 
+    @Override
+    protected AdresseRegistreringEntity createRegistreringEntity() {
+        return new AdresseRegistreringEntity(this);
+    }
 }
