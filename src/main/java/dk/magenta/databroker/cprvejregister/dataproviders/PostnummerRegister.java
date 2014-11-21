@@ -1,7 +1,10 @@
 package dk.magenta.databroker.cprvejregister.dataproviders;
 
 import dk.magenta.databroker.core.model.DataProviderEntity;
+import dk.magenta.databroker.core.model.oio.RegistreringEntity;
+import dk.magenta.databroker.core.model.oio.RegistreringRepository;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.Record;
+import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerEntity;
 import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -96,9 +99,17 @@ public class PostnummerRegister extends CprRegister {
         return null;
     }
 
-    protected void saveRunToDatabase(RegisterRun run, Map<String, JpaRepository> repositories) {
-        PostnummerRepository postnummerRepository = (PostnummerRepository) repositories.get("postnummerRepository");
+    protected void saveRunToDatabase(RegisterRun run, RepositoryCollection repositories) {
+
+        PostnummerRepository postnummerRepository = repositories.postnummerRepository;
+
         PostnummerRegisterRun prun = (PostnummerRegisterRun) run;
+
+
+        RegistreringRepository registreringRepository = repositories.registreringRepository;
+        RegistreringEntity createRegistrering = registreringRepository.createNew(this);
+        RegistreringEntity updateRegistrering = registreringRepository.createUpdate(this);
+
         EntityModificationCounter counter = new EntityModificationCounter();
 
         if (postnummerRepository == null) {
@@ -113,24 +124,20 @@ public class PostnummerRegister extends CprRegister {
             String navn = postDistrikter.get(nummer);
             int postNummer = Integer.parseInt(nummer, 10);
             PostnummerEntity postnummerEntity = postnummerRepository.findByNummer(postNummer);
-            boolean updatePostnummerEntity = false;
+
             if (postnummerEntity == null) {
-                postnummerEntity = new PostnummerEntity();
+                postnummerEntity = PostnummerEntity.create();
                 postnummerEntity.setNummer(postNummer);
-                updatePostnummerEntity = true;
+                postnummerEntity.addRegistrering(navn, createRegistrering, null);
+                postnummerRepository.save(postnummerEntity);
                 counter.countCreatedItem();
+
+            } else if (!postnummerEntity.getLatestRegistrering().getNavn().equals(navn)) {
+                postnummerEntity.addRegistrering(navn, updateRegistrering, null);
+                counter.countUpdatedItem();
             }
-            if (!navn.equals(postnummerEntity.getNavn())) {
-                System.out.println(navn+" vs "+postnummerEntity.getNavn());
-                postnummerEntity.setNavn(navn);
-                if (!updatePostnummerEntity) {
-                    counter.countUpdatedItem();
-                }
-                updatePostnummerEntity = true;
-            }
-            if (updatePostnummerEntity) {
-                postnummerRepository.saveAndFlush(postnummerEntity);
-            }
+
+            postnummerRepository.save(postnummerEntity);
             this.printInputProcessed();
         }
         this.printFinalInputsProcessed();

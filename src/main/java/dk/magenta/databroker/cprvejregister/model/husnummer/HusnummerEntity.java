@@ -5,6 +5,7 @@ import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.core.model.oio.VirkningEntity;
 import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktEntity;
+import dk.magenta.databroker.cprvejregister.model.kommune.KommuneRegistreringEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,37 +24,9 @@ public class HusnummerEntity
         extends DobbeltHistorikBase<HusnummerEntity, HusnummerRegistreringEntity, HusnummerRegistreringsVirkningEntity>
         implements Serializable {
 
-    @Basic
-    @Column(name = "husnummerbetegnelse", nullable = true, insertable = true, updatable = true, length = 255)
-    private String husnummerbetegnelse;
-
-    @OneToMany(mappedBy = "husnummer")
-    private Collection<AdresseEntity> adresser;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "navngiven_vej_id", nullable = false)
     private NavngivenVejEntity navngivenVej;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tilknyttet_adgangspunkt_id", nullable = true)
-    private AdgangspunktEntity tilknyttetAdgangspunkt;
-
-
-    public String getHusnummerbetegnelse() {
-        return this.husnummerbetegnelse;
-    }
-
-    public void setHusnummerbetegnelse(String husnummerbetegnelse) {
-        this.husnummerbetegnelse = husnummerbetegnelse;
-    }
-
-    public Collection<AdresseEntity> getAdresser() {
-        return this.adresser;
-    }
-
-    public void setAdresser(Collection<AdresseEntity> adresser) {
-        this.adresser = adresser;
-    }
 
     public NavngivenVejEntity getNavngivenVej() {
         return this.navngivenVej;
@@ -63,13 +36,6 @@ public class HusnummerEntity
         this.navngivenVej = navngivenVej;
     }
 
-    public AdgangspunktEntity getTilknyttetAdgangspunkt() {
-        return this.tilknyttetAdgangspunkt;
-    }
-
-    public void setTilknyttetAdgangspunkt(AdgangspunktEntity tilknyttetAdgangspunkt) {
-        this.tilknyttetAdgangspunkt = tilknyttetAdgangspunkt;
-    }
 
     public static HusnummerEntity create() {
         HusnummerEntity entity = new HusnummerEntity();
@@ -87,13 +53,6 @@ public class HusnummerEntity
         if (!super.equals(other)) {
             return false;
         }
-
-        HusnummerEntity that = (HusnummerEntity) other;
-
-        if (this.husnummerbetegnelse != null ? !this.husnummerbetegnelse.equals(that.husnummerbetegnelse) : that.husnummerbetegnelse != null) {
-            return false;
-        }
-
         return true;
     }
 
@@ -101,7 +60,6 @@ public class HusnummerEntity
     public int hashCode() {
         long result = this.getId();
         result = 31 * result + (this.getUuid() != null ? this.getUuid().hashCode() : 0);
-        result = 31 * result + (this.husnummerbetegnelse != null ? this.husnummerbetegnelse.hashCode() : 0);
         return (int) result;
     }
 
@@ -109,4 +67,25 @@ public class HusnummerEntity
     protected HusnummerRegistreringEntity createRegistreringEntity() {
         return new HusnummerRegistreringEntity(this);
     }
+
+
+    public HusnummerRegistreringEntity addRegistrering(String husnummerbetegnelse, RegistreringEntity fromOIORegistrering, List<VirkningEntity> virkninger) {
+        HusnummerRegistreringEntity reg = super.addRegistrering(fromOIORegistrering, virkninger);
+        reg.setHusnummerbetegnelse(husnummerbetegnelse);
+        return reg;
+    }
 }
+
+
+/*
+@Basic
+@Column(name = "husnummerbetegnelse", nullable = true, insertable = true, updatable = true, length = 255)
+private String husnummerbetegnelse;
+
+@OneToMany(mappedBy = "husnummer")
+private Collection<AdresseEntity> adresser;
+
+@ManyToOne(fetch = FetchType.LAZY)
+@JoinColumn(name = "tilknyttet_adgangspunkt_id", nullable = true)
+private AdgangspunktEntity tilknyttetAdgangspunkt;
+*/

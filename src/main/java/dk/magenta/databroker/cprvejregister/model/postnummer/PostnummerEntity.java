@@ -86,4 +86,10 @@ public class PostnummerEntity
     protected PostnummerRegistreringEntity createRegistreringEntity() {
         return new PostnummerRegistreringEntity(this);
     }
+
+    public PostnummerRegistreringEntity addRegistrering(String navn, RegistreringEntity fromOIORegistrering, List<VirkningEntity> virkninger) {
+        PostnummerRegistreringEntity reg = super.addRegistrering(fromOIORegistrering, virkninger);
+        reg.setNavn(navn);
+        return reg;
+    }
 }

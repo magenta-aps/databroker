@@ -1,11 +1,17 @@
 package dk.magenta.databroker.cprvejregister.dataproviders;
 
 import dk.magenta.databroker.core.model.DataProviderEntity;
+import dk.magenta.databroker.core.model.oio.RegistreringEntity;
+import dk.magenta.databroker.core.model.oio.RegistreringRepository;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
 import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.*;
+import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
+import dk.magenta.databroker.cprvejregister.model.adresse.AdresseRegistreringEntity;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseRepository;
+import dk.magenta.databroker.cprvejregister.model.doerpunkt.DoerpunktEntity;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
+import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerRegistreringEntity;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerRepository;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejRepository;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
@@ -71,12 +77,17 @@ public class LokalitetsRegister extends CprRegister {
         return null;
     }
 
-    protected void saveRunToDatabase(RegisterRun run, Map<String, JpaRepository> repositories) {
+    protected void saveRunToDatabase(RegisterRun run, RepositoryCollection repositories) {
 
-        AdresseRepository adresseRepository = (AdresseRepository) repositories.get("adresseRepository");
-        HusnummerRepository husnummerRepository = (HusnummerRepository) repositories.get("husnummerRepository");
-        NavngivenVejRepository navngivenVejRepository = (NavngivenVejRepository) repositories.get("navngivenVejRepository");
-        KommunedelAfNavngivenVejRepository kommunedelAfNavngivenVejRepository = (KommunedelAfNavngivenVejRepository) repositories.get("kommunedelAfNavngivenVejRepository");
+        AdresseRepository adresseRepository = repositories.adresseRepository;
+        HusnummerRepository husnummerRepository = repositories.husnummerRepository;
+        NavngivenVejRepository navngivenVejRepository = repositories.navngivenVejRepository;
+        KommunedelAfNavngivenVejRepository kommunedelAfNavngivenVejRepository = repositories.kommunedelAfNavngivenVejRepository;
+
+        RegistreringRepository registreringRepository = repositories.registreringRepository;
+        RegistreringEntity createRegistrering = registreringRepository.createNew(this);
+        RegistreringEntity updateRegistrering = registreringRepository.createUpdate(this);
+
 
         if (adresseRepository == null || husnummerRepository == null || navngivenVejRepository == null || kommunedelAfNavngivenVejRepository == null) {
             System.err.println("Insufficient repositories");
@@ -112,77 +123,45 @@ public class LokalitetsRegister extends CprRegister {
                     String husKode = lokalitet.get("husNr");
                     String sidedoer = lokalitet.get("sidedoer");
                     String etage = lokalitet.get("etage");
+                    DoerpunktEntity doerpunktEntity = null;
                     String status = "hephey";
 
                     HusnummerEntity husNummerEntity = husnummerRepository.findFirstByKommunekodeAndVejkodeAndHusnr(kommuneKode, vejKode, husKode);
                     AdresseEntity adresseEntity = adresseRepository.findByHusnummerAndDoerbetegnelseAndEtagebetegnelse(husNummerEntity, sidedoer, etage);
 
-                    boolean updateHusnummerEntity = false;
                     if (husNummerEntity == null) {
-                        husNummerEntity = new HusnummerEntity();
-                        husNummerEntity.setUuid(UUID.randomUUID().toString());
-                        updateHusnummerEntity = true;
+                        husNummerEntity = HusnummerEntity.create();
                         husnummerCounter.countCreatedItem();
-                    }
-                    if (!husKode.equals(husNummerEntity.getHusnummerbetegnelse())) {
-                        husNummerEntity.setHusnummerbetegnelse(husKode);
-                        if (!updateHusnummerEntity) {
-                            husnummerCounter.countUpdatedItem();
-                        }
-                        updateHusnummerEntity = true;
-                    }
-                    NavngivenVejEntity navngivenVejEntity = navngivenVejRepository.findByKommunekodeAndVejkode(kommuneKode, vejKode);
-                    if (husNummerEntity.getNavngivenVej() == null || husNummerEntity.getNavngivenVej().getId() != navngivenVejEntity.getId()) {
+                        husNummerEntity.addRegistrering(husKode, createRegistrering, null);
+                        NavngivenVejEntity navngivenVejEntity = navngivenVejRepository.findByKommunekodeAndVejkode(kommuneKode, vejKode);
                         husNummerEntity.setNavngivenVej(navngivenVejEntity);
-                        if (!updateHusnummerEntity) {
+                        husnummerCounter.countCreatedItem();
+                    } else {
+                        if (!husKode.equals(husNummerEntity.getLatestRegistrering().getHusnummerbetegnelse())) {
+                            husNummerEntity.addRegistrering(husKode, updateRegistrering, null);
                             husnummerCounter.countUpdatedItem();
                         }
-                        updateHusnummerEntity = true;
-                    }
-                    if (updateHusnummerEntity) {
-                        husnummerRepository.saveAndFlush(husNummerEntity);
                     }
 
 
-                    boolean updateAdresseEntity = false;
                     if (adresseEntity == null) {
-                        adresseEntity = new AdresseEntity();
-                        adresseEntity.setUuid(UUID.randomUUID().toString());
+                        adresseEntity = AdresseEntity.create();
                         adresseCounter.countCreatedItem();
-                        updateAdresseEntity = true;
-                    }
-                    if (!sidedoer.equals(adresseEntity.getDoerbetegnelse())) {
-                        adresseEntity.setDoerbetegnelse(sidedoer);
-                        if (!updateAdresseEntity) {
+                        adresseEntity.addRegistrering(husNummerEntity, null, etage, sidedoer, status, createRegistrering, null);
+                    } else {
+                        AdresseRegistreringEntity latestRegistrering = adresseEntity.getLatestRegistrering();
+                        if (!(
+                                husNummerEntity.equals(latestRegistrering.getHusnummer()) &&
+                                doerpunktEntity == null || doerpunktEntity.equals(latestRegistrering.getDoerpunkt()) &&
+                                etage.equals(latestRegistrering.getEtagebetegnelse()) &&
+                                sidedoer.equals(latestRegistrering.getDoerbetegnelse()) &&
+                                status.equals(latestRegistrering.getStatus())
+                                )) {
+                            adresseEntity.addRegistrering(husNummerEntity, null, etage, sidedoer, status, updateRegistrering, null);
                             adresseCounter.countUpdatedItem();
-                            updateAdresseEntity = true;
                         }
                     }
-                    if (!etage.equals(adresseEntity.getEtagebetegnelse())) {
-                        adresseEntity.setEtagebetegnelse(etage);
-                        if (!updateAdresseEntity) {
-                            adresseCounter.countUpdatedItem();
-                            updateAdresseEntity = true;
-                        }
-                    }
-                    if (adresseEntity.getHusnummer() == null || husNummerEntity.getId() != adresseEntity.getHusnummer().getId()) {
-                        adresseEntity.setHusnummer(husNummerEntity);
-                        if (!updateAdresseEntity) {
-                            adresseCounter.countUpdatedItem();
-                            updateAdresseEntity = true;
-                        }
-                    }
-                    if (!status.equals(adresseEntity.getStatus())) {
-                        adresseEntity.setStatus(status);
-                        if (!updateAdresseEntity) {
-                            adresseCounter.countUpdatedItem();
-                            updateAdresseEntity = true;
-                        }
-                    }
-                    if (updateAdresseEntity) {
-                        //adresseEntities.addItem(adresseEntity);
-                        adresseRepository.saveAndFlush(adresseEntity);
-                    }
+                    adresseRepository.save(adresseEntity);
 
                     this.printInputProcessed();
                 }

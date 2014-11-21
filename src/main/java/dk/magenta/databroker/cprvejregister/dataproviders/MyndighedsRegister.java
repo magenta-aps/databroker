@@ -196,7 +196,7 @@ public class MyndighedsRegister extends CprRegister {
                 kommuneRepository.save(kommuneEntity);
                 counter.countCreatedItem();
             } else if (!kommuneEntity.getLatestRegistrering().getNavn().equals(kommuneNavn)) {
-                kommuneEntity.addRegistrering(kommuneNavn, createRegistrering, null);
+                kommuneEntity.addRegistrering(kommuneNavn, updateRegistrering, null);
                 counter.countUpdatedItem();
             }
 
