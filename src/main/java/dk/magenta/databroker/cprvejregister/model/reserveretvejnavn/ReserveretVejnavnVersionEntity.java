@@ -100,42 +100,4 @@ public class ReserveretVejnavnVersionEntity
         public void setRetskrivningskontrol(String retskrivningskontrol) {
                 this.retskrivningskontrol = retskrivningskontrol;
         }
-
-
-        @Override
-        public boolean equals(Object o) {
-                if (this == o) return true;
-                if (!super.equals(o)) {
-                        return false;
-                }
-                ReserveretVejnavnVersionEntity that = (ReserveretVejnavnVersionEntity) o;
-                if (this.navneomraade != null ? !this.navneomraade.equals(that.navneomraade) : that.navneomraade != null) {
-                        return false;
-                }
-                if (this.reservationsudloebsdato != null ? !this.reservationsudloebsdato.equals(that.reservationsudloebsdato) : that.reservationsudloebsdato != null) {
-                        return false;
-                }
-                if (this.reserveretNavn != null ? !this.reserveretNavn.equals(that.reserveretNavn) : that.reserveretNavn != null) {
-                        return false;
-                }
-                if (this.retskrivningskontrol != null ? !this.retskrivningskontrol.equals(that.retskrivningskontrol) : that.retskrivningskontrol != null) {
-                        return false;
-                }
-                if (this.status != null ? !status.equals(that.status) : that.status != null) {
-                        return false;
-                }
-                return true;
-        }
-
-        @Override
-        public int hashCode() {
-                long result = this.getId();
-                result = 31 * result + (this.navneomraade != null ? this.navneomraade.hashCode() : 0);
-                result = 31 * result + (this.reserveretNavn != null ? this.reserveretNavn.hashCode() : 0);
-                result = 31 * result + (this.status != null ? this.status.hashCode() : 0);
-                result = 31 * result + (this.reservationsudloebsdato != null ? this.reservationsudloebsdato.hashCode() : 0);
-                result = 31 * result + (this.retskrivningskontrol != null ? this.retskrivningskontrol.hashCode() : 0);
-                return (int) result;
-        }
-
 }

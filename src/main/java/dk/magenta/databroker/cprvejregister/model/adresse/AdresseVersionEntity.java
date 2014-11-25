@@ -2,9 +2,7 @@ package dk.magenta.databroker.cprvejregister.model.adresse;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikVersion;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * Created by jubk on 11/12/14.
@@ -34,4 +32,20 @@ public class AdresseVersionEntity
         public void setEntity(AdresseEntity entitet) {
                 this.entity = entitet;
         }
+
+        /********************************************************************************
+         * Versioned data                                                               *
+         ********************************************************************************/
+
+        @Basic
+        @Column
+        private String status;
+
+        @Basic
+        @Column
+        private String etageBetegnelse;
+
+        @Basic
+        @Column
+        private String doerBetegnelse;
 }

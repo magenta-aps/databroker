@@ -84,7 +84,7 @@ public class PostnummerEntity
     * */
 
     @Basic
-    @Column(name = "nummer", nullable = false, insertable = true, updatable = true)
+    @Column(nullable = false, insertable = true, updatable = true)
     private int nummer;
 
     @OneToMany(mappedBy = "liggerIPostnummer", fetch = FetchType.LAZY)

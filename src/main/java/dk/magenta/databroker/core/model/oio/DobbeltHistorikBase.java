@@ -11,15 +11,7 @@ import java.util.*;
 public abstract class DobbeltHistorikBase<
         E extends DobbeltHistorikBase<E, R>,
         R extends DobbeltHistorikVersion<E, R>
-        >  {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(nullable = false, insertable = true, updatable = true)
-    private Long id;
-
-    @Column(nullable = false, insertable = true, updatable = true, unique = true)
-    private String uuid;
+        >  extends UniqueBase {
 
     @Column(nullable = true, insertable = true, updatable = true)
     private String brugervendtNoegle;
@@ -28,24 +20,8 @@ public abstract class DobbeltHistorikBase<
     }
 
     public DobbeltHistorikBase(String uuid, String brugervendtNoegle) {
-        this.uuid = uuid;
+        super(uuid);
         this.brugervendtNoegle = brugervendtNoegle;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    private void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
     }
 
     public String getBrugervendtNoegle() {
@@ -107,27 +83,6 @@ public abstract class DobbeltHistorikBase<
         R newReg = this.createVersionEntity(fromOIORegistrering, virkninger);
         this.addVersion(newReg);
         return newReg;
-    }
-
-    public void generateNewUUID() {
-        this.uuid = UUID.randomUUID().toString();
-    }
-
-    public boolean equals(Object other) {
-        if (this == other) {
-            return true;
-        }
-        if (other == null || this.getClass() != other.getClass()) {
-            return false;
-        }
-        DobbeltHistorikBase that = (DobbeltHistorikBase) other;
-        if (this.getId() != that.getId()) {
-            return false;
-        }
-        if (this.getUuid() != null ? !this.getUuid().equals(that.getUuid()) : that.getUuid() != null) {
-            return false;
-        }
-        return true;
     }
 
 }

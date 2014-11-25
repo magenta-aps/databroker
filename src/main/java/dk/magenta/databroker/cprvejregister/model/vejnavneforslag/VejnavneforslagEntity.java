@@ -1,5 +1,6 @@
 package dk.magenta.databroker.cprvejregister.model.vejnavneforslag;
 
+import dk.magenta.databroker.core.model.oio.UniqueBase;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
 
 import javax.persistence.*;
@@ -10,7 +11,7 @@ import java.io.Serializable;
  */
 @Entity
 @Table(name = "vejnavneforslag", indexes = { @Index(name="navn", columnList="navn") } )
-public class VejnavneforslagEntity implements Serializable {
+public class VejnavneforslagEntity extends UniqueBase implements Serializable {
 
     public VejnavneforslagEntity() {
 
@@ -21,26 +22,12 @@ public class VejnavneforslagEntity implements Serializable {
     }
 
 
-    @Id
-    @Column
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
     @Basic
-    @Column(name = "navn", nullable = true, insertable = true, updatable = true, length = 255)
+    @Column(nullable = false, insertable = true, updatable = true, length = 255)
     private String navn;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "navngiven_vej_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private NavngivenVejEntity navngivenVej;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getNavn() {
         return this.navn;
@@ -56,27 +43,6 @@ public class VejnavneforslagEntity implements Serializable {
 
     public void setNavngivenVej(NavngivenVejEntity navngivenVej) {
         this.navngivenVej = navngivenVej;
-    }
-
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!super.equals(o)) {
-            return false;
-        }
-        VejnavneforslagEntity that = (VejnavneforslagEntity) o;
-        if (this.navn != null ? !this.navn.equals(that.navn) : that.navn != null) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        long result = this.getId();
-        result = 31 * result + (navn != null ? navn.hashCode() : 0);
-        return (int) result;
     }
 
 }

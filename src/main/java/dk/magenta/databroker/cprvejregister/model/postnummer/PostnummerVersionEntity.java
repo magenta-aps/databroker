@@ -39,7 +39,7 @@ public class PostnummerVersionEntity
          */
 
         @Basic
-        @Column(name = "navn", nullable = true, insertable = true, updatable = true, length = 36)
+        @Column(nullable = false, insertable = true, updatable = true, length = 36)
         private String navn;
 
         public String getNavn() {
@@ -50,20 +50,4 @@ public class PostnummerVersionEntity
                 this.navn = navn;
         }
 
-
-        @Override
-        public boolean equals(Object other) {
-                if (this == other) return true;
-                if (!super.equals(other)) {
-                        return false;
-                }
-                return true;
-        }
-
-        @Override
-        public int hashCode() {
-                long result = this.getId();
-                result = 31 * result + (this.navn != null ? this.navn.hashCode() : 0);
-                return (int) result;
-        }
 }

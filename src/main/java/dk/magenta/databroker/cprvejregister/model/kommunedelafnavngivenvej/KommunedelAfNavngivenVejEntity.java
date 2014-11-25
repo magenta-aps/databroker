@@ -1,10 +1,9 @@
 package dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej;
 
-import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
+import dk.magenta.databroker.core.model.oio.UniqueBase;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejVersionEntity;
 import dk.magenta.databroker.cprvejregister.model.reserverethusnummerinterval.ReserveretHusnrIntervalEntity;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -15,7 +14,7 @@ import java.util.Collection;
  */
 @Entity
 @Table(name = "kommunedel_af_navngiven_vej", indexes = { @Index(name="kommune", columnList="kommune_id"), @Index(columnList="navngiven_vej_registrering_id"), @Index(name="vejkode", columnList="vejkode") })
-public class KommunedelAfNavngivenVejEntity implements Serializable {
+public class KommunedelAfNavngivenVejEntity extends UniqueBase implements Serializable {
 
     public KommunedelAfNavngivenVejEntity() {
 
@@ -25,15 +24,9 @@ public class KommunedelAfNavngivenVejEntity implements Serializable {
         return new KommunedelAfNavngivenVejEntity();
     }
 
-
     /*
     * Fields on the entity
     * */
-
-    @Id
-    @Column
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    Long id;
 
     @Basic
     @Column(name = "vejkode", nullable = false, insertable = true, updatable = true)
@@ -41,7 +34,7 @@ public class KommunedelAfNavngivenVejEntity implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "navngiven_vej_registrering_id", nullable = false)
-    private NavngivenVejVersionEntity navngivenVejRegistrering;
+    private NavngivenVejVersionEntity navngivenVejVersion;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "kommune_id", nullable = false)
@@ -49,14 +42,6 @@ public class KommunedelAfNavngivenVejEntity implements Serializable {
 
     @OneToMany(mappedBy = "kommunedelAfNavngivenVej", fetch = FetchType.LAZY)
     private Collection<ReserveretHusnrIntervalEntity> reserveredeHusnrIntervaller;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public int getVejkode() {
         return this.vejkode;
@@ -66,12 +51,12 @@ public class KommunedelAfNavngivenVejEntity implements Serializable {
         this.vejkode = vejkode;
     }
 
-    public NavngivenVejVersionEntity getNavngivenVejRegistrering() {
-        return navngivenVejRegistrering;
+    public NavngivenVejVersionEntity getNavngivenVejVersion() {
+        return navngivenVejVersion;
     }
 
-    public void setNavngivenVejRegistrering(NavngivenVejVersionEntity navngivenVejRegistrering) {
-        this.navngivenVejRegistrering = navngivenVejRegistrering;
+    public void setNavngivenVejVersion(NavngivenVejVersionEntity navngivenVejRegistrering) {
+        this.navngivenVejVersion = navngivenVejRegistrering;
     }
 
     public KommuneEntity getKommune() {
@@ -88,31 +73,6 @@ public class KommunedelAfNavngivenVejEntity implements Serializable {
 
     public void setReserveredeHusnrIntervalller(Collection<ReserveretHusnrIntervalEntity> reserveredeHusnrIntervalller) {
         this.reserveredeHusnrIntervaller = reserveredeHusnrIntervalller;
-    }
-
-
-    @Override
-    public boolean equals(Object other) {
-        if (this == other) return true;
-        if (!super.equals(other)) {
-            return false;
-        }
-        KommunedelAfNavngivenVejEntity that = (KommunedelAfNavngivenVejEntity) other;
-        if (this.vejkode != that.vejkode) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        long result = getId();
-        result = 31 * result + this.vejkode;
-        return (int) result;
-    }
-
-    public JpaRepository getRepository(RepositoryCollection repositoryCollection) {
-        return repositoryCollection.kommunedelAfNavngivenVejRepository;
     }
 
 }

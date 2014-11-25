@@ -69,38 +69,4 @@ public class IsoPunktEntity implements Serializable {
         return new IsoPunktEntity();
     }
 
-    public JpaRepository getRepository(RepositoryCollection repositoryCollection) {
-        return repositoryCollection.isoPunktRepository;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!super.equals(o)) {
-            return false;
-        }
-
-        IsoPunktEntity that = (IsoPunktEntity) o;
-
-        if (this.x != null ? !this.x.equals(that.x) : that.x != null) {
-            return false;
-        }
-        if (this.y != null ? !this.y.equals(that.y) : that.y != null) {
-            return false;
-        }
-        if (this.z != null ? !this.z.equals(that.z) : that.z != null) {
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        long result = this.getId();
-        result = 31 * result + (this.x != null ? this.x.hashCode() : 0);
-        result = 31 * result + (this.y != null ? this.y.hashCode() : 0);
-        result = 31 * result + (this.z != null ? this.z.hashCode() : 0);
-        return (int) result;
-    }
 }

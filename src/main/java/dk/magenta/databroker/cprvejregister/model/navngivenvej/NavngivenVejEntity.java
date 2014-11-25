@@ -88,7 +88,6 @@ public class NavngivenVejEntity
     private Collection<HusnummerEntity> husnumre;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "vejnavneomraade_id", nullable = true)
     private VejnavneomraadeEntity vejnavneomraade;
 
     @OneToMany(mappedBy = "navngivenVej", fetch = FetchType.LAZY)

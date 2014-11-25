@@ -1,5 +1,6 @@
 package dk.magenta.databroker.cprvejregister.model.reserverethusnummerinterval;
 
+import dk.magenta.databroker.core.model.oio.UniqueBase;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
 
 import javax.persistence.*;
@@ -10,7 +11,7 @@ import java.io.Serializable;
  */
 @Entity
 @Table(name = "reserveret_husnr_interval")
-public class ReserveretHusnrIntervalEntity implements Serializable {
+public class ReserveretHusnrIntervalEntity extends UniqueBase implements Serializable {
 
     public ReserveretHusnrIntervalEntity() {
 
@@ -24,11 +25,6 @@ public class ReserveretHusnrIntervalEntity implements Serializable {
     /*
     * Fields on the entity
     * */
-
-    @Id
-    @Column
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
 
     @Basic
     @Column(name = "interval_start", nullable = true, insertable = true, updatable = true)
@@ -46,17 +42,8 @@ public class ReserveretHusnrIntervalEntity implements Serializable {
     @Column(name = "notat", nullable = true, insertable = true, updatable = true, columnDefinition="Text")
     private String notat;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "kommunedel_af_navngiven_vej_id", referencedColumnName = "id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private KommunedelAfNavngivenVejEntity kommunedelAfNavngivenVej;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public Integer getIntervalStart() {
         return this.intervalStart;

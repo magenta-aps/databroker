@@ -11,7 +11,7 @@ public interface NavngivenVejRepository extends JpaRepository<NavngivenVejEntity
     @Query("select vej from " +
             "KommunedelAfNavngivenVejEntity as del " +
             "inner join del.kommune as kom " +
-            "inner join del.navngivenVejRegistrering as vejversion " +
+            "inner join del.navngivenVejVersion as vejversion " +
             "inner join vejversion.entity vej "+
             "where del.vejkode = :vej and kom.kommunekode = :kommune")
     public NavngivenVejEntity findByKommunekodeAndVejkode(@Param("kommune") int kommunekode, @Param("vej") int vejkode);

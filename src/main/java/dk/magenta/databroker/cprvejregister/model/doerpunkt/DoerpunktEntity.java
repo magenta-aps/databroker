@@ -20,26 +20,6 @@ public class DoerpunktEntity
         extends DobbeltHistorikBase<DoerpunktEntity, DoerpunktVersionEntity>
         implements Serializable {
 
-    @Basic
-    @Column(name = "noejagtighedsklasse", nullable = true, insertable = true, updatable = true, length = 255)
-    private String noejagtighedsklasse;
-
-    @Basic
-    @Column(name = "kilde", nullable = true, insertable = true, updatable = true, length = 255)
-    private String kilde;
-
-    @Basic
-    @Column(name = "teknisk_standard", nullable = true, insertable = true, updatable = true, length = 255)
-    private String tekniskStandard;
-
-    @OneToMany(mappedBy = "doerpunkt")
-    private Collection<AdresseEntity> adresser;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "position_id", nullable = false)
-    private IsoPunktEntity position;
-
-
     @OneToMany
     private Collection<DoerpunktVersionEntity> versions;
 
@@ -49,48 +29,11 @@ public class DoerpunktEntity
     @OneToOne
     private DoerpunktVersionEntity preferredVersion;
 
+
+
+
     protected DoerpunktEntity() {
         this.versions = new ArrayList<DoerpunktVersionEntity>();
-    }
-
-    public String getNoejagtighedsklasse() {
-        return this.noejagtighedsklasse;
-    }
-
-    public void setNoejagtighedsklasse(String noejagtighedsklasse) {
-        this.noejagtighedsklasse = noejagtighedsklasse;
-    }
-
-    public String getKilde() {
-        return this.kilde;
-    }
-
-    public void setKilde(String kilde) {
-        this.kilde = kilde;
-    }
-
-    public String getTekniskStandard() {
-        return this.tekniskStandard;
-    }
-
-    public void setTekniskStandard(String tekniskStandard) {
-        this.tekniskStandard = tekniskStandard;
-    }
-
-    public Collection<AdresseEntity> getAdresser() {
-        return this.adresser;
-    }
-
-    public void setAdresser(Collection<AdresseEntity> adresser) {
-        this.adresser = adresser;
-    }
-
-    public IsoPunktEntity getPosition() {
-        return this.position;
-    }
-
-    public void setPosition(IsoPunktEntity position) {
-        this.position = position;
     }
 
     public static DoerpunktEntity create() {
@@ -99,40 +42,6 @@ public class DoerpunktEntity
         return entity;
     }
 
-    public JpaRepository getRepository(RepositoryCollection repositoryCollection) {
-        return repositoryCollection.doerpunktRepository;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!super.equals(o)) {
-            return false;
-        }
-
-        DoerpunktEntity that = (DoerpunktEntity) o;
-        if (this.kilde != null ? !this.kilde.equals(that.kilde) : that.kilde != null) {
-            return false;
-        }
-        if (this.noejagtighedsklasse != null ? !noejagtighedsklasse.equals(that.noejagtighedsklasse) : that.noejagtighedsklasse != null) {
-            return false;
-        }
-        if (this.tekniskStandard != null ? !tekniskStandard.equals(that.tekniskStandard) : that.tekniskStandard != null) {
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        long result = this.getId();
-        result = 31 * result + (this.getUuid() != null ? this.getUuid().hashCode() : 0);
-        result = 31 * result + (this.noejagtighedsklasse != null ? this.noejagtighedsklasse.hashCode() : 0);
-        result = 31 * result + (this.kilde != null ? this.kilde.hashCode() : 0);
-        result = 31 * result + (this.tekniskStandard != null ? this.tekniskStandard.hashCode() : 0);
-        return (int) result;
-    }
 
     @Override
     public Collection<DoerpunktVersionEntity> getVersioner() {
@@ -163,4 +72,34 @@ public class DoerpunktEntity
     protected DoerpunktVersionEntity createVersionEntity() {
         return new DoerpunktVersionEntity(this);
     }
+
+    /*
+    * Fields on the entity
+    * */
+
+    @OneToOne(mappedBy = "doerPunkt", fetch = FetchType.LAZY, optional = false)
+    private AdresseEntity adresse;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "position_id", nullable = false)
+    private IsoPunktEntity position;
+
+
+    public AdresseEntity getAdresse() {
+        return adresse;
+    }
+
+    public void setAdresse(AdresseEntity adresse) {
+        this.adresse = adresse;
+    }
+
+    public IsoPunktEntity getPosition() {
+        return this.position;
+    }
+
+    public void setPosition(IsoPunktEntity position) {
+        this.position = position;
+    }
+
+
 }

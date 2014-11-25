@@ -59,10 +59,6 @@ public class VejnavneomraadeVersionEntity
         @Column(name = "teknisk_standard", nullable = true, insertable = true, updatable = true, length = 255)
         private String tekniskStandard;
 
-        @OneToOne(mappedBy = "vejnavneomraade", fetch = FetchType.LAZY)
-        private NavngivenVejEntity navngivenVej;
-
-
 
         public String getVejnavneomraade() {
                 return this.vejnavneomraade;
@@ -103,15 +99,6 @@ public class VejnavneomraadeVersionEntity
         public void setTekniskStandard(String tekniskStandard) {
                 this.tekniskStandard = tekniskStandard;
         }
-
-        public NavngivenVejEntity getNavngivenVeje() {
-                return this.navngivenVej;
-        }
-
-        public void setNavngivenVeje(NavngivenVejEntity navngivneVeje) {
-                this.navngivenVej = navngivenVej;
-        }
-
 
         @Override
         public boolean equals(Object o) {

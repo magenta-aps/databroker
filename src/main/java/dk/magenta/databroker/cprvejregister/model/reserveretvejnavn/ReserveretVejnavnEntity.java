@@ -81,8 +81,7 @@ public class ReserveretVejnavnEntity
     * Fields on the entity
     * */
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reserveret_af_kommune_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private KommuneEntity reserveretAfKommune;
 
     public KommuneEntity getReserveretAfKommune() {

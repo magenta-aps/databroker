@@ -2,6 +2,7 @@ package dk.magenta.databroker.cprvejregister.model.vejnavneomraade;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.cprvejregister.model.isopunkt.IsoPunktEntity;
+import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -83,8 +84,10 @@ public class VejnavneomraadeEntity
     * */
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "vejtilslutningspunkt_id", nullable = false)
     private IsoPunktEntity vejtilslutningspunkt;
+
+    @OneToOne(mappedBy = "vejnavneomraade", fetch = FetchType.LAZY)
+    private NavngivenVejEntity navngivenVej;
 
     public IsoPunktEntity getVejtilslutningspunkt() {
         return this.vejtilslutningspunkt;
@@ -94,4 +97,11 @@ public class VejnavneomraadeEntity
         this.vejtilslutningspunkt = vejtilslutningspunkt;
     }
 
+    public NavngivenVejEntity getNavngivenVej() {
+        return navngivenVej;
+    }
+
+    public void setNavngivenVej(NavngivenVejEntity navngivenVej) {
+        this.navngivenVej = navngivenVej;
+    }
 }
