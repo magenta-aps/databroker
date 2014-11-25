@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -56,13 +57,17 @@ public class AdgangspunktEntity
     private Collection<HusnummerEntity> husnumre;
 
     @OneToMany(mappedBy = "entitet")
-    private Collection<AdgangspunktVersionEntity> versioner;
+    private Collection<AdgangspunktVersionEntity> versions;
 
     @OneToOne
     private AdgangspunktVersionEntity latestVersion;
 
     @OneToOne
     private AdgangspunktVersionEntity preferredVersion;
+
+    protected AdgangspunktEntity() {
+        this.versions = new ArrayList<AdgangspunktVersionEntity>();
+    }
 
     public String getStatus() {
         return this.status;
@@ -136,6 +141,7 @@ public class AdgangspunktEntity
         this.husnumre = husnumre;
     }
 
+
     public static AdgangspunktEntity create() {
         AdgangspunktEntity entity = new AdgangspunktEntity();
         entity.generateNewUUID();
@@ -184,7 +190,7 @@ public class AdgangspunktEntity
 
     @Override
     public Collection<AdgangspunktVersionEntity> getVersioner() {
-        return versioner;
+        return versions;
     }
 
     @Override

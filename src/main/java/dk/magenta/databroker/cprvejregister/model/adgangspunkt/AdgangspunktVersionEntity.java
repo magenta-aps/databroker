@@ -17,6 +17,10 @@ public class AdgangspunktVersionEntity
         @ManyToOne
         private AdgangspunktEntity entitet;
 
+        protected AdgangspunktVersionEntity() {
+                super();
+        }
+
         public AdgangspunktVersionEntity(AdgangspunktEntity entitet) {
                 super(entitet);
         }

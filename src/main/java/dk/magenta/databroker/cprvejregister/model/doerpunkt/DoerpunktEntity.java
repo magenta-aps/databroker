@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -16,7 +17,7 @@ import java.util.Collection;
 @Entity
 @Table(name = "doerpunkt")
 public class DoerpunktEntity
-        extends DobbeltHistorikBase<DoerpunktEntity, DoerpunktVersionEntity, DoerpunktRegistreringsVirkningEntity>
+        extends DobbeltHistorikBase<DoerpunktEntity, DoerpunktVersionEntity>
         implements Serializable {
 
     @Basic
@@ -38,6 +39,19 @@ public class DoerpunktEntity
     @JoinColumn(name = "position_id", nullable = false)
     private IsoPunktEntity position;
 
+
+    @OneToMany
+    private Collection<DoerpunktVersionEntity> versions;
+
+    @OneToOne
+    private DoerpunktVersionEntity latestVersion;
+
+    @OneToOne
+    private DoerpunktVersionEntity preferredVersion;
+
+    protected DoerpunktEntity() {
+        this.versions = new ArrayList<DoerpunktVersionEntity>();
+    }
 
     public String getNoejagtighedsklasse() {
         return this.noejagtighedsklasse;
@@ -121,7 +135,32 @@ public class DoerpunktEntity
     }
 
     @Override
-    protected DoerpunktVersionEntity createRegistreringEntity() {
+    public Collection<DoerpunktVersionEntity> getVersioner() {
+        return versions;
+    }
+
+    @Override
+    public DoerpunktVersionEntity getLatestVersion() {
+        return latestVersion;
+    }
+
+    @Override
+    public void setLatestVersion(DoerpunktVersionEntity newLatest) {
+        this.latestVersion = newLatest;
+    }
+
+    @Override
+    public DoerpunktVersionEntity getPreferredVersion() {
+        return preferredVersion;
+    }
+
+    @Override
+    public void setPreferredVersion(DoerpunktVersionEntity newPreferred) {
+        this.preferredVersion = newPreferred;
+    }
+
+    @Override
+    protected DoerpunktVersionEntity createVersionEntity() {
         return new DoerpunktVersionEntity(this);
     }
 }

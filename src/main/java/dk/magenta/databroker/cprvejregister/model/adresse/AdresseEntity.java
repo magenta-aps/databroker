@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Created by jubk on 11/10/14.
@@ -15,9 +17,20 @@ import java.io.Serializable;
 @Entity
 @Table(name = "adresse", indexes = { @Index(name="husnummer", columnList="husnummer_id") })
 public class AdresseEntity
-        extends DobbeltHistorikBase<AdresseEntity, AdresseVersionEntity, AdresseRegistreringsVirkningEntity>
+        extends DobbeltHistorikBase<AdresseEntity, AdresseVersionEntity>
         implements Serializable {
 
+    @OneToMany(mappedBy = "entitet")
+    private Collection<AdresseVersionEntity> versions;
+
+    @OneToOne
+    private AdresseVersionEntity latestVersion;
+    @OneToOne
+    private AdresseVersionEntity preferredVersion;
+
+    protected AdresseEntity() {
+        this.versions = new ArrayList<AdresseVersionEntity>();
+    }
 
     public static AdresseEntity create() {
         AdresseEntity entity = new AdresseEntity();
@@ -56,8 +69,32 @@ public class AdresseEntity
     }
 
     @Override
-    protected AdresseVersionEntity createRegistreringEntity() {
-        return new AdresseVersionEntity(this);
+    public Collection<AdresseVersionEntity> getVersioner() {
+        return versions;
     }
 
+    @Override
+    public AdresseVersionEntity getLatestVersion() {
+        return latestVersion;
+    }
+
+    @Override
+    public void setLatestVersion(AdresseVersionEntity newLatest) {
+        this.latestVersion = newLatest;
+    }
+
+    @Override
+    public AdresseVersionEntity getPreferredVersion() {
+        return preferredVersion;
+    }
+
+    @Override
+    public void setPreferredVersion(AdresseVersionEntity newPreferred) {
+        this.preferredVersion = newPreferred;
+    }
+
+    @Override
+    protected AdresseVersionEntity createVersionEntity() {
+        return new AdresseVersionEntity(this);
+    }
 }
