@@ -39,24 +39,24 @@ public class NavngivenVejVersionEntity
 
 
         @ManyToOne
-        private NavngivenVejEntity entitet;
+        private NavngivenVejEntity entity;
 
         protected NavngivenVejVersionEntity() {
                 super();
         }
 
-        public NavngivenVejVersionEntity(NavngivenVejEntity entitet) {
-                super(entitet);
+        public NavngivenVejVersionEntity(NavngivenVejEntity entity) {
+                super(entity);
         }
 
         @Override
-        public NavngivenVejEntity getEntitet() {
-                return entitet;
+        public NavngivenVejEntity getEntity() {
+                return entity;
         }
 
         @Override
-        public void setEntitet(NavngivenVejEntity entitet) {
-                this.entitet = entitet;
+        public void setEntity(NavngivenVejEntity entitet) {
+                this.entity = entitet;
         }
 
 

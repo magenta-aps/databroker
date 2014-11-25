@@ -145,8 +145,8 @@ public class DoerpunktEntity
     }
 
     @Override
-    public void setLatestVersion(DoerpunktVersionEntity newLatest) {
-        this.latestVersion = newLatest;
+    public void setLatestVersion(DoerpunktVersionEntity latestVersion) {
+        this.latestVersion = latestVersion;
     }
 
     @Override
@@ -155,8 +155,8 @@ public class DoerpunktEntity
     }
 
     @Override
-    public void setPreferredVersion(DoerpunktVersionEntity newPreferred) {
-        this.preferredVersion = newPreferred;
+    public void setPreferredVersion(DoerpunktVersionEntity preferredVersion) {
+        this.preferredVersion = preferredVersion;
     }
 
     @Override

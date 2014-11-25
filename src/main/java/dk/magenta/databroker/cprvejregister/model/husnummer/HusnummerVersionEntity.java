@@ -16,26 +16,26 @@ public class HusnummerVersionEntity
 
 
         @ManyToOne
-        private HusnummerEntity entitet;
+        private HusnummerEntity entity;
 
         protected HusnummerVersionEntity() {
                 super();
         }
 
-        public HusnummerVersionEntity(HusnummerEntity entitet) {
-                super(entitet);
+        public HusnummerVersionEntity(HusnummerEntity entity) {
+                super(entity);
         }
 
 
 
         @Override
-        public HusnummerEntity getEntitet() {
-                return entitet;
+        public HusnummerEntity getEntity() {
+                return entity;
         }
 
         @Override
-        public void setEntitet(HusnummerEntity entitet) {
-                this.entitet = entitet;
+        public void setEntity(HusnummerEntity entitet) {
+                this.entity = entitet;
         }
 
 }

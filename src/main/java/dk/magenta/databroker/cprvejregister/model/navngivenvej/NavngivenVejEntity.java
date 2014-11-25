@@ -39,7 +39,7 @@ public class NavngivenVejEntity
 
 
 
-    @OneToMany(mappedBy = "entitet")
+    @OneToMany(mappedBy = "entity")
     private Collection<NavngivenVejVersionEntity> versioner;
 
     @OneToOne
@@ -115,8 +115,8 @@ public class NavngivenVejEntity
     }
 
     @Override
-    public void setLatestVersion(NavngivenVejVersionEntity newLatest) {
-        this.latestVersion = newLatest;
+    public void setLatestVersion(NavngivenVejVersionEntity latestVersion) {
+        this.latestVersion = latestVersion;
     }
 
     @Override
@@ -125,8 +125,8 @@ public class NavngivenVejEntity
     }
 
     @Override
-    public void setPreferredVersion(NavngivenVejVersionEntity newPreferred) {
-        this.preferredVersion = newPreferred;
+    public void setPreferredVersion(NavngivenVejVersionEntity preferredVersion) {
+        this.preferredVersion = preferredVersion;
     }
 
     @Override

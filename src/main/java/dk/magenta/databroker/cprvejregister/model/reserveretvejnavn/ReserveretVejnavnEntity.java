@@ -46,7 +46,7 @@ public class ReserveretVejnavnEntity
 
 
 
-    @OneToMany(mappedBy = "entitet")
+    @OneToMany(mappedBy = "entity")
     private Collection<ReserveretVejnavnVersionEntity> versioner;
 
     @OneToOne

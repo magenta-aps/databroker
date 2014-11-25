@@ -2,8 +2,6 @@ package dk.magenta.databroker.cprvejregister.model.adresse;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
-import dk.magenta.databroker.cprvejregister.model.doerpunkt.DoerpunktEntity;
-import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
@@ -20,7 +18,7 @@ public class AdresseEntity
         extends DobbeltHistorikBase<AdresseEntity, AdresseVersionEntity>
         implements Serializable {
 
-    @OneToMany(mappedBy = "entitet")
+    @OneToMany(mappedBy = "entity")
     private Collection<AdresseVersionEntity> versions;
 
     @OneToOne
@@ -79,8 +77,8 @@ public class AdresseEntity
     }
 
     @Override
-    public void setLatestVersion(AdresseVersionEntity newLatest) {
-        this.latestVersion = newLatest;
+    public void setLatestVersion(AdresseVersionEntity latestVersion) {
+        this.latestVersion = latestVersion;
     }
 
     @Override
@@ -89,8 +87,8 @@ public class AdresseEntity
     }
 
     @Override
-    public void setPreferredVersion(AdresseVersionEntity newPreferred) {
-        this.preferredVersion = newPreferred;
+    public void setPreferredVersion(AdresseVersionEntity preferredVersion) {
+        this.preferredVersion = preferredVersion;
     }
 
     @Override

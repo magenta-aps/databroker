@@ -15,23 +15,23 @@ public class VejnavneomraadeVersionEntity
         extends DobbeltHistorikVersion<VejnavneomraadeEntity, VejnavneomraadeVersionEntity> {
 
         @ManyToOne
-        private VejnavneomraadeEntity entitet;
+        private VejnavneomraadeEntity entity;
 
         protected VejnavneomraadeVersionEntity() {
                 super();
         }
 
-        public VejnavneomraadeVersionEntity(VejnavneomraadeEntity entitet) {
-                super(entitet);
+        public VejnavneomraadeVersionEntity(VejnavneomraadeEntity entity) {
+                super(entity);
         }
 
         @Override
-        public VejnavneomraadeEntity getEntitet() {
-                return entitet;
+        public VejnavneomraadeEntity getEntity() {
+                return entity;
         }
 
         @Override
-        public void setEntitet(VejnavneomraadeEntity entitet) {
-                this.entitet = entitet;
+        public void setEntity(VejnavneomraadeEntity entity) {
+                this.entity = entity;
         }
 }

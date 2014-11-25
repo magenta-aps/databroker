@@ -15,23 +15,23 @@ public class ReserveretVejnavnVersionEntity
         extends DobbeltHistorikVersion<ReserveretVejnavnEntity, ReserveretVejnavnVersionEntity> {
 
         @ManyToOne
-        private ReserveretVejnavnEntity entitet;
+        private ReserveretVejnavnEntity entity;
 
         protected ReserveretVejnavnVersionEntity() {
                 super();
         }
 
-        public ReserveretVejnavnVersionEntity(ReserveretVejnavnEntity entitet) {
-                super(entitet);
+        public ReserveretVejnavnVersionEntity(ReserveretVejnavnEntity entity) {
+                super(entity);
         }
 
         @Override
-        public ReserveretVejnavnEntity getEntitet() {
-                return entitet;
+        public ReserveretVejnavnEntity getEntity() {
+                return entity;
         }
 
         @Override
-        public void setEntitet(ReserveretVejnavnEntity entitet) {
-                this.entitet = entitet;
+        public void setEntity(ReserveretVejnavnEntity entitet) {
+                this.entity = entitet;
         }
 }

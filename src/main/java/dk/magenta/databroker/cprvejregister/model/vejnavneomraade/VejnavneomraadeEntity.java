@@ -48,7 +48,7 @@ public class VejnavneomraadeEntity
     private IsoPunktEntity vejtilslutningspunkt;
 
 
-    @OneToMany(mappedBy = "entitet")
+    @OneToMany(mappedBy = "entity")
     private Collection<VejnavneomraadeVersionEntity> versioner;
 
     @OneToOne
@@ -180,8 +180,8 @@ public class VejnavneomraadeEntity
     }
 
     @Override
-    public void setLatestVersion(VejnavneomraadeVersionEntity newLatest) {
-        this.latestVersion = newLatest;
+    public void setLatestVersion(VejnavneomraadeVersionEntity latestVersion) {
+        this.latestVersion = latestVersion;
     }
 
     @Override
@@ -190,8 +190,8 @@ public class VejnavneomraadeEntity
     }
 
     @Override
-    public void setPreferredVersion(VejnavneomraadeVersionEntity newPreferred) {
-        this.preferredVersion = newPreferred;
+    public void setPreferredVersion(VejnavneomraadeVersionEntity preferredVersion) {
+        this.preferredVersion = preferredVersion;
     }
 
     @Override

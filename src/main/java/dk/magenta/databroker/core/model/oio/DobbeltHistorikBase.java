@@ -59,10 +59,10 @@ public abstract class DobbeltHistorikBase<
     public abstract Collection<R> getVersioner();
 
     public abstract R getLatestVersion();
-    public abstract void setLatestVersion(R newLatest);
+    public abstract void setLatestVersion(R latestVersion);
 
     public abstract R getPreferredVersion();
-    public abstract void setPreferredVersion(R newPreferred);
+    public abstract void setPreferredVersion(R preferredVersion);
 
     protected abstract R createVersionEntity();
 
@@ -78,7 +78,7 @@ public abstract class DobbeltHistorikBase<
     }
 
     private void addVersion(R version) throws InputMismatchException {
-        version.setEntitet((E)this);
+        version.setEntity((E) this);
 
         R latest = this.getLatestVersion();
 

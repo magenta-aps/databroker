@@ -15,23 +15,23 @@ public class AdgangspunktVersionEntity
         extends DobbeltHistorikVersion<AdgangspunktEntity, AdgangspunktVersionEntity> {
 
         @ManyToOne
-        private AdgangspunktEntity entitet;
+        private AdgangspunktEntity entity;
 
         protected AdgangspunktVersionEntity() {
                 super();
         }
 
-        public AdgangspunktVersionEntity(AdgangspunktEntity entitet) {
-                super(entitet);
+        public AdgangspunktVersionEntity(AdgangspunktEntity entity) {
+                super(entity);
         }
 
         @Override
-        public AdgangspunktEntity getEntitet() {
-                return entitet;
+        public AdgangspunktEntity getEntity() {
+                return entity;
         }
 
         @Override
-        public void setEntitet(AdgangspunktEntity entitet) {
-                this.entitet = entitet;
+        public void setEntity(AdgangspunktEntity entitet) {
+                this.entity = entitet;
         }
 }

@@ -13,7 +13,7 @@ public class KommuneVersionEntity
         extends DobbeltHistorikVersion<KommuneEntity, KommuneVersionEntity> {
 
         @ManyToOne
-        private KommuneEntity entitet;
+        private KommuneEntity entity;
 
 
         @Basic
@@ -23,8 +23,8 @@ public class KommuneVersionEntity
         protected KommuneVersionEntity() {
                 super();
         }
-        public KommuneVersionEntity(KommuneEntity entitet) {
-                super(entitet);
+        public KommuneVersionEntity(KommuneEntity entity) {
+                super(entity);
         }
 
         public String getNavn() {
@@ -39,12 +39,12 @@ public class KommuneVersionEntity
 
 
         @Override
-        public KommuneEntity getEntitet() {
-                return entitet;
+        public KommuneEntity getEntity() {
+                return entity;
         }
 
         @Override
-        public void setEntitet(KommuneEntity entitet) {
-                this.entitet = entitet;
+        public void setEntity(KommuneEntity entitet) {
+                this.entity = entitet;
         }
 }

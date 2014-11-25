@@ -28,7 +28,7 @@ public class HusnummerEntity
 
 
 
-    @OneToMany(mappedBy = "entitet")
+    @OneToMany(mappedBy = "entity")
     private Collection<HusnummerVersionEntity> versioner;
 
     @OneToOne
@@ -91,8 +91,8 @@ public class HusnummerEntity
     }
 
     @Override
-    public void setLatestVersion(HusnummerVersionEntity newLatest) {
-        this.latestVersion = newLatest;
+    public void setLatestVersion(HusnummerVersionEntity latestVersion) {
+        this.latestVersion = latestVersion;
     }
 
     @Override
@@ -101,8 +101,8 @@ public class HusnummerEntity
     }
 
     @Override
-    public void setPreferredVersion(HusnummerVersionEntity newPreferred) {
-        this.preferredVersion = newPreferred;
+    public void setPreferredVersion(HusnummerVersionEntity preferredVersion) {
+        this.preferredVersion = preferredVersion;
     }
 
     @Override

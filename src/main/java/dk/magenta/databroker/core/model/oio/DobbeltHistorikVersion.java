@@ -33,7 +33,7 @@ public abstract class DobbeltHistorikVersion<
         }
 
         public DobbeltHistorikVersion(E entitet) {
-                this.setEntitet(entitet);
+                this.setEntity(entitet);
                 this.virkninger = new ArrayList<VirkningEntity>();
         }
 
@@ -41,9 +41,9 @@ public abstract class DobbeltHistorikVersion<
                 return id;
         }
 
-        public abstract E getEntitet();
+        public abstract E getEntity();
 
-        public abstract void setEntitet(E entitet);
+        public abstract void setEntity(E entitet);
 
         public RegistreringEntity getRegistrering() {
                 return registrering;

@@ -56,7 +56,7 @@ public class AdgangspunktEntity
     @OneToMany(mappedBy = "tilknyttetAdgangspunkt")
     private Collection<HusnummerEntity> husnumre;
 
-    @OneToMany(mappedBy = "entitet")
+    @OneToMany(mappedBy = "entity")
     private Collection<AdgangspunktVersionEntity> versions;
 
     @OneToOne
@@ -199,8 +199,8 @@ public class AdgangspunktEntity
     }
 
     @Override
-    public void setLatestVersion(AdgangspunktVersionEntity newLatest) {
-        this.latestVersion = newLatest;
+    public void setLatestVersion(AdgangspunktVersionEntity latestVersion) {
+        this.latestVersion = latestVersion;
     }
 
     @Override
@@ -209,8 +209,8 @@ public class AdgangspunktEntity
     }
 
     @Override
-    public void setPreferredVersion(AdgangspunktVersionEntity newPreferred) {
-        this.preferredVersion = newPreferred;
+    public void setPreferredVersion(AdgangspunktVersionEntity preferredVersion) {
+        this.preferredVersion = preferredVersion;
     }
 
     @Override

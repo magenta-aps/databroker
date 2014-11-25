@@ -33,7 +33,7 @@ public class PostnummerEntity
 
 
 
-    @OneToMany(mappedBy = "entitet")
+    @OneToMany(mappedBy = "entity")
     private Collection<PostnummerVersionEntity> versioner;
 
     @OneToOne
@@ -110,8 +110,8 @@ public class PostnummerEntity
     }
 
     @Override
-    public void setLatestVersion(PostnummerVersionEntity newLatest) {
-        this.latestVersion = newLatest;
+    public void setLatestVersion(PostnummerVersionEntity latestVersion) {
+        this.latestVersion = latestVersion;
     }
 
     @Override
@@ -120,8 +120,8 @@ public class PostnummerEntity
     }
 
     @Override
-    public void setPreferredVersion(PostnummerVersionEntity newPreferred) {
-        this.preferredVersion = newPreferred;
+    public void setPreferredVersion(PostnummerVersionEntity preferredVersion) {
+        this.preferredVersion = preferredVersion;
     }
 
     @Override

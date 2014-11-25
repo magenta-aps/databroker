@@ -15,23 +15,23 @@ public class AdresseVersionEntity
         extends DobbeltHistorikVersion<AdresseEntity, AdresseVersionEntity> {
 
         @ManyToOne
-        private AdresseEntity entitet;
+        private AdresseEntity entity;
 
         public AdresseVersionEntity() {
                 super();
         }
 
-        public AdresseVersionEntity(AdresseEntity entitet) {
-                this.entitet = entitet;
+        public AdresseVersionEntity(AdresseEntity entity) {
+                this.entity = entity;
         }
 
         @Override
-        public AdresseEntity getEntitet() {
-                return entitet;
+        public AdresseEntity getEntity() {
+                return entity;
         }
 
         @Override
-        public void setEntitet(AdresseEntity entitet) {
-                this.entitet = entitet;
+        public void setEntity(AdresseEntity entitet) {
+                this.entity = entitet;
         }
 }

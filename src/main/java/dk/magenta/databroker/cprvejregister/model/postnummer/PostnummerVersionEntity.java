@@ -15,23 +15,23 @@ public class PostnummerVersionEntity
         extends DobbeltHistorikVersion<PostnummerEntity, PostnummerVersionEntity> {
 
         @ManyToOne
-        private PostnummerEntity entitet;
+        private PostnummerEntity entity;
 
         protected PostnummerVersionEntity() {
                 super();
         }
 
-        public PostnummerVersionEntity(PostnummerEntity entitet) {
-                super(entitet);
+        public PostnummerVersionEntity(PostnummerEntity entity) {
+                super(entity);
         }
 
         @Override
-        public PostnummerEntity getEntitet() {
-                return entitet;
+        public PostnummerEntity getEntity() {
+                return entity;
         }
 
         @Override
-        public void setEntitet(PostnummerEntity entitet) {
-                this.entitet = entitet;
+        public void setEntity(PostnummerEntity entitet) {
+                this.entity = entitet;
         }
 }

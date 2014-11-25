@@ -15,23 +15,23 @@ public class DoerpunktVersionEntity
         extends DobbeltHistorikVersion<DoerpunktEntity, DoerpunktVersionEntity> {
 
         @ManyToOne
-        private DoerpunktEntity entitet;
+        private DoerpunktEntity entity;
 
         public DoerpunktVersionEntity() {
                 super();
         }
 
-        public DoerpunktVersionEntity(DoerpunktEntity entitet) {
-                super(entitet);
+        public DoerpunktVersionEntity(DoerpunktEntity entity) {
+                super(entity);
         }
 
         @Override
-        public DoerpunktEntity getEntitet() {
-                return entitet;
+        public DoerpunktEntity getEntity() {
+                return entity;
         }
 
         @Override
-        public void setEntitet(DoerpunktEntity entitet) {
-                this.entitet = entitet;
+        public void setEntity(DoerpunktEntity entitet) {
+                this.entity = entitet;
         }
 }

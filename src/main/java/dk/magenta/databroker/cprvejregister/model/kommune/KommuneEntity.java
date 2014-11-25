@@ -37,7 +37,7 @@ public class KommuneEntity
 
 
 
-    @OneToMany(mappedBy = "entitet")
+    @OneToMany(mappedBy = "entity")
     private Collection<KommuneVersionEntity> versioner;
 
     @OneToOne
@@ -130,8 +130,8 @@ public class KommuneEntity
     }
 
     @Override
-    public void setLatestVersion(KommuneVersionEntity newLatest) {
-        this.latestVersion = newLatest;
+    public void setLatestVersion(KommuneVersionEntity latestVersion) {
+        this.latestVersion = latestVersion;
     }
 
     @Override
@@ -140,8 +140,8 @@ public class KommuneEntity
     }
 
     @Override
-    public void setPreferredVersion(KommuneVersionEntity newPreferred) {
-        this.preferredVersion = newPreferred;
+    public void setPreferredVersion(KommuneVersionEntity preferredVersion) {
+        this.preferredVersion = preferredVersion;
     }
 
     @Override
