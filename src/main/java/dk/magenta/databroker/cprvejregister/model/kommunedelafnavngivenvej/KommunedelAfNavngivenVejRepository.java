@@ -12,6 +12,6 @@ public interface KommunedelAfNavngivenVejRepository extends JpaRepository<Kommun
     @Query("select del from KommunedelAfNavngivenVejEntity del " +
             "where del.kommune.kommunekode = :kommune " +
             "and del.vejkode = :vej")
-    public KommunedelAfNavngivenVejEntity findByKommunekodeAndVejkode(@Param("kommune") int kommune, @Param("vej") int vej);
+    public KommunedelAfNavngivenVejEntity getByKommunekodeAndVejkode(@Param("kommune") int kommune, @Param("vej") int vej);
 
 }

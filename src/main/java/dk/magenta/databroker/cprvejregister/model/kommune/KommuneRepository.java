@@ -9,5 +9,5 @@ import org.springframework.data.repository.query.Param;
  */
 public interface KommuneRepository extends JpaRepository<KommuneEntity, Long> {
     @Query("select kom from KommuneEntity kom where kom.kommunekode = :komkode")
-    public KommuneEntity findByKommunekode(@Param("komkode") int kommunekode);
+    public KommuneEntity getByKommunekode(@Param("komkode") int kommunekode);
 }

@@ -7,11 +7,10 @@ import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
 import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.*;
 import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
-import dk.magenta.databroker.cprvejregister.model.adresse.AdresseRegistreringEntity;
+import dk.magenta.databroker.cprvejregister.model.adresse.AdresseVersionEntity;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseRepository;
 import dk.magenta.databroker.cprvejregister.model.doerpunkt.DoerpunktEntity;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
-import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerRegistreringEntity;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerRepository;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejRepository;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
@@ -126,41 +125,43 @@ public class LokalitetsRegister extends CprRegister {
                     DoerpunktEntity doerpunktEntity = null;
                     String status = "hephey";
 
-                    HusnummerEntity husNummerEntity = husnummerRepository.findFirstByKommunekodeAndVejkodeAndHusnr(kommuneKode, vejKode, husKode);
+                    HusnummerEntity husNummerEntity = husnummerRepository.getByKommunekodeAndVejkodeAndHusnr(kommuneKode, vejKode, husKode);
+
                     AdresseEntity adresseEntity = adresseRepository.findByHusnummerAndDoerbetegnelseAndEtagebetegnelse(husNummerEntity, sidedoer, etage);
 
                     if (husNummerEntity == null) {
                         husNummerEntity = HusnummerEntity.create();
                         husnummerCounter.countCreatedItem();
-                        husNummerEntity.addRegistrering(husKode, createRegistrering, null);
+                        husNummerEntity.setHusnummerbetegnelse(husKode);
                         NavngivenVejEntity navngivenVejEntity = navngivenVejRepository.findByKommunekodeAndVejkode(kommuneKode, vejKode);
                         husNummerEntity.setNavngivenVej(navngivenVejEntity);
                         husnummerCounter.countCreatedItem();
-                    } else {
-                        if (!husKode.equals(husNummerEntity.getLatestRegistrering().getHusnummerbetegnelse())) {
-                            husNummerEntity.addRegistrering(husKode, updateRegistrering, null);
-                            husnummerCounter.countUpdatedItem();
-                        }
                     }
 
-
+                    AdresseVersionEntity adresseVersion = null;
                     if (adresseEntity == null) {
                         adresseEntity = AdresseEntity.create();
+                        adresseEntity.setHusnummer(husNummerEntity);
+                        adresseVersion = adresseEntity.addVersion(createRegistrering);
                         adresseCounter.countCreatedItem();
-                        adresseEntity.addRegistrering(husNummerEntity, null, etage, sidedoer, status, createRegistrering, null);
                     } else {
-                        AdresseRegistreringEntity latestRegistrering = adresseEntity.getLatestRegistrering();
+                        AdresseVersionEntity latestVersion = adresseEntity.getLatestVersion();
                         if (!(
-                                husNummerEntity.equals(latestRegistrering.getHusnummer()) &&
-                                doerpunktEntity == null || doerpunktEntity.equals(latestRegistrering.getDoerpunkt()) &&
-                                etage.equals(latestRegistrering.getEtagebetegnelse()) &&
-                                sidedoer.equals(latestRegistrering.getDoerbetegnelse()) &&
-                                status.equals(latestRegistrering.getStatus())
-                                )) {
-                            adresseEntity.addRegistrering(husNummerEntity, null, etage, sidedoer, status, updateRegistrering, null);
+                                etage.equals(latestVersion.getEtageBetegnelse()) &&
+                                sidedoer.equals(latestVersion.getDoerBetegnelse()) &&
+                                status.equals(latestVersion.getStatus())
+                            )) {
+                            adresseVersion = adresseEntity.addVersion(updateRegistrering);
                             adresseCounter.countUpdatedItem();
                         }
                     }
+
+                    if (adresseVersion != null) {
+                        adresseVersion.setEtageBetegnelse(etage);
+                        adresseVersion.setDoerBetegnelse(sidedoer);
+                        adresseVersion.setStatus(status);
+                    }
+
                     adresseRepository.save(adresseEntity);
 
                     this.printInputProcessed();

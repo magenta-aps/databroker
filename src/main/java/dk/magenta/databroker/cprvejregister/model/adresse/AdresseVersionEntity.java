@@ -48,4 +48,28 @@ public class AdresseVersionEntity
         @Basic
         @Column
         private String doerBetegnelse;
+
+        public String getStatus() {
+                return status;
+        }
+
+        public void setStatus(String status) {
+                this.status = status;
+        }
+
+        public String getEtageBetegnelse() {
+                return etageBetegnelse;
+        }
+
+        public void setEtageBetegnelse(String etageBetegnelse) {
+                this.etageBetegnelse = etageBetegnelse;
+        }
+
+        public String getDoerBetegnelse() {
+                return doerBetegnelse;
+        }
+
+        public void setDoerBetegnelse(String doerBetegnelse) {
+                this.doerBetegnelse = doerBetegnelse;
+        }
 }

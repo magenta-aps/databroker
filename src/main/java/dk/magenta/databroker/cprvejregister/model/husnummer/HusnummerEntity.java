@@ -20,7 +20,10 @@ import java.util.Collection;
 @Table(name = "husnummer", indexes = {
         @Index(name="navngivenVej", columnList="navngiven_vej_id"),
         @Index(name="adgangspunkt", columnList="tilknyttet_adgangspunkt_id")
-})
+    },
+    uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"navngivenVej","husnummerbetegnelse"})
+    })
 public class HusnummerEntity extends UniqueBase implements Serializable {
 
     public HusnummerEntity() {
@@ -46,6 +49,10 @@ public class HusnummerEntity extends UniqueBase implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private NavngivenVejEntity navngivenVej;
 
+    @Basic
+    @Column(nullable = true)
+    private String husnummerbetegnelse;
+
     public NavngivenVejEntity getNavngivenVej() {
         return this.navngivenVej;
     }
@@ -54,6 +61,13 @@ public class HusnummerEntity extends UniqueBase implements Serializable {
         this.navngivenVej = navngivenVej;
     }
 
+    public String getHusnummerbetegnelse() {
+        return husnummerbetegnelse;
+    }
+
+    public void setHusnummerbetegnelse(String husnummerbetegnelse) {
+        this.husnummerbetegnelse = husnummerbetegnelse;
+    }
 }
 
 
