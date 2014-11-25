@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Created by jubk on 11/10/14.
@@ -15,7 +17,7 @@ import java.sql.Date;
 @Entity
 @Table(name = "reserveret_vejnavn")
 public class ReserveretVejnavnEntity
-        extends DobbeltHistorikBase<ReserveretVejnavnEntity, ReserveretVejnavnVersionEntity, ReserveretVejnavnRegistreringsVirkningEntity>
+        extends DobbeltHistorikBase<ReserveretVejnavnEntity, ReserveretVejnavnVersionEntity>
         implements Serializable {
 
     @Basic
@@ -42,6 +44,21 @@ public class ReserveretVejnavnEntity
     @JoinColumn(name = "reserveret_af_kommune_id", nullable = false)
     private KommuneEntity reserveretAfKommune;
 
+
+
+    @OneToMany(mappedBy = "entitet")
+    private Collection<ReserveretVejnavnVersionEntity> versioner;
+
+    @OneToOne
+    private ReserveretVejnavnVersionEntity latestVersion;
+
+    @OneToOne
+    private ReserveretVejnavnVersionEntity preferredVersion;
+
+
+    protected ReserveretVejnavnEntity() {
+        this.versioner = new ArrayList<ReserveretVejnavnVersionEntity>();
+    }
 
     public String getNavneomraade() {
         return navneomraade;
@@ -142,8 +159,36 @@ public class ReserveretVejnavnEntity
         return (int) result;
     }
 
+
+
+
     @Override
-    protected ReserveretVejnavnVersionEntity createRegistreringEntity() {
+    public Collection<ReserveretVejnavnVersionEntity> getVersioner() {
+        return versioner;
+    }
+
+    @Override
+    public ReserveretVejnavnVersionEntity getLatestVersion() {
+        return latestVersion;
+    }
+
+    @Override
+    public void setLatestVersion(ReserveretVejnavnVersionEntity latestVersion) {
+        this.latestVersion = latestVersion;
+    }
+
+    @Override
+    public ReserveretVejnavnVersionEntity getPreferredVersion() {
+        return preferredVersion;
+    }
+
+    @Override
+    public void setPreferredVersion(ReserveretVejnavnVersionEntity preferredVersion) {
+        this.preferredVersion = preferredVersion;
+    }
+
+    @Override
+    protected ReserveretVejnavnVersionEntity createVersionEntity() {
         return new ReserveretVejnavnVersionEntity(this);
     }
 }

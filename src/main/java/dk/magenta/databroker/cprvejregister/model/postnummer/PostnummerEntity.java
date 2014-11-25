@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -15,7 +16,7 @@ import java.util.Collection;
 @Entity
 @Table(name = "postnummer", indexes = { @Index(name="nummer", columnList="nummer") })
 public class PostnummerEntity
-        extends DobbeltHistorikBase<PostnummerEntity, PostnummerVersionEntity, PostnummerRegistreringsVirkningEntity>
+        extends DobbeltHistorikBase<PostnummerEntity, PostnummerVersionEntity>
         implements Serializable {
 
     @Basic
@@ -28,6 +29,24 @@ public class PostnummerEntity
 
     @OneToMany(mappedBy = "liggerIPostnummer")
     private Collection<AdgangspunktEntity> adgangspunkter;
+
+
+
+
+    @OneToMany(mappedBy = "entitet")
+    private Collection<PostnummerVersionEntity> versioner;
+
+    @OneToOne
+    private PostnummerVersionEntity latestVersion;
+
+    @OneToOne
+    private PostnummerVersionEntity preferredVersion;
+
+
+    protected PostnummerEntity() {
+        this.versioner = new ArrayList<PostnummerVersionEntity>();
+    }
+
 
 
     public int getNummer() {
@@ -79,14 +98,34 @@ public class PostnummerEntity
         return (int) (long) this.getId();
     }
 
+
     @Override
-    protected PostnummerVersionEntity createRegistreringEntity() {
-        return new PostnummerVersionEntity(this);
+    public Collection<PostnummerVersionEntity> getVersioner() {
+        return versioner;
     }
 
-    public PostnummerRegistreringEntity addRegistrering(String navn, RegistreringEntity fromOIORegistrering, List<VirkningEntity> virkninger) {
-        PostnummerRegistreringEntity reg = super.addRegistrering(fromOIORegistrering, virkninger);
-        reg.setNavn(navn);
-        return reg;
+    @Override
+    public PostnummerVersionEntity getLatestVersion() {
+        return latestVersion;
+    }
+
+    @Override
+    public void setLatestVersion(PostnummerVersionEntity newLatest) {
+        this.latestVersion = newLatest;
+    }
+
+    @Override
+    public PostnummerVersionEntity getPreferredVersion() {
+        return preferredVersion;
+    }
+
+    @Override
+    public void setPreferredVersion(PostnummerVersionEntity newPreferred) {
+        this.preferredVersion = newPreferred;
+    }
+
+    @Override
+    protected PostnummerVersionEntity createVersionEntity() {
+        return new PostnummerVersionEntity(this);
     }
 }
