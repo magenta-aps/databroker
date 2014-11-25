@@ -160,9 +160,9 @@ public class LokalitetsRegister extends CprRegister {
                         adresseVersion.setEtageBetegnelse(etage);
                         adresseVersion.setDoerBetegnelse(sidedoer);
                         adresseVersion.setStatus(status);
+                        adresseRepository.save(adresseEntity);
                     }
 
-                    adresseRepository.save(adresseEntity);
 
                     this.printInputProcessed();
                 }

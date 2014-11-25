@@ -1,6 +1,5 @@
 package dk.magenta.databroker.cprvejregister.dataproviders;
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
-import dk.magenta.databroker.core.model.oio.RegistreringLivscyklusStatus;
 import dk.magenta.databroker.core.model.oio.RegistreringRepository;
 import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.*;
 
@@ -13,7 +12,7 @@ import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.Kommu
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejRepository;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejRepository;
-import org.springframework.data.jpa.repository.JpaRepository;
+import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejVersionEntity;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -399,6 +398,23 @@ public class VejRegister extends CprRegister {
         return null;
     }
 
+
+
+    private NavngivenVejEntity findNavngivenVejByContainer(Level2Container<AktivVej> aktiveVeje, int kommuneKode, int vejKode, KommunedelAfNavngivenVejRepository repository, String vejNavn) {
+        if (kommuneKode != 0 && vejKode != 0) {
+            AktivVej other = aktiveVeje.get(kommuneKode, vejKode);
+            if (other != null) {
+                KommunedelAfNavngivenVejEntity andenVejEntity = repository.getByKommunekodeAndVejkode(kommuneKode, vejKode);
+                if (andenVejEntity != null && vejNavn.equals(andenVejEntity.getNavngivenVejVersion().getVejnavn())) {
+                    return andenVejEntity.getNavngivenVejVersion().getEntity();
+                }
+            }
+        }
+        return null;
+    }
+
+
+
     protected void saveRunToDatabase(RegisterRun run, RepositoryCollection repositories) {
         try {
             VejRegisterRun vrun = (VejRegisterRun) run;
@@ -429,19 +445,21 @@ public class VejRegister extends CprRegister {
                 for (int vejKode : aktiveVeje.get(kommuneKode).intKeySet()) {
                     AktivVej aktivVej = aktiveVeje.get(kommuneKode, vejKode);
                     if (aktivVej != null) {
-                        KommuneEntity kommune = kommuneRepository.findByKommunekode(kommuneKode);
+                        KommuneEntity kommune = kommuneRepository.getByKommunekode(kommuneKode);
 
                         if (kommune == null) {
                             //System.out.println("Kommune with id "+kommuneKode+" not found for vej "+aktivVej.get("vejNavn"));
                         } else {
 
-                            KommunedelAfNavngivenVejEntity delvejEntity = kommunedelAfNavngivenVejRepository.findByKommunekodeAndVejkode(kommuneKode, vejKode);
+                            KommunedelAfNavngivenVejEntity delvejEntity = kommunedelAfNavngivenVejRepository.getByKommunekodeAndVejkode(kommuneKode, vejKode);
 
                             String vejNavn = aktivVej.get("vejNavn");
                             String vejAdresseringsnavn = aktivVej.get("vejAdresseringsnavn");
 
                             boolean createdDelvej = false;
                             boolean updatedDelvej = false;
+
+                            // If we don't have a KommunedelAfNavngivenVejEntity for this vejKode and kommune, create one
                             if (delvejEntity == null) {
                                 delvejEntity = KommunedelAfNavngivenVejEntity.create();
                                 delvejEntity.setVejkode(vejKode);
@@ -450,99 +468,58 @@ public class VejRegister extends CprRegister {
                                 updatedDelvej = createdDelvej = true;
                             }
 
-                            NavngivenVejEntity navngivenVejEntity = delvejEntity.getNavngivenVej();
-
-                            if (navngivenVejEntity == null) {
-                                int fraKommuneKode = aktivVej.getInt("fraKommuneKode");
-                                if (fraKommuneKode != 0) {
-                                    int fraVejKode = aktivVej.getInt("fraVejKode");
-                                    if (fraVejKode != 0) {
-                                        AktivVej other = aktiveVeje.get(fraKommuneKode, fraVejKode);
-                                        if (other != null) {
-                                            KommunedelAfNavngivenVejEntity andenVejEntity = kommunedelAfNavngivenVejRepository.findByKommunekodeAndVejkode(fraKommuneKode, fraVejKode);
-                                            if (andenVejEntity != null) {
-                                                navngivenVejEntity = andenVejEntity.getNavngivenVej();
-                                            }
-                                        } else {
-                                            //System.out.println("    fra vej: (" + fraKommuneKode + ", " + fraVejKode + ") doesn't exist");
-                                        }
-                                    }
-                                }
+                            // Try to find an existing
+                            NavngivenVejEntity navngivenVejEntity = delvejEntity.getNavngivenVejVersion().getEntity();
+                            if (navngivenVejEntity != null && !vejNavn.equals(navngivenVejEntity.getLatestVersion().getVejnavn())) {
+                                navngivenVejEntity = null;
                             }
 
                             if (navngivenVejEntity == null) {
-                                int tilKommuneKode = aktivVej.getInt("tilKommuneKode");
-                                if (tilKommuneKode != 0) {
-                                    int tilVejKode = aktivVej.getInt("tilVejKode");
-                                    if (tilVejKode != 0) {
-                                        AktivVej other = aktiveVeje.get(tilKommuneKode, tilVejKode);
-                                        if (other != null) {
-                                            KommunedelAfNavngivenVejEntity andenVejEntity = kommunedelAfNavngivenVejRepository.findByKommunekodeAndVejkode(tilKommuneKode, tilVejKode);
-                                            if (andenVejEntity != null) {
-                                                navngivenVejEntity = andenVejEntity.getNavngivenVej();
-                                            }
-                                        } else {
-                                            //System.out.println("    til vej: (" + tilKommuneKode + ", " + tilVejKode + ") doesn't exist");
-                                        }
-                                    }
-                                }
+                                navngivenVejEntity = findNavngivenVejByContainer(aktiveVeje, aktivVej.getInt("fraKommuneKode"), aktivVej.getInt("fraVejKode"), kommunedelAfNavngivenVejRepository, vejNavn);
                             }
 
+                            if (navngivenVejEntity == null) {
+                                navngivenVejEntity = findNavngivenVejByContainer(aktiveVeje, aktivVej.getInt("tilKommuneKode"), aktivVej.getInt("tilVejKode"), kommunedelAfNavngivenVejRepository, vejNavn);
+                            }
 
-                            boolean updatedNavngivenVej = false;
-                            boolean createdNavngivenVej = false;
+                            NavngivenVejVersionEntity navngivenVejVersion = null;
+
                             if (navngivenVejEntity == null) {
                                 navngivenVejEntity = NavngivenVejEntity.create();
-                                navngivenVejEntity.setUuid(UUID.randomUUID().toString());
+                                navngivenVejVersion = navngivenVejEntity.addVersion(createRegistrering);
                                 navngivenvejCounter.countCreatedItem();
-                                updatedNavngivenVej = createdNavngivenVej = true;
-                            }
-
-
-                            if (!vejNavn.equals(navngivenVejEntity.getVejnavn())) {
-                                navngivenVejEntity.setVejnavn(vejNavn);
-                                if (!updatedNavngivenVej) {
-                                    navngivenvejCounter.countUpdatedItem();
-                                    updatedNavngivenVej = true;
-                                }
-                            }
-                            if (!vejAdresseringsnavn.equals(navngivenVejEntity.getVejaddresseringsnavn())) {
-                                navngivenVejEntity.setVejaddresseringsnavn(vejAdresseringsnavn);
-                                if (!updatedNavngivenVej) {
-                                    navngivenvejCounter.countUpdatedItem();
-                                    updatedNavngivenVej = true;
-                                }
-                            }
-                            if (!kommune.equals(navngivenVejEntity.getAnsvarligKommune())) {
-                                navngivenVejEntity.setAnsvarligKommune(kommune);
-                                if (!updatedNavngivenVej) {
-                                    navngivenvejCounter.countUpdatedItem();
-                                    updatedNavngivenVej = true;
+                            } else {
+                                NavngivenVejVersionEntity latestVersion = navngivenVejEntity.getLatestVersion();
+                                if (!(
+                                        vejNavn.equals(latestVersion.getVejnavn()) &&
+                                        vejAdresseringsnavn.equals(latestVersion.getVejaddresseringsnavn()) &&
+                                        kommune.equals(latestVersion.getAnsvarligKommune())
+                                )) {
+                                    navngivenVejVersion = navngivenVejEntity.addVersion(updateRegistrering);
                                 }
                             }
 
-
-                            if (createdNavngivenVej) {
-                                navngivenVejEntity.save(repositories, createRegistrering);
-                            } else if (updatedNavngivenVej) {
-                                navngivenVejEntity.save(repositories, updateRegistrering);
+                            if (navngivenVejVersion != null) {
+                                navngivenVejVersion.setAnsvarligKommune(kommune);
+                                navngivenVejVersion.setVejnavn(vejNavn);
+                                navngivenVejVersion.setVejaddresseringsnavn(vejAdresseringsnavn);
+                                navngivenVejRepository.save(navngivenVejEntity);
                             }
 
 
 
 
-                            if (delvejEntity.getNavngivenVej() == null || !delvejEntity.getNavngivenVej().equals(navngivenVejEntity)) {
-                                delvejEntity.setNavngivenVej(navngivenVejEntity);
+
+                            if (delvejEntity.getNavngivenVejVersion() == null || !delvejEntity.getNavngivenVejVersion().equals(navngivenVejEntity.getLatestVersion())) {
+                                delvejEntity.setNavngivenVejVersion(navngivenVejEntity.getLatestVersion());
                                 if (!updatedDelvej) {
                                     delvejCounter.countUpdatedItem();
                                     updatedDelvej = true;
                                 }
                             }
 
-                            if (createdDelvej) {
-                                delvejEntity.save(repositories, createRegistrering);
-                            } else if (updatedDelvej) {
-                                delvejEntity.save(repositories, updateRegistrering);
+                            if (createdDelvej || updatedDelvej) {
+                                kommunedelAfNavngivenVejRepository.save(delvejEntity);
                             }
                         }
                         this.printInputProcessed();
