@@ -10,6 +10,7 @@ import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
 import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneRepository;
+import dk.magenta.databroker.cprvejregister.model.kommune.KommuneVersionEntity;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 //import dk.magenta.databroker.models.adresser.Kommune;
 
@@ -181,21 +182,24 @@ public class MyndighedsRegister extends CprRegister {
             String kommuneNavn = kommune.get("myndighedsNavn");
             KommuneEntity kommuneEntity = kommuneRepository.findByKommunekode(kommuneKode);
 
-            List<VirkningEntity> virkninger = new ArrayList<VirkningEntity>();
+            List<VirkningEntity> virkninger = new ArrayList<VirkningEntity>(); // TODO: Populate this list
 
+            KommuneVersionEntity kommuneVersion = null;
             if (kommuneEntity == null) {
                 kommuneEntity = KommuneEntity.create();
                 kommuneEntity.setKommunekode(kommuneKode);
-
-                kommuneEntity.addRegistrering(kommuneNavn, createRegistrering, null);
-                kommuneRepository.save(kommuneEntity);
+                kommuneVersion = kommuneEntity.addVersion(createRegistrering, virkninger);
                 counter.countCreatedItem();
-            } else if (!kommuneEntity.getLatestRegistrering().getNavn().equals(kommuneNavn)) {
-                kommuneEntity.addRegistrering(kommuneNavn, updateRegistrering, null);
+            } else if (!kommuneEntity.getLatestVersion().getNavn().equals(kommuneNavn)) {
+                kommuneVersion = kommuneEntity.addVersion(updateRegistrering, virkninger);
                 counter.countUpdatedItem();
             }
 
-            kommuneRepository.save(kommuneEntity);
+            if (kommuneVersion != null) {
+                kommuneVersion.setNavn(kommuneNavn);
+                kommuneRepository.save(kommuneEntity);
+            }
+
 
             this.printInputProcessed();
         }

@@ -83,8 +83,20 @@ public class PostnummerEntity
     * Fields on the entity
     * */
 
+    @Basic
+    @Column(name = "nummer", nullable = false, insertable = true, updatable = true)
+    private int nummer;
+
     @OneToMany(mappedBy = "liggerIPostnummer", fetch = FetchType.LAZY)
     private Collection<AdgangspunktVersionEntity> adgangspunkter;
+
+    public int getNummer() {
+        return this.nummer;
+    }
+
+    public void setNummer(int nummer) {
+        this.nummer = nummer;
+    }
 
     public Collection<AdgangspunktVersionEntity> getAdgangspunkter() {
         return this.adgangspunkter;

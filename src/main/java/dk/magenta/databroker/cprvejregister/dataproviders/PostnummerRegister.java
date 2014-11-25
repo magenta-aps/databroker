@@ -7,6 +7,7 @@ import dk.magenta.databroker.cprvejregister.dataproviders.records.Record;
 import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerEntity;
 import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerRepository;
+import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerVersionEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.net.MalformedURLException;
@@ -124,20 +125,24 @@ public class PostnummerRegister extends CprRegister {
             String navn = postDistrikter.get(nummer);
             int postNummer = Integer.parseInt(nummer, 10);
             PostnummerEntity postnummerEntity = postnummerRepository.findByNummer(postNummer);
+            PostnummerVersionEntity postnummerVersion = null;
 
             if (postnummerEntity == null) {
                 postnummerEntity = PostnummerEntity.create();
                 postnummerEntity.setNummer(postNummer);
-                postnummerEntity.addRegistrering(navn, createRegistrering, null);
+                postnummerVersion = postnummerEntity.addVersion(createRegistrering);
                 postnummerRepository.save(postnummerEntity);
                 counter.countCreatedItem();
 
-            } else if (!postnummerEntity.getLatestRegistrering().getNavn().equals(navn)) {
-                postnummerEntity.addRegistrering(navn, updateRegistrering, null);
+            } else if (!postnummerEntity.getLatestVersion().getNavn().equals(navn)) {
+                postnummerVersion = postnummerEntity.addVersion(updateRegistrering);
                 counter.countUpdatedItem();
             }
 
-            postnummerRepository.save(postnummerEntity);
+            if (postnummerVersion != null) {
+                postnummerVersion.setNavn(navn);
+                postnummerRepository.save(postnummerEntity);
+            }
             this.printInputProcessed();
         }
         this.printFinalInputsProcessed();
