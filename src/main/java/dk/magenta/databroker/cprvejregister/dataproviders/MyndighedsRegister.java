@@ -180,7 +180,7 @@ public class MyndighedsRegister extends CprRegister {
         for (Myndighed kommune : kommuner) {
             int kommuneKode = kommune.getInt("myndighedsKode");
             String kommuneNavn = kommune.get("myndighedsNavn");
-            KommuneEntity kommuneEntity = kommuneRepository.findByKommunekode(kommuneKode);
+            KommuneEntity kommuneEntity = kommuneRepository.getByKommunekode(kommuneKode);
 
             List<VirkningEntity> virkninger = new ArrayList<VirkningEntity>(); // TODO: Populate this list
 

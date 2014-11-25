@@ -137,14 +137,14 @@ public class VejregisterTest {
 
         KommuneEntity entry;
 
-        entry = this.kommuneRepository.findByKommunekode(751);
+        entry = this.kommuneRepository.getByKommunekode(751);
         assertNotNull(entry);
         assertEquals(entry.getKommunekode(), 751);
         assertEquals(entry.getNavn(), "Aarhus");
 
         myndighedsregister.read(new File("src/test/resources/vejregister/kommuner2.txt"), repositories);
 
-        entry = this.kommuneRepository.findByKommunekode(751);
+        entry = this.kommuneRepository.getByKommunekode(751);
         assertNotNull(entry);
         assertEquals(entry.getKommunekode(), 751);
         assertEquals(entry.getNavn(), "Århus");
@@ -162,11 +162,11 @@ public class VejregisterTest {
         NavngivenVejEntity entry1;
         KommunedelAfNavngivenVejEntity entry2;
 
-        entry1 = this.navngivenVejRepository.findByKommunekodeAndVejkode(751, 9651);
+        entry1 = this.navngivenVejRepository.getByKommunekodeAndVejkode(751, 9651);
         assertNotNull(entry1);
         assertEquals(entry1.getVejnavn(), "Åbogade");
 
-        entry2 = this.kommunedelAfNavngivenVejRepository.findByKommunekodeAndVejkode(751, 9651);
+        entry2 = this.kommunedelAfNavngivenVejRepository.getByKommunekodeAndVejkode(751, 9651);
         assertNotNull(entry2);
         assertEquals(entry2.getVejkode(), 9651);
         assertEquals(entry2.getNavngivenVej(), entry1);
