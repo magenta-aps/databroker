@@ -1,8 +1,6 @@
 package dk.magenta.databroker.cprvejregister.model.vejnavneomraade;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
-import dk.magenta.databroker.core.model.oio.RegistreringEntity;
-import dk.magenta.databroker.core.model.oio.VirkningEntity;
 import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.isopunkt.IsoPunktEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
@@ -10,7 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * Created by jubk on 11/10/14.
@@ -18,7 +15,7 @@ import java.util.List;
 @Entity
 @Table(name = "vejnavneomraade")
 public class VejnavneomraadeEntity
-        extends DobbeltHistorikBase<VejnavneomraadeEntity, VejnavneomraadeRegistreringEntity, VejnavneomraadeRegistreringsVirkningEntity>
+        extends DobbeltHistorikBase<VejnavneomraadeEntity, VejnavneomraadeVersionEntity, VejnavneomraadeRegistreringsVirkningEntity>
         implements Serializable {
 
     @Basic
@@ -156,7 +153,7 @@ public class VejnavneomraadeEntity
     }
 
     @Override
-    protected VejnavneomraadeRegistreringEntity createRegistreringEntity() {
-        return new VejnavneomraadeRegistreringEntity(this);
+    protected VejnavneomraadeVersionEntity createRegistreringEntity() {
+        return new VejnavneomraadeVersionEntity(this);
     }
 }

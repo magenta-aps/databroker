@@ -1,8 +1,6 @@
 package dk.magenta.databroker.cprvejregister.model.adgangspunkt;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
-import dk.magenta.databroker.core.model.oio.RegistreringEntity;
-import dk.magenta.databroker.core.model.oio.VirkningEntity;
 import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.isopunkt.IsoPunktEntity;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
@@ -12,7 +10,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Created by jubk on 11/10/14.
@@ -20,7 +17,7 @@ import java.util.List;
 @Entity
 @Table(name = "adgangspunkt")
 public class AdgangspunktEntity
-        extends DobbeltHistorikBase<AdgangspunktEntity, AdgangspunktRegistreringEntity, AdgangspunktRegistreringsVirkningEntity>
+        extends DobbeltHistorikBase<AdgangspunktEntity, AdgangspunktVersionEntity>
         implements Serializable {
 
     @Basic
@@ -58,6 +55,14 @@ public class AdgangspunktEntity
     @OneToMany(mappedBy = "tilknyttetAdgangspunkt")
     private Collection<HusnummerEntity> husnumre;
 
+    @OneToMany(mappedBy = "entitet")
+    private Collection<AdgangspunktVersionEntity> versioner;
+
+    @OneToOne
+    private AdgangspunktVersionEntity latestVersion;
+
+    @OneToOne
+    private AdgangspunktVersionEntity preferredVersion;
 
     public String getStatus() {
         return this.status;
@@ -178,7 +183,32 @@ public class AdgangspunktEntity
     }
 
     @Override
-    protected AdgangspunktRegistreringEntity createRegistreringEntity() {
-        return new AdgangspunktRegistreringEntity(this);
+    public Collection<AdgangspunktVersionEntity> getVersioner() {
+        return versioner;
+    }
+
+    @Override
+    public AdgangspunktVersionEntity getLatestVersion() {
+        return latestVersion;
+    }
+
+    @Override
+    public void setLatestVersion(AdgangspunktVersionEntity newLatest) {
+        this.latestVersion = newLatest;
+    }
+
+    @Override
+    public AdgangspunktVersionEntity getPreferredVersion() {
+        return preferredVersion;
+    }
+
+    @Override
+    public void setPreferredVersion(AdgangspunktVersionEntity newPreferred) {
+        this.preferredVersion = newPreferred;
+    }
+
+    @Override
+    protected AdgangspunktVersionEntity createVersionEntity() {
+        return new AdgangspunktVersionEntity(this);
     }
 }

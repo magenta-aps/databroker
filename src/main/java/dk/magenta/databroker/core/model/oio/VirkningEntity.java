@@ -1,6 +1,7 @@
 package dk.magenta.databroker.core.model.oio;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Timestamp;
 
 /**
@@ -8,7 +9,7 @@ import java.sql.Timestamp;
  */
 @Entity
 @Table(name = "core_oio_virkning")
-public class VirkningEntity {
+public class VirkningEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(nullable = false, insertable = true, updatable = true)

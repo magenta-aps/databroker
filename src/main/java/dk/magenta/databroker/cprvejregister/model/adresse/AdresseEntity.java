@@ -1,17 +1,13 @@
 package dk.magenta.databroker.cprvejregister.model.adresse;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
-import dk.magenta.databroker.core.model.oio.RegistreringEntity;
-import dk.magenta.databroker.core.model.oio.VirkningEntity;
 import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.doerpunkt.DoerpunktEntity;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
-import dk.magenta.databroker.cprvejregister.model.kommune.KommuneRegistreringEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * Created by jubk on 11/10/14.
@@ -19,7 +15,7 @@ import java.util.List;
 @Entity
 @Table(name = "adresse", indexes = { @Index(name="husnummer", columnList="husnummer_id") })
 public class AdresseEntity
-        extends DobbeltHistorikBase<AdresseEntity, AdresseRegistreringEntity, AdresseRegistreringsVirkningEntity>
+        extends DobbeltHistorikBase<AdresseEntity, AdresseVersionEntity, AdresseRegistreringsVirkningEntity>
         implements Serializable {
 
     @Basic
@@ -131,7 +127,7 @@ public class AdresseEntity
     }
 
     @Override
-    protected AdresseRegistreringEntity createRegistreringEntity() {
-        return new AdresseRegistreringEntity(this);
+    protected AdresseVersionEntity createRegistreringEntity() {
+        return new AdresseVersionEntity(this);
     }
 }

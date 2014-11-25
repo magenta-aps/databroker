@@ -9,11 +9,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Created by jubk on 11/10/14.
@@ -21,7 +18,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "kommune", indexes = { @Index(name = "kommunekode", columnList = "kommunekode") })
 public class KommuneEntity
-        extends DobbeltHistorikBase<KommuneEntity, KommuneRegistreringEntity, KommuneRegistreringsVirkningEntity>
+        extends DobbeltHistorikBase<KommuneEntity, KommuneVersionEntity, KommuneRegistreringsVirkningEntity>
         implements Serializable {
 
     @Basic
@@ -103,12 +100,12 @@ public class KommuneEntity
     }
 
     @Override
-    protected KommuneRegistreringEntity createRegistreringEntity() {
-        return new KommuneRegistreringEntity(this);
+    protected KommuneVersionEntity createRegistreringEntity() {
+        return new KommuneVersionEntity(this);
     }
 
-    public KommuneRegistreringEntity addRegistrering(String navn, RegistreringEntity fromOIORegistrering, List<VirkningEntity> virkninger) {
-        KommuneRegistreringEntity reg = super.addRegistrering(fromOIORegistrering, virkninger);
+    public KommuneVersionEntity addRegistrering(String navn, RegistreringEntity fromOIORegistrering, List<VirkningEntity> virkninger) {
+        KommuneVersionEntity reg = super.addRegistrering(fromOIORegistrering, virkninger);
         reg.setNavn(navn);
         return reg;
     }

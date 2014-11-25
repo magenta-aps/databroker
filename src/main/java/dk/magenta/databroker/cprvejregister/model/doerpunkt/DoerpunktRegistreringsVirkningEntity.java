@@ -1,7 +1,6 @@
 package dk.magenta.databroker.cprvejregister.model.doerpunkt;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikVirkning;
-import dk.magenta.databroker.core.model.oio.VirkningEntity;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -14,10 +13,10 @@ import javax.persistence.Table;
 @Table(name = "doerpunkt_registreringsvirkning")
 public class DoerpunktRegistreringsVirkningEntity extends DobbeltHistorikVirkning<
         DoerpunktEntity,
-        DoerpunktRegistreringEntity,
+        DoerpunktVersionEntity,
         DoerpunktRegistreringsVirkningEntity> {
 
-        public DoerpunktRegistreringsVirkningEntity(DoerpunktRegistreringEntity entitetsRegistrering) {
+        public DoerpunktRegistreringsVirkningEntity(DoerpunktVersionEntity entitetsRegistrering) {
                 super(entitetsRegistrering);
         }
 }

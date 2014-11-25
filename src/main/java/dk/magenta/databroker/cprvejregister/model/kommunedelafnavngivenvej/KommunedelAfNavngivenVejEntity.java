@@ -1,24 +1,20 @@
 package dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej;
 
-import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
-import dk.magenta.databroker.core.model.oio.RegistreringEntity;
-import dk.magenta.databroker.core.model.oio.VirkningEntity;
 import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
+import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejVersionEntity;
 import dk.magenta.databroker.cprvejregister.model.reserverethusnummerinterval.ReserveretHusnrIntervalEntity;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
-import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Created by jubk on 11/10/14.
  */
 @Entity
-@Table(name = "kommunedel_af_navngiven_vej", indexes = { @Index(name="kommune", columnList="kommune_id"), @Index(name="navngivenVej", columnList="navngiven_vej_id"), @Index(name="vejkode", columnList="vejkode") })
+@Table(name = "kommunedel_af_navngiven_vej", indexes = { @Index(name="kommune", columnList="kommune_id"), @Index(columnList="navngiven_vej_registrering_id"), @Index(name="vejkode", columnList="vejkode") })
 public class KommunedelAfNavngivenVejEntity implements Serializable {
     @Id
     @Column
@@ -30,8 +26,8 @@ public class KommunedelAfNavngivenVejEntity implements Serializable {
     private int vejkode;
 
     @ManyToOne
-    @JoinColumn(name = "navngiven_vej_id", nullable = false)
-    private NavngivenVejEntity navngivenVej;
+    @JoinColumn(name = "navngiven_vej_registrering_id", nullable = false)
+    private NavngivenVejVersionEntity navngivenVejRegistrering;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "kommune_id", nullable = false)
@@ -56,12 +52,12 @@ public class KommunedelAfNavngivenVejEntity implements Serializable {
         this.vejkode = vejkode;
     }
 
-    public NavngivenVejEntity getNavngivenVej() {
-        return this.navngivenVej;
+    public NavngivenVejVersionEntity getNavngivenVejRegistrering() {
+        return navngivenVejRegistrering;
     }
 
-    public void setNavngivenVej(NavngivenVejEntity navngivenVej) {
-        this.navngivenVej = navngivenVej;
+    public void setNavngivenVejRegistrering(NavngivenVejVersionEntity navngivenVejRegistrering) {
+        this.navngivenVejRegistrering = navngivenVejRegistrering;
     }
 
     public KommuneEntity getKommune() {

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Timestamp;
 
 /**
@@ -11,7 +12,7 @@ import java.sql.Timestamp;
  */
 @Entity
 @Table(name = "core_oio_registration")
-public class RegistreringEntity {
+public class RegistreringEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(nullable = false, insertable = true, updatable = true)
@@ -34,9 +35,7 @@ public class RegistreringEntity {
     }
 
     public RegistreringEntity(Timestamp registreringFra, String aktoerUUID, String note) {
-        this.registreringFra = registreringFra;
-        this.aktoerUUID = aktoerUUID;
-        this.note = note;
+        this(registreringFra, aktoerUUID, note, null);
     }
 
     public RegistreringEntity(

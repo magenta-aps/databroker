@@ -1,8 +1,6 @@
 package dk.magenta.databroker.cprvejregister.model.doerpunkt;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
-import dk.magenta.databroker.core.model.oio.RegistreringEntity;
-import dk.magenta.databroker.core.model.oio.VirkningEntity;
 import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.isopunkt.IsoPunktEntity;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
@@ -11,7 +9,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Created by jubk on 11/10/14.
@@ -19,7 +16,7 @@ import java.util.List;
 @Entity
 @Table(name = "doerpunkt")
 public class DoerpunktEntity
-        extends DobbeltHistorikBase<DoerpunktEntity, DoerpunktRegistreringEntity, DoerpunktRegistreringsVirkningEntity>
+        extends DobbeltHistorikBase<DoerpunktEntity, DoerpunktVersionEntity, DoerpunktRegistreringsVirkningEntity>
         implements Serializable {
 
     @Basic
@@ -124,7 +121,7 @@ public class DoerpunktEntity
     }
 
     @Override
-    protected DoerpunktRegistreringEntity createRegistreringEntity() {
-        return new DoerpunktRegistreringEntity(this);
+    protected DoerpunktVersionEntity createRegistreringEntity() {
+        return new DoerpunktVersionEntity(this);
     }
 }

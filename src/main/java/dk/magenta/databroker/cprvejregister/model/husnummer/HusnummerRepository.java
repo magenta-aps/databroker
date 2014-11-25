@@ -12,11 +12,11 @@ import java.util.List;
  */
 public interface HusnummerRepository extends JpaRepository<HusnummerEntity, Long> {
     @Query("select hus from HusnummerEntity hus " +
-            "inner join hus.navngivenVej vej " +
-            "inner join vej.kommunedeleAfNavngivenVej del " +
+            "inner join hus.registreringer " +
+            "join reg. " +
             "inner join del.kommune kom " +
             "where del.vejkode = :vej and kom.kommunekode = :kommune " +
-            "and hus.husnummerbetegnelse = :husnr"
+            "and reg = :husnr"
     )
     public List<HusnummerEntity> findByKommunekodeAndVejkodeAndHusnr(@Param("kommune") int kommunekode, @Param("vej") int vejkode, @Param("husnr") String husNr);
 

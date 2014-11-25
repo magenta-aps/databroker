@@ -1,15 +1,7 @@
 package dk.magenta.databroker.core.model.oio;
 
-import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
-import org.springframework.data.jpa.repository.JpaRepository;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 import javax.persistence.*;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Created by jubk on 11/12/14.
@@ -17,9 +9,8 @@ import java.util.UUID;
 
 @MappedSuperclass
 public abstract class DobbeltHistorikBase<
-        E extends DobbeltHistorikBase<E, R, V>,
-        R extends DobbeltHistorikRegistrering<E, R, V>,
-        V extends DobbeltHistorikVirkning<E, R, V>
+        E extends DobbeltHistorikBase<E, R>,
+        R extends DobbeltHistorikVersion<E, R>
         >  {
 
     @Id
@@ -33,27 +24,20 @@ public abstract class DobbeltHistorikBase<
     @Column(nullable = true, insertable = true, updatable = true)
     private String brugervendtNoegle;
 
-    @OneToMany(mappedBy = "entitet", cascade = CascadeType.ALL)
-    private Collection<R> registreringer;
-
-    @OneToOne(optional = true)
-    private R latestRegistrering;
-
-    @OneToOne(optional = true)
-    private R preferredRegistrering;
-
-    public DobbeltHistorikBase() {
-        this.registreringer = new ArrayList<R>();
+    protected DobbeltHistorikBase() {
     }
 
     public DobbeltHistorikBase(String uuid, String brugervendtNoegle) {
         this.uuid = uuid;
         this.brugervendtNoegle = brugervendtNoegle;
-        this.registreringer = new ArrayList<R>();
     }
 
     public Long getId() {
         return id;
+    }
+
+    private void setId(Long id) {
+        this.id = id;
     }
 
     public String getUuid() {
@@ -72,32 +56,57 @@ public abstract class DobbeltHistorikBase<
         this.brugervendtNoegle = brugervendtNoegle;
     }
 
-    public Collection<R> getRegistreringer() {
-        return registreringer;
+    public abstract Collection<R> getVersioner();
+
+    public abstract R getLatestVersion();
+    public abstract void setLatestVersion(R newLatest);
+
+    public abstract R getPreferredVersion();
+    public abstract void setPreferredVersion(R newPreferred);
+
+    protected abstract R createVersionEntity();
+
+    private R createVersionEntity(RegistreringEntity forOIORegistrering) {
+        return this.createVersionEntity(forOIORegistrering,new ArrayList<VirkningEntity>());
     }
 
-    private void setRegistreringer(Collection<R> registreringer) {
-        this.registreringer = registreringer;
+    private R createVersionEntity(RegistreringEntity forOIORegistrering, Collection<VirkningEntity> virkninger) {
+        R newReg = this.createVersionEntity();
+        newReg.setRegistrering(forOIORegistrering);
+        newReg.setVirkninger(virkninger);
+        return newReg;
     }
 
-    private void addToRegistreringer(R registrering) {
-        this.registreringer.add(registrering);
+    private void addVersion(R version) throws InputMismatchException {
+        version.setEntitet((E)this);
+
+        R latest = this.getLatestVersion();
+
+        RegistreringEntity newReg = version.getRegistrering();
+        if(newReg == null) {
+            throw new InputMismatchException("Trying to add a version wihtout a registration");
+        }
+
+        if(
+                latest == null ||
+                        newReg.getRegistreringFra().after(latest.getRegistrering().getRegistreringFra())
+                ) {
+            this.setLatestVersion(version);
+        }
+
+        this.getVersioner().add(version);
     }
 
-    public R getLatestRegistrering() {
-        return latestRegistrering;
+    public R addVersion(RegistreringEntity fromOIORegistrering)
+            throws InputMismatchException {
+        return this.addVersion(fromOIORegistrering, new ArrayList<VirkningEntity>());
     }
 
-    public void setLatestRegistrering(R latestRegistrering) {
-        this.latestRegistrering = latestRegistrering;
-    }
-
-    public R getPreferredRegistrering() {
-        return preferredRegistrering;
-    }
-
-    public void setPreferredRegistrering(R preferredRegistrering) {
-        this.preferredRegistrering = preferredRegistrering;
+    public R addVersion(RegistreringEntity fromOIORegistrering, List<VirkningEntity> virkninger)
+            throws InputMismatchException {
+        R newReg = this.createVersionEntity(fromOIORegistrering, virkninger);
+        this.addVersion(newReg);
+        return newReg;
     }
 
     public void generateNewUUID() {
@@ -120,50 +129,5 @@ public abstract class DobbeltHistorikBase<
         }
         return true;
     }
-
-    protected abstract R createRegistreringEntity();
-
-    private R createRegistreringEntity(RegistreringEntity forOIORegistrering) {
-        R newReg = this.createRegistreringEntity();
-        newReg.setRegistrering(forOIORegistrering);
-        return newReg;
-    }
-
-    public R addRegistrering(RegistreringEntity fromOIORegistrering) {
-        return this.addRegistrering(fromOIORegistrering, null);
-    }
-
-    public R addRegistrering(RegistreringEntity fromOIORegistrering, List<VirkningEntity> virkninger) {
-        R newReg = this.createRegistreringEntity(fromOIORegistrering);
-        if(virkninger != null) {
-            for(VirkningEntity v : virkninger) {
-                newReg.addToRegistreringsVirkninger(v);
-            }
-        }
-        this.addToRegistreringer(newReg);
-        if(
-                this.latestRegistrering == null || fromOIORegistrering.getRegistreringFra().after(
-                        this.latestRegistrering.getRegistrering().getRegistreringFra()
-                )) {
-            this.latestRegistrering = newReg;
-        }
-        return newReg;
-    }
-
-
-    /*
-    public abstract JpaRepository getRepository(RepositoryCollection repositoryCollection);
-    // Subclasses must implement their own logic, returning the correct item from the repositoryCollection
-
-    public void save(RepositoryCollection repositories, RegistreringEntity oioReg) {
-        this.save(repositories, oioReg, new ArrayList<VirkningEntity>());
-    }
-    public void save(RepositoryCollection repositories, RegistreringEntity oioReg, List<VirkningEntity> virkninger) {
-        JpaRepository entityRepository = this.getRepository(repositories);
-        this.addRegistrering(oioReg, virkninger);
-        entityRepository.save(this);
-    }
-    */
-
 
 }

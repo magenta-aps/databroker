@@ -9,6 +9,14 @@
         <property name="hibernate.default_catalog">DataBrokerCore</property>
         <property name="hibernate.id.new_generator_mappings">true</property>
         <property name="hibernate.show_sql">true</property>
+
+        <!-- core -->
+        <mapping class="dk.magenta.databroker.core.model.oio.DobbeltHistorikBase"/>
+        <mapping class="dk.magenta.databroker.core.model.oio.DobbeltHistorikVersion"/>
+        <mapping class="dk.magenta.databroker.core.model.oio.DobbeltHistorikVirkning"/>
+        <mapping class="dk.magenta.databroker.core.model.oio.RegistreringEntity"/>
+        <mapping class="dk.magenta.databroker.core.model.oio.RegistreringLivscyklusEntity"/>
+        <mapping class="dk.magenta.databroker.core.model.oio.VirkningEntity"/>
         <mapping class="dk.magenta.databroker.core.model.ConsumerEntity"/>
         <mapping class="dk.magenta.databroker.core.model.ConsumerStatusEntity"/>
         <mapping class="dk.magenta.databroker.core.model.DataProviderEntity"/>
@@ -18,5 +26,43 @@
         <mapping class="dk.magenta.databroker.core.model.RequestLogEntryErrorEntity"/>
         <mapping class="dk.magenta.databroker.core.model.UpdateLogEntryEntity"/>
         <mapping class="dk.magenta.databroker.core.model.UpdateTypeEntity"/>
+
+        <!-- adresser -->
+        <mapping class="dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktVersionEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktRegistreringsVirkningEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.adresse.AdresseVersionEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.adresse.AdresseRegistreringsVirkningEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.doerpunkt.DoerpunktEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.doerpunkt.DoerpunktVersionEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.doerpunkt.DoerpunktRegistreringsVirkningEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerVersionEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerRegistreringsVirkningEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.isopunkt.IsoPunktEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.kommune.KommuneVersionEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.kommune.KommuneRegistreringsVirkningEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejVersionEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejRegistreringsVirkningEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerVersionEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerRegistreringsVirkningEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.reserverethusnummerinterval.ReserveretHusnrIntervalEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.reserveretvejnavn.ReserveretVejnavnEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.reserveretvejnavn.ReserveretVejnavnVersionEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.reserveretvejnavn.ReserveretVejnavnRegistreringsVirkningEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.vejnavneforslag.VejnavneforslagEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.vejnavneomraade.VejnavneomraadeEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.vejnavneomraade.VejnavneomraadeVersionEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.vejnavneomraade.VejnavneomraadeRegistreringsVirkningEntity"/>
+
+        <!-- test stuff -->
+        <mapping class="dk.magenta.databroker.jubk.model.JubkEntity"/>
+        <mapping class="dk.magenta.databroker.jubk.model.JubkRegistreringEntity"/>
+
     </session-factory>
 </hibernate-configuration>

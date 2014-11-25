@@ -1,8 +1,6 @@
 package dk.magenta.databroker.cprvejregister.model.husnummer;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
-import dk.magenta.databroker.core.model.oio.RegistreringEntity;
-import dk.magenta.databroker.core.model.oio.VirkningEntity;
 import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
@@ -12,7 +10,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Created by jubk on 11/10/14.
@@ -20,7 +17,7 @@ import java.util.List;
 @Entity
 @Table(name = "husnummer", indexes = { @Index(name="navngivenVej", columnList="navngiven_vej_id"), @Index(name="adgangspunkt", columnList="tilknyttet_adgangspunkt_id") })
 public class HusnummerEntity
-        extends DobbeltHistorikBase<HusnummerEntity, HusnummerRegistreringEntity, HusnummerRegistreringsVirkningEntity>
+        extends DobbeltHistorikBase<HusnummerEntity, HusnummerVersionEntity, HusnummerRegistreringsVirkningEntity>
         implements Serializable {
 
     @Basic
@@ -106,7 +103,7 @@ public class HusnummerEntity
     }
 
     @Override
-    protected HusnummerRegistreringEntity createRegistreringEntity() {
-        return new HusnummerRegistreringEntity(this);
+    protected HusnummerVersionEntity createRegistreringEntity() {
+        return new HusnummerVersionEntity(this);
     }
 }

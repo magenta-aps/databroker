@@ -15,7 +15,7 @@ import java.sql.Date;
 @Entity
 @Table(name = "reserveret_vejnavn")
 public class ReserveretVejnavnEntity
-        extends DobbeltHistorikBase<ReserveretVejnavnEntity, ReserveretVejnavnRegistreringEntity, ReserveretVejnavnRegistreringsVirkningEntity>
+        extends DobbeltHistorikBase<ReserveretVejnavnEntity, ReserveretVejnavnVersionEntity, ReserveretVejnavnRegistreringsVirkningEntity>
         implements Serializable {
 
     @Basic
@@ -143,7 +143,7 @@ public class ReserveretVejnavnEntity
     }
 
     @Override
-    protected ReserveretVejnavnRegistreringEntity createRegistreringEntity() {
-        return new ReserveretVejnavnRegistreringEntity(this);
+    protected ReserveretVejnavnVersionEntity createRegistreringEntity() {
+        return new ReserveretVejnavnVersionEntity(this);
     }
 }

@@ -10,6 +10,8 @@ import javax.persistence.Table;
  * Created by jubk on 11/12/14.
  */
 
+/*
+
 @Entity
 @Table(name = "jubk_jubk_registreringsvirkning")
 public class JubkRegistreringsvirkningEntity extends DobbeltHistorikVirkning<
@@ -17,10 +19,12 @@ public class JubkRegistreringsvirkningEntity extends DobbeltHistorikVirkning<
         JubkRegistreringEntity,
         JubkRegistreringsvirkningEntity> {
 
-        public JubkRegistreringsvirkningEntity() {
+        protected JubkRegistreringsvirkningEntity() {
         }
 
-        public JubkRegistreringsvirkningEntity(JubkRegistreringEntity entitetsRegistrering, VirkningEntity virkning) {
-                super(entitetsRegistrering, virkning);
+        public JubkRegistreringsvirkningEntity(JubkRegistreringEntity entitetsRegistrering) {
+                super(entitetsRegistrering);
         }
 }
+
+*/

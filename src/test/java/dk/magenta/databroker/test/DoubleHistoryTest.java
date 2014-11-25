@@ -1,7 +1,10 @@
 package dk.magenta.databroker.test;
 
 import dk.magenta.databroker.Application;
+import dk.magenta.databroker.core.DataProvider;
+import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.core.model.oio.*;
+import dk.magenta.databroker.jubk.JubkDataProvider;
 import dk.magenta.databroker.jubk.model.JubkEntity;
 import dk.magenta.databroker.jubk.model.JubkRegistreringEntity;
 import dk.magenta.databroker.jubk.model.JubkRepository;
@@ -36,12 +39,14 @@ public class DoubleHistoryTest {
     // Creates a JubkEntity and adds a registration with two "virkninger" to it
     public void testJubk() {
 
+        DataProviderEntity dpEntity = new DataProviderEntity();
+        dpEntity.setUuid(UUID.randomUUID().toString());
+
+        JubkDataProvider dataProvider = new JubkDataProvider(dpEntity);
         Timestamp now = new Timestamp(System.currentTimeMillis());
 
-        /*RegistreringEntity oioReg = regRepo.createNew(
-                now, UUID.randomUUID().toString(), null, RegistreringLivscyklusStatus.OPRETTET
-        );
-        regRepo.save(oioReg);*/
+        RegistreringEntity oioReg = regRepo.createNew(dataProvider, "Test");
+        regRepo.save(oioReg);
 
         List<VirkningEntity> virkninger = new ArrayList<VirkningEntity>();
         UUID virkningSourceUUID = UUID.randomUUID();
@@ -59,13 +64,12 @@ public class DoubleHistoryTest {
         );
         virkRepo.save(virkninger);
 
-        JubkEntity entity = new JubkEntity(UUID.randomUUID().toString(), "asdf");
-
-        /*JubkRegistreringEntity reg = new JubkRegistreringEntity(entity, oioReg, virkninger);
-        reg.setCustom("hurra");
-        entity.addToRegistreringer(reg);*/
+        /*
+        JubkEntity entity = new JubkEntity(UUID.randomUUID().toString(), "brugervendtnøgle");
+        entity.addRegistrering("customtext", oioReg, virkninger);
 
         jubkRepo.save(entity);
+        */
     }
 
 }
