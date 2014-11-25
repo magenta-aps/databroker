@@ -1,13 +1,10 @@
 package dk.magenta.databroker.cprvejregister.model.reserveretvejnavn;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
-import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -35,13 +32,13 @@ public class ReserveretVejnavnEntity
     * Versioning fields
     * */
 
-    @OneToMany(mappedBy = "entity")
+    @OneToMany(mappedBy = "entity", fetch = FetchType.LAZY)
     private Collection<ReserveretVejnavnVersionEntity> versioner;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private ReserveretVejnavnVersionEntity latestVersion;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private ReserveretVejnavnVersionEntity preferredVersion;
 
     @Override

@@ -1,12 +1,9 @@
 package dk.magenta.databroker.cprvejregister.model.navngivenvej;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
-import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.vejnavneforslag.VejnavneforslagEntity;
 import dk.magenta.databroker.cprvejregister.model.vejnavneomraade.VejnavneomraadeEntity;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
-import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -38,13 +35,13 @@ public class NavngivenVejEntity
     * Versioning fields
     * */
 
-    @OneToMany(mappedBy = "entity")
+    @OneToMany(mappedBy = "entity", fetch = FetchType.LAZY)
     private Collection<NavngivenVejVersionEntity> versioner;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private NavngivenVejVersionEntity latestVersion;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private NavngivenVejVersionEntity preferredVersion;
 
     @Override
@@ -87,14 +84,14 @@ public class NavngivenVejEntity
     * Fields on the entity
     * */
 
-    @OneToMany(mappedBy = "navngivenVej")
+    @OneToMany(mappedBy = "navngivenVej", fetch = FetchType.LAZY)
     private Collection<HusnummerEntity> husnumre;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vejnavneomraade_id", nullable = true)
     private VejnavneomraadeEntity vejnavneomraade;
 
-    @OneToMany(mappedBy = "navngivenVej")
+    @OneToMany(mappedBy = "navngivenVej", fetch = FetchType.LAZY)
     private Collection<VejnavneforslagEntity> vejnavneforslag;
 
     public Collection<HusnummerEntity> getHusnumre() {

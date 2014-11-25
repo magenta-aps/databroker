@@ -1,10 +1,7 @@
 package dk.magenta.databroker.cprvejregister.model.vejnavneomraade;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
-import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.isopunkt.IsoPunktEntity;
-import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -36,13 +33,13 @@ public class VejnavneomraadeEntity
     * Versioning fields
     * */
 
-     @OneToMany(mappedBy = "entity")
+    @OneToMany(mappedBy = "entity", fetch = FetchType.LAZY)
     private Collection<VejnavneomraadeVersionEntity> versioner;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private VejnavneomraadeVersionEntity latestVersion;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private VejnavneomraadeVersionEntity preferredVersion;
 
     @Override

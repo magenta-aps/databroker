@@ -12,7 +12,7 @@ import javax.persistence.*;
 public class PostnummerVersionEntity
         extends DobbeltHistorikVersion<PostnummerEntity, PostnummerVersionEntity> {
 
-        @ManyToOne
+        @ManyToOne(fetch = FetchType.LAZY)
         private PostnummerEntity entity;
 
         protected PostnummerVersionEntity() {

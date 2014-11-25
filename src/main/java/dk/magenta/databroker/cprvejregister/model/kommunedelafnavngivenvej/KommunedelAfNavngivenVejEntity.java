@@ -16,6 +16,20 @@ import java.util.Collection;
 @Entity
 @Table(name = "kommunedel_af_navngiven_vej", indexes = { @Index(name="kommune", columnList="kommune_id"), @Index(columnList="navngiven_vej_registrering_id"), @Index(name="vejkode", columnList="vejkode") })
 public class KommunedelAfNavngivenVejEntity implements Serializable {
+
+    public KommunedelAfNavngivenVejEntity() {
+
+    }
+
+    public static KommunedelAfNavngivenVejEntity create() {
+        return new KommunedelAfNavngivenVejEntity();
+    }
+
+
+    /*
+    * Fields on the entity
+    * */
+
     @Id
     @Column
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -25,7 +39,7 @@ public class KommunedelAfNavngivenVejEntity implements Serializable {
     @Column(name = "vejkode", nullable = false, insertable = true, updatable = true)
     private int vejkode;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "navngiven_vej_registrering_id", nullable = false)
     private NavngivenVejVersionEntity navngivenVejRegistrering;
 
@@ -33,7 +47,7 @@ public class KommunedelAfNavngivenVejEntity implements Serializable {
     @JoinColumn(name = "kommune_id", nullable = false)
     private KommuneEntity kommune;
 
-    @OneToMany(mappedBy = "kommunedelAfNavngivenVej")
+    @OneToMany(mappedBy = "kommunedelAfNavngivenVej", fetch = FetchType.LAZY)
     private Collection<ReserveretHusnrIntervalEntity> reserveredeHusnrIntervaller;
 
     public Long getId() {
@@ -77,19 +91,13 @@ public class KommunedelAfNavngivenVejEntity implements Serializable {
     }
 
 
-    public static KommunedelAfNavngivenVejEntity create() {
-        return new KommunedelAfNavngivenVejEntity();
-    }
-
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
         if (!super.equals(other)) {
             return false;
         }
-
         KommunedelAfNavngivenVejEntity that = (KommunedelAfNavngivenVejEntity) other;
-
         if (this.vejkode != that.vejkode) {
             return false;
         }

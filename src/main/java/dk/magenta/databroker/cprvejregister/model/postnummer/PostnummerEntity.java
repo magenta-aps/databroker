@@ -34,13 +34,13 @@ public class PostnummerEntity
     * Versioning fields
     * */
 
-    @OneToMany(mappedBy = "entity")
+    @OneToMany(mappedBy = "entity", fetch = FetchType.LAZY)
     private Collection<PostnummerVersionEntity> versioner;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private PostnummerVersionEntity latestVersion;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private PostnummerVersionEntity preferredVersion;
 
     @Override
@@ -83,7 +83,7 @@ public class PostnummerEntity
     * Fields on the entity
     * */
 
-    @OneToMany(mappedBy = "liggerIPostnummer")
+    @OneToMany(mappedBy = "liggerIPostnummer", fetch = FetchType.LAZY)
     private Collection<AdgangspunktVersionEntity> adgangspunkter;
 
     public Collection<AdgangspunktVersionEntity> getAdgangspunkter() {

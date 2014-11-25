@@ -1,8 +1,6 @@
 package dk.magenta.databroker.cprvejregister.model.vejnavneforslag;
 
-import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -13,6 +11,16 @@ import java.io.Serializable;
 @Entity
 @Table(name = "vejnavneforslag", indexes = { @Index(name="navn", columnList="navn") } )
 public class VejnavneforslagEntity implements Serializable {
+
+    public VejnavneforslagEntity() {
+
+    }
+
+    public static VejnavneforslagEntity create() {
+        return new VejnavneforslagEntity();
+    }
+
+
     @Id
     @Column
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -51,27 +59,16 @@ public class VejnavneforslagEntity implements Serializable {
     }
 
 
-    public static VejnavneforslagEntity create() {
-        return new VejnavneforslagEntity();
-    }
-
-    public JpaRepository getRepository(RepositoryCollection repositoryCollection) {
-        return repositoryCollection.vejnavneforslagRepository;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!super.equals(o)) {
             return false;
         }
-
         VejnavneforslagEntity that = (VejnavneforslagEntity) o;
-
         if (this.navn != null ? !this.navn.equals(that.navn) : that.navn != null) {
             return false;
         }
-
         return true;
     }
 

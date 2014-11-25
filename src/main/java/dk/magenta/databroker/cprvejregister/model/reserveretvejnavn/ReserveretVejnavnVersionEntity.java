@@ -13,7 +13,7 @@ import java.sql.Date;
 public class ReserveretVejnavnVersionEntity
         extends DobbeltHistorikVersion<ReserveretVejnavnEntity, ReserveretVejnavnVersionEntity> {
 
-        @ManyToOne
+        @ManyToOne(fetch = FetchType.LAZY)
         private ReserveretVejnavnEntity entity;
 
         protected ReserveretVejnavnVersionEntity() {
@@ -100,8 +100,6 @@ public class ReserveretVejnavnVersionEntity
         public void setRetskrivningskontrol(String retskrivningskontrol) {
                 this.retskrivningskontrol = retskrivningskontrol;
         }
-
-
 
 
         @Override

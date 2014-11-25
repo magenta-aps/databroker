@@ -13,7 +13,7 @@ import javax.persistence.*;
 public class VejnavneomraadeVersionEntity
         extends DobbeltHistorikVersion<VejnavneomraadeEntity, VejnavneomraadeVersionEntity> {
 
-        @ManyToOne
+        @ManyToOne(fetch = FetchType.LAZY)
         private VejnavneomraadeEntity entity;
 
         protected VejnavneomraadeVersionEntity() {
@@ -33,10 +33,6 @@ public class VejnavneomraadeVersionEntity
         public void setEntity(VejnavneomraadeEntity entity) {
                 this.entity = entity;
         }
-
-
-
-
 
 
         /*
@@ -63,7 +59,7 @@ public class VejnavneomraadeVersionEntity
         @Column(name = "teknisk_standard", nullable = true, insertable = true, updatable = true, length = 255)
         private String tekniskStandard;
 
-        @OneToOne(mappedBy = "vejnavneomraade")
+        @OneToOne(mappedBy = "vejnavneomraade", fetch = FetchType.LAZY)
         private NavngivenVejEntity navngivenVej;
 
 

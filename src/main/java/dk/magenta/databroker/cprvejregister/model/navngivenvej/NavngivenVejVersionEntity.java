@@ -16,7 +16,7 @@ public class NavngivenVejVersionEntity
         extends DobbeltHistorikVersion<NavngivenVejEntity, NavngivenVejVersionEntity> {
 
 
-        @ManyToOne
+        @ManyToOne(fetch = FetchType.LAZY)
         private NavngivenVejEntity entity;
 
         protected NavngivenVejVersionEntity() {
@@ -62,7 +62,7 @@ public class NavngivenVejVersionEntity
         @Column(name = "retskrivningskontrol", nullable = true, insertable = true, updatable = true, length = 255)
         private String retskrivningskontrol;
 
-        @OneToMany(mappedBy = "navngivenVejRegistrering")
+        @OneToMany(mappedBy = "navngivenVejRegistrering", fetch = FetchType.LAZY)
         private Collection<KommunedelAfNavngivenVejEntity> kommunedeleAfNavngivenVej;
 
         @ManyToOne(fetch = FetchType.LAZY)

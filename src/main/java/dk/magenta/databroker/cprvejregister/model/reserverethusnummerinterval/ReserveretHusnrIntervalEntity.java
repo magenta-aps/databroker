@@ -1,15 +1,9 @@
 package dk.magenta.databroker.cprvejregister.model.reserverethusnummerinterval;
 
-import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
-import dk.magenta.databroker.core.model.oio.RegistreringEntity;
-import dk.magenta.databroker.core.model.oio.VirkningEntity;
-import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * Created by jubk on 11/10/14.
@@ -17,6 +11,20 @@ import java.util.List;
 @Entity
 @Table(name = "reserveret_husnr_interval")
 public class ReserveretHusnrIntervalEntity implements Serializable {
+
+    public ReserveretHusnrIntervalEntity() {
+
+    }
+
+    public static ReserveretHusnrIntervalEntity create() {
+        return new ReserveretHusnrIntervalEntity();
+    }
+
+
+    /*
+    * Fields on the entity
+    * */
+
     @Id
     @Column
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -91,23 +99,13 @@ public class ReserveretHusnrIntervalEntity implements Serializable {
     }
 
 
-    public static ReserveretHusnrIntervalEntity create() {
-        return new ReserveretHusnrIntervalEntity();
-    }
-
-    public JpaRepository getRepository(RepositoryCollection repositoryCollection) {
-        return repositoryCollection.reserveretHusnrIntervalRepository;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!super.equals(o)) {
             return false;
         }
-
         ReserveretHusnrIntervalEntity that = (ReserveretHusnrIntervalEntity) o;
-
         if (this.intervalSlut != null ? !this.intervalSlut.equals(that.intervalSlut) : that.intervalSlut != null) {
             return false;
         }
@@ -120,7 +118,6 @@ public class ReserveretHusnrIntervalEntity implements Serializable {
         if (this.notat != null ? !this.notat.equals(that.notat) : that.notat != null) {
             return false;
         }
-
         return true;
     }
 

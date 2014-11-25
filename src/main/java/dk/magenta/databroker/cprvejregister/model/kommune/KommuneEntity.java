@@ -1,11 +1,9 @@
 package dk.magenta.databroker.cprvejregister.model.kommune;
 
 import dk.magenta.databroker.core.model.oio.*;
-import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
 import dk.magenta.databroker.cprvejregister.model.reserveretvejnavn.ReserveretVejnavnEntity;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -37,13 +35,13 @@ public class KommuneEntity
     * Versioning fields
     * */
 
-    @OneToMany(mappedBy = "entity")
+    @OneToMany(mappedBy = "entity", fetch = FetchType.LAZY)
     private Collection<KommuneVersionEntity> versioner;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private KommuneVersionEntity latestVersion;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private KommuneVersionEntity preferredVersion;
 
 
@@ -91,13 +89,13 @@ public class KommuneEntity
     @Column(name = "kommunekode", nullable = false, insertable = true, updatable = true, unique = true)
     private int kommunekode;
 
-    @OneToMany(mappedBy = "kommune")
+    @OneToMany(mappedBy = "kommune", fetch = FetchType.LAZY)
     private Collection<KommunedelAfNavngivenVejEntity> kommunedeleAfNavngivenVej;
 
-    @OneToMany(mappedBy = "ansvarligKommune")
+    @OneToMany(mappedBy = "ansvarligKommune", fetch = FetchType.LAZY)
     private Collection<NavngivenVejEntity> ansvarligForNavngivneVeje;
 
-    @OneToMany(mappedBy = "reserveretAfKommune")
+    @OneToMany(mappedBy = "reserveretAfKommune", fetch = FetchType.LAZY)
     private Collection<ReserveretVejnavnEntity> reserveredeVejnavne;
 
     public int getKommunekode() {
