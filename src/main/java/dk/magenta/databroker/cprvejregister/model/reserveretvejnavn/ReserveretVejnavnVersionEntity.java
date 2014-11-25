@@ -3,6 +3,7 @@ package dk.magenta.databroker.cprvejregister.model.reserveretvejnavn;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikVersion;
 
 import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 /**
@@ -11,14 +12,26 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "reserveret_vejnavn_registrering")
 public class ReserveretVejnavnVersionEntity
-        extends DobbeltHistorikVersion<ReserveretVejnavnEntity, ReserveretVejnavnVersionEntity, ReserveretVejnavnRegistreringsVirkningEntity> {
+        extends DobbeltHistorikVersion<ReserveretVejnavnEntity, ReserveretVejnavnVersionEntity> {
+
+        @ManyToOne
+        private ReserveretVejnavnEntity entitet;
+
+        protected ReserveretVejnavnVersionEntity() {
+                super();
+        }
 
         public ReserveretVejnavnVersionEntity(ReserveretVejnavnEntity entitet) {
                 super(entitet);
         }
 
         @Override
-        protected ReserveretVejnavnRegistreringsVirkningEntity createVirkningEntity() {
-                return new ReserveretVejnavnRegistreringsVirkningEntity(this);
+        public ReserveretVejnavnEntity getEntitet() {
+                return entitet;
+        }
+
+        @Override
+        public void setEntitet(ReserveretVejnavnEntity entitet) {
+                this.entitet = entitet;
         }
 }

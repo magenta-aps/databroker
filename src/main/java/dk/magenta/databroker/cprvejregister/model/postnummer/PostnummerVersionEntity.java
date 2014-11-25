@@ -3,6 +3,7 @@ package dk.magenta.databroker.cprvejregister.model.postnummer;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikVersion;
 
 import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 /**
@@ -11,14 +12,26 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "postnummer_registrering")
 public class PostnummerVersionEntity
-        extends DobbeltHistorikVersion<PostnummerEntity, PostnummerVersionEntity, PostnummerRegistreringsVirkningEntity> {
+        extends DobbeltHistorikVersion<PostnummerEntity, PostnummerVersionEntity> {
+
+        @ManyToOne
+        private PostnummerEntity entitet;
+
+        protected PostnummerVersionEntity() {
+                super();
+        }
 
         public PostnummerVersionEntity(PostnummerEntity entitet) {
                 super(entitet);
         }
 
         @Override
-        protected PostnummerRegistreringsVirkningEntity createVirkningEntity() {
-                return new PostnummerRegistreringsVirkningEntity(this);
+        public PostnummerEntity getEntitet() {
+                return entitet;
+        }
+
+        @Override
+        public void setEntitet(PostnummerEntity entitet) {
+                this.entitet = entitet;
         }
 }

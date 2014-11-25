@@ -3,6 +3,7 @@ package dk.magenta.databroker.cprvejregister.model.husnummer;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikVersion;
 
 import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 /**
@@ -11,14 +12,30 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "husnummer_registrering")
 public class HusnummerVersionEntity
-        extends DobbeltHistorikVersion<HusnummerEntity, HusnummerVersionEntity, HusnummerRegistreringsVirkningEntity> {
+        extends DobbeltHistorikVersion<HusnummerEntity, HusnummerVersionEntity> {
+
+
+        @ManyToOne
+        private HusnummerEntity entitet;
+
+        protected HusnummerVersionEntity() {
+                super();
+        }
 
         public HusnummerVersionEntity(HusnummerEntity entitet) {
                 super(entitet);
         }
 
+
+
         @Override
-        protected HusnummerRegistreringsVirkningEntity createVirkningEntity() {
-                return new HusnummerRegistreringsVirkningEntity(this);
+        public HusnummerEntity getEntitet() {
+                return entitet;
         }
+
+        @Override
+        public void setEntitet(HusnummerEntity entitet) {
+                this.entitet = entitet;
+        }
+
 }

@@ -12,7 +12,7 @@ import java.util.Collection;
 @Entity
 @Table(name = "navngiven_vej_registrering", indexes = { @Index(columnList="vejnavn") })
 public class NavngivenVejVersionEntity
-        extends DobbeltHistorikVersion<NavngivenVejEntity, NavngivenVejVersionEntity, NavngivenVejRegistreringsVirkningEntity> {
+        extends DobbeltHistorikVersion<NavngivenVejEntity, NavngivenVejVersionEntity> {
 
         @Basic
         @Column(name = "vejnavn", nullable = true, insertable = true, updatable = true, length = 255)
@@ -36,6 +36,29 @@ public class NavngivenVejVersionEntity
 
         @OneToMany(mappedBy = "navngivenVejRegistrering")
         private Collection<KommunedelAfNavngivenVejEntity> kommunedeleAfNavngivenVej;
+
+
+        @ManyToOne
+        private NavngivenVejEntity entitet;
+
+        protected NavngivenVejVersionEntity() {
+                super();
+        }
+
+        public NavngivenVejVersionEntity(NavngivenVejEntity entitet) {
+                super(entitet);
+        }
+
+        @Override
+        public NavngivenVejEntity getEntitet() {
+                return entitet;
+        }
+
+        @Override
+        public void setEntitet(NavngivenVejEntity entitet) {
+                this.entitet = entitet;
+        }
+
 
         public String getVejnavn() {
                 return this.vejnavn;
@@ -77,9 +100,6 @@ public class NavngivenVejVersionEntity
                 this.retskrivningskontrol = retskrivningskontrol;
         }
 
-        public NavngivenVejVersionEntity(NavngivenVejEntity entitet) {
-                super(entitet);
-        }
 
         public Collection<KommunedelAfNavngivenVejEntity> getKommunedeleAfNavngivenVej() {
                 return kommunedeleAfNavngivenVej;
@@ -87,11 +107,6 @@ public class NavngivenVejVersionEntity
 
         public void setKommunedeleAfNavngivenVej(Collection<KommunedelAfNavngivenVejEntity> kommunedeleAfNavngivenVej) {
                 this.kommunedeleAfNavngivenVej = kommunedeleAfNavngivenVej;
-        }
-
-        @Override
-        protected NavngivenVejRegistreringsVirkningEntity createVirkningEntity() {
-                return new NavngivenVejRegistreringsVirkningEntity(this);
         }
 
         @Override

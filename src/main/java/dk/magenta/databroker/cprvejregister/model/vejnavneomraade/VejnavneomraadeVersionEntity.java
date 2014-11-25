@@ -3,6 +3,7 @@ package dk.magenta.databroker.cprvejregister.model.vejnavneomraade;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikVersion;
 
 import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 /**
@@ -11,14 +12,26 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "vejnavneomraade_registrering")
 public class VejnavneomraadeVersionEntity
-        extends DobbeltHistorikVersion<VejnavneomraadeEntity, VejnavneomraadeVersionEntity, VejnavneomraadeRegistreringsVirkningEntity> {
+        extends DobbeltHistorikVersion<VejnavneomraadeEntity, VejnavneomraadeVersionEntity> {
+
+        @ManyToOne
+        private VejnavneomraadeEntity entitet;
+
+        protected VejnavneomraadeVersionEntity() {
+                super();
+        }
 
         public VejnavneomraadeVersionEntity(VejnavneomraadeEntity entitet) {
                 super(entitet);
         }
 
         @Override
-        protected VejnavneomraadeRegistreringsVirkningEntity createVirkningEntity() {
-                return new VejnavneomraadeRegistreringsVirkningEntity(this);
+        public VejnavneomraadeEntity getEntitet() {
+                return entitet;
+        }
+
+        @Override
+        public void setEntitet(VejnavneomraadeEntity entitet) {
+                this.entitet = entitet;
         }
 }

@@ -1,8 +1,6 @@
 package dk.magenta.databroker.cprvejregister.model.navngivenvej;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
-import dk.magenta.databroker.core.model.oio.RegistreringEntity;
-import dk.magenta.databroker.core.model.oio.VirkningEntity;
 import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.vejnavneforslag.VejnavneforslagEntity;
 import dk.magenta.databroker.cprvejregister.model.vejnavneomraade.VejnavneomraadeEntity;
@@ -12,8 +10,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Created by jubk on 11/10/14.
@@ -21,7 +19,7 @@ import java.util.List;
 @Entity
 @Table(name = "navngiven_vej" )
 public class NavngivenVejEntity
-        extends DobbeltHistorikBase<NavngivenVejEntity, NavngivenVejVersionEntity, NavngivenVejRegistreringsVirkningEntity>
+        extends DobbeltHistorikBase<NavngivenVejEntity, NavngivenVejVersionEntity>
         implements Serializable {
 
     @OneToMany(mappedBy = "navngivenVej")
@@ -37,6 +35,24 @@ public class NavngivenVejEntity
 
     @OneToMany(mappedBy = "navngivenVej")
     private Collection<VejnavneforslagEntity> vejnavneforslag;
+
+
+
+
+    @OneToMany(mappedBy = "entitet")
+    private Collection<NavngivenVejVersionEntity> versioner;
+
+    @OneToOne
+    private NavngivenVejVersionEntity latestVersion;
+
+    @OneToOne
+    private NavngivenVejVersionEntity preferredVersion;
+
+
+    protected NavngivenVejEntity(){
+        this.versioner = new ArrayList<NavngivenVejVersionEntity>();
+    }
+
 
 
     public Collection<HusnummerEntity> getHusnumre() {
@@ -87,21 +103,34 @@ public class NavngivenVejEntity
         return repositoryCollection.navngivenVejRepository;
     }
 
+
     @Override
-    protected NavngivenVejVersionEntity createRegistreringEntity() {
-        return new NavngivenVejVersionEntity(this);
+    public Collection<NavngivenVejVersionEntity> getVersioner() {
+        return versioner;
     }
 
-    public NavngivenVejVersionEntity addRegistrering(
-            String vejnavn, String status, String vejaddresseringsnavn, String beskrivelse, String retskrivningskontrol,
-            RegistreringEntity fromOIORegistrering, List<VirkningEntity> virkninger
-    ) {
-        NavngivenVejVersionEntity newReg = super.addRegistrering(fromOIORegistrering, virkninger);
-        newReg.setVejnavn(vejnavn);
-        newReg.setStatus(status);
-        newReg.setVejaddresseringsnavn(vejaddresseringsnavn);
-        newReg.setBeskrivelse(beskrivelse);
-        newReg.setRetskrivningskontrol(retskrivningskontrol);
-        return newReg;
+    @Override
+    public NavngivenVejVersionEntity getLatestVersion() {
+        return latestVersion;
+    }
+
+    @Override
+    public void setLatestVersion(NavngivenVejVersionEntity newLatest) {
+        this.latestVersion = newLatest;
+    }
+
+    @Override
+    public NavngivenVejVersionEntity getPreferredVersion() {
+        return preferredVersion;
+    }
+
+    @Override
+    public void setPreferredVersion(NavngivenVejVersionEntity newPreferred) {
+        this.preferredVersion = newPreferred;
+    }
+
+    @Override
+    protected NavngivenVejVersionEntity createVersionEntity() {
+        return new NavngivenVejVersionEntity(this);
     }
 }

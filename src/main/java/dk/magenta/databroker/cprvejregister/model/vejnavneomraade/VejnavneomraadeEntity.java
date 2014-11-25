@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Created by jubk on 11/10/14.
@@ -15,7 +17,7 @@ import java.io.Serializable;
 @Entity
 @Table(name = "vejnavneomraade")
 public class VejnavneomraadeEntity
-        extends DobbeltHistorikBase<VejnavneomraadeEntity, VejnavneomraadeVersionEntity, VejnavneomraadeRegistreringsVirkningEntity>
+        extends DobbeltHistorikBase<VejnavneomraadeEntity, VejnavneomraadeVersionEntity>
         implements Serializable {
 
     @Basic
@@ -45,6 +47,20 @@ public class VejnavneomraadeEntity
     @JoinColumn(name = "vejtilslutningspunkt_id", nullable = false)
     private IsoPunktEntity vejtilslutningspunkt;
 
+
+    @OneToMany(mappedBy = "entitet")
+    private Collection<VejnavneomraadeVersionEntity> versioner;
+
+    @OneToOne
+    private VejnavneomraadeVersionEntity latestVersion;
+
+    @OneToOne
+    private VejnavneomraadeVersionEntity preferredVersion;
+
+
+    protected VejnavneomraadeEntity() {
+        this.versioner = new ArrayList<VejnavneomraadeVersionEntity>();
+    }
 
     public String getVejnavneomraade() {
         return this.vejnavneomraade;
@@ -152,8 +168,34 @@ public class VejnavneomraadeEntity
         return (int) result;
     }
 
+
     @Override
-    protected VejnavneomraadeVersionEntity createRegistreringEntity() {
+    public Collection<VejnavneomraadeVersionEntity> getVersioner() {
+        return versioner;
+    }
+
+    @Override
+    public VejnavneomraadeVersionEntity getLatestVersion() {
+        return latestVersion;
+    }
+
+    @Override
+    public void setLatestVersion(VejnavneomraadeVersionEntity newLatest) {
+        this.latestVersion = newLatest;
+    }
+
+    @Override
+    public VejnavneomraadeVersionEntity getPreferredVersion() {
+        return preferredVersion;
+    }
+
+    @Override
+    public void setPreferredVersion(VejnavneomraadeVersionEntity newPreferred) {
+        this.preferredVersion = newPreferred;
+    }
+
+    @Override
+    protected VejnavneomraadeVersionEntity createVersionEntity() {
         return new VejnavneomraadeVersionEntity(this);
     }
 }

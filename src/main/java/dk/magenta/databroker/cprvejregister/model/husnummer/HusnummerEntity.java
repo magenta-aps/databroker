@@ -2,14 +2,12 @@ package dk.magenta.databroker.cprvejregister.model.husnummer;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
-import dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktEntity;
-import dk.magenta.databroker.cprvejregister.model.kommune.KommuneRegistreringEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
-import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -18,12 +16,33 @@ import java.util.Collection;
 @Entity
 @Table(name = "husnummer", indexes = { @Index(name="navngivenVej", columnList="navngiven_vej_id"), @Index(name="adgangspunkt", columnList="tilknyttet_adgangspunkt_id") })
 public class HusnummerEntity
-        extends DobbeltHistorikBase<HusnummerEntity, HusnummerVersionEntity, HusnummerRegistreringsVirkningEntity>
+        extends DobbeltHistorikBase<HusnummerEntity, HusnummerVersionEntity>
         implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "navngiven_vej_id", nullable = false)
     private NavngivenVejEntity navngivenVej;
+
+
+
+
+
+
+    @OneToMany(mappedBy = "entitet")
+    private Collection<HusnummerVersionEntity> versioner;
+
+    @OneToOne
+    private HusnummerVersionEntity latestVersion;
+
+    @OneToOne
+    private HusnummerVersionEntity preferredVersion;
+
+
+    protected HusnummerEntity() {
+        this.versioner = new ArrayList<HusnummerVersionEntity>();
+    }
+
+
 
     public NavngivenVejEntity getNavngivenVej() {
         return this.navngivenVej;
@@ -60,17 +79,38 @@ public class HusnummerEntity
         return (int) result;
     }
 
+
     @Override
-    protected HusnummerVersionEntity createRegistreringEntity() {
+    public Collection<HusnummerVersionEntity> getVersioner() {
+        return versioner;
+    }
+
+    @Override
+    public HusnummerVersionEntity getLatestVersion() {
+        return latestVersion;
+    }
+
+    @Override
+    public void setLatestVersion(HusnummerVersionEntity newLatest) {
+        this.latestVersion = newLatest;
+    }
+
+    @Override
+    public HusnummerVersionEntity getPreferredVersion() {
+        return preferredVersion;
+    }
+
+    @Override
+    public void setPreferredVersion(HusnummerVersionEntity newPreferred) {
+        this.preferredVersion = newPreferred;
+    }
+
+    @Override
+    protected HusnummerVersionEntity createVersionEntity() {
         return new HusnummerVersionEntity(this);
     }
 
 
-    public HusnummerRegistreringEntity addRegistrering(String husnummerbetegnelse, RegistreringEntity fromOIORegistrering, List<VirkningEntity> virkninger) {
-        HusnummerRegistreringEntity reg = super.addRegistrering(fromOIORegistrering, virkninger);
-        reg.setHusnummerbetegnelse(husnummerbetegnelse);
-        return reg;
-    }
 }
 
 

@@ -9,8 +9,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Created by jubk on 11/10/14.
@@ -18,7 +18,7 @@ import java.util.List;
 @Entity
 @Table(name = "kommune", indexes = { @Index(name = "kommunekode", columnList = "kommunekode") })
 public class KommuneEntity
-        extends DobbeltHistorikBase<KommuneEntity, KommuneVersionEntity, KommuneRegistreringsVirkningEntity>
+        extends DobbeltHistorikBase<KommuneEntity, KommuneVersionEntity>
         implements Serializable {
 
     @Basic
@@ -33,6 +33,25 @@ public class KommuneEntity
 
     @OneToMany(mappedBy = "reserveretAfKommune")
     private Collection<ReserveretVejnavnEntity> reserveredeVejnavne;
+
+
+
+
+    @OneToMany(mappedBy = "entitet")
+    private Collection<KommuneVersionEntity> versioner;
+
+    @OneToOne
+    private KommuneVersionEntity latestVersion;
+
+    @OneToOne
+    private KommuneVersionEntity preferredVersion;
+
+    protected KommuneEntity() {
+        this.versioner = new ArrayList<KommuneVersionEntity>();
+    }
+
+
+
 
     public int getKommunekode() {
         return this.kommunekode;
@@ -99,14 +118,34 @@ public class KommuneEntity
         return (int) result;
     }
 
+
     @Override
-    protected KommuneVersionEntity createRegistreringEntity() {
-        return new KommuneVersionEntity(this);
+    public Collection<KommuneVersionEntity> getVersioner() {
+        return versioner;
     }
 
-    public KommuneVersionEntity addRegistrering(String navn, RegistreringEntity fromOIORegistrering, List<VirkningEntity> virkninger) {
-        KommuneVersionEntity reg = super.addRegistrering(fromOIORegistrering, virkninger);
-        reg.setNavn(navn);
-        return reg;
+    @Override
+    public KommuneVersionEntity getLatestVersion() {
+        return latestVersion;
+    }
+
+    @Override
+    public void setLatestVersion(KommuneVersionEntity newLatest) {
+        this.latestVersion = newLatest;
+    }
+
+    @Override
+    public KommuneVersionEntity getPreferredVersion() {
+        return preferredVersion;
+    }
+
+    @Override
+    public void setPreferredVersion(KommuneVersionEntity newPreferred) {
+        this.preferredVersion = newPreferred;
+    }
+
+    @Override
+    protected KommuneVersionEntity createVersionEntity() {
+        return new KommuneVersionEntity(this);
     }
 }
