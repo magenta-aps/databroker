@@ -1,6 +1,7 @@
 package dk.magenta.databroker.cprvejregister.model.navngivenvej;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
+import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
 import dk.magenta.databroker.cprvejregister.model.vejnavneforslag.VejnavneforslagEntity;
 import dk.magenta.databroker.cprvejregister.model.vejnavneomraade.VejnavneomraadeEntity;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;

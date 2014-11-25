@@ -3,6 +3,7 @@ package dk.magenta.databroker.cprvejregister.model.kommune;
 import dk.magenta.databroker.core.model.oio.*;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
+import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejVersionEntity;
 import dk.magenta.databroker.cprvejregister.model.reserveretvejnavn.ReserveretVejnavnEntity;
 
 import javax.persistence.*;
@@ -93,7 +94,7 @@ public class KommuneEntity
     private Collection<KommunedelAfNavngivenVejEntity> kommunedeleAfNavngivenVej;
 
     @OneToMany(mappedBy = "ansvarligKommune", fetch = FetchType.LAZY)
-    private Collection<NavngivenVejEntity> ansvarligForNavngivneVeje;
+    private Collection<NavngivenVejVersionEntity> ansvarligForNavngivneVeje;
 
     @OneToMany(mappedBy = "reserveretAfKommune", fetch = FetchType.LAZY)
     private Collection<ReserveretVejnavnEntity> reserveredeVejnavne;
@@ -114,11 +115,11 @@ public class KommuneEntity
         this.kommunedeleAfNavngivenVej = kommunedeleAfNavngivenVej;
     }
 
-    public Collection<NavngivenVejEntity> getAnsvarligForNavngivneVeje() {
-        return this.ansvarligForNavngivneVeje;
+    public Collection<NavngivenVejVersionEntity> getAnsvarligForNavngivneVeje() {
+        return ansvarligForNavngivneVeje;
     }
 
-    public void setAnsvarligForNavngivneVeje(Collection<NavngivenVejEntity> ansvarligForNavngivneVeje) {
+    public void setAnsvarligForNavngivneVeje(Collection<NavngivenVejVersionEntity> ansvarligForNavngivneVeje) {
         this.ansvarligForNavngivneVeje = ansvarligForNavngivneVeje;
     }
 

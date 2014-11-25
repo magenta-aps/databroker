@@ -17,13 +17,7 @@ import java.util.Collection;
  * Created by jubk on 11/10/14.
  */
 @Entity
-@Table(name = "husnummer", indexes = {
-        @Index(name="navngivenVej", columnList="navngiven_vej_id"),
-        @Index(name="adgangspunkt", columnList="tilknyttet_adgangspunkt_id")
-    },
-    uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"navngivenVej","husnummerbetegnelse"})
-    })
+@Table(name = "husnummer")
 public class HusnummerEntity extends UniqueBase implements Serializable {
 
     public HusnummerEntity() {
