@@ -64,12 +64,11 @@ public class DoubleHistoryTest {
         );
         virkRepo.save(virkninger);
 
-        /*
-        JubkEntity entity = new JubkEntity(UUID.randomUUID().toString(), "brugervendtnøgle");
-        entity.addRegistrering("customtext", oioReg, virkninger);
+        JubkEntity entity = new JubkEntity();
+        entity.generateNewUUID();
+        entity.addVersion("customtext", oioReg, virkninger);
 
         jubkRepo.save(entity);
-        */
     }
 
 }

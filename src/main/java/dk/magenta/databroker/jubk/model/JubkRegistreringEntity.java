@@ -1,7 +1,6 @@
 package dk.magenta.databroker.jubk.model;
 
-import dk.magenta.databroker.core.model.oio.OioRegistreringBase;
-import dk.magenta.databroker.core.model.oio.VirkningEntity;
+import dk.magenta.databroker.core.model.oio.DobbeltHistorikVersion;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -11,16 +10,46 @@ import java.util.Collection;
  */
 @Entity
 @Table(name = "jubk_jubk_registrering")
-public class JubkRegistreringEntity  extends OioRegistreringBase<JubkEntity, JubkRegistreringEntity> {
-        @ManyToOne
-        private JubkEntity entitet;
+public class JubkRegistreringEntity  extends DobbeltHistorikVersion<JubkEntity, JubkRegistreringEntity> {
 
-        @Override
-        public JubkEntity getEntitet() {
-                return entitet;
+        /*
+         * Versioning fields
+         */
+
+        @ManyToOne(optional = false)
+        private JubkEntity entity;
+
+        protected JubkRegistreringEntity() {
+                super();
         }
 
-        private void setEntitet(JubkEntity entitet) {
-                this.entitet = entitet;
+        public JubkRegistreringEntity(JubkEntity entitet) {
+                super(entitet);
+        }
+
+        @Override
+        public JubkEntity getEntity() {
+                return entity;
+        }
+
+        @Override
+        public void setEntity(JubkEntity entitet) {
+                this.entity = entitet;
+        }
+
+        /*
+         * Fields belonging to the version
+         */
+
+        @Basic
+        @Column
+        private String customData;
+
+        public String getCustomData() {
+                return customData;
+        }
+
+        public void setCustomData(String customData) {
+                this.customData = customData;
         }
 }
