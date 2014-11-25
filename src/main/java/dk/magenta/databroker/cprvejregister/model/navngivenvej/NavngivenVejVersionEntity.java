@@ -1,6 +1,7 @@
 package dk.magenta.databroker.cprvejregister.model.navngivenvej;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikVersion;
+import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
 
 import javax.persistence.*;
@@ -13,6 +14,33 @@ import java.util.Collection;
 @Table(name = "navngiven_vej_registrering", indexes = { @Index(columnList="vejnavn") })
 public class NavngivenVejVersionEntity
         extends DobbeltHistorikVersion<NavngivenVejEntity, NavngivenVejVersionEntity> {
+
+
+        @ManyToOne
+        private NavngivenVejEntity entity;
+
+        protected NavngivenVejVersionEntity() {
+                super();
+        }
+
+        public NavngivenVejVersionEntity(NavngivenVejEntity entity) {
+                super(entity);
+        }
+
+        @Override
+        public NavngivenVejEntity getEntity() {
+                return entity;
+        }
+
+        @Override
+        public void setEntity(NavngivenVejEntity entitet) {
+                this.entity = entitet;
+        }
+
+
+        /*
+         * Version-specific data
+         */
 
         @Basic
         @Column(name = "vejnavn", nullable = true, insertable = true, updatable = true, length = 255)
@@ -37,28 +65,9 @@ public class NavngivenVejVersionEntity
         @OneToMany(mappedBy = "navngivenVejRegistrering")
         private Collection<KommunedelAfNavngivenVejEntity> kommunedeleAfNavngivenVej;
 
-
-        @ManyToOne
-        private NavngivenVejEntity entity;
-
-        protected NavngivenVejVersionEntity() {
-                super();
-        }
-
-        public NavngivenVejVersionEntity(NavngivenVejEntity entity) {
-                super(entity);
-        }
-
-        @Override
-        public NavngivenVejEntity getEntity() {
-                return entity;
-        }
-
-        @Override
-        public void setEntity(NavngivenVejEntity entitet) {
-                this.entity = entitet;
-        }
-
+        @ManyToOne(fetch = FetchType.LAZY)
+        @JoinColumn(name = "ansvarlig_kommune_id", nullable = false)
+        private KommuneEntity ansvarligKommune;
 
         public String getVejnavn() {
                 return this.vejnavn;
@@ -100,7 +109,6 @@ public class NavngivenVejVersionEntity
                 this.retskrivningskontrol = retskrivningskontrol;
         }
 
-
         public Collection<KommunedelAfNavngivenVejEntity> getKommunedeleAfNavngivenVej() {
                 return kommunedeleAfNavngivenVej;
         }
@@ -108,6 +116,15 @@ public class NavngivenVejVersionEntity
         public void setKommunedeleAfNavngivenVej(Collection<KommunedelAfNavngivenVejEntity> kommunedeleAfNavngivenVej) {
                 this.kommunedeleAfNavngivenVej = kommunedeleAfNavngivenVej;
         }
+
+        public KommuneEntity getAnsvarligKommune() {
+                return this.ansvarligKommune;
+        }
+
+        public void setAnsvarligKommune(KommuneEntity ansvarligKommune) {
+                this.ansvarligKommune = ansvarligKommune;
+        }
+
 
         @Override
         public boolean equals(Object o) {

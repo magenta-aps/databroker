@@ -22,22 +22,21 @@ public class NavngivenVejEntity
         extends DobbeltHistorikBase<NavngivenVejEntity, NavngivenVejVersionEntity>
         implements Serializable {
 
-    @OneToMany(mappedBy = "navngivenVej")
-    private Collection<HusnummerEntity> husnumre;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ansvarlig_kommune_id", nullable = false)
-    private KommuneEntity ansvarligKommune;
+    protected NavngivenVejEntity(){
+        this.versioner = new ArrayList<NavngivenVejVersionEntity>();
+    }
 
-    @OneToOne
-    @JoinColumn(name = "vejnavneomraade_id", nullable = true)
-    private VejnavneomraadeEntity vejnavneomraade;
-
-    @OneToMany(mappedBy = "navngivenVej")
-    private Collection<VejnavneforslagEntity> vejnavneforslag;
+    public static NavngivenVejEntity create() {
+        NavngivenVejEntity entity = new NavngivenVejEntity();
+        entity.generateNewUUID();
+        return entity;
+    }
 
 
-
+    /*
+    * Versioning fields
+    * */
 
     @OneToMany(mappedBy = "entity")
     private Collection<NavngivenVejVersionEntity> versioner;
@@ -47,62 +46,6 @@ public class NavngivenVejEntity
 
     @OneToOne
     private NavngivenVejVersionEntity preferredVersion;
-
-
-    protected NavngivenVejEntity(){
-        this.versioner = new ArrayList<NavngivenVejVersionEntity>();
-    }
-
-
-
-    public Collection<HusnummerEntity> getHusnumre() {
-        return husnumre;
-    }
-
-    public void setHusnumre(Collection<HusnummerEntity> husnumre) {
-        this.husnumre = husnumre;
-    }
-
-    public KommuneEntity getAnsvarligKommune() {
-        return this.ansvarligKommune;
-    }
-
-    public void setAnsvarligKommune(KommuneEntity ansvarligKommune) {
-        this.ansvarligKommune = ansvarligKommune;
-    }
-
-    public VejnavneomraadeEntity getVejnavneomraade() {
-        return this.vejnavneomraade;
-    }
-
-    public void setVejnavneomraade(VejnavneomraadeEntity vejnavneomraade) {
-        this.vejnavneomraade = vejnavneomraade;
-    }
-
-    public Collection<VejnavneforslagEntity> getVejnavneforslag() {
-        return this.vejnavneforslag;
-    }
-
-    public void setVejnavneforslag(Collection<VejnavneforslagEntity> vejnavneforslag) {
-        this.vejnavneforslag = vejnavneforslag;
-    }
-
-
-    public static NavngivenVejEntity create() {
-        NavngivenVejEntity entity = new NavngivenVejEntity();
-        entity.generateNewUUID();
-        return entity;
-    }
-
-    @Override
-    public int hashCode() {
-        return (this.getUuid() != null ? this.getUuid().hashCode() : 0);
-    }
-
-    public JpaRepository getRepository(RepositoryCollection repositoryCollection) {
-        return repositoryCollection.navngivenVejRepository;
-    }
-
 
     @Override
     public Collection<NavngivenVejVersionEntity> getVersioner() {
@@ -129,8 +72,53 @@ public class NavngivenVejEntity
         this.preferredVersion = preferredVersion;
     }
 
-    @Override
+
+    /*
+    * Create the relevant version entity
+    * */
+
+     @Override
     protected NavngivenVejVersionEntity createVersionEntity() {
         return new NavngivenVejVersionEntity(this);
     }
+
+
+    /*
+    * Fields on the entity
+    * */
+
+    @OneToMany(mappedBy = "navngivenVej")
+    private Collection<HusnummerEntity> husnumre;
+
+    @OneToOne
+    @JoinColumn(name = "vejnavneomraade_id", nullable = true)
+    private VejnavneomraadeEntity vejnavneomraade;
+
+    @OneToMany(mappedBy = "navngivenVej")
+    private Collection<VejnavneforslagEntity> vejnavneforslag;
+
+    public Collection<HusnummerEntity> getHusnumre() {
+        return husnumre;
+    }
+
+    public void setHusnumre(Collection<HusnummerEntity> husnumre) {
+        this.husnumre = husnumre;
+    }
+
+    public VejnavneomraadeEntity getVejnavneomraade() {
+        return this.vejnavneomraade;
+    }
+
+    public void setVejnavneomraade(VejnavneomraadeEntity vejnavneomraade) {
+        this.vejnavneomraade = vejnavneomraade;
+    }
+
+    public Collection<VejnavneforslagEntity> getVejnavneforslag() {
+        return this.vejnavneforslag;
+    }
+
+    public void setVejnavneforslag(Collection<VejnavneforslagEntity> vejnavneforslag) {
+        this.vejnavneforslag = vejnavneforslag;
+    }
+
 }

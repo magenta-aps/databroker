@@ -21,6 +21,72 @@ public class KommuneEntity
         extends DobbeltHistorikBase<KommuneEntity, KommuneVersionEntity>
         implements Serializable {
 
+
+    protected KommuneEntity() {
+        this.versioner = new ArrayList<KommuneVersionEntity>();
+    }
+
+    public static KommuneEntity create() {
+        KommuneEntity entity = new KommuneEntity();
+        entity.generateNewUUID();
+        return entity;
+    }
+
+
+    /*
+    * Versioning fields
+    * */
+
+    @OneToMany(mappedBy = "entity")
+    private Collection<KommuneVersionEntity> versioner;
+
+    @OneToOne
+    private KommuneVersionEntity latestVersion;
+
+    @OneToOne
+    private KommuneVersionEntity preferredVersion;
+
+
+    @Override
+    public Collection<KommuneVersionEntity> getVersioner() {
+        return versioner;
+    }
+
+    @Override
+    public KommuneVersionEntity getLatestVersion() {
+        return latestVersion;
+    }
+
+    @Override
+    public void setLatestVersion(KommuneVersionEntity latestVersion) {
+        this.latestVersion = latestVersion;
+    }
+
+    @Override
+    public KommuneVersionEntity getPreferredVersion() {
+        return preferredVersion;
+    }
+
+    @Override
+    public void setPreferredVersion(KommuneVersionEntity preferredVersion) {
+        this.preferredVersion = preferredVersion;
+    }
+
+
+    /*
+    * Create the relevant version entity
+    * */
+
+    @Override
+    protected KommuneVersionEntity createVersionEntity() {
+        return new KommuneVersionEntity(this);
+    }
+
+
+    /*
+    * Fields on the entity
+    * */
+
     @Basic
     @Column(name = "kommunekode", nullable = false, insertable = true, updatable = true, unique = true)
     private int kommunekode;
@@ -33,25 +99,6 @@ public class KommuneEntity
 
     @OneToMany(mappedBy = "reserveretAfKommune")
     private Collection<ReserveretVejnavnEntity> reserveredeVejnavne;
-
-
-
-
-    @OneToMany(mappedBy = "entity")
-    private Collection<KommuneVersionEntity> versioner;
-
-    @OneToOne
-    private KommuneVersionEntity latestVersion;
-
-    @OneToOne
-    private KommuneVersionEntity preferredVersion;
-
-    protected KommuneEntity() {
-        this.versioner = new ArrayList<KommuneVersionEntity>();
-    }
-
-
-
 
     public int getKommunekode() {
         return this.kommunekode;
@@ -85,67 +132,4 @@ public class KommuneEntity
         this.reserveredeVejnavne = reserveredeVejnavne;
     }
 
-    public static KommuneEntity create() {
-        KommuneEntity entity = new KommuneEntity();
-        entity.generateNewUUID();
-        return entity;
-    }
-
-    public JpaRepository getRepository(RepositoryCollection repositoryCollection) {
-        return repositoryCollection.kommuneRepository;
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (this == other) return true;
-        if (!super.equals(other)) {
-            return false;
-        }
-
-        KommuneEntity that = (KommuneEntity) other;
-
-        if (this.kommunekode != that.kommunekode) {
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        long result = this.getId();
-        result = 31 * result + this.kommunekode;
-        return (int) result;
-    }
-
-
-    @Override
-    public Collection<KommuneVersionEntity> getVersioner() {
-        return versioner;
-    }
-
-    @Override
-    public KommuneVersionEntity getLatestVersion() {
-        return latestVersion;
-    }
-
-    @Override
-    public void setLatestVersion(KommuneVersionEntity latestVersion) {
-        this.latestVersion = latestVersion;
-    }
-
-    @Override
-    public KommuneVersionEntity getPreferredVersion() {
-        return preferredVersion;
-    }
-
-    @Override
-    public void setPreferredVersion(KommuneVersionEntity preferredVersion) {
-        this.preferredVersion = preferredVersion;
-    }
-
-    @Override
-    protected KommuneVersionEntity createVersionEntity() {
-        return new KommuneVersionEntity(this);
-    }
 }

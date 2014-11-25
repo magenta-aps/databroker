@@ -15,28 +15,13 @@ public class KommuneVersionEntity
         @ManyToOne
         private KommuneEntity entity;
 
-
-        @Basic
-        @Column(name = "navn", nullable = false, insertable = true, updatable = true, length = 255)
-        private String navn;
-
         protected KommuneVersionEntity() {
                 super();
         }
+
         public KommuneVersionEntity(KommuneEntity entity) {
                 super(entity);
         }
-
-        public String getNavn() {
-                return this.navn;
-        }
-
-        public void setNavn(String navn) {
-                this.navn = navn;
-        }
-
-
-
 
         @Override
         public KommuneEntity getEntity() {
@@ -47,4 +32,22 @@ public class KommuneVersionEntity
         public void setEntity(KommuneEntity entitet) {
                 this.entity = entitet;
         }
+
+
+        /*
+         * Version-specific data
+         */
+
+        @Basic
+        @Column(name = "navn", nullable = false, insertable = true, updatable = true, length = 255)
+        private String navn;
+
+        public String getNavn() {
+                return this.navn;
+        }
+
+        public void setNavn(String navn) {
+                this.navn = navn;
+        }
+
 }

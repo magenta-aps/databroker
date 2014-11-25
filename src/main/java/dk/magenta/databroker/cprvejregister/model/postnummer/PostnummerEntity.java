@@ -2,7 +2,7 @@ package dk.magenta.databroker.cprvejregister.model.postnummer;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
-import dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktEntity;
+import dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktVersionEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
@@ -19,19 +19,20 @@ public class PostnummerEntity
         extends DobbeltHistorikBase<PostnummerEntity, PostnummerVersionEntity>
         implements Serializable {
 
-    @Basic
-    @Column(name = "nummer", nullable = false, insertable = true, updatable = true)
-    private int nummer;
 
-    @Basic
-    @Column(name = "navn", nullable = true, insertable = true, updatable = true, length = 36)
-    private String navn;
+    protected PostnummerEntity() {
+        this.versioner = new ArrayList<PostnummerVersionEntity>();
+    }
 
-    @OneToMany(mappedBy = "liggerIPostnummer")
-    private Collection<AdgangspunktEntity> adgangspunkter;
+    public static PostnummerEntity create() {
+        PostnummerEntity entity = new PostnummerEntity();
+        entity.generateNewUUID();
+        return entity;
+    }
 
-
-
+    /*
+    * Versioning fields
+    * */
 
     @OneToMany(mappedBy = "entity")
     private Collection<PostnummerVersionEntity> versioner;
@@ -41,63 +42,6 @@ public class PostnummerEntity
 
     @OneToOne
     private PostnummerVersionEntity preferredVersion;
-
-
-    protected PostnummerEntity() {
-        this.versioner = new ArrayList<PostnummerVersionEntity>();
-    }
-
-
-
-    public int getNummer() {
-        return this.nummer;
-    }
-
-    public void setNummer(int nummer) {
-        this.nummer = nummer;
-    }
-
-    public String getNavn() {
-        return navn;
-    }
-
-    public void setNavn(String navn) {
-        this.navn = navn;
-    }
-
-    public Collection<AdgangspunktEntity> getAdgangspunkter() {
-        return this.adgangspunkter;
-    }
-
-    public void setAdgangspunkter(Collection<AdgangspunktEntity> adgangspunkter) {
-        this.adgangspunkter = adgangspunkter;
-    }
-
-
-    public static PostnummerEntity create() {
-        PostnummerEntity entity = new PostnummerEntity();
-        entity.generateNewUUID();
-        return entity;
-    }
-
-    public JpaRepository getRepository(RepositoryCollection repositoryCollection) {
-        return repositoryCollection.postnummerRepository;
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (this == other) return true;
-        if (!super.equals(other)) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        return (int) (long) this.getId();
-    }
-
 
     @Override
     public Collection<PostnummerVersionEntity> getVersioner() {
@@ -124,8 +68,34 @@ public class PostnummerEntity
         this.preferredVersion = preferredVersion;
     }
 
-    @Override
+
+    /*
+    * Create the relevant version entity
+    * */
+
+     @Override
     protected PostnummerVersionEntity createVersionEntity() {
         return new PostnummerVersionEntity(this);
     }
+
+
+    /*
+    * Fields on the entity
+    * */
+
+    @OneToMany(mappedBy = "liggerIPostnummer")
+    private Collection<AdgangspunktVersionEntity> adgangspunkter;
+
+    public Collection<AdgangspunktVersionEntity> getAdgangspunkter() {
+        return this.adgangspunkter;
+    }
+
+    public void setAdgangspunkter(Collection<AdgangspunktVersionEntity> adgangspunkter) {
+        this.adgangspunkter = adgangspunkter;
+    }
+
+    public JpaRepository getRepository(RepositoryCollection repositoryCollection) {
+        return repositoryCollection.postnummerRepository;
+    }
+
 }
