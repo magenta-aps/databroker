@@ -21,7 +21,9 @@ public class KommunedelAfNavngivenVejEntity extends UniqueBase implements Serial
     }
 
     public static KommunedelAfNavngivenVejEntity create() {
-        return new KommunedelAfNavngivenVejEntity();
+        KommunedelAfNavngivenVejEntity kommunedelAfNavngivenVejEntity = new KommunedelAfNavngivenVejEntity();
+        kommunedelAfNavngivenVejEntity.generateNewUUID();
+        return kommunedelAfNavngivenVejEntity;
     }
 
     /*

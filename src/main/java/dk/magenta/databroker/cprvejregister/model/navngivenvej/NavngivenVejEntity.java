@@ -36,10 +36,10 @@ public class NavngivenVejEntity
     * Versioning fields
     * */
 
-    @OneToMany(mappedBy = "entity", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "entity", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Collection<NavngivenVejVersionEntity> versioner;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     private NavngivenVejVersionEntity latestVersion;
 
     @OneToOne(fetch = FetchType.LAZY)

@@ -20,7 +20,7 @@ public class DoerpunktEntity
         extends DobbeltHistorikBase<DoerpunktEntity, DoerpunktVersionEntity>
         implements Serializable {
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Collection<DoerpunktVersionEntity> versions;
 
     @OneToOne

@@ -1,6 +1,6 @@
 package dk.magenta.databroker.jubk.model;
 
-import dk.magenta.databroker.core.model.oio.DobbeltHistorikVirkning;
+//import dk.magenta.databroker.core.model.oio.DobbeltHistorikVirkning;
 import dk.magenta.databroker.core.model.oio.VirkningEntity;
 
 import javax.persistence.Entity;

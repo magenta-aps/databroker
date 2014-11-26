@@ -19,7 +19,7 @@ public class AdgangspunktEntity
         extends DobbeltHistorikBase<AdgangspunktEntity, AdgangspunktVersionEntity>
         implements Serializable {
 
-    @OneToMany(mappedBy = "entity")
+    @OneToMany(mappedBy = "entity", cascade = CascadeType.ALL)
     private Collection<AdgangspunktVersionEntity> versions;
 
     @OneToOne

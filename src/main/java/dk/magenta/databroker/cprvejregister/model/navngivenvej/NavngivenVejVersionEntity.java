@@ -16,7 +16,7 @@ public class NavngivenVejVersionEntity
         extends DobbeltHistorikVersion<NavngivenVejEntity, NavngivenVejVersionEntity> {
 
 
-        @ManyToOne(fetch = FetchType.LAZY)
+        @ManyToOne(fetch = FetchType.EAGER)
         private NavngivenVejEntity entity;
 
         protected NavngivenVejVersionEntity() {

@@ -17,7 +17,7 @@ public abstract class DobbeltHistorikVersion<
         @Column(nullable = false, insertable = true, updatable = true)
         private Long id;
 
-        @OneToOne(optional = false)
+        @ManyToOne(optional = false)
         private RegistreringEntity registrering;
 
         @ManyToMany

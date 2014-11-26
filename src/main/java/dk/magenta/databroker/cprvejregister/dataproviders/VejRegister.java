@@ -469,33 +469,37 @@ public class VejRegister extends CprRegister {
                             }
 
                             // Try to find an existing
-                            NavngivenVejEntity navngivenVejEntity = delvejEntity.getNavngivenVejVersion().getEntity();
-                            if (navngivenVejEntity != null && !vejNavn.equals(navngivenVejEntity.getLatestVersion().getVejnavn())) {
-                                navngivenVejEntity = null;
+                            NavngivenVejEntity navngivenVej = null;
+                            NavngivenVejVersionEntity navngivenVejVersion = delvejEntity.getNavngivenVejVersion();
+                            if (navngivenVejVersion != null) {
+                                NavngivenVejEntity navngivenVejEntity = navngivenVejVersion.getEntity();
+                                if (navngivenVejEntity != null && vejNavn.equals(navngivenVejEntity.getLatestVersion().getVejnavn())) {
+                                    navngivenVej = navngivenVejEntity;
+                                }
                             }
 
-                            if (navngivenVejEntity == null) {
-                                navngivenVejEntity = findNavngivenVejByContainer(aktiveVeje, aktivVej.getInt("fraKommuneKode"), aktivVej.getInt("fraVejKode"), kommunedelAfNavngivenVejRepository, vejNavn);
+                            if (navngivenVej == null) {
+                                navngivenVej = findNavngivenVejByContainer(aktiveVeje, aktivVej.getInt("fraKommuneKode"), aktivVej.getInt("fraVejKode"), kommunedelAfNavngivenVejRepository, vejNavn);
                             }
 
-                            if (navngivenVejEntity == null) {
-                                navngivenVejEntity = findNavngivenVejByContainer(aktiveVeje, aktivVej.getInt("tilKommuneKode"), aktivVej.getInt("tilVejKode"), kommunedelAfNavngivenVejRepository, vejNavn);
+                            if (navngivenVej == null) {
+                                navngivenVej = findNavngivenVejByContainer(aktiveVeje, aktivVej.getInt("tilKommuneKode"), aktivVej.getInt("tilVejKode"), kommunedelAfNavngivenVejRepository, vejNavn);
                             }
 
-                            NavngivenVejVersionEntity navngivenVejVersion = null;
+                            navngivenVejVersion = null;
 
-                            if (navngivenVejEntity == null) {
-                                navngivenVejEntity = NavngivenVejEntity.create();
-                                navngivenVejVersion = navngivenVejEntity.addVersion(createRegistrering);
+                            if (navngivenVej == null) {
+                                navngivenVej = NavngivenVejEntity.create();
+                                navngivenVejVersion = navngivenVej.addVersion(createRegistrering);
                                 navngivenvejCounter.countCreatedItem();
                             } else {
-                                NavngivenVejVersionEntity latestVersion = navngivenVejEntity.getLatestVersion();
+                                NavngivenVejVersionEntity latestVersion = navngivenVej.getLatestVersion();
                                 if (!(
                                         vejNavn.equals(latestVersion.getVejnavn()) &&
                                         vejAdresseringsnavn.equals(latestVersion.getVejaddresseringsnavn()) &&
                                         kommune.equals(latestVersion.getAnsvarligKommune())
                                 )) {
-                                    navngivenVejVersion = navngivenVejEntity.addVersion(updateRegistrering);
+                                    navngivenVejVersion = navngivenVej.addVersion(updateRegistrering);
                                 }
                             }
 
@@ -503,15 +507,15 @@ public class VejRegister extends CprRegister {
                                 navngivenVejVersion.setAnsvarligKommune(kommune);
                                 navngivenVejVersion.setVejnavn(vejNavn);
                                 navngivenVejVersion.setVejaddresseringsnavn(vejAdresseringsnavn);
-                                navngivenVejRepository.save(navngivenVejEntity);
+                                navngivenVejRepository.save(navngivenVej);
                             }
 
 
 
 
 
-                            if (delvejEntity.getNavngivenVejVersion() == null || !delvejEntity.getNavngivenVejVersion().equals(navngivenVejEntity.getLatestVersion())) {
-                                delvejEntity.setNavngivenVejVersion(navngivenVejEntity.getLatestVersion());
+                            if (delvejEntity.getNavngivenVejVersion() == null || !delvejEntity.getNavngivenVejVersion().equals(navngivenVej.getLatestVersion())) {
+                                delvejEntity.setNavngivenVejVersion(navngivenVej.getLatestVersion());
                                 if (!updatedDelvej) {
                                     delvejCounter.countUpdatedItem();
                                     updatedDelvej = true;

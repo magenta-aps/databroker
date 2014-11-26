@@ -36,10 +36,10 @@ public class KommuneEntity
     * Versioning fields
     * */
 
-    @OneToMany(mappedBy = "entity", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "entity", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Collection<KommuneVersionEntity> versioner;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     private KommuneVersionEntity latestVersion;
 
     @OneToOne(fetch = FetchType.LAZY)

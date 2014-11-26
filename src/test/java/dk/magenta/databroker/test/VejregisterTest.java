@@ -111,11 +111,17 @@ public class VejregisterTest {
         repositories.postnummerRepository = this.postnummerRepository;
         repositories.registreringRepository = this.registreringRepository;
 
-        MyndighedsRegister myndighedsregister = new MyndighedsRegister(new DataProviderEntity());
-        myndighedsregister.pull(repositories);
+        DataProviderEntity kommuneProvider = new DataProviderEntity();
+        kommuneProvider.setUuid(UUID.randomUUID().toString());
+        MyndighedsRegister myndighedsregister = new MyndighedsRegister(kommuneProvider);
+        //myndighedsregister.pull(repositories);
+        myndighedsregister.read(new File("/home/lars/Projekt/databroker/src/test/resources/a370716.txt"), repositories);
 
-        VejRegister vejregister = new VejRegister(new DataProviderEntity());
-        vejregister.pull(repositories);
+        DataProviderEntity vejProvider = new DataProviderEntity();
+        vejProvider.setUuid(UUID.randomUUID().toString());
+        VejRegister vejregister = new VejRegister(vejProvider);
+        //vejregister.pull(repositories);
+        vejregister.read(new File("/home/lars/Projekt/databroker/src/test/resources/vejregister_hele_landet_pr_141101.zip"), repositories);
 /*
         LokalitetsRegister lokalitetsregister = new LokalitetsRegister(new DataProviderEntity());
         lokalitetsregister.pull(repositories);

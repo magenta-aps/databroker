@@ -20,7 +20,7 @@ public class AdresseEntity
         extends DobbeltHistorikBase<AdresseEntity, AdresseVersionEntity>
         implements Serializable {
 
-    @OneToMany(mappedBy = "entity")
+    @OneToMany(mappedBy = "entity", cascade = CascadeType.ALL)
     private Collection<AdresseVersionEntity> versions;
 
     @OneToOne
