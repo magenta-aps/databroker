@@ -13,7 +13,7 @@ import javax.persistence.*;
 public class VejnavneomraadeVersionEntity
         extends DobbeltHistorikVersion<VejnavneomraadeEntity, VejnavneomraadeVersionEntity> {
 
-        @ManyToOne(fetch = FetchType.LAZY)
+        @ManyToOne(fetch = FetchType.EAGER)
         private VejnavneomraadeEntity entity;
 
         protected VejnavneomraadeVersionEntity() {

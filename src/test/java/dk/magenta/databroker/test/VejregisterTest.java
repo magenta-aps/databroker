@@ -23,14 +23,23 @@ import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntit
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejRepository;
 import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerEntity;
 import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerRepository;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.orm.hibernate3.SessionFactoryUtils;
+import org.springframework.orm.hibernate3.SessionHolder;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import javax.persistence.EntityManagerFactory;
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.HashMap;
@@ -46,6 +55,8 @@ import static org.junit.Assert.assertTrue;
 @RunWith(SpringJUnit4ClassRunner.class)
 @IntegrationTest
 @SpringApplicationConfiguration(classes = Application.class)
+@EnableTransactionManagement
+//@TransactionConfiguration(transactionManager = )
 public class VejregisterTest {
 
     //@SuppressWarnings("SpringJavaAutowiringInspection")
@@ -99,8 +110,20 @@ public class VejregisterTest {
 
     public VejregisterTest(){
     }
+
+
+    @Autowired
+    private ApplicationContext context;
+
+
     @Test
     public void testVejregister() {
+/*
+        EntityManagerFactory entityManagerFactory = (EntityManagerFactory) context.getBean("entityManagerFactory");
+        SessionFactory sessionFactory = entityManagerFactory.unwrap(SessionFactory.class);
+        Session session = SessionFactoryUtils.getSession(sessionFactory, true);
+        TransactionSynchronizationManager.bindResource(sessionFactory, new SessionHolder(session));
+*/
 
         RepositoryCollection repositories = new RepositoryCollection();
         repositories.kommuneRepository = this.kommuneRepository;
@@ -128,6 +151,9 @@ public class VejregisterTest {
 
         PostnummerRegister postnummerRegister = new PostnummerRegister(new DataProviderEntity());
         postnummerRegister.pull(repositories);*/
+
+
+        //TransactionSynchronizationManager.unbindResource(sessionFactory);
     }
 
 

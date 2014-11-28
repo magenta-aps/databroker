@@ -37,7 +37,7 @@ public class PostnummerEntity
     @OneToMany(mappedBy = "entity", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Collection<PostnummerVersionEntity> versioner;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     private PostnummerVersionEntity latestVersion;
 
     @OneToOne(fetch = FetchType.LAZY)

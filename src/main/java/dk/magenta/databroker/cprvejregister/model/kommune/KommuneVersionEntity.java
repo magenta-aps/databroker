@@ -12,7 +12,7 @@ import javax.persistence.*;
 public class KommuneVersionEntity
         extends DobbeltHistorikVersion<KommuneEntity, KommuneVersionEntity> {
 
-        @ManyToOne(fetch = FetchType.LAZY)
+        @ManyToOne(fetch = FetchType.EAGER)
         private KommuneEntity entity;
 
         protected KommuneVersionEntity() {

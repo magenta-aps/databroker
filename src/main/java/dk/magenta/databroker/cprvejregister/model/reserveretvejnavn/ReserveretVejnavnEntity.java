@@ -35,7 +35,7 @@ public class ReserveretVejnavnEntity
     @OneToMany(mappedBy = "entity", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Collection<ReserveretVejnavnVersionEntity> versioner;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     private ReserveretVejnavnVersionEntity latestVersion;
 
     @OneToOne(fetch = FetchType.LAZY)

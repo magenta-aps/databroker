@@ -13,7 +13,7 @@ import java.sql.Date;
 public class ReserveretVejnavnVersionEntity
         extends DobbeltHistorikVersion<ReserveretVejnavnEntity, ReserveretVejnavnVersionEntity> {
 
-        @ManyToOne(fetch = FetchType.LAZY)
+        @ManyToOne(fetch = FetchType.EAGER)
         private ReserveretVejnavnEntity entity;
 
         protected ReserveretVejnavnVersionEntity() {

@@ -37,7 +37,7 @@ public class VejnavneomraadeEntity
     @OneToMany(mappedBy = "entity", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Collection<VejnavneomraadeVersionEntity> versioner;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     private VejnavneomraadeVersionEntity latestVersion;
 
     @OneToOne(fetch = FetchType.LAZY)

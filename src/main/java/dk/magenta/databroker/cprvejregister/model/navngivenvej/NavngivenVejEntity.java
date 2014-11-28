@@ -16,6 +16,7 @@ import java.util.Collection;
  */
 @Entity
 @Table(name = "navngiven_vej" )
+@PersistenceContext(type = PersistenceContextType.EXTENDED)
 public class NavngivenVejEntity
         extends DobbeltHistorikBase<NavngivenVejEntity, NavngivenVejVersionEntity>
         implements Serializable {

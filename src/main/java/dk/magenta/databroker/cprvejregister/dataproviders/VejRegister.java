@@ -13,7 +13,17 @@ import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.Kommu
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejRepository;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejVersionEntity;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.orm.hibernate3.SessionFactoryUtils;
+import org.springframework.orm.hibernate3.SessionHolder;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceContextType;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
@@ -413,10 +423,12 @@ public class VejRegister extends CprRegister {
         return null;
     }
 
-
-
+    @Transactional
     protected void saveRunToDatabase(RegisterRun run, RepositoryCollection repositories) {
         try {
+
+
+
             VejRegisterRun vrun = (VejRegisterRun) run;
 
             KommunedelAfNavngivenVejRepository kommunedelAfNavngivenVejRepository = repositories.kommunedelAfNavngivenVejRepository;
@@ -458,24 +470,29 @@ public class VejRegister extends CprRegister {
 
                             boolean createdDelvej = false;
                             boolean updatedDelvej = false;
+                            NavngivenVejEntity navngivenVej = null;
+                            NavngivenVejVersionEntity navngivenVejVersion = null;
 
                             // If we don't have a KommunedelAfNavngivenVejEntity for this vejKode and kommune, create one
                             if (delvejEntity == null) {
+                                System.out.println("We have to create a delvej");
                                 delvejEntity = KommunedelAfNavngivenVejEntity.create();
                                 delvejEntity.setVejkode(vejKode);
                                 delvejEntity.setKommune(kommune);
                                 delvejCounter.countCreatedItem();
                                 updatedDelvej = createdDelvej = true;
-                            }
-
-                            // Try to find an existing
-                            NavngivenVejEntity navngivenVej = null;
-                            NavngivenVejVersionEntity navngivenVejVersion = delvejEntity.getNavngivenVejVersion();
-                            if (navngivenVejVersion != null) {
-                                NavngivenVejEntity navngivenVejEntity = navngivenVejVersion.getEntity();
-                                if (navngivenVejEntity != null && vejNavn.equals(navngivenVejEntity.getLatestVersion().getVejnavn())) {
-                                    navngivenVej = navngivenVejEntity;
+                            } else {
+                                System.out.println("Delvej: "+delvejEntity.getId());
+                                // Try to find an existing navngivenvej
+                                navngivenVejVersion = delvejEntity.getNavngivenVejVersion();
+                                if (navngivenVejVersion != null) {
+                                    //System.out.println("navngivenVejVersion: "+navngivenVejVersion.getId());
+                                    NavngivenVejEntity navngivenVejEntity = navngivenVejVersion.getEntity();
+                                    if (navngivenVejEntity != null && vejNavn.equals(navngivenVejEntity.getLatestVersion().getVejnavn())) {
+                                        navngivenVej = navngivenVejEntity;
+                                    }
                                 }
+                                navngivenVejVersion = null;
                             }
 
                             if (navngivenVej == null) {
@@ -486,7 +503,6 @@ public class VejRegister extends CprRegister {
                                 navngivenVej = findNavngivenVejByContainer(aktiveVeje, aktivVej.getInt("tilKommuneKode"), aktivVej.getInt("tilVejKode"), kommunedelAfNavngivenVejRepository, vejNavn);
                             }
 
-                            navngivenVejVersion = null;
 
                             if (navngivenVej == null) {
                                 navngivenVej = NavngivenVejEntity.create();
@@ -525,6 +541,7 @@ public class VejRegister extends CprRegister {
                             if (createdDelvej || updatedDelvej) {
                                 kommunedelAfNavngivenVejRepository.save(delvejEntity);
                             }
+                            System.out.println("processed one item ("+vejNavn+")");
                         }
                         this.printInputProcessed();
                     } else {
