@@ -11,15 +11,23 @@ import java.util.Properties;
  * Created by jubk on 05-11-2014.
  */
 public abstract class DataProvider {
+
     private DataProviderEntity dataProviderEntity;
 
     public DataProvider(DataProviderEntity dataProviderEntity) {
         this.dataProviderEntity = dataProviderEntity;
     }
 
+    public DataProvider() {
+
+    }
+
     public DataProviderEntity getDataProviderEntity() {
         return dataProviderEntity;
     }
+
+    public void setDataProviderEntity(DataProviderEntity dataProviderEntity) { this.dataProviderEntity = dataProviderEntity; }
+
 
     public void pull() {
         throw new NotImplementedException();

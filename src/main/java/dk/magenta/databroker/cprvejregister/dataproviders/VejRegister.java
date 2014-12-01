@@ -6,6 +6,8 @@ import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.*;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.Record;
 import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
+import dk.magenta.databroker.cprvejregister.model.adresse.AdresseRepository;
+import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerRepository;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneRepository;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
@@ -13,16 +15,19 @@ import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.Kommu
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejRepository;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejVersionEntity;
+import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerRepository;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import org.springframework.orm.hibernate3.SessionHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceContextType;
 import java.net.MalformedURLException;
@@ -34,6 +39,7 @@ import java.util.*;
 /**
  * Created by lars on 04-11-14.
  */
+@Component
 public class VejRegister extends CprRegister {
 
 
@@ -341,6 +347,20 @@ public class VejRegister extends CprRegister {
         super(dbObject);
     }
 
+    public VejRegister() {
+
+    }
+
+
+
+    @PostConstruct
+    public void PostConstructVejRegister() {
+        DataProviderEntity vejProvider = new DataProviderEntity();
+        vejProvider.setUuid(UUID.randomUUID().toString());
+
+        this.setDataProviderEntity(vejProvider);
+    }
+
     public URL getRecordUrl() throws MalformedURLException {
         return new URL("https://cpr.dk/media/152096/vejregister_hele_landet_pr_141101.zip");
     }
@@ -424,41 +444,85 @@ public class VejRegister extends CprRegister {
         return null;
     }
 
-    @Transactional
-    protected void saveRunToDatabase(RegisterRun run, RepositoryCollection repositories) {
-        try {
 
-            //this.startSession();
+    @Autowired
+    private KommuneRepository kommuneRepository;
+
+    public KommuneRepository getKommuneRepository() {
+        return kommuneRepository;
+    }
+
+    @Autowired
+    private KommunedelAfNavngivenVejRepository kommunedelAfNavngivenVejRepository;
+
+    public KommunedelAfNavngivenVejRepository getKommunedelAfNavngivenVejRepository() {
+        return kommunedelAfNavngivenVejRepository;
+    }
+
+    @Autowired
+    private NavngivenVejRepository navngivenVejRepository;
+
+    public NavngivenVejRepository getNavngivenVejRepository() {
+        return navngivenVejRepository;
+    }
+
+    @Autowired
+    private HusnummerRepository husnummerRepository;
+
+    public HusnummerRepository getHusnummerRepository() {
+        return husnummerRepository;
+    }
+
+    @Autowired
+    private AdresseRepository adresseRepository;
+
+    public AdresseRepository getAdresseRepository() {
+        return adresseRepository;
+    }
+
+    @Autowired
+    private PostnummerRepository postnummerRepository;
+
+    public PostnummerRepository getPostnummerRepository() {
+        return postnummerRepository;
+    }
+
+
+    @Autowired
+    private RegistreringRepository registreringRepository;
+
+    protected void saveRunToDatabase(RegisterRun run) {
 
             VejRegisterRun vrun = (VejRegisterRun) run;
 
-            KommunedelAfNavngivenVejRepository kommunedelAfNavngivenVejRepository = repositories.kommunedelAfNavngivenVejRepository;
-            NavngivenVejRepository navngivenVejRepository = repositories.navngivenVejRepository;
-            KommuneRepository kommuneRepository = repositories.kommuneRepository;
-
-            RegistreringRepository registreringRepository = repositories.registreringRepository;
             RegistreringEntity createRegistrering = registreringRepository.createNew(this);
             RegistreringEntity updateRegistrering = registreringRepository.createUpdate(this);
 
-            if (kommunedelAfNavngivenVejRepository == null || navngivenVejRepository == null || kommuneRepository == null) {
-                System.err.println("Insufficient repositories");
-                return;
-            }
             System.out.println("Storing NavngivenvejEntities and KommunedelAfNavngivenvejEntries in database");
-
             Level2Container<AktivVej> aktiveVeje = vrun.getAktiveVeje();
             EntityModificationCounter delvejCounter = new EntityModificationCounter();
             EntityModificationCounter navngivenvejCounter = new EntityModificationCounter();
             this.startInputProcessing();
 
+            int counter = 0;
+
             for (int kommuneKode : aktiveVeje.intKeySet()) {
+                if (counter >= 10000) {
+                    //break;
+                }
+
                 for (int vejKode : aktiveVeje.get(kommuneKode).intKeySet()) {
+                    if (counter >= 10000) {
+                       // break;
+                    }
+                    counter++;
+
                     AktivVej aktivVej = aktiveVeje.get(kommuneKode, vejKode);
                     if (aktivVej != null) {
                         KommuneEntity kommune = kommuneRepository.getByKommunekode(kommuneKode);
 
                         if (kommune == null) {
-                            //System.out.println("Kommune with id "+kommuneKode+" not found for vej "+aktivVej.get("vejNavn"));
+                            System.out.println("Kommune with id "+kommuneKode+" not found for vej "+aktivVej.get("vejNavn"));
                         } else {
 
                             KommunedelAfNavngivenVejEntity delvejEntity = kommunedelAfNavngivenVejRepository.getByKommunekodeAndVejkode(kommuneKode, vejKode);
@@ -473,7 +537,7 @@ public class VejRegister extends CprRegister {
 
                             // If we don't have a KommunedelAfNavngivenVejEntity for this vejKode and kommune, create one
                             if (delvejEntity == null) {
-                                System.out.println("We have to create a delvej");
+                                System.out.println("We have to create a delvej. Vejkode: " + vejKode + " - kommune: " + kommune.getKommunekode());
                                 delvejEntity = KommunedelAfNavngivenVejEntity.create();
                                 delvejEntity.setVejkode(vejKode);
                                 delvejEntity.setKommune(kommune);
@@ -484,7 +548,7 @@ public class VejRegister extends CprRegister {
                                 // Try to find an existing navngivenvej
                                 navngivenVejVersion = delvejEntity.getNavngivenVejVersion();
                                 if (navngivenVejVersion != null) {
-                                    //System.out.println("navngivenVejVersion: "+navngivenVejVersion.getId());
+                                    System.out.println("navngivenVejVersion: "+navngivenVejVersion.getId());
                                     //NavngivenVejEntity navngivenVejEntity = navngivenVejRepository.findByKommunekodeAndVejkode(kommuneKode, vejKode);
                                     NavngivenVejEntity navngivenVejEntity = navngivenVejVersion.getEntity();
                                     if (navngivenVejEntity != null && vejNavn.equals(navngivenVejEntity.getLatestVersion().getVejnavn())) {
@@ -555,9 +619,7 @@ public class VejRegister extends CprRegister {
             System.out.println("Stored NavngivenVejEntities to database:");
             navngivenvejCounter.printModifications();
 
-            //this.endSession();
 
-        } catch (ClassCastException e) {}
     }
 
     public static void main(String[] args) {

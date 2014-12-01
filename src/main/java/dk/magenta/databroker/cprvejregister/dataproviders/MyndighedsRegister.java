@@ -8,12 +8,20 @@ import dk.magenta.databroker.core.model.oio.VirkningEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.Level2Container;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
 import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
+import dk.magenta.databroker.cprvejregister.model.adresse.AdresseRepository;
+import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerRepository;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneRepository;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneVersionEntity;
+import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejRepository;
+import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejRepository;
+import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.stereotype.Component;
 //import dk.magenta.databroker.models.adresser.Kommune;
 
+import javax.annotation.PostConstruct;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
@@ -22,7 +30,7 @@ import java.util.*;
 /**
  * Created by lars on 04-11-14.
  */
-@SpringApplicationConfiguration(classes = Application.class)
+@Component
 public class MyndighedsRegister extends CprRegister {
 
     public abstract class MyndighedsDataRecord extends Record {
@@ -128,6 +136,18 @@ public class MyndighedsRegister extends CprRegister {
         super(dbObject);
     }
 
+    public MyndighedsRegister() {
+    }
+
+
+    @PostConstruct
+    public void PostConstructMyndighedsRegister() {
+        DataProviderEntity vejProvider = new DataProviderEntity();
+        vejProvider.setUuid(UUID.randomUUID().toString());
+
+        this.setDataProviderEntity(vejProvider);
+    }
+
     public URL getRecordUrl() throws MalformedURLException {
         return new URL("https://cpr.dk/media/219468/a370716.txt");
     }
@@ -159,11 +179,18 @@ public class MyndighedsRegister extends CprRegister {
         return null;
     }
 
-    protected void saveRunToDatabase(RegisterRun run, RepositoryCollection repositories) {
 
-        KommuneRepository kommuneRepository = repositories.kommuneRepository;
 
-        RegistreringRepository registreringRepository = repositories.registreringRepository;
+
+    @Autowired
+    private KommuneRepository kommuneRepository;
+
+
+    @Autowired
+    private RegistreringRepository registreringRepository;
+
+    protected void saveRunToDatabase(RegisterRun run) {
+
         RegistreringEntity createRegistrering = registreringRepository.createNew(this);
         RegistreringEntity updateRegistrering = registreringRepository.createUpdate(this);
 

@@ -14,6 +14,7 @@ import org.hibernate.Session;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.orm.hibernate4.SessionHolder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -59,6 +60,10 @@ public abstract class CprRegister extends DataProvider {
         super(dbObject);
     }
 
+    public CprRegister() {
+
+    }
+
     public URL getRecordUrl() throws MalformedURLException {
         return null;
     }
@@ -72,11 +77,9 @@ public abstract class CprRegister extends DataProvider {
         return new RegisterRun();
     }
 
+
+    @Transactional
     public void pull() {
-
-    }
-
-    public void pull(RepositoryCollection repositories) {
         System.out.println("Pulling...");
         try {
             URL url = this.getRecordUrl();
@@ -90,7 +93,7 @@ public abstract class CprRegister extends DataProvider {
                     input = zinput;
                 }
                 RegisterRun run = this.parse(input);
-                this.saveRunToDatabase(run, repositories);
+                this.saveRunToDatabase(run);
             } else {
                 System.out.println("No url");
             }
@@ -246,41 +249,5 @@ public abstract class CprRegister extends DataProvider {
 
 
 
-
-
-    private ApplicationContext context;
-    public void setContext(ApplicationContext context) {
-        this.context = context;
-    }
-
-    private Session session;
-
-    public void startSession()  {
-        if (this.session == null) {
-            System.out.println("Creating session");
-
-
-            EntityManagerFactory entityManagerFactory = (EntityManagerFactory) context.getBean("entityManagerFactory");
-            EntityManager entityManager = entityManagerFactory.createEntityManager();
-            this.session = (Session) entityManager.getDelegate();
-            TransactionSynchronizationManager.bindResource("session", new SessionHolder(session));
-
-            System.out.println(session);
-        } else {
-            System.err.println("Session already exists. What the hell, man?");
-            //throw new Exception("Session already exists. What the hell, man?");
-        }
-    }
-
-    public void endSession() {
-        if (this.session != null) {
-            System.out.println("Releasing session");
-            TransactionSynchronizationManager.unbindResource("session");
-            this.session = null;
-        } else {
-            System.err.println("Session doesn't exist. What the hell, man?");
-            //throw new Exception("Session doesn't exist. What the hell, man?");
-        }
-    }
 
 }

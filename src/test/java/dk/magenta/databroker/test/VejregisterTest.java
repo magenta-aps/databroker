@@ -4,10 +4,7 @@ import dk.magenta.databroker.Application;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.core.model.oio.RegistreringRepository;
 import dk.magenta.databroker.core.model.oio.VirkningEntity;
-import dk.magenta.databroker.cprvejregister.dataproviders.LokalitetsRegister;
-import dk.magenta.databroker.cprvejregister.dataproviders.MyndighedsRegister;
-import dk.magenta.databroker.cprvejregister.dataproviders.PostnummerRegister;
-import dk.magenta.databroker.cprvejregister.dataproviders.VejRegister;
+import dk.magenta.databroker.cprvejregister.dataproviders.*;
 import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseRepository;
@@ -37,6 +34,7 @@ import org.springframework.orm.hibernate4.SessionHolder;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.persistence.EntityManager;
@@ -62,53 +60,6 @@ public class VejregisterTest {
 
     //@SuppressWarnings("SpringJavaAutowiringInspection")
 
-    @Autowired
-    private KommuneRepository kommuneRepository;
-
-    public KommuneRepository getKommuneRepository() {
-        return kommuneRepository;
-    }
-
-    @Autowired
-    private KommunedelAfNavngivenVejRepository kommunedelAfNavngivenVejRepository;
-
-    public KommunedelAfNavngivenVejRepository getKommunedelAfNavngivenVejRepository() {
-        return kommunedelAfNavngivenVejRepository;
-    }
-
-    @Autowired
-    private NavngivenVejRepository navngivenVejRepository;
-
-    public NavngivenVejRepository getNavngivenVejRepository() {
-        return navngivenVejRepository;
-    }
-
-    @Autowired
-    private HusnummerRepository husnummerRepository;
-
-    public HusnummerRepository getHusnummerRepository() {
-        return husnummerRepository;
-    }
-
-    @Autowired
-    private AdresseRepository adresseRepository;
-
-    public AdresseRepository getAdresseRepository() {
-        return adresseRepository;
-    }
-
-    @Autowired
-    private PostnummerRepository postnummerRepository;
-
-    public PostnummerRepository getPostnummerRepository() {
-        return postnummerRepository;
-    }
-
-
-    @Autowired
-    private RegistreringRepository registreringRepository;
-
-
     public VejregisterTest(){
     }
 
@@ -116,36 +67,22 @@ public class VejregisterTest {
     @Autowired
     private ApplicationContext context;
 
+    @Autowired
+    private VejRegister vejRegister;
+
+    @Autowired
+    private MyndighedsRegister myndighedsRegister;
 
     @Test
     public void testVejregister() {
 
 
-
-
-
-        RepositoryCollection repositories = new RepositoryCollection();
-        repositories.kommuneRepository = this.kommuneRepository;
-        repositories.kommunedelAfNavngivenVejRepository = this.kommunedelAfNavngivenVejRepository;
-        repositories.navngivenVejRepository = this.navngivenVejRepository;
-        repositories.husnummerRepository = this.husnummerRepository;
-        repositories.adresseRepository = this.adresseRepository;
-        repositories.postnummerRepository = this.postnummerRepository;
-        repositories.registreringRepository = this.registreringRepository;
-
-        DataProviderEntity kommuneProvider = new DataProviderEntity();
-        kommuneProvider.setUuid(UUID.randomUUID().toString());
-        MyndighedsRegister myndighedsregister = new MyndighedsRegister(kommuneProvider);
-        myndighedsregister.setContext(this.context);
-        myndighedsregister.pull(repositories);
         //myndighedsregister.read(new File("/home/lars/Projekt/databroker/src/test/resources/a370716.txt"), repositories);
+        myndighedsRegister.pull();
 
-        DataProviderEntity vejProvider = new DataProviderEntity();
-        vejProvider.setUuid(UUID.randomUUID().toString());
-        VejRegister vejregister = new VejRegister(vejProvider);
-        vejregister.setContext(this.context);
-        vejregister.pull(repositories);
+
         //vejregister.read(new File("/home/lars/Projekt/databroker/src/test/resources/vejregister_hele_landet_pr_141101.zip"), repositories);
+        vejRegister.pull();
 /*
         LokalitetsRegister lokalitetsregister = new LokalitetsRegister(new DataProviderEntity());
         lokalitetsregister.pull(repositories);
