@@ -4,6 +4,7 @@ import dk.magenta.databroker.core.model.oio.UniqueBase;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejVersionEntity;
 import dk.magenta.databroker.cprvejregister.model.reserverethusnummerinterval.ReserveretHusnrIntervalEntity;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
+import org.hibernate.annotations.Index;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -13,7 +14,7 @@ import java.util.Collection;
  * Created by jubk on 11/10/14.
  */
 @Entity
-@Table(name = "kommunedel_af_navngiven_vej", indexes = { @Index(name="kommune", columnList="kommune_id"), @Index(columnList="navngiven_vej_registrering_id"), @Index(name="vejkode", columnList="vejkode") })
+@Table(name = "kommunedel_af_navngiven_vej")
 public class KommunedelAfNavngivenVejEntity extends UniqueBase implements Serializable {
 
     public KommunedelAfNavngivenVejEntity() {
@@ -32,6 +33,7 @@ public class KommunedelAfNavngivenVejEntity extends UniqueBase implements Serial
 
     @Basic
     @Column(name = "vejkode", nullable = false, insertable = true, updatable = true)
+    @Index(name = "vejkode")
     private int vejkode;
 
     @ManyToOne(fetch = FetchType.LAZY)

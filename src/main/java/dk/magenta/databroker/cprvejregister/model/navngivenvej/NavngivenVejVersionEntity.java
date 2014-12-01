@@ -3,6 +3,7 @@ package dk.magenta.databroker.cprvejregister.model.navngivenvej;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikVersion;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
+import org.hibernate.annotations.Index;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -11,7 +12,7 @@ import java.util.Collection;
  * Created by jubk on 11/12/14.
  */
 @Entity
-@Table(name = "navngiven_vej_registrering", indexes = { @Index(columnList="vejnavn") })
+@Table(name = "navngiven_vej_registrering")
 @PersistenceContext(type = PersistenceContextType.EXTENDED)
 public class NavngivenVejVersionEntity
         extends DobbeltHistorikVersion<NavngivenVejEntity, NavngivenVejVersionEntity> {
@@ -45,6 +46,7 @@ public class NavngivenVejVersionEntity
 
         @Basic
         @Column(name = "vejnavn", nullable = true, insertable = true, updatable = true, length = 255)
+        @Index(name="vejnavn")
         private String vejnavn;
 
         @Basic

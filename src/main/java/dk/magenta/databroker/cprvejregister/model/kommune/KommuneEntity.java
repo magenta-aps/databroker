@@ -5,6 +5,7 @@ import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.Kommu
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejVersionEntity;
 import dk.magenta.databroker.cprvejregister.model.reserveretvejnavn.ReserveretVejnavnEntity;
+import org.hibernate.annotations.Index;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -15,7 +16,7 @@ import java.util.Collection;
  * Created by jubk on 11/10/14.
  */
 @Entity
-@Table(name = "kommune", indexes = { @Index(name = "kommunekode", columnList = "kommunekode") })
+@Table(name = "kommune")
 public class KommuneEntity
         extends DobbeltHistorikBase<KommuneEntity, KommuneVersionEntity>
         implements Serializable {
@@ -87,6 +88,7 @@ public class KommuneEntity
     * */
 
     @Basic
+    @Index(name="kommuneKode")
     @Column(name = "kommunekode", nullable = false, insertable = true, updatable = true, unique = true)
     private int kommunekode;
 

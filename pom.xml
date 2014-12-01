@@ -37,6 +37,21 @@
         </dependency>
 
 
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>4.1.7.Final</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-entitymanager</artifactId>
+            <version>4.1.1.Final</version>
+        </dependency>
+
+
+
+
         <!-- tag::actuator[] -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -109,51 +124,27 @@
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
-    </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>hibernate3-maven-plugin</artifactId>
-                <version>2.2</version>
-                <configuration>
-                    <components>
-                        <component>
-                            <name>hbm2java</name>
-                            <outputDirectory>src/main/java</outputDirectory>
-                            <implementation>jdbcconfiguration</implementation>
-                        </component>
-                        <component>
-                            <name>hbm2hbmxml</name>
-                            <outputDirectory>src/main/java</outputDirectory>
-                            <implementation>jdbcconfiguration</implementation>
-                        </component>
-                    </components>
-                    <componentProperties>
-                        <revengfile>src/main/resources/model.reveng.xml</revengfile>
-                        <configurationfile>src/main/resources/hibernate.cfg.xml</configurationfile>
-                        <packagename>dk.magenta.databroker.models.core</packagename>
-                        <jdk5>true</jdk5>
-                        <ejb3>true</ejb3>
-                    </componentProperties>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>mysql</groupId>
-                        <artifactId>mysql-connector-java</artifactId>
-                        <version>5.1.33</version>
-                        <type>jar</type>
-                        <scope>compile</scope>
-                    </dependency>
-                    <dependency>
-                        <groupId>cglib</groupId>
-                        <artifactId>cglib-nodep</artifactId>
-                        <version>2.1_3</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-        </plugins>
-    </build>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-orm</artifactId>
+            <version>3.1.0.RELEASE</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+
+
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <version>1.7.7</version>
+        </dependency>
+
+
+    </dependencies>
 
 </project>

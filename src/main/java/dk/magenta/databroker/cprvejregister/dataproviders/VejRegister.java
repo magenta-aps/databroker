@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import org.springframework.orm.hibernate3.SessionHolder;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -427,7 +428,7 @@ public class VejRegister extends CprRegister {
     protected void saveRunToDatabase(RegisterRun run, RepositoryCollection repositories) {
         try {
 
-
+            //this.startSession();
 
             VejRegisterRun vrun = (VejRegisterRun) run;
 
@@ -444,9 +445,6 @@ public class VejRegister extends CprRegister {
                 return;
             }
             System.out.println("Storing NavngivenvejEntities and KommunedelAfNavngivenvejEntries in database");
-
-            //SegmentedList<KommunedelAfNavngivenVejEntity> delvejEntities = new SegmentedList<KommunedelAfNavngivenVejEntity>(10000);
-            //SegmentedList<NavngivenVejEntity> navngivenVejEntities = new SegmentedList<NavngivenVejEntity>(10000);
 
             Level2Container<AktivVej> aktiveVeje = vrun.getAktiveVeje();
             EntityModificationCounter delvejCounter = new EntityModificationCounter();
@@ -487,6 +485,7 @@ public class VejRegister extends CprRegister {
                                 navngivenVejVersion = delvejEntity.getNavngivenVejVersion();
                                 if (navngivenVejVersion != null) {
                                     //System.out.println("navngivenVejVersion: "+navngivenVejVersion.getId());
+                                    //NavngivenVejEntity navngivenVejEntity = navngivenVejRepository.findByKommunekodeAndVejkode(kommuneKode, vejKode);
                                     NavngivenVejEntity navngivenVejEntity = navngivenVejVersion.getEntity();
                                     if (navngivenVejEntity != null && vejNavn.equals(navngivenVejEntity.getLatestVersion().getVejnavn())) {
                                         navngivenVej = navngivenVejEntity;
@@ -555,6 +554,8 @@ public class VejRegister extends CprRegister {
             delvejCounter.printModifications();
             System.out.println("Stored NavngivenVejEntities to database:");
             navngivenvejCounter.printModifications();
+
+            //this.endSession();
 
         } catch (ClassCastException e) {}
     }

@@ -4,6 +4,7 @@ import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.doerpunkt.DoerpunktEntity;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
+import org.hibernate.annotations.Index;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
@@ -15,7 +16,7 @@ import java.util.Collection;
  * Created by jubk on 11/10/14.
  */
 @Entity
-@Table(name = "adresse", indexes = { @Index(name="husnummer", columnList="husnummer_id") })
+@Table(name = "adresse")
 public class AdresseEntity
         extends DobbeltHistorikBase<AdresseEntity, AdresseVersionEntity>
         implements Serializable {

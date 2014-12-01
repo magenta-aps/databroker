@@ -3,6 +3,7 @@ package dk.magenta.databroker.cprvejregister.model.postnummer;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktVersionEntity;
+import org.hibernate.annotations.Index;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
@@ -14,7 +15,7 @@ import java.util.Collection;
  * Created by jubk on 11/10/14.
  */
 @Entity
-@Table(name = "postnummer", indexes = { @Index(name="nummer", columnList="nummer") })
+@Table(name = "postnummer")
 public class PostnummerEntity
         extends DobbeltHistorikBase<PostnummerEntity, PostnummerVersionEntity>
         implements Serializable {
@@ -85,6 +86,7 @@ public class PostnummerEntity
 
     @Basic
     @Column(nullable = false, insertable = true, updatable = true)
+    @Index(name="nummer")
     private int nummer;
 
     @OneToMany(mappedBy = "liggerIPostnummer", fetch = FetchType.LAZY)

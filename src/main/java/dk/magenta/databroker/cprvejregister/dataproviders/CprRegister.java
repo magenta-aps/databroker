@@ -1,5 +1,8 @@
 package dk.magenta.databroker.cprvejregister.dataproviders;
 
+
+
+
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
 import dk.magenta.databroker.core.DataProvider;
@@ -7,9 +10,15 @@ import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.core.model.oio.*;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
 import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
+import org.hibernate.Session;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.orm.hibernate4.SessionHolder;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -233,6 +242,45 @@ public abstract class CprRegister extends DataProvider {
     }
     protected long toc() {
         return new Date().getTime() - this.ticTime;
+    }
+
+
+
+
+
+    private ApplicationContext context;
+    public void setContext(ApplicationContext context) {
+        this.context = context;
+    }
+
+    private Session session;
+
+    public void startSession()  {
+        if (this.session == null) {
+            System.out.println("Creating session");
+
+
+            EntityManagerFactory entityManagerFactory = (EntityManagerFactory) context.getBean("entityManagerFactory");
+            EntityManager entityManager = entityManagerFactory.createEntityManager();
+            this.session = (Session) entityManager.getDelegate();
+            TransactionSynchronizationManager.bindResource("session", new SessionHolder(session));
+
+            System.out.println(session);
+        } else {
+            System.err.println("Session already exists. What the hell, man?");
+            //throw new Exception("Session already exists. What the hell, man?");
+        }
+    }
+
+    public void endSession() {
+        if (this.session != null) {
+            System.out.println("Releasing session");
+            TransactionSynchronizationManager.unbindResource("session");
+            this.session = null;
+        } else {
+            System.err.println("Session doesn't exist. What the hell, man?");
+            //throw new Exception("Session doesn't exist. What the hell, man?");
+        }
     }
 
 }

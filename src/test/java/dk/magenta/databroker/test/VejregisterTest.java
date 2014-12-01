@@ -32,13 +32,14 @@ import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.orm.hibernate3.SessionFactoryUtils;
-import org.springframework.orm.hibernate3.SessionHolder;
+import org.springframework.orm.hibernate4.SessionFactoryUtils;
+import org.springframework.orm.hibernate4.SessionHolder;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import java.io.File;
 import java.sql.Timestamp;
@@ -118,12 +119,10 @@ public class VejregisterTest {
 
     @Test
     public void testVejregister() {
-/*
-        EntityManagerFactory entityManagerFactory = (EntityManagerFactory) context.getBean("entityManagerFactory");
-        SessionFactory sessionFactory = entityManagerFactory.unwrap(SessionFactory.class);
-        Session session = SessionFactoryUtils.getSession(sessionFactory, true);
-        TransactionSynchronizationManager.bindResource(sessionFactory, new SessionHolder(session));
-*/
+
+
+
+
 
         RepositoryCollection repositories = new RepositoryCollection();
         repositories.kommuneRepository = this.kommuneRepository;
@@ -137,14 +136,16 @@ public class VejregisterTest {
         DataProviderEntity kommuneProvider = new DataProviderEntity();
         kommuneProvider.setUuid(UUID.randomUUID().toString());
         MyndighedsRegister myndighedsregister = new MyndighedsRegister(kommuneProvider);
-        //myndighedsregister.pull(repositories);
-        myndighedsregister.read(new File("/home/lars/Projekt/databroker/src/test/resources/a370716.txt"), repositories);
+        myndighedsregister.setContext(this.context);
+        myndighedsregister.pull(repositories);
+        //myndighedsregister.read(new File("/home/lars/Projekt/databroker/src/test/resources/a370716.txt"), repositories);
 
         DataProviderEntity vejProvider = new DataProviderEntity();
         vejProvider.setUuid(UUID.randomUUID().toString());
         VejRegister vejregister = new VejRegister(vejProvider);
-        //vejregister.pull(repositories);
-        vejregister.read(new File("/home/lars/Projekt/databroker/src/test/resources/vejregister_hele_landet_pr_141101.zip"), repositories);
+        vejregister.setContext(this.context);
+        vejregister.pull(repositories);
+        //vejregister.read(new File("/home/lars/Projekt/databroker/src/test/resources/vejregister_hele_landet_pr_141101.zip"), repositories);
 /*
         LokalitetsRegister lokalitetsregister = new LokalitetsRegister(new DataProviderEntity());
         lokalitetsregister.pull(repositories);
@@ -153,7 +154,7 @@ public class VejregisterTest {
         postnummerRegister.pull(repositories);*/
 
 
-        //TransactionSynchronizationManager.unbindResource(sessionFactory);
+
     }
 
 

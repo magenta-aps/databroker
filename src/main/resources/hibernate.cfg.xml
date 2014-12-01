@@ -65,4 +65,5 @@
         <mapping class="dk.magenta.databroker.jubk.model.JubkRegistreringEntity"/>
 
     </session-factory>
+
 </hibernate-configuration>

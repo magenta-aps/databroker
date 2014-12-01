@@ -2,6 +2,7 @@ package dk.magenta.databroker.cprvejregister.model.vejnavneforslag;
 
 import dk.magenta.databroker.core.model.oio.UniqueBase;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
+import org.hibernate.annotations.Index;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -10,7 +11,7 @@ import java.io.Serializable;
  * Created by jubk on 11/10/14.
  */
 @Entity
-@Table(name = "vejnavneforslag", indexes = { @Index(name="navn", columnList="navn") } )
+@Table(name = "vejnavneforslag")
 public class VejnavneforslagEntity extends UniqueBase implements Serializable {
 
     public VejnavneforslagEntity() {
@@ -24,6 +25,7 @@ public class VejnavneforslagEntity extends UniqueBase implements Serializable {
 
     @Basic
     @Column(nullable = false, insertable = true, updatable = true, length = 255)
+    @Index(name="navn")
     private String navn;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
