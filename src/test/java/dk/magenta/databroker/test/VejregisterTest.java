@@ -5,43 +5,29 @@ import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.core.model.oio.RegistreringRepository;
 import dk.magenta.databroker.core.model.oio.VirkningEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.*;
+import dk.magenta.databroker.cprvejregister.dataproviders.MyndighedsRegister;
+import dk.magenta.databroker.cprvejregister.dataproviders.VejRegister;
 import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
-import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseRepository;
 
 
-import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerRepository;
-import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneRepository;
-import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejRepository;
-import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejRepository;
-import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerEntity;
 import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerRepository;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.ApplicationContext;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.orm.hibernate4.SessionFactoryUtils;
-import org.springframework.orm.hibernate4.SessionHolder;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import java.io.File;
-import java.sql.Timestamp;
-import java.util.HashMap;
+
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
@@ -55,7 +41,6 @@ import static org.junit.Assert.assertTrue;
 @IntegrationTest
 @SpringApplicationConfiguration(classes = Application.class)
 @EnableTransactionManagement
-//@TransactionConfiguration(transactionManager = )
 public class VejregisterTest {
 
     //@SuppressWarnings("SpringJavaAutowiringInspection")
@@ -74,13 +59,9 @@ public class VejregisterTest {
     private MyndighedsRegister myndighedsRegister;
 
     @Test
+    //@Transactional
     public void testVejregister() {
-
-
-        //myndighedsregister.read(new File("/home/lars/Projekt/databroker/src/test/resources/a370716.txt"), repositories);
         myndighedsRegister.pull();
-
-
         //vejregister.read(new File("/home/lars/Projekt/databroker/src/test/resources/vejregister_hele_landet_pr_141101.zip"), repositories);
         vejRegister.pull();
 /*
@@ -89,8 +70,6 @@ public class VejregisterTest {
 
         PostnummerRegister postnummerRegister = new PostnummerRegister(new DataProviderEntity());
         postnummerRegister.pull(repositories);*/
-
-
 
     }
 

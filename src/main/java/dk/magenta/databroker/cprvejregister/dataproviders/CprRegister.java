@@ -7,23 +7,13 @@ import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
 import dk.magenta.databroker.core.DataProvider;
 import dk.magenta.databroker.core.model.DataProviderEntity;
-import dk.magenta.databroker.core.model.oio.*;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
 import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
-import org.hibernate.Session;
-import org.springframework.context.ApplicationContext;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.orm.hibernate4.SessionHolder;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.*;
 import java.util.zip.ZipEntry;
@@ -246,8 +236,5 @@ public abstract class CprRegister extends DataProvider {
     protected long toc() {
         return new Date().getTime() - this.ticTime;
     }
-
-
-
 
 }

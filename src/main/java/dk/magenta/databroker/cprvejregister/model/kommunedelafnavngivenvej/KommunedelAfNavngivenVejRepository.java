@@ -10,7 +10,8 @@ import org.springframework.data.repository.query.Param;
 public interface KommunedelAfNavngivenVejRepository extends JpaRepository<KommunedelAfNavngivenVejEntity, Long> {
 
     @Query("select del from KommunedelAfNavngivenVejEntity del " +
-            "where del.kommune.kommunekode = :kommune " +
+            "join del.kommune kommune " +
+            "where kommune.kommunekode = :kommune " +
             "and del.vejkode = :vej")
     public KommunedelAfNavngivenVejEntity getByKommunekodeAndVejkode(@Param("kommune") int kommune, @Param("vej") int vej);
 

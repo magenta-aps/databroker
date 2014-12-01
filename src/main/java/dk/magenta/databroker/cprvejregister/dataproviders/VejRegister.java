@@ -23,6 +23,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import org.springframework.orm.hibernate3.SessionHolder;
 import org.springframework.stereotype.Component;
+
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -462,6 +464,7 @@ public class VejRegister extends CprRegister {
     @Autowired
     private NavngivenVejRepository navngivenVejRepository;
 
+
     public NavngivenVejRepository getNavngivenVejRepository() {
         return navngivenVejRepository;
     }
@@ -507,15 +510,16 @@ public class VejRegister extends CprRegister {
             int counter = 0;
 
             for (int kommuneKode : aktiveVeje.intKeySet()) {
-                if (counter >= 10000) {
-                    //break;
+                if (counter >= 5000) {
+                    break;
                 }
 
                 for (int vejKode : aktiveVeje.get(kommuneKode).intKeySet()) {
-                    if (counter >= 10000) {
-                       // break;
+                    if (counter >= 5000) {
+                        break;
                     }
                     counter++;
+                    System.out.println("counter: "+counter);
 
                     AktivVej aktivVej = aktiveVeje.get(kommuneKode, vejKode);
                     if (aktivVej != null) {
@@ -525,7 +529,11 @@ public class VejRegister extends CprRegister {
                             System.out.println("Kommune with id "+kommuneKode+" not found for vej "+aktivVej.get("vejNavn"));
                         } else {
 
+                            this.tic();
+
                             KommunedelAfNavngivenVejEntity delvejEntity = kommunedelAfNavngivenVejRepository.getByKommunekodeAndVejkode(kommuneKode, vejKode);
+
+                            System.out.println("fetching delvej took " + this.toc());
 
                             String vejNavn = aktivVej.get("vejNavn");
                             String vejAdresseringsnavn = aktivVej.get("vejAdresseringsnavn");
@@ -544,12 +552,9 @@ public class VejRegister extends CprRegister {
                                 delvejCounter.countCreatedItem();
                                 updatedDelvej = createdDelvej = true;
                             } else {
-                                System.out.println("Delvej: "+delvejEntity.getId());
-                                // Try to find an existing navngivenvej
+                                // Try to find an existing navngivenvej by looking in our KommunedelAfNavngivenVejEntity
                                 navngivenVejVersion = delvejEntity.getNavngivenVejVersion();
                                 if (navngivenVejVersion != null) {
-                                    System.out.println("navngivenVejVersion: "+navngivenVejVersion.getId());
-                                    //NavngivenVejEntity navngivenVejEntity = navngivenVejRepository.findByKommunekodeAndVejkode(kommuneKode, vejKode);
                                     NavngivenVejEntity navngivenVejEntity = navngivenVejVersion.getEntity();
                                     if (navngivenVejEntity != null && vejNavn.equals(navngivenVejEntity.getLatestVersion().getVejnavn())) {
                                         navngivenVej = navngivenVejEntity;
@@ -558,6 +563,7 @@ public class VejRegister extends CprRegister {
                                 navngivenVejVersion = null;
                             }
 
+                            // Try to find an existing navngivenvej by looking in references forward and backward
                             if (navngivenVej == null) {
                                 navngivenVej = findNavngivenVejByContainer(aktiveVeje, aktivVej.getInt("fraKommuneKode"), aktivVej.getInt("fraVejKode"), kommunedelAfNavngivenVejRepository, vejNavn);
                             }
@@ -566,12 +572,13 @@ public class VejRegister extends CprRegister {
                                 navngivenVej = findNavngivenVejByContainer(aktiveVeje, aktivVej.getInt("tilKommuneKode"), aktivVej.getInt("tilVejKode"), kommunedelAfNavngivenVejRepository, vejNavn);
                             }
 
-
+                            // No navngivenvej instances found - create one
                             if (navngivenVej == null) {
                                 navngivenVej = NavngivenVejEntity.create();
                                 navngivenVejVersion = navngivenVej.addVersion(createRegistrering);
                                 navngivenvejCounter.countCreatedItem();
                             } else {
+                                // Put a version on our existing navngivenvej
                                 NavngivenVejVersionEntity latestVersion = navngivenVej.getLatestVersion();
                                 if (!(
                                         vejNavn.equals(latestVersion.getVejnavn()) &&
@@ -582,6 +589,7 @@ public class VejRegister extends CprRegister {
                                 }
                             }
 
+                            // Update and save navngivenvejversion
                             if (navngivenVejVersion != null) {
                                 navngivenVejVersion.setAnsvarligKommune(kommune);
                                 navngivenVejVersion.setVejnavn(vejNavn);
@@ -605,6 +613,8 @@ public class VejRegister extends CprRegister {
                                 kommunedelAfNavngivenVejRepository.save(delvejEntity);
                             }
                             System.out.println("processed one item ("+vejNavn+")");
+
+                            
                         }
                         this.printInputProcessed();
                     } else {
@@ -618,8 +628,6 @@ public class VejRegister extends CprRegister {
             delvejCounter.printModifications();
             System.out.println("Stored NavngivenVejEntities to database:");
             navngivenvejCounter.printModifications();
-
-
     }
 
     public static void main(String[] args) {
