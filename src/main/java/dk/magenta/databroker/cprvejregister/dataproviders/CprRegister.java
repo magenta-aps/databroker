@@ -94,7 +94,8 @@ public abstract class CprRegister extends DataProvider {
         }
     }
 
-    public void read(File inputfile, RepositoryCollection repositories) {
+    @Transactional
+    public void read(File inputfile) {
         try {
             if (inputfile.canRead()) {
                 System.out.println("Loading data from " + inputfile.getAbsolutePath());
@@ -106,7 +107,7 @@ public abstract class CprRegister extends DataProvider {
                     input = zinput;
                 }
                 RegisterRun run = this.parse(input);
-                this.saveRunToDatabase(run, repositories);
+                this.saveRunToDatabase(run);
             } else {
                 System.out.println("Can't read from file "+inputfile.getAbsolutePath());
             }
@@ -205,29 +206,6 @@ public abstract class CprRegister extends DataProvider {
     }
 
 
-    private int inputsProcessed = 0;
-    private int inputChunks = 0;
-    private long startTime = 0;
-
-    protected void startInputProcessing() {
-        this.startTime = new Date().getTime();
-    }
-
-    protected void printInputProcessed() {
-        this.inputsProcessed++;
-        if (this.inputsProcessed >= 1000) {
-            this.inputsProcessed = 0;
-            this.inputChunks++;
-            System.out.println("    " + (this.inputChunks * 1000) + " inputs processed");
-        }
-    }
-
-    protected void printFinalInputsProcessed() {
-        String timeStr = this.startTime != 0 ?
-                " in "+String.format("%.3f", 0.001 * (new Date().getTime() - this.startTime))+" seconds" :
-                "";
-        System.out.println("Processed " + (1000 * this.inputChunks + this.inputsProcessed) + " inputs" + timeStr + ".");
-    }
 
     private long ticTime = 0;
     protected void tic() {

@@ -36,7 +36,7 @@ public class KommunedelAfNavngivenVejEntity extends UniqueBase implements Serial
     @Index(name = "vejkode")
     private int vejkode;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "navngiven_vej_registrering_id", nullable = false)
     private NavngivenVejVersionEntity navngivenVejVersion;
 

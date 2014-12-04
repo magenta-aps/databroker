@@ -6,6 +6,7 @@ import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.Kommu
 import org.hibernate.annotations.Index;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -15,7 +16,7 @@ import java.util.Collection;
 @Table(name = "navngiven_vej_registrering")
 @PersistenceContext(type = PersistenceContextType.EXTENDED)
 public class NavngivenVejVersionEntity
-        extends DobbeltHistorikVersion<NavngivenVejEntity, NavngivenVejVersionEntity> {
+    extends DobbeltHistorikVersion<NavngivenVejEntity, NavngivenVejVersionEntity> {
 
 
         @ManyToOne(fetch = FetchType.EAGER)
@@ -23,10 +24,12 @@ public class NavngivenVejVersionEntity
 
         protected NavngivenVejVersionEntity() {
                 super();
+                this.kommunedeleAfNavngivenVej = new ArrayList<KommunedelAfNavngivenVejEntity>();
         }
 
         public NavngivenVejVersionEntity(NavngivenVejEntity entity) {
                 super(entity);
+                this.kommunedeleAfNavngivenVej = new ArrayList<KommunedelAfNavngivenVejEntity>();
         }
 
         @Override
@@ -119,6 +122,12 @@ public class NavngivenVejVersionEntity
                 this.kommunedeleAfNavngivenVej = kommunedeleAfNavngivenVej;
         }
 
+        public void addKommunedelAfNavngivenVej(KommunedelAfNavngivenVejEntity kommunedelAfNavngivenVejEntity) {
+                if (!this.kommunedeleAfNavngivenVej.contains(kommunedelAfNavngivenVejEntity)) {
+                     this.kommunedeleAfNavngivenVej.add(kommunedelAfNavngivenVejEntity);
+                }
+        }
+
         public KommuneEntity getAnsvarligKommune() {
                 return this.ansvarligKommune;
         }
@@ -127,4 +136,12 @@ public class NavngivenVejVersionEntity
                 this.ansvarligKommune = ansvarligKommune;
         }
 
+
+        public boolean compare(NavngivenVejVersionEntity other) {
+                if (!this.vejnavn.equals(other.getVejnavn())) {
+                        return false;
+                }
+                // TODO: more
+                return true;
+        }
 }

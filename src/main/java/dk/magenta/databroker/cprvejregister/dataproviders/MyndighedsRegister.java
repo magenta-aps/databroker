@@ -228,9 +228,9 @@ public class MyndighedsRegister extends CprRegister {
             }
 
 
-            this.printInputProcessed();
+            mrun.printInputProcessed();
         }
-        this.printFinalInputsProcessed();
+        mrun.printFinalInputsProcessed();
         kommuneRepository.flush();
         System.out.println("Stored KommuneEntities in database:");
         counter.printModifications();

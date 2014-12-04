@@ -5,6 +5,7 @@ import dk.magenta.databroker.cprvejregister.dataproviders.records.Record;
 import org.json.JSONArray;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -12,4 +13,27 @@ import java.util.List;
  */
 public class RegisterRun extends ArrayList<Record> {
 
+    private int inputsProcessed = 0;
+    private int inputChunks = 0;
+    private long startTime = 0;
+
+    protected void startInputProcessing() {
+        this.startTime = new Date().getTime();
+    }
+
+    protected void printInputProcessed() {
+        this.inputsProcessed++;
+        if (this.inputsProcessed >= 1000) {
+            this.inputsProcessed = 0;
+            this.inputChunks++;
+            System.out.println("    " + (this.inputChunks * 1000) + " inputs processed");
+        }
+    }
+
+    protected void printFinalInputsProcessed() {
+        String timeStr = this.startTime != 0 ?
+                " in "+String.format("%.3f", 0.001 * (new Date().getTime() - this.startTime))+" seconds" :
+                "";
+        System.out.println("Processed " + (1000 * this.inputChunks + this.inputsProcessed) + " inputs" + timeStr + ".");
+    }
 }

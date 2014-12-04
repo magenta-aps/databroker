@@ -113,7 +113,7 @@ public class LokalitetsRegister extends CprRegister {
         }*/
 
         try {
-            this.startInputProcessing();
+            run.startInputProcessing();
             for (Record record : run) {
                 if (record.getRecordType().equals(Lokalitet.RECORDTYPE_LOKALITET)) {
                     Lokalitet lokalitet = (Lokalitet) record;
@@ -164,10 +164,10 @@ public class LokalitetsRegister extends CprRegister {
                     }
 
 
-                    this.printInputProcessed();
+                    run.printInputProcessed();
                 }
             }
-            this.printFinalInputsProcessed();
+            run.printFinalInputsProcessed();
             System.out.println("Stored HusnummerEntities to database");
             husnummerCounter.printModifications();
             System.out.println("Stored AdresseEntities to database");

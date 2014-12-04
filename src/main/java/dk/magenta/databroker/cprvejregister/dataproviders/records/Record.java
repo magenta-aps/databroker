@@ -17,6 +17,7 @@ public abstract class Record extends HashMap<String, String> {
     public String getRecordType() {
         return null;
     }
+    private boolean visited;
 
     public String getRecordClass() {
         String[] classParts = this.getClass().getCanonicalName().split("\\.");
@@ -27,6 +28,7 @@ public abstract class Record extends HashMap<String, String> {
         if (line == null) {
             throw new ParseException("Invalid NULL input.", 0);
         }
+        this.visited = false;
         this.line = line;
         String type = substr(line, 1, 3);
         String thisType = this.getRecordType();
@@ -50,6 +52,21 @@ public abstract class Record extends HashMap<String, String> {
         } catch (NumberFormatException e) {
             return 0;
         }
+    }
+
+    public boolean getVisited() {
+        return visited;
+    }
+
+    public void setVisited(boolean visited) {
+        this.visited = visited;
+    }
+    public void setVisited() {
+        this.setVisited(true);
+    }
+
+    public void resetProcessed() {
+        this.visited = false;
     }
 
     public JSONObject toJSON() {

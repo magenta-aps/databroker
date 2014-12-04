@@ -143,9 +143,9 @@ public class PostnummerRegister extends CprRegister {
                 postnummerVersion.setNavn(navn);
                 postnummerRepository.save(postnummerEntity);
             }
-            this.printInputProcessed();
+            prun.printInputProcessed();
         }
-        this.printFinalInputsProcessed();
+        prun.printFinalInputsProcessed();
         System.out.println("Stored PostnummerEntities in database:");
         counter.printModifications();
     }

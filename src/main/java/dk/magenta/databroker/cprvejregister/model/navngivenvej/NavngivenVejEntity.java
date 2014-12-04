@@ -1,7 +1,7 @@
 package dk.magenta.databroker.cprvejregister.model.navngivenvej;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
-import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
+import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
 import dk.magenta.databroker.cprvejregister.model.vejnavneforslag.VejnavneforslagEntity;
 import dk.magenta.databroker.cprvejregister.model.vejnavneomraade.VejnavneomraadeEntity;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
@@ -37,10 +37,10 @@ public class NavngivenVejEntity
     * Versioning fields
     * */
 
-    @OneToMany(mappedBy = "entity", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "entity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<NavngivenVejVersionEntity> versioner;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private NavngivenVejVersionEntity latestVersion;
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -69,6 +69,39 @@ public class NavngivenVejEntity
     @Override
     public void setPreferredVersion(NavngivenVejVersionEntity preferredVersion) {
         this.preferredVersion = preferredVersion;
+    }
+
+
+
+    public Collection<NavngivenVejVersionEntity> cleanLatestVersion() {
+        ArrayList<NavngivenVejVersionEntity> toRemove = new ArrayList<NavngivenVejVersionEntity>();
+        if (this.versioner.size() > 1) {
+            ArrayList<NavngivenVejVersionEntity> versions = new ArrayList<NavngivenVejVersionEntity>();
+            versions.addAll(this.versioner);
+            boolean lastOnly = false;
+            int dest = (lastOnly ? versions.size() - 2 : 0);
+            for (int i = versions.size() - 1; i > dest; i--) { // We must loop from newest to oldest version
+                NavngivenVejVersionEntity oldVersion = versions.get(i-1);
+                NavngivenVejVersionEntity newVersion = versions.get(i);
+                if (oldVersion.compare(newVersion)) {
+                    // The two versions are identical; remove the latest of those
+                    this.versioner.remove(newVersion);
+
+                    Collection<KommunedelAfNavngivenVejEntity> delveje = newVersion.getKommunedeleAfNavngivenVej();
+                    for (KommunedelAfNavngivenVejEntity delvej : delveje) {
+                        delvej.setNavngivenVejVersion(oldVersion);
+                        oldVersion.addKommunedelAfNavngivenVej(delvej);
+                    }
+                    delveje.clear();
+
+                    if (this.latestVersion == newVersion) {
+                        this.latestVersion = oldVersion;
+                    }
+                    toRemove.add(newVersion);
+                }
+            }
+        }
+        return toRemove;
     }
 
 

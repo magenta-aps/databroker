@@ -28,6 +28,10 @@ public class RegistreringEntity implements Serializable {
     private String note;
 
 
+    public Long getId() {
+        return id;
+    }
+
     @ManyToOne
     private RegistreringLivscyklusEntity livscyklus;
 
