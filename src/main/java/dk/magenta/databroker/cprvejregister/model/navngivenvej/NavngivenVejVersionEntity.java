@@ -8,6 +8,7 @@ import org.hibernate.annotations.Index;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * Created by jubk on 11/12/14.
@@ -123,9 +124,12 @@ public class NavngivenVejVersionEntity
         }
 
         public void addKommunedelAfNavngivenVej(KommunedelAfNavngivenVejEntity kommunedelAfNavngivenVejEntity) {
-                if (!this.kommunedeleAfNavngivenVej.contains(kommunedelAfNavngivenVejEntity)) {
-                     this.kommunedeleAfNavngivenVej.add(kommunedelAfNavngivenVejEntity);
-                }
+            if (!this.kommunedeleAfNavngivenVej.contains(kommunedelAfNavngivenVejEntity)) {
+                this.kommunedeleAfNavngivenVej.add(kommunedelAfNavngivenVejEntity);
+            }
+        }
+        public void clearKommunedelAfNavngivenVej() {
+            this.kommunedeleAfNavngivenVej.clear();
         }
 
         public KommuneEntity getAnsvarligKommune() {

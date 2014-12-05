@@ -2,6 +2,7 @@ package dk.magenta.databroker.cprvejregister.model.navngivenvej;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
+import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejRepository;
 import dk.magenta.databroker.cprvejregister.model.vejnavneforslag.VejnavneforslagEntity;
 import dk.magenta.databroker.cprvejregister.model.vejnavneomraade.VejnavneomraadeEntity;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
@@ -73,7 +74,7 @@ public class NavngivenVejEntity
 
 
 
-    public Collection<NavngivenVejVersionEntity> cleanLatestVersion() {
+    public Collection<NavngivenVejVersionEntity> cleanLatestVersion(KommunedelAfNavngivenVejRepository repository) {
         ArrayList<NavngivenVejVersionEntity> toRemove = new ArrayList<NavngivenVejVersionEntity>();
         if (this.versioner.size() > 1) {
             ArrayList<NavngivenVejVersionEntity> versions = new ArrayList<NavngivenVejVersionEntity>();
@@ -87,6 +88,7 @@ public class NavngivenVejEntity
                     // The two versions are identical; remove the latest of those
                     this.versioner.remove(newVersion);
 
+                    // Since kommunedeleAfNavngivenVej are new entries, replace the old ones
                     Collection<KommunedelAfNavngivenVejEntity> delveje = newVersion.getKommunedeleAfNavngivenVej();
                     for (KommunedelAfNavngivenVejEntity delvej : delveje) {
                         delvej.setNavngivenVejVersion(oldVersion);

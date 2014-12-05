@@ -116,6 +116,7 @@ public abstract class CprRegister extends DataProvider {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println("Read complete");
     }
 
     private RegisterRun parse(InputStream input) {
@@ -208,8 +209,15 @@ public abstract class CprRegister extends DataProvider {
 
 
     private long ticTime = 0;
-    protected void tic() {
-        this.ticTime = new Date().getTime();
+    protected long tic() {
+        this.ticTime = this.indepTic();
+        return this.ticTime;
+    }
+    protected long indepTic() {
+        return new Date().getTime();
+    }
+    protected long toc(long ticTime) {
+        return new Date().getTime() - ticTime;
     }
     protected long toc() {
         return new Date().getTime() - this.ticTime;
