@@ -1,13 +1,16 @@
 package dk.magenta.databroker.cprvejregister.model.kommune;
 
+import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.core.model.oio.*;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejVersionEntity;
 import dk.magenta.databroker.cprvejregister.model.reserveretvejnavn.ReserveretVejnavnEntity;
 import org.hibernate.annotations.Index;
+import org.json.JSONObject;
 
 import javax.persistence.*;
+import javax.xml.soap.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,7 +22,7 @@ import java.util.Collection;
 @Table(name = "kommune")
 public class KommuneEntity
         extends DobbeltHistorikBase<KommuneEntity, KommuneVersionEntity>
-        implements Serializable {
+        implements Serializable, OutputFormattable {
 
 
     protected KommuneEntity() {
@@ -131,6 +134,27 @@ public class KommuneEntity
 
     public void setReserveredeVejnavne(Collection<ReserveretVejnavnEntity> reserveredeVejnavne) {
         this.reserveredeVejnavne = reserveredeVejnavne;
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    public JSONObject toJSON() {
+        JSONObject obj = new JSONObject();
+        obj.put("navn", this.getLatestVersion().getNavn());
+        obj.put("kommuneKode", this.getKommunekode());
+        return obj;
+    }
+
+    public Node toXML(SOAPElement parent, SOAPEnvelope envelope) {
+        try {
+            SOAPElement node = parent.addChildElement("kommune");
+            node.addAttribute(envelope.createName("navn"), this.getLatestVersion().getNavn());
+            node.addAttribute(envelope.createName("kommuneKode"), ""+this.getKommunekode());
+            return node;
+        } catch (SOAPException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
 }

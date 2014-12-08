@@ -1,5 +1,7 @@
 package dk.magenta.databroker.core.model.oio;
 
+import org.json.JSONObject;
+
 import javax.persistence.*;
 import java.util.UUID;
 

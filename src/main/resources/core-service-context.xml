@@ -21,7 +21,7 @@
 
     <jaxws:endpoint id="helloWorld" implementor="dk.magenta.databroker.web.service.soap.HelloService" address="/HelloWorld"/>
 
-    <jaxrs:server address="/address" basePackages="dk.magenta.databroker.service.rest">
+    <jaxrs:server address="/" basePackages="dk.magenta.databroker.service.rest">
         <jaxrs:providers>
             <ref bean="jsonProvider"/>
         </jaxrs:providers>
