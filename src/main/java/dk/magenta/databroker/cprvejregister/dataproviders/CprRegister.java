@@ -7,6 +7,7 @@ import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
 import dk.magenta.databroker.core.DataProvider;
 import dk.magenta.databroker.core.model.DataProviderEntity;
+import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
 import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import org.springframework.transaction.annotation.Transactional;
@@ -205,8 +206,6 @@ public abstract class CprRegister extends DataProvider {
     protected void processRecord(Record record) {
         // Override me
     }
-
-
 
     private long ticTime = 0;
     protected long tic() {

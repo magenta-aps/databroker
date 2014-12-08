@@ -6,6 +6,7 @@ import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktEntity;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
+import org.hibernate.annotations.Index;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
@@ -45,6 +46,7 @@ public class HusnummerEntity extends UniqueBase implements Serializable {
 
     @Basic
     @Column(nullable = true)
+    @Index(name = "husnummerbetegnelse")
     private String husnummerbetegnelse;
 
     public NavngivenVejEntity getNavngivenVej() {

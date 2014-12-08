@@ -35,6 +35,10 @@ import java.util.logging.Level;
 public class VejRegister extends CprRegister {
 
 
+    /*
+    * Inner classes for parsed data
+    * */
+
     public abstract class VejDataRecord extends Record {
         public static final String RECORDTYPE_AKTVEJ = "001";
         public static final String RECORDTYPE_BOLIG = "002";
@@ -313,6 +317,11 @@ public class VejRegister extends CprRegister {
         }
     }
 
+
+    /*
+    * RegisterRun inner class
+    * */
+
     public class VejRegisterRun extends RegisterRun {
 
         private Level2Container<AktivVej> aktiveVeje;
@@ -520,74 +529,22 @@ public class VejRegister extends CprRegister {
 
     }
 
-    //------------------------------------------------------------------------------------------------------------------
-
-    private class KommuneContainer extends Level2Container<KommunedelAfNavngivenVejEntity> {
+    protected RegisterRun createRun() {
+        return new VejRegisterRun();
     }
 
     //------------------------------------------------------------------------------------------------------------------
+
+    /*
+    * Constructors
+    * */
+
     public VejRegister(DataProviderEntity dbObject) {
         super(dbObject);
     }
 
     public VejRegister() {
     }
-
-
-    @Autowired
-    private KommuneRepository kommuneRepository;
-    public KommuneRepository getKommuneRepository() {
-        return kommuneRepository;
-    }
-
-    @Autowired
-    private KommunedelAfNavngivenVejRepository kommunedelAfNavngivenVejRepository;
-    public KommunedelAfNavngivenVejRepository getKommunedelAfNavngivenVejRepository() {
-        return kommunedelAfNavngivenVejRepository;
-    }
-
-    @Autowired
-    private NavngivenVejRepository navngivenVejRepository;
-    public NavngivenVejRepository getNavngivenVejRepository() {
-        return navngivenVejRepository;
-    }
-
-    @Autowired
-    private HusnummerRepository husnummerRepository;
-    public HusnummerRepository getHusnummerRepository() {
-        return husnummerRepository;
-    }
-
-    @Autowired
-    private AdresseRepository adresseRepository;
-    public AdresseRepository getAdresseRepository() {
-        return adresseRepository;
-    }
-
-    @Autowired
-    private PostnummerRepository postnummerRepository;
-    public PostnummerRepository getPostnummerRepository() {
-        return postnummerRepository;
-    }
-
-    @Autowired
-    private RegistreringRepository registreringRepository;
-
-
-
-
-    // RegistreringEntities that must be attached to all versioned data entities
-    private RegistreringEntity createRegistrering;
-    private RegistreringEntity updateRegistrering;
-
-    private void createRegistreringEntities() {
-        this.createRegistrering = registreringRepository.createNew(this);
-        this.updateRegistrering = registreringRepository.createUpdate(this);
-    }
-
-
-
-
 
     @PostConstruct
     public void PostConstructVejRegister() {
@@ -597,13 +554,19 @@ public class VejRegister extends CprRegister {
         this.setDataProviderEntity(vejProvider);
     }
 
+
+    /*
+    * Data source spec
+    * */
+
     public URL getRecordUrl() throws MalformedURLException {
         return new URL("https://cpr.dk/media/152096/vejregister_hele_landet_pr_141101.zip");
     }
 
-    protected RegisterRun createRun() {
-        return new VejRegisterRun();
-    }
+
+    /*
+    * Parse definition
+    * */
 
     protected Record parseTrimmedLine(String recordType, String line) {
         Record r = super.parseTrimmedLine(recordType, line);
@@ -666,10 +629,48 @@ public class VejRegister extends CprRegister {
     }
 
 
+    /*
+    * Repositories
+    * */
+
+    @Autowired
+    private KommuneRepository kommuneRepository;
+
+    @Autowired
+    private KommunedelAfNavngivenVejRepository kommunedelAfNavngivenVejRepository;
+
+    @Autowired
+    private NavngivenVejRepository navngivenVejRepository;
+
+    @Autowired
+    private HusnummerRepository husnummerRepository;
+
+    @Autowired
+    private AdresseRepository adresseRepository;
+
+    @Autowired
+    private PostnummerRepository postnummerRepository;
+
+    @Autowired
+    private RegistreringRepository registreringRepository;
 
 
+    /*
+    * Registration
+    * */
+
+    private RegistreringEntity createRegistrering;
+    private RegistreringEntity updateRegistrering;
+
+    private void createRegistreringEntities() {
+        this.createRegistrering = registreringRepository.createNew(this);
+        this.updateRegistrering = registreringRepository.createUpdate(this);
+    }
 
 
+    /*
+    * Database save
+    * */
 
     protected void saveRunToDatabase(RegisterRun run) {
         long time;

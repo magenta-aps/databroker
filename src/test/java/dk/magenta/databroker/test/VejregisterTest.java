@@ -1,7 +1,9 @@
 package dk.magenta.databroker.test;
 
 import dk.magenta.databroker.Application;
+import dk.magenta.databroker.cprvejregister.dataproviders.LokalitetsRegister;
 import dk.magenta.databroker.cprvejregister.dataproviders.MyndighedsRegister;
+import dk.magenta.databroker.cprvejregister.dataproviders.PostnummerRegister;
 import dk.magenta.databroker.cprvejregister.dataproviders.VejRegister;
 
 
@@ -45,20 +47,29 @@ public class VejregisterTest {
     @Autowired
     private MyndighedsRegister myndighedsRegister;
 
+    @Autowired
+    private LokalitetsRegister lokalitetsRegister;
+
+    @Autowired
+    private PostnummerRegister postnummerRegister;
+
     @Test
     //@Transactional
     public void testVejregister() {
+        System.out.println("Starting step 1");
         myndighedsRegister.pull();
+
+        System.out.println("Starting step 2");
+        postnummerRegister.pull();
+
+        System.out.println("Starting step 3");
         vejRegister.read(new File("/home/lars/Projekt/databroker/src/test/resources/vejregister_hele_landet_pr_141101.zip"));
-        vejRegister.checkNavngivenvejIntegrity();
-        //vejRegister.pull();
-/*
-        LokalitetsRegister lokalitetsregister = new LokalitetsRegister(new DataProviderEntity());
-        lokalitetsregister.pull(repositories);
 
-        PostnummerRegister postnummerRegister = new PostnummerRegister(new DataProviderEntity());
-        postnummerRegister.pull(repositories);*/
+        System.out.println("Starting step 4");
+        lokalitetsRegister.pull();
 
+
+        System.out.println("Test complete");
     }
 
 

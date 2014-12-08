@@ -1,6 +1,7 @@
 package dk.magenta.databroker.cprvejregister.model.adresse;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikVersion;
+import org.hibernate.annotations.Index;
 
 import javax.persistence.*;
 
@@ -43,10 +44,12 @@ public class AdresseVersionEntity
 
         @Basic
         @Column
+        @Index(name = "etageBetegnelse")
         private String etageBetegnelse;
 
         @Basic
         @Column
+        @Index(name = "doerBetegnelse")
         private String doerBetegnelse;
 
         public String getStatus() {

@@ -8,8 +8,11 @@ import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerEntity;
 import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerRepository;
 import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerVersionEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
@@ -18,10 +21,15 @@ import java.util.*;
 /**
  * Created by lars on 04-11-14.
  */
+@Component
 public class PostnummerRegister extends CprRegister {
 
 
-    public class PostNummer extends Record {
+    /*
+    * Inner classes for parsed data
+    * */
+
+     public class PostNummer extends Record {
         public static final String RECORDTYPE_POSTNUMMER = "001";
         public String getRecordType() {
             return RECORDTYPE_POSTNUMMER;
@@ -40,6 +48,9 @@ public class PostnummerRegister extends CprRegister {
         }
     }
 
+    /*
+    * RegisterRun inner class
+    * */
 
     public class PostnummerRegisterRun extends RegisterRun {
 
@@ -67,10 +78,35 @@ public class PostnummerRegister extends CprRegister {
         }
     }
 
+    protected RegisterRun createRun() {
+        return new PostnummerRegisterRun();
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    /*
+    * Constructors
+    * */
 
     public PostnummerRegister(DataProviderEntity dbObject) {
         super(dbObject);
     }
+
+    public PostnummerRegister() {
+    }
+
+    @PostConstruct
+    public void PostConstructPostnummerRegister() {
+        DataProviderEntity postProvider = new DataProviderEntity();
+        postProvider.setUuid(UUID.randomUUID().toString());
+
+        this.setDataProviderEntity(postProvider);
+    }
+
+
+    /*
+    * Data source spec
+    * */
 
     public URL getRecordUrl() throws MalformedURLException {
         return new URL("https://cpr.dk/media/152114/a370712.txt");
@@ -80,10 +116,10 @@ public class PostnummerRegister extends CprRegister {
         return "ISO-8859-1";
     }
 
-    protected RegisterRun createRun() {
-        return new PostnummerRegisterRun();
-    }
 
+    /*
+    * Parse definition
+    * */
 
     protected Record parseTrimmedLine(String recordType, String line) {
         Record r = super.parseTrimmedLine(recordType, line);
@@ -100,16 +136,46 @@ public class PostnummerRegister extends CprRegister {
         return null;
     }
 
+
+    /*
+    * Repositories
+    * */
+
+     @Autowired
+    private PostnummerRepository postnummerRepository;
+    public PostnummerRepository getPostnummerRepository() {
+        return postnummerRepository;
+    }
+
+    @Autowired
+    private RegistreringRepository registreringRepository;
+
+
+
+
+    /*
+    * Registration
+    * */
+
+    // RegistreringEntities that must be attached to all versioned data entities
+    private RegistreringEntity createRegistrering;
+    private RegistreringEntity updateRegistrering;
+
+    private void createRegistreringEntities() {
+        this.createRegistrering = registreringRepository.createNew(this);
+        this.updateRegistrering = registreringRepository.createUpdate(this);
+    }
+
+
+    /*
+    * Database save
+    * */
+
     protected void saveRunToDatabase(RegisterRun run, RepositoryCollection repositories) {
 
         PostnummerRepository postnummerRepository = repositories.postnummerRepository;
 
         PostnummerRegisterRun prun = (PostnummerRegisterRun) run;
-
-
-        RegistreringRepository registreringRepository = repositories.registreringRepository;
-        RegistreringEntity createRegistrering = registreringRepository.createNew(this);
-        RegistreringEntity updateRegistrering = registreringRepository.createUpdate(this);
 
         EntityModificationCounter counter = new EntityModificationCounter();
 
@@ -148,9 +214,5 @@ public class PostnummerRegister extends CprRegister {
         prun.printFinalInputsProcessed();
         System.out.println("Stored PostnummerEntities in database:");
         counter.printModifications();
-    }
-
-    public static void main(String[] args) {
-        new PostnummerRegister(null).pull();
     }
 }

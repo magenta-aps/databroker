@@ -3,20 +3,21 @@ package dk.magenta.databroker.cprvejregister.dataproviders;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.core.model.oio.RegistreringRepository;
+import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.Level2Container;
+import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.Level3Container;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
-import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.*;
-import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseVersionEntity;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseRepository;
-import dk.magenta.databroker.cprvejregister.model.doerpunkt.DoerpunktEntity;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerRepository;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejRepository;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejRepository;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
@@ -25,9 +26,13 @@ import java.util.*;
 /**
  * Created by lars on 04-11-14.
  */
+@Component
 public class LokalitetsRegister extends CprRegister {
 
 
+    /*
+    * Inner classes for parsed data
+    * */
     public class Lokalitet extends Record {
         public static final String RECORDTYPE_LOKALITET = "001";
         public String getRecordType() {
@@ -46,12 +51,31 @@ public class LokalitetsRegister extends CprRegister {
         }
     }
 
-    private class KommuneContainer extends Level3Container<HusnummerEntity> {
-    }
+    //------------------------------------------------------------------------------------------------------------------
+
+    /*
+    * Constructors
+    * */
 
     public LokalitetsRegister(DataProviderEntity dbObject) {
         super(dbObject);
     }
+
+    public LokalitetsRegister() {
+    }
+
+    @PostConstruct
+    public void PostConstructLokalitetsRegister() {
+        DataProviderEntity lokalitetsProvider = new DataProviderEntity();
+        lokalitetsProvider.setUuid(UUID.randomUUID().toString());
+
+        this.setDataProviderEntity(lokalitetsProvider);
+    }
+
+
+    /*
+    * Data source spec
+    * */
 
     public URL getRecordUrl() throws MalformedURLException {
         return new URL("https://cpr.dk/media/152108/a370714.txt");
@@ -61,7 +85,12 @@ public class LokalitetsRegister extends CprRegister {
         return "ISO-8859-1";
     }
 
-    protected Record parseTrimmedLine(String recordType, String line) {
+
+    /*
+    * Parse definition
+    * */
+
+     protected Record parseTrimmedLine(String recordType, String line) {
         Record r = super.parseTrimmedLine(recordType, line);
         if (r != null) {
             return r;
@@ -76,17 +105,47 @@ public class LokalitetsRegister extends CprRegister {
         return null;
     }
 
-    protected void saveRunToDatabase(RegisterRun run, RepositoryCollection repositories) {
 
-        AdresseRepository adresseRepository = repositories.adresseRepository;
-        HusnummerRepository husnummerRepository = repositories.husnummerRepository;
-        NavngivenVejRepository navngivenVejRepository = repositories.navngivenVejRepository;
-        KommunedelAfNavngivenVejRepository kommunedelAfNavngivenVejRepository = repositories.kommunedelAfNavngivenVejRepository;
+    /*
+    * Repositories
+    * */
 
-        RegistreringRepository registreringRepository = repositories.registreringRepository;
-        RegistreringEntity createRegistrering = registreringRepository.createNew(this);
-        RegistreringEntity updateRegistrering = registreringRepository.createUpdate(this);
+    @Autowired
+    private AdresseRepository adresseRepository;
 
+    @Autowired
+    private HusnummerRepository husnummerRepository;
+
+    @Autowired
+    private NavngivenVejRepository navngivenVejRepository;
+
+    @Autowired
+    private KommunedelAfNavngivenVejRepository kommunedelAfNavngivenVejRepository;
+
+    @Autowired
+    private RegistreringRepository registreringRepository;
+
+
+    /*
+    * Registration
+    * */
+
+    // RegistreringEntities that must be attached to all versioned data entities
+    private RegistreringEntity createRegistrering;
+    private RegistreringEntity updateRegistrering;
+
+    private void createRegistreringEntities() {
+        this.createRegistrering = registreringRepository.createNew(this);
+        this.updateRegistrering = registreringRepository.createUpdate(this);
+    }
+
+
+    /*
+    * Database save
+    * */
+
+    protected void saveRunToDatabase(RegisterRun run) {
+        this.createRegistreringEntities();
 
         if (adresseRepository == null || husnummerRepository == null || navngivenVejRepository == null || kommunedelAfNavngivenVejRepository == null) {
             System.err.println("Insufficient repositories");
@@ -98,8 +157,6 @@ public class LokalitetsRegister extends CprRegister {
         EntityModificationCounter husnummerCounter = new EntityModificationCounter();
         EntityModificationCounter adresseCounter = new EntityModificationCounter();
 
-        //SegmentedList<HusnummerEntity> husnummerEntities = new SegmentedList<HusnummerEntity>(10000);
-        //SegmentedList<AdresseEntity> adresseEntities = new SegmentedList<AdresseEntity>(10000);
 
 /*
         Level2Container<NavngivenVejEntity> navngivenVejEntities = new Level2Container<NavngivenVejEntity>();
@@ -112,32 +169,72 @@ public class LokalitetsRegister extends CprRegister {
             }
         }*/
 
+
+
         try {
             run.startInputProcessing();
+
+            int count = 0;
             for (Record record : run) {
                 if (record.getRecordType().equals(Lokalitet.RECORDTYPE_LOKALITET)) {
+                    count++;
+                }
+            }
+            System.out.println("There are "+count+" records");
+
+            Level2Container<NavngivenVejEntity> navngivenVejCache = new Level2Container<NavngivenVejEntity>();
+            Level3Container<HusnummerEntity> husnummerCache = new Level3Container<HusnummerEntity>();
+            Level3Container<AdresseEntity> adresseCache = new Level3Container<AdresseEntity>();
+
+            for (Record record : run) {
+                if (record.getRecordType().equals(Lokalitet.RECORDTYPE_LOKALITET)) {
+                    ArrayList<Long> times = new ArrayList<Long>();
+
                     Lokalitet lokalitet = (Lokalitet) record;
                     int kommuneKode = lokalitet.getInt("kommuneKode");
                     int vejKode = lokalitet.getInt("vejKode");
                     String husKode = lokalitet.get("husNr");
                     String sidedoer = lokalitet.get("sidedoer");
                     String etage = lokalitet.get("etage");
-                    DoerpunktEntity doerpunktEntity = null;
                     String status = "hephey";
 
-                    HusnummerEntity husNummerEntity = husnummerRepository.getByKommunekodeAndVejkodeAndHusnr(kommuneKode, vejKode, husKode);
+                    AdresseEntity adresseEntity = null;
 
-                    AdresseEntity adresseEntity = adresseRepository.findByHusnummerAndDoerbetegnelseAndEtagebetegnelse(husNummerEntity, sidedoer, etage);
+                    tic();
+                    HusnummerEntity husNummerEntity = husnummerCache.get(kommuneKode, vejKode, husKode);
+                    if (husNummerEntity == null) {
+                        husNummerEntity = husnummerRepository.getByKommunekodeAndVejkodeAndHusnr(kommuneKode, vejKode, husKode);
+                    }
+                    times.add(toc());
 
+
+
+                    tic();
                     if (husNummerEntity == null) {
                         husNummerEntity = HusnummerEntity.create();
-                        husnummerCounter.countCreatedItem();
                         husNummerEntity.setHusnummerbetegnelse(husKode);
-                        NavngivenVejEntity navngivenVejEntity = navngivenVejRepository.findByKommunekodeAndVejkode(kommuneKode, vejKode);
-                        husNummerEntity.setNavngivenVej(navngivenVejEntity);
-                        husnummerCounter.countCreatedItem();
+                        NavngivenVejEntity navngivenVejEntity = navngivenVejCache.get(kommuneKode, vejKode);
+                        if (navngivenVejEntity == null) {
+                            navngivenVejEntity = navngivenVejRepository.findByKommunekodeAndVejkode(kommuneKode, vejKode);
+                        }
+                        if (navngivenVejEntity != null) {
+                            husNummerEntity.setNavngivenVej(navngivenVejEntity);
+                            husnummerCounter.countCreatedItem();
+                            husnummerRepository.save(husNummerEntity);
+                            navngivenVejCache.put(kommuneKode, vejKode, navngivenVejEntity);
+                        }
+                    } else {
+                        //adresseEntity = adresseCache.get(husNummerEntity.getUuid(), sidedoer, etage);
+                        if (adresseEntity == null) {
+                            adresseEntity = adresseRepository.findByHusnummerAndDoerbetegnelseAndEtagebetegnelse(husNummerEntity, sidedoer, etage);
+                        }
                     }
+                    husnummerCache.put(kommuneKode, vejKode, husKode, husNummerEntity);
+                    times.add(toc());
 
+
+
+                    tic();
                     AdresseVersionEntity adresseVersion = null;
                     if (adresseEntity == null) {
                         adresseEntity = AdresseEntity.create();
@@ -155,17 +252,30 @@ public class LokalitetsRegister extends CprRegister {
                             adresseCounter.countUpdatedItem();
                         }
                     }
+                    //adresseCache.put(husNummerEntity.getUuid(), sidedoer, etage, adresseEntity);
+                    times.add(toc());
 
+
+
+                    tic();
                     if (adresseVersion != null) {
                         adresseVersion.setEtageBetegnelse(etage);
                         adresseVersion.setDoerBetegnelse(sidedoer);
                         adresseVersion.setStatus(status);
                         adresseRepository.save(adresseEntity);
                     }
+                    times.add(toc());
 
+                    StringBuilder timeStr = new StringBuilder();
+                    for (long time : times) {
+                        timeStr.append(time);
+                        timeStr.append(",");
+                    }
+                    System.out.println(timeStr.toString());
 
                     run.printInputProcessed();
                 }
+
             }
             run.printFinalInputsProcessed();
             System.out.println("Stored HusnummerEntities to database");
@@ -176,12 +286,6 @@ public class LokalitetsRegister extends CprRegister {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
-    public static void main(String[] args) {
-        LokalitetsRegister register = new LokalitetsRegister(null);
-        register.pull();
-        System.out.println("Finished");
-    }
 }
