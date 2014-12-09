@@ -60,13 +60,13 @@ public class VejregisterTest {
         myndighedsRegister.pull();
 
         System.out.println("Starting step 2");
-        postnummerRegister.pull();
-
-        System.out.println("Starting step 3");
         vejRegister.read(new File("/home/lars/Projekt/databroker/src/test/resources/vejregister_hele_landet_pr_141101.zip"));
 
-        System.out.println("Starting step 4");
+        System.out.println("Starting step 3");
         lokalitetsRegister.pull();
+
+        System.out.println("Starting step 4");
+        postnummerRegister.pull();
 
 
         System.out.println("Test complete");

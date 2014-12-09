@@ -1,13 +1,20 @@
 package dk.magenta.databroker.cprvejregister.model.navngivenvej;
 
+import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejRepository;
 import dk.magenta.databroker.cprvejregister.model.vejnavneforslag.VejnavneforslagEntity;
 import dk.magenta.databroker.cprvejregister.model.vejnavneomraade.VejnavneomraadeEntity;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import javax.persistence.*;
+import javax.xml.soap.Node;
+import javax.xml.soap.SOAPElement;
+import javax.xml.soap.SOAPEnvelope;
+import javax.xml.soap.SOAPException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,7 +27,7 @@ import java.util.Collection;
 @PersistenceContext(type = PersistenceContextType.EXTENDED)
 public class NavngivenVejEntity
         extends DobbeltHistorikBase<NavngivenVejEntity, NavngivenVejVersionEntity>
-        implements Serializable {
+        implements Serializable, OutputFormattable {
 
 
     protected NavngivenVejEntity(){
@@ -152,6 +159,34 @@ public class NavngivenVejEntity
 
     public void setVejnavneforslag(Collection<VejnavneforslagEntity> vejnavneforslag) {
         this.vejnavneforslag = vejnavneforslag;
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    public JSONObject toJSON() {
+        JSONObject obj = new JSONObject();
+        obj.put("navn", this.getLatestVersion().getVejnavn());
+        JSONArray delveje = new JSONArray();
+        for (KommunedelAfNavngivenVejEntity kommunedelAfNavngivenVejEntity : this.getLatestVersion().getKommunedeleAfNavngivenVej()) {
+            delveje.put(kommunedelAfNavngivenVejEntity.toJSON());
+        }
+        obj.put("delveje", delveje);
+        return obj;
+    }
+
+    public Node toXML(SOAPElement parent, SOAPEnvelope envelope) {
+        try {
+            SOAPElement node = parent.addChildElement("vej");
+            node.addAttribute(envelope.createName("navn"), this.getLatestVersion().getVejnavn());
+            SOAPElement delveje = node.addChildElement("delveje");
+            for (KommunedelAfNavngivenVejEntity kommunedelAfNavngivenVejEntity : this.getLatestVersion().getKommunedeleAfNavngivenVej()) {
+                delveje.addChildElement((SOAPElement) kommunedelAfNavngivenVejEntity.toXML(delveje, envelope));
+            }
+            return node;
+        } catch (SOAPException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
 }

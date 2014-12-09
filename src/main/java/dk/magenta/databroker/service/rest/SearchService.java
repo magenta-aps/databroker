@@ -3,11 +3,18 @@ package dk.magenta.databroker.service.rest;
 import dk.magenta.databroker.component.DataBean;
 import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.core.testmodel.TestAddressRepository;
+import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
+import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
+import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerRepository;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneRepository;
+import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
+import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejRepository;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -21,6 +28,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 
+@Component
 @Path("search")
 //@Produces({ "application/json", "application/xml" })
 @Produces({ MediaType.APPLICATION_JSON + "; " + MediaType.CHARSET_PARAMETER +"=UTF-8" })
@@ -39,8 +47,9 @@ public class SearchService {
             }
         }
         return Format.json;
-
     }
+
+    private Pattern onlyDigits = Pattern.compile("^\\d+$");
 
     @Autowired
     private DataBean db;
@@ -50,6 +59,12 @@ public class SearchService {
 
     @Autowired
     private KommuneRepository kommuneRepository;
+
+    @Autowired
+    private NavngivenVejRepository navngivenVejRepository;
+
+    @Autowired
+    private HusnummerRepository husnummerRepository;
 
 
     @GET
@@ -76,68 +91,138 @@ public class SearchService {
 
     //------------------------------------------------------------------------------------------------------------------
 
-    private Pattern onlyDigits = Pattern.compile("^\\d+$");
-
     @GET
-    @Path("kommune/{id}")
-    public String kommune(@PathParam("id") String id, @QueryParam("format") String formatStr) {
+    @Path("kommune/{search}")
+    @Transactional
+    public String kommune(@PathParam("search") String search, @QueryParam("format") String formatStr) {
         Format fmt = this.getFormat(formatStr);
         try {
-            if (id == null) {
-                throw new InputError("Invalid kommune id");
-            }
-            List<OutputFormattable> matches = new ArrayList<OutputFormattable>();
-            if (this.onlyDigits.matcher(id).matches()) {
-                KommuneEntity match = this.kommuneRepository.getByKommunekode(Integer.parseInt(id, 10));
-                if (match != null) {
-                    matches.add(match);
-                }
-            } else {
-                matches.addAll(this.kommuneRepository.findByName("%"+id+"%"));
-            }
-
-            return this.format("kommuner", matches, fmt);
+            return this.format("kommuner", new ArrayList<OutputFormattable>(this.getKommuner(search)), fmt);
         } catch (InputError error) {
             return this.format("error", error, fmt);
         }
     }
 
+    private List<KommuneEntity> getKommuner(String search) throws InputError {
+        if (search == null) {
+            throw new InputError("Invalid kommune id \""+search+"\"");
+        }
+        ArrayList<KommuneEntity> matches = new ArrayList<KommuneEntity>();
+        if (this.onlyDigits.matcher(search).matches()) {
+            KommuneEntity match = this.kommuneRepository.getByKommunekode(Integer.parseInt(search, 10));
+            if (match != null) {
+                matches.add(match);
+            }
+        } else {
+            matches.addAll(this.kommuneRepository.findByName("%"+search+"%"));
+        }
+        return matches;
+    }
 
+    //------------------------------------------------------------------------------------------------------------------
 
+    @GET
+    @Path("vej/{kommune}")
+    @Transactional
+    public String vej(@PathParam("kommune") String kommune, @QueryParam("format") String formatStr) {
+        return this.vej(kommune, null, formatStr);
+    }
 
+    @GET
+    @Path("vej/{kommune}/{search}")
+    @Transactional
+    public String vej(@PathParam("kommune") String kommune, @PathParam("search") String search, @QueryParam("format") String formatStr) {
+        Format fmt = this.getFormat(formatStr);
+        try {
+            return this.format("veje", new ArrayList<OutputFormattable>(this.getVeje(kommune, search)), fmt);
+        } catch (InputError error) {
+            return this.format("error", error, fmt);
+        }
+    }
 
+    private List<NavngivenVejEntity> getVeje(String kommune, String search) throws InputError {
+        List<KommuneEntity> matchingKommuner = this.getKommuner(kommune);
+        ArrayList<NavngivenVejEntity> matches = new ArrayList<NavngivenVejEntity>();
+
+        if (search == null) {
+            for (KommuneEntity matchingKommune : matchingKommuner) {
+                matches.addAll(this.navngivenVejRepository.getByKommunekode(matchingKommune.getKommunekode()));
+            }
+        } else if (this.onlyDigits.matcher(search).matches()) {
+            for (KommuneEntity matchingKommune : matchingKommuner) {
+                matches.addAll(this.navngivenVejRepository.getByKommunekodeAndVejkode(matchingKommune.getKommunekode(), Integer.parseInt(search,10)));
+            }
+        } else {
+            for (KommuneEntity matchingKommune : matchingKommuner) {
+                matches.addAll(this.navngivenVejRepository.getByKommunekodeAndVejnavn(matchingKommune.getKommunekode(), "%" + search + "%"));
+            }
+        }
+        return matches;
+    }
 
 
 
     //------------------------------------------------------------------------------------------------------------------
 
-/*
+
+
+
+
 
     @GET
     @Path("address/{kommune}")
-    public String address(@PathParam("kommune") String kommune) {
-        return this.address(kommune, null, null);
+    @Transactional
+    public String husnummer(@PathParam("kommune") String kommune, @QueryParam("format") String formatStr) {
+        return this.husnummer(kommune, null, null, null, formatStr);
     }
 
     @GET
     @Path("address/{kommune}/{vej}")
-    public String address(@PathParam("kommune") String kommune, @PathParam("vej") String vej) {
-        return this.address(kommune, vej, null);
+    @Transactional
+    public String husnummer(@PathParam("kommune") String kommune, @PathParam("vej") String vej, @QueryParam("format") String formatStr) {
+        return this.husnummer(kommune, vej, null, null, formatStr);
     }
 
     @GET
     @Path("address/{kommune}/{vej}/{postnr}")
-    public String address(@PathParam("kommune") String kommune, @PathParam("vej") String vej, @PathParam("postnr") String postnr) {
-
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("kommune",kommune);
-        jsonObject.put("vej",vej);
-        jsonObject.put("postnr",postnr);
-
-        return jsonObject.toString();
+    @Transactional
+    public String husnummer(@PathParam("kommune") String kommune, @PathParam("vej") String vej, @PathParam("postnr") String postnr, @QueryParam("format") String formatStr) {
+        return this.husnummer(kommune, vej, postnr, null, formatStr);
     }
 
-*/
+    @GET
+    @Path("address/{kommune}/{vej}/{postnr}/{husnr}")
+    @Transactional
+    public String husnummer(@PathParam("kommune") String kommune, @PathParam("vej") String vej, @PathParam("postnr") String postnr, @PathParam("husnr") String husnr, @QueryParam("format") String formatStr) {
+        Format fmt = this.getFormat(formatStr);
+        try {
+            return this.format("veje", new ArrayList<OutputFormattable>(this.getHusnumre(kommune, vej, postnr, husnr)), fmt);
+        } catch (InputError error) {
+            return this.format("error", error, fmt);
+        }
+    }
+
+    private List<HusnummerEntity> getHusnumre(String kommune, String vej, String postnr, String husnr) throws InputError {
+        List<NavngivenVejEntity> matchingVeje = this.getVeje(kommune, vej);
+        ArrayList<HusnummerEntity> matches = new ArrayList<HusnummerEntity>();
+
+        if (postnr == null && husnr != null) {
+            for (NavngivenVejEntity navngivenVejEntity : matchingVeje) {
+                matches.addAll(this.husnummerRepository.getByNavngivenvejAndHusnr(navngivenVejEntity, "%" + husnr + "%"));
+            }
+        } else if (postnr != null && husnr == null) {
+            for (NavngivenVejEntity navngivenVejEntity : matchingVeje) {
+                matches.addAll(this.husnummerRepository.getByNavngivenvejAndPostnr(navngivenVejEntity, Integer.parseInt(postnr, 10)));
+            }
+        } else if (postnr != null && husnr != null) {
+            for (NavngivenVejEntity navngivenVejEntity : matchingVeje) {
+                matches.addAll(this.husnummerRepository.getByNavngivenvejAndPostnrAndHusnr(navngivenVejEntity, Integer.parseInt(postnr, 10), "%" + husnr + "%"));
+            }
+        }
+        return matches;
+    }
+
+
 
 
     //------------------------------------------------------------------------------------------------------------------
@@ -159,30 +244,36 @@ public class SearchService {
     }
 
     private String formatJSON(String key, List<OutputFormattable> output) {
+        // Setup JSON structure
         JSONArray list = new JSONArray();
+        JSONObject object = new JSONObject();
+        object.put(key, list);
+
+        // Insert items in JSON structure
         for (OutputFormattable item : output) {
             list.put(item.toJSON());
         }
-        JSONObject object = new JSONObject();
-        object.put(key, list);
+
+        // Export JSON structure as string
         return object.toString();
     }
 
     private String formatXML(String key, List<OutputFormattable> output) {
         try {
+            // Setup XML structure
             final MessageFactory messageFactory = MessageFactory.newInstance();
             SOAPMessage soapMessage = messageFactory.createMessage();
             SOAPEnvelope soapEnvelope = soapMessage.getSOAPPart().getEnvelope();
+            //soapEnvelope.setPrefix("magenta");
             SOAPBody soapBody = soapEnvelope.getBody();
 
-
+            // Insert items in XML structure
             Node list = soapBody.addChildElement(key);
             for (OutputFormattable item : output) {
                 list.appendChild(item.toXML(soapBody, soapEnvelope));
             }
 
-
-
+            // Export XML structure as string
             final StringWriter sw = new StringWriter();
             try {
                 TransformerFactory.newInstance().newTransformer().transform(

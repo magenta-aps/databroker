@@ -1,17 +1,19 @@
 package dk.magenta.databroker.cprvejregister.model.husnummer;
 
-import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
+import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.core.model.oio.UniqueBase;
-import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktEntity;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
 import org.hibernate.annotations.Index;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.json.JSONObject;
 
 import javax.persistence.*;
+import javax.xml.soap.Node;
+import javax.xml.soap.SOAPElement;
+import javax.xml.soap.SOAPEnvelope;
+import javax.xml.soap.SOAPException;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -19,7 +21,9 @@ import java.util.Collection;
  */
 @Entity
 @Table(name = "husnummer")
-public class HusnummerEntity extends UniqueBase implements Serializable {
+public class HusnummerEntity
+        extends UniqueBase
+        implements Serializable, OutputFormattable {
 
     public HusnummerEntity() {
     }
@@ -49,6 +53,14 @@ public class HusnummerEntity extends UniqueBase implements Serializable {
     @Index(name = "husnummerbetegnelse")
     private String husnummerbetegnelse;
 
+    public AdgangspunktEntity getAdgangspunkt() {
+        return adgangspunkt;
+    }
+
+    public void setAdgangspunkt(AdgangspunktEntity adgangspunkt) {
+        this.adgangspunkt = adgangspunkt;
+    }
+
     public NavngivenVejEntity getNavngivenVej() {
         return this.navngivenVej;
     }
@@ -64,18 +76,23 @@ public class HusnummerEntity extends UniqueBase implements Serializable {
     public void setHusnummerbetegnelse(String husnummerbetegnelse) {
         this.husnummerbetegnelse = husnummerbetegnelse;
     }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    public JSONObject toJSON() {
+        JSONObject obj = new JSONObject();
+        obj.put("husnr", this.getHusnummerbetegnelse());
+        return obj;
+    }
+
+    public Node toXML(SOAPElement parent, SOAPEnvelope envelope) {
+        try {
+            SOAPElement node = parent.addChildElement("vej");
+            node.addAttribute(envelope.createName("husnr"), this.getHusnummerbetegnelse());
+            return node;
+        } catch (SOAPException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }
-
-
-/*
-@Basic
-@Column(name = "husnummerbetegnelse", nullable = true, insertable = true, updatable = true, length = 255)
-private String husnummerbetegnelse;
-
-@OneToMany(mappedBy = "husnummer")
-private Collection<AdresseEntity> adresser;
-
-@ManyToOne(fetch = FetchType.LAZY)
-@JoinColumn(name = "tilknyttet_adgangspunkt_id", nullable = true)
-private AdgangspunktEntity tilknyttetAdgangspunkt;
-*/

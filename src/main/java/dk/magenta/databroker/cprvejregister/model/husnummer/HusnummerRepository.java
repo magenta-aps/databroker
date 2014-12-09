@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -22,6 +23,31 @@ public interface HusnummerRepository extends JpaRepository<HusnummerEntity, Long
     public HusnummerEntity getByKommunekodeAndVejkodeAndHusnr(@Param("kommunekode") int kommunekode, @Param("vej") int vejkode, @Param("husnr") String husNr);
 
     @Query("select hus from HusnummerEntity hus " +
-            "where hus.navngivenVej = :vej and hus.husnummerbetegnelse = :husnr")
-    public HusnummerEntity getByNavngivenvejAndHusnr(@Param("vej") NavngivenVejEntity vej, @Param("husnr") String husNr);
+            "where hus.navngivenVej = :vej " +
+            "and hus.husnummerbetegnelse = :husnr")
+    public HusnummerEntity findByNavngivenvejAndHusnr(@Param("vej") NavngivenVejEntity vej, @Param("husnr") String husNr);
+
+    @Query("select hus from HusnummerEntity hus " +
+            "where hus.navngivenVej = :vej " +
+            "and hus.husnummerbetegnelse like :husnr " +
+            "order by hus.husnummerbetegnelse")
+    public Collection<HusnummerEntity> getByNavngivenvejAndHusnr(@Param("vej") NavngivenVejEntity vej, @Param("husnr") String husNr);
+
+
+    @Query("select hus from HusnummerEntity hus " +
+            "join hus.adgangspunkt punkt " +
+            "join punkt.latestVersion punktversion " +
+            "join punktversion.liggerIPostnummer postnr " +
+            "where hus.navngivenVej = :vej " +
+            "and postnr.nummer = :husnr ")
+    public Collection<HusnummerEntity> getByNavngivenvejAndPostnr(@Param("vej") NavngivenVejEntity vej, @Param("postnr") int postnr);
+
+    @Query("select hus from HusnummerEntity hus " +
+            "join hus.adgangspunkt punkt " +
+            "join punkt.latestVersion punktversion " +
+            "join punktversion.liggerIPostnummer postnr " +
+            "where hus.navngivenVej = :vej " +
+            "and postnr.nummer = :husnr " +
+            "and hus.husnummerbetegnelse")
+    public Collection<HusnummerEntity> getByNavngivenvejAndPostnrAndHusnr(@Param("vej") NavngivenVejEntity vej, @Param("postnr") int postnr, @Param("husnr") String husnr);
 }
