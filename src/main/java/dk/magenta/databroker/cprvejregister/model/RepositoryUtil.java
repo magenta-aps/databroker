@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
  */
 public abstract class RepositoryUtil {
 
-    private static final Pattern onlyDigits = Pattern.compile("^\\*?\\d+|\\d+\\*?$"); // Match a string containing only digits and optional leading an trailing wildcards
+    private static final Pattern onlyDigits = Pattern.compile("^\\*?\\d+\\*?$"); // Match a string containing only digits and optional leading and/or trailing wildcards
     private static final Pattern hasWildcard = Pattern.compile("^.*\\*.*$"); // Match a string that has a leading or trailing wildcard
     private static final String surroundingWildcards = "^\\*+|\\*+$"; // For replacement; finds any series of leading or trailing wildcards
     private static final String LIKE = "like";
