@@ -3,6 +3,8 @@ package dk.magenta.databroker.service.rest;
 import dk.magenta.databroker.component.DataBean;
 import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.core.testmodel.TestAddressRepository;
+import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
+import dk.magenta.databroker.cprvejregister.model.adresse.AdresseRepository;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerRepository;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
@@ -66,6 +68,9 @@ public class SearchService {
 
     @Autowired
     private HusnummerRepository husnummerRepository;
+
+    @Autowired
+    private AdresseRepository adresseRepository;
 
     @Autowired
     private PostnummerRepository postnummerRepository;
@@ -176,14 +181,14 @@ public class SearchService {
     @Path("husnr/{kommune}")
     @Transactional
     public String husnummer(@PathParam("kommune") String kommune, @QueryParam("format") String formatStr) {
-        return this.husnummer(kommune, null, null, null, formatStr);
+        return this.husnummer(kommune, null, formatStr);
     }
 
     @GET
     @Path("husnr/{kommune}/{vej}")
     @Transactional
     public String husnummer(@PathParam("kommune") String kommune, @PathParam("vej") String vej, @QueryParam("format") String formatStr) {
-        return this.husnummer(kommune, vej, null, null, formatStr);
+        return this.husnummer(kommune, vej, null, formatStr);
     }
 
     @GET
@@ -216,6 +221,68 @@ public class SearchService {
         );
     }
 
+//------------------------------------------------------------------------------------------------------------------
+
+    @GET
+    @Path("adresse/{kommune}")
+    @Transactional
+    public String adresse(@PathParam("kommune") String kommune, @QueryParam("format") String formatStr) {
+        return this.adresse(kommune, null, formatStr);
+    }
+
+    @GET
+    @Path("adresse/{kommune}/{vej}")
+    @Transactional
+    public String adresse(@PathParam("kommune") String kommune, @PathParam("vej") String vej, @QueryParam("format") String formatStr) {
+        return this.adresse(kommune, vej, null, formatStr);
+    }
+
+    @GET
+    @Path("adresse/{kommune}/{vej}/{postnr}")
+    @Transactional
+    public String adresse(@PathParam("kommune") String kommune, @PathParam("vej") String vej, @PathParam("postnr") String postnr, @QueryParam("format") String formatStr) {
+        return this.adresse(kommune, vej, postnr, null, formatStr);
+    }
+
+    @GET
+    @Path("adresse/{kommune}/{vej}/{postnr}/{husnr}")
+    @Transactional
+    public String adresse(@PathParam("kommune") String kommune, @PathParam("vej") String vej, @PathParam("postnr") String postnr, @PathParam("husnr") String husnr, @QueryParam("format") String formatStr) {
+        return this.adresse(kommune, vej, postnr, husnr, null, formatStr);
+    }
+
+    @GET
+    @Path("adresse/{kommune}/{vej}/{postnr}/{husnr}/{etage}")
+    @Transactional
+    public String adresse(@PathParam("kommune") String kommune, @PathParam("vej") String vej, @PathParam("postnr") String postnr, @PathParam("husnr") String husnr, @PathParam("etage") String etage, @QueryParam("format") String formatStr) {
+        return this.adresse(kommune, vej, postnr, husnr, etage, null, formatStr);
+    }
+
+
+    @GET
+    @Path("adresse/{kommune}/{vej}/{postnr}/{husnr}/{etage}/{doer}")
+    @Transactional
+    public String adresse(@PathParam("kommune") String kommune, @PathParam("vej") String vej, @PathParam("postnr") String postnr, @PathParam("husnr") String husnr, @PathParam("etage") String etage, @PathParam("doer") String doer, @QueryParam("format") String formatStr) {
+        Format fmt = this.getFormat(formatStr);
+        try {
+            return this.format("husnumre", new ArrayList<OutputFormattable>(this.getAdresser(kommune, vej, postnr, husnr, etage, doer)), fmt);
+        } catch (InputError error) {
+            return this.format("error", error, fmt);
+        }
+    }
+
+    private List<AdresseEntity> getAdresser(String kommune, String vej, String postnr, String husnr, String etage, String doer) throws InputError {
+        return new ArrayList<AdresseEntity>(
+                this.adresseRepository.search(
+                        this.cleanInput(kommune),
+                        this.cleanInput(vej),
+                        this.cleanInput(postnr),
+                        this.cleanInput(husnr),
+                        this.cleanInput(etage),
+                        this.cleanInput(doer)
+                )
+        );
+    }
 
 
 

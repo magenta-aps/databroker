@@ -18,9 +18,6 @@ public interface AdresseRepository extends JpaRepository<AdresseEntity, Long> {
             "and version.etageBetegnelse = :etage")
     public AdresseEntity findByHusnummerAndDoerbetegnelseAndEtagebetegnelse(@Param("husnummer") HusnummerEntity husnummer, @Param("doer") String doerbetegnelse, @Param("etage") String etagebetegnelse);
 
-
-
-
     @Query("select adresse from AdresseEntity adresse " +
             "join adresse.husnummer husnummer " +
             "join husnummer.navngivenVej vej " +
@@ -32,4 +29,5 @@ public interface AdresseRepository extends JpaRepository<AdresseEntity, Long> {
     public Collection<AdresseEntity> findByKommuneNavn(@Param("kommuneNavn") String kommuneNavn);
 
 
+    public Collection<AdresseEntity> search(String kommune, String vej, String postnr, String husnr, String etage, String doer);
 }

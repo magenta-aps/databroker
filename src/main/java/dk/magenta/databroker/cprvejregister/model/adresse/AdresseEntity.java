@@ -1,13 +1,19 @@
 package dk.magenta.databroker.cprvejregister.model.adresse;
 
+import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.doerpunkt.DoerpunktEntity;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
 import org.hibernate.annotations.Index;
+import org.json.JSONObject;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
+import javax.xml.soap.Node;
+import javax.xml.soap.SOAPElement;
+import javax.xml.soap.SOAPEnvelope;
+import javax.xml.soap.SOAPException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,7 +25,7 @@ import java.util.Collection;
 @Table(name = "adresse")
 public class AdresseEntity
         extends DobbeltHistorikBase<AdresseEntity, AdresseVersionEntity>
-        implements Serializable {
+        implements Serializable, OutputFormattable {
 
     @OneToMany(mappedBy = "entity", cascade = CascadeType.ALL)
     private Collection<AdresseVersionEntity> versions;
@@ -97,5 +103,32 @@ public class AdresseEntity
 
     public void setDoerPunkt(DoerpunktEntity doerPunkt) {
         this.doerPunkt = doerPunkt;
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    public JSONObject toJSON() {
+        JSONObject obj = new JSONObject();
+        obj.put("vejnavn", this.getHusnummer().getNavngivenVej().getLatestVersion().getVejnavn());
+        obj.put("husnr", this.getHusnummer().getHusnummerbetegnelse());
+        obj.put("etage", this.getLatestVersion().getEtageBetegnelse());
+        obj.put("doer", this.getLatestVersion().getDoerBetegnelse());
+        /*obj.put("postnr", this.getAdgangspunkt().getLatestVersion().getLiggerIPostnummer().getNummer());*/
+        return obj;
+    }
+
+    public Node toXML(SOAPElement parent, SOAPEnvelope envelope) {
+        try {
+            SOAPElement node = parent.addChildElement("vej");
+            node.addAttribute(envelope.createName("vejnavn"), this.getHusnummer().getNavngivenVej().getLatestVersion().getVejnavn());
+            node.addAttribute(envelope.createName("husnr"), this.getHusnummer().getHusnummerbetegnelse());
+            node.addAttribute(envelope.createName("etage"), this.getLatestVersion().getEtageBetegnelse());
+            node.addAttribute(envelope.createName("doer"), this.getLatestVersion().getDoerBetegnelse());
+            /*node.addAttribute(envelope.createName("postnr"), ""+this.getAdgangspunkt().getLatestVersion().getLiggerIPostnummer().getNummer());*/
+            return node;
+        } catch (SOAPException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
