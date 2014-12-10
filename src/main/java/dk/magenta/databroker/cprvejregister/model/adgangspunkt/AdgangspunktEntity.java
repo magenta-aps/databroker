@@ -79,7 +79,7 @@ public class AdgangspunktEntity
     * Fields on the entity
     * */
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private HusnummerEntity husnummer;
 
     public HusnummerEntity getHusnummer() {

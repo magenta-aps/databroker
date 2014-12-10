@@ -1,12 +1,20 @@
 package dk.magenta.databroker.cprvejregister.model.postnummer;
 
+import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktVersionEntity;
+import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
 import org.hibernate.annotations.Index;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
+import javax.xml.soap.Node;
+import javax.xml.soap.SOAPElement;
+import javax.xml.soap.SOAPEnvelope;
+import javax.xml.soap.SOAPException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,7 +26,7 @@ import java.util.Collection;
 @Table(name = "postnummer")
 public class PostnummerEntity
         extends DobbeltHistorikBase<PostnummerEntity, PostnummerVersionEntity>
-        implements Serializable {
+        implements Serializable, OutputFormattable {
 
 
     protected PostnummerEntity() {
@@ -112,4 +120,28 @@ public class PostnummerEntity
         return repositoryCollection.postnummerRepository;
     }
 
+
+
+
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    public JSONObject toJSON() {
+        JSONObject obj = new JSONObject();
+        obj.put("navn", this.getLatestVersion().getNavn());
+        obj.put("postnummer", this.getNummer());
+        return obj;
+    }
+
+    public Node toXML(SOAPElement parent, SOAPEnvelope envelope) {
+        try {
+            SOAPElement node = parent.addChildElement("vej");
+            node.addAttribute(envelope.createName("navn"), this.getLatestVersion().getNavn());
+            node.addAttribute(envelope.createName("postnummer"), ""+this.getNummer());
+            return node;
+        } catch (SOAPException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

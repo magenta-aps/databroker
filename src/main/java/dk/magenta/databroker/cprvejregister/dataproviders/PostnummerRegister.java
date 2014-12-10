@@ -3,8 +3,16 @@ package dk.magenta.databroker.cprvejregister.dataproviders;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.core.model.oio.RegistreringRepository;
+import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.Level1Container;
+import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.Level2Container;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.Record;
 import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
+import dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktEntity;
+import dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktVersionEntity;
+import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
+import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
+import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
+import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejRepository;
 import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerEntity;
 import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerRepository;
 import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerVersionEntity;
@@ -150,7 +158,8 @@ public class PostnummerRegister extends CprRegister {
     @Autowired
     private RegistreringRepository registreringRepository;
 
-
+    @Autowired
+    private NavngivenVejRepository navngivenVejRepository;
 
 
     /*
@@ -171,9 +180,8 @@ public class PostnummerRegister extends CprRegister {
     * Database save
     * */
 
-    protected void saveRunToDatabase(RegisterRun run, RepositoryCollection repositories) {
-
-        PostnummerRepository postnummerRepository = repositories.postnummerRepository;
+    protected void saveRunToDatabase(RegisterRun run) {
+        this.createRegistreringEntities();
 
         PostnummerRegisterRun prun = (PostnummerRegisterRun) run;
 
@@ -183,6 +191,8 @@ public class PostnummerRegister extends CprRegister {
             System.err.println("Insufficient repositories");
             return;
         }
+
+        Level1Container<PostnummerEntity> postnummerCache = new Level1Container<PostnummerEntity>();
 
         System.out.println("Storing PostnummerEntities in database");
 
@@ -197,13 +207,14 @@ public class PostnummerRegister extends CprRegister {
                 postnummerEntity = PostnummerEntity.create();
                 postnummerEntity.setNummer(postNummer);
                 postnummerVersion = postnummerEntity.addVersion(createRegistrering);
-                postnummerRepository.save(postnummerEntity);
                 counter.countCreatedItem();
 
             } else if (!postnummerEntity.getLatestVersion().getNavn().equals(navn)) {
                 postnummerVersion = postnummerEntity.addVersion(updateRegistrering);
                 counter.countUpdatedItem();
             }
+
+            postnummerCache.put(postNummer, postnummerEntity);
 
             if (postnummerVersion != null) {
                 postnummerVersion.setNavn(navn);
@@ -214,5 +225,69 @@ public class PostnummerRegister extends CprRegister {
         prun.printFinalInputsProcessed();
         System.out.println("Stored PostnummerEntities in database:");
         counter.printModifications();
+
+
+
+        Level2Container<NavngivenVejEntity> navngivenVejCache = new Level2Container<NavngivenVejEntity>();
+        Collection<NavngivenVejEntity> navngivenVejEntities = this.navngivenVejRepository.findAll();
+        for (NavngivenVejEntity navngivenVejEntity : navngivenVejEntities) {
+            for (KommunedelAfNavngivenVejEntity kommunedelAfNavngivenVejEntity : navngivenVejEntity.getLatestVersion().getKommunedeleAfNavngivenVej()) {
+                navngivenVejCache.put(kommunedelAfNavngivenVejEntity.getKommune().getKommunekode(), kommunedelAfNavngivenVejEntity.getVejkode(), navngivenVejEntity);
+            }
+        }
+
+        for (Record record : prun) {
+            try {
+                PostNummer postnummerRecord = (PostNummer) record;
+                int postnummer = postnummerRecord.getInt("postNr");
+                PostnummerEntity postnummerEntity = postnummerCache.get(postnummer);
+                if (postnummerEntity != null) {
+                    NavngivenVejEntity navngivenVejEntity = navngivenVejCache.get(postnummerRecord.getInt("kommuneKode"), postnummerRecord.getInt("vejKode"));
+                    if (navngivenVejEntity != null) {
+                        //System.out.println("Found: ("+postnummerRecord.getInt("kommuneKode")+":"+postnummerRecord.getInt("vejKode")+") = "+navngivenVejEntity.getLatestVersion().getVejnavn());
+                        Collection<HusnummerEntity> husnumre = navngivenVejEntity.getHusnumre();
+
+                        int husNrFra = postnummerRecord.getInt("husNrFra");
+                        int husNrTil = postnummerRecord.getInt("husNrTil");
+                        boolean husNrLige = postnummerRecord.get("ligeUlige").equals("L");
+
+
+                        for (HusnummerEntity husnummerEntity : husnumre) {
+                            String husnummerBetegnelse = husnummerEntity.getHusnummerbetegnelse().replaceAll("[^\\d]", "");
+                            if (!husnummerBetegnelse.isEmpty()) {
+                                //System.out.println(navngivenVejEntity.getLatestVersion().getVejnavn() + " " + husnummerEntity.getHusnummerbetegnelse());
+                                int nummer = Integer.parseInt(husnummerBetegnelse, 10);
+                                //System.out.println(husnummerEntity.getId() + " / " + nummer + " vs " + husNrFra + "-" + husNrTil + "(" + husNrLige + ")");
+                                if (
+                                        (nummer % 2 == 0) == husNrLige &&
+                                                nummer >= husNrFra &&
+                                                nummer <= husNrTil
+                                        ) {
+                                    if (husnummerEntity != null) {
+                                        AdgangspunktEntity adgangspunktEntity = husnummerEntity.getAdgangspunkt();
+                                        if (adgangspunktEntity != null) {
+                                            AdgangspunktVersionEntity adgangspunktVersionEntity = adgangspunktEntity.getLatestVersion();
+                                            if (adgangspunktVersionEntity != null) {
+                                                adgangspunktVersionEntity.setLiggerIPostnummer(postnummerEntity); // TODO: gør noget ved brugen af "latest"
+                                            } else {
+                                                System.out.println(navngivenVejEntity.getLatestVersion().getVejnavn() + " " + husnummerEntity.getHusnummerbetegnelse());
+                                                System.out.println("adgangspunktVersionEntity is null");
+                                            }
+                                        } else {
+                                            System.out.println(navngivenVejEntity.getLatestVersion().getVejnavn() + " " + husnummerEntity.getHusnummerbetegnelse());
+                                            System.out.println("adgangspunktEntity is null");
+                                        }
+                                    } else {
+                                        System.out.println(navngivenVejEntity.getLatestVersion().getVejnavn() + " " + husnummerEntity.getHusnummerbetegnelse());
+                                        System.out.println("husnummerEntity is null");
+                                    }
+                                }
+                            }
+                        }
+                        navngivenVejRepository.save(navngivenVejEntity);
+                    }
+                }
+            } catch (ClassCastException e) {}
+        }
     }
 }

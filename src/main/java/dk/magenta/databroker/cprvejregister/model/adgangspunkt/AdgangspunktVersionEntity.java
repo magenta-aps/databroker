@@ -41,35 +41,43 @@ public class AdgangspunktVersionEntity
          ********************************************************************************/
 
         @Basic
-        @Column(name = "status", nullable = false, insertable = true, updatable = true, length = 255)
+        @Column(name = "status", nullable = true, insertable = true, updatable = true, length = 255)
         private String status;
 
         @Basic
-        @Column(name = "noejagtighedsklasse", nullable = false, insertable = true, updatable = true, length = 255)
+        @Column(name = "noejagtighedsklasse", nullable = true, insertable = true, updatable = true, length = 255)
         private String noejagtighedsklasse;
 
         @Basic
-        @Column(name = "kilde", nullable = false, insertable = true, updatable = true, length = 255)
+        @Column(name = "kilde", nullable = true, insertable = true, updatable = true, length = 255)
         private String kilde;
 
         @Basic
-        @Column(name = "teknisk_standard", nullable = false, insertable = true, updatable = true, length = 255)
+        @Column(name = "teknisk_standard", nullable = true, insertable = true, updatable = true, length = 255)
         private String tekniskStandard;
 
         @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "ligger_i_postnummer_id", nullable = false)
+        @JoinColumn(name = "ligger_i_postnummer_id", nullable = true)
         private PostnummerEntity liggerIPostnummer;
 
+        public PostnummerEntity getLiggerIPostnummer() {
+                return liggerIPostnummer;
+        }
+
+        public void setLiggerIPostnummer(PostnummerEntity liggerIPostnummer) {
+                this.liggerIPostnummer = liggerIPostnummer;
+        }
+
         @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "position_id", nullable = false)
+        @JoinColumn(name = "position_id", nullable = true)
         private IsoPunktEntity position;
 
         @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "adgangspunktsretning_id", nullable = false)
+        @JoinColumn(name = "adgangspunktsretning_id", nullable = true)
         private IsoPunktEntity adgangspunktsretning;
 
         @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "husnummerretning_id", nullable = false)
+        @JoinColumn(name = "husnummerretning_id", nullable = true)
         private IsoPunktEntity husnummerretning;
 
 

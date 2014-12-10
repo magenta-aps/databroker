@@ -39,7 +39,7 @@ public class HusnummerEntity
     * Fields on the entity
     * */
 
-    @OneToOne(mappedBy = "husnummer", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "husnummer", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private AdgangspunktEntity adgangspunkt;
 
     @OneToMany(mappedBy = "husnummer", fetch = FetchType.LAZY)
@@ -81,14 +81,18 @@ public class HusnummerEntity
 
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
+        obj.put("vejnavn", this.getNavngivenVej().getLatestVersion().getVejnavn());
         obj.put("husnr", this.getHusnummerbetegnelse());
+        /*obj.put("postnr", this.getAdgangspunkt().getLatestVersion().getLiggerIPostnummer().getNummer());*/
         return obj;
     }
 
     public Node toXML(SOAPElement parent, SOAPEnvelope envelope) {
         try {
             SOAPElement node = parent.addChildElement("vej");
+            node.addAttribute(envelope.createName("vejnavn"), this.getNavngivenVej().getLatestVersion().getVejnavn());
             node.addAttribute(envelope.createName("husnr"), this.getHusnummerbetegnelse());
+            /*node.addAttribute(envelope.createName("postnr"), ""+this.getAdgangspunkt().getLatestVersion().getLiggerIPostnummer().getNummer());*/
             return node;
         } catch (SOAPException e) {
             e.printStackTrace();

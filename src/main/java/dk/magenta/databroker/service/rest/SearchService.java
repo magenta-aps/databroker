@@ -3,13 +3,14 @@ package dk.magenta.databroker.service.rest;
 import dk.magenta.databroker.component.DataBean;
 import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.core.testmodel.TestAddressRepository;
-import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerRepository;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneRepository;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejRepository;
+import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerEntity;
+import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerRepository;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +66,9 @@ public class SearchService {
 
     @Autowired
     private HusnummerRepository husnummerRepository;
+
+    @Autowired
+    private PostnummerRepository postnummerRepository;
 
 
     @GET
@@ -164,61 +168,71 @@ public class SearchService {
 
     //------------------------------------------------------------------------------------------------------------------
 
+    @GET
+    @Path("postnr/{search}")
+    @Transactional
+    public String postnummer(@PathParam("search") String search, @QueryParam("format") String formatStr) {
+        Format fmt = this.getFormat(formatStr);
+        try {
+            return this.format("postnumre", new ArrayList<OutputFormattable>(this.getPostnumre(search)), fmt);
+        } catch (InputError error) {
+            return this.format("error", error, fmt);
+        }
+    }
+
+    private List<PostnummerEntity> getPostnumre(String search) throws InputError {
+        ArrayList<PostnummerEntity> matches = new ArrayList<PostnummerEntity>();
+        if (this.onlyDigits.matcher(search).matches()) {
+            matches.addAll(this.postnummerRepository.getByNummer("%" + search + "%"));
+        } else {
+            matches.addAll(this.postnummerRepository.getByNavn("%"+search+"%"));
+        }
+        return matches;
+    }
 
 
-
-
+    //------------------------------------------------------------------------------------------------------------------
 
     @GET
-    @Path("address/{kommune}")
+    @Path("husnr/{kommune}")
     @Transactional
     public String husnummer(@PathParam("kommune") String kommune, @QueryParam("format") String formatStr) {
         return this.husnummer(kommune, null, null, null, formatStr);
     }
 
     @GET
-    @Path("address/{kommune}/{vej}")
+    @Path("husnr/{kommune}/{vej}")
     @Transactional
     public String husnummer(@PathParam("kommune") String kommune, @PathParam("vej") String vej, @QueryParam("format") String formatStr) {
         return this.husnummer(kommune, vej, null, null, formatStr);
     }
 
     @GET
-    @Path("address/{kommune}/{vej}/{postnr}")
+    @Path("husnr/{kommune}/{vej}/{postnr}")
     @Transactional
     public String husnummer(@PathParam("kommune") String kommune, @PathParam("vej") String vej, @PathParam("postnr") String postnr, @QueryParam("format") String formatStr) {
         return this.husnummer(kommune, vej, postnr, null, formatStr);
     }
 
     @GET
-    @Path("address/{kommune}/{vej}/{postnr}/{husnr}")
+    @Path("husnr/{kommune}/{vej}/{postnr}/{husnr}")
     @Transactional
     public String husnummer(@PathParam("kommune") String kommune, @PathParam("vej") String vej, @PathParam("postnr") String postnr, @PathParam("husnr") String husnr, @QueryParam("format") String formatStr) {
+        System.out.println("kommune: "+kommune+", vej: "+vej+", postnr: "+postnr+", husnr: "+husnr);
         Format fmt = this.getFormat(formatStr);
         try {
-            return this.format("veje", new ArrayList<OutputFormattable>(this.getHusnumre(kommune, vej, postnr, husnr)), fmt);
+            return this.format("husnumre", new ArrayList<OutputFormattable>(this.getHusnumre(kommune, vej, postnr, husnr)), fmt);
         } catch (InputError error) {
             return this.format("error", error, fmt);
         }
     }
 
     private List<HusnummerEntity> getHusnumre(String kommune, String vej, String postnr, String husnr) throws InputError {
-        List<NavngivenVejEntity> matchingVeje = this.getVeje(kommune, vej);
-        ArrayList<HusnummerEntity> matches = new ArrayList<HusnummerEntity>();
-
-        if (postnr == null && husnr != null) {
-            for (NavngivenVejEntity navngivenVejEntity : matchingVeje) {
-                matches.addAll(this.husnummerRepository.getByNavngivenvejAndHusnr(navngivenVejEntity, "%" + husnr + "%"));
-            }
-        } else if (postnr != null && husnr == null) {
-            for (NavngivenVejEntity navngivenVejEntity : matchingVeje) {
-                matches.addAll(this.husnummerRepository.getByNavngivenvejAndPostnr(navngivenVejEntity, Integer.parseInt(postnr, 10)));
-            }
-        } else if (postnr != null && husnr != null) {
-            for (NavngivenVejEntity navngivenVejEntity : matchingVeje) {
-                matches.addAll(this.husnummerRepository.getByNavngivenvejAndPostnrAndHusnr(navngivenVejEntity, Integer.parseInt(postnr, 10), "%" + husnr + "%"));
-            }
-        }
+        kommune = this.cleanInput(kommune);
+        vej = this.cleanInput(vej);
+        postnr = this.cleanInput(postnr);
+        husnr = this.cleanInput(husnr);
+        ArrayList<HusnummerEntity> matches = new ArrayList<HusnummerEntity>(this.husnummerRepository.search(kommune, vej, postnr, husnr));
         return matches;
     }
 
@@ -289,6 +303,13 @@ public class SearchService {
         return null;
     }
 
+    //------------------------------------------------------------------------------------------------------------------
 
+    private String cleanInput(String s) {
+        if ("*".equals(s)) {
+            return null;
+        }
+        return s;
+    }
 
 }

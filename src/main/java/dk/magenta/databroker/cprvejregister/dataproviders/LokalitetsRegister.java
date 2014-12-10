@@ -6,6 +6,8 @@ import dk.magenta.databroker.core.model.oio.RegistreringRepository;
 import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.Level2Container;
 import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.Level3Container;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
+import dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktEntity;
+import dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktRepository;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseVersionEntity;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseRepository;
@@ -125,6 +127,9 @@ public class LokalitetsRegister extends CprRegister {
     @Autowired
     private RegistreringRepository registreringRepository;
 
+    @Autowired
+    private AdgangspunktRepository adgangspunktRepository;
+
 
     /*
     * Registration
@@ -186,8 +191,14 @@ public class LokalitetsRegister extends CprRegister {
             Level3Container<HusnummerEntity> husnummerCache = new Level3Container<HusnummerEntity>();
             Level3Container<AdresseEntity> adresseCache = new Level3Container<AdresseEntity>();
 
+            //int limit = 1000;
+
+
             for (Record record : run) {
                 if (record.getRecordType().equals(Lokalitet.RECORDTYPE_LOKALITET)) {
+
+                    //if (limit-- <= 0) break;
+
                     ArrayList<Long> times = new ArrayList<Long>();
 
                     Lokalitet lokalitet = (Lokalitet) record;
@@ -199,6 +210,7 @@ public class LokalitetsRegister extends CprRegister {
                     String status = "hephey";
 
                     AdresseEntity adresseEntity = null;
+                    AdgangspunktEntity adgangspunktEntity = null;
 
                     tic();
                     HusnummerEntity husNummerEntity = husnummerCache.get(kommuneKode, vejKode, husKode);
@@ -223,12 +235,29 @@ public class LokalitetsRegister extends CprRegister {
                             husnummerRepository.save(husNummerEntity);
                             navngivenVejCache.put(kommuneKode, vejKode, navngivenVejEntity);
                         }
+
+
+
+
                     } else {
                         //adresseEntity = adresseCache.get(husNummerEntity.getUuid(), sidedoer, etage);
                         if (adresseEntity == null) {
                             adresseEntity = adresseRepository.findByHusnummerAndDoerbetegnelseAndEtagebetegnelse(husNummerEntity, sidedoer, etage);
                         }
+
+                        adgangspunktEntity = husNummerEntity.getAdgangspunkt();
                     }
+
+                    if (adgangspunktEntity == null) {
+                        adgangspunktEntity = AdgangspunktEntity.create();
+                        adgangspunktEntity.addVersion(createRegistrering);
+                        adgangspunktEntity.setHusnummer(husNummerEntity);
+                        husNummerEntity.setAdgangspunkt(adgangspunktEntity);
+                        husnummerRepository.save(husNummerEntity);
+                    }
+
+
+
                     husnummerCache.put(kommuneKode, vejKode, husKode, husNummerEntity);
                     times.add(toc());
 
@@ -264,15 +293,20 @@ public class LokalitetsRegister extends CprRegister {
                         adresseVersion.setStatus(status);
                         adresseRepository.save(adresseEntity);
                     }
-                    times.add(toc());
+                    /*if (adgangspunktEntity != null) {
+                        this.adgangspunktRepository.save(adgangspunktEntity);
+                    }*/
 
+
+                    times.add(toc());
+/*
                     StringBuilder timeStr = new StringBuilder();
                     for (long time : times) {
                         timeStr.append(time);
                         timeStr.append(",");
                     }
                     System.out.println(timeStr.toString());
-
+*/
                     run.printInputProcessed();
                 }
 
