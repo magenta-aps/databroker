@@ -1,14 +1,13 @@
 package dk.magenta.databroker.cprvejregister.model.adresse;
 
 import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.StringList;
-import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
+import dk.magenta.databroker.cprvejregister.model.RepositoryUtil;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.regex.Pattern;
 
 /**
  * Created by lars on 09-12-14.
@@ -29,11 +28,11 @@ public class AdresseRepositoryImpl implements AdresseRepositoryCustom {
 
     @Override
     public Collection<AdresseEntity> search(String kommune, String vej, String post, String husnr, String etage, String doer) {
-        Pattern onlyDigits = Pattern.compile("^\\d+$");
 
         StringList hql = new StringList();
         StringList join = new StringList();
         HashMap<String, Object> parameters = new HashMap<String, Object>();
+        Object[] params;
 
         hql.append("select adresse from AdresseEntity as adresse");
 
@@ -43,53 +42,50 @@ public class AdresseRepositoryImpl implements AdresseRepositoryCustom {
         join.append("punkt.latestVersion punktversion");
 
         StringList where = new StringList();
-        if (kommune != null) {
-            if (onlyDigits.matcher(kommune).matches()) {
-                where.append("kommune.kommunekode = " + kommune);
-            } else {
-                where.append("kommune.latestVersion.navn like :kommuneNavn");
-                parameters.put("kommuneNavn", "%"+kommune+"%");
-            }
-        }
-        if (vej != null) {
-            if (onlyDigits.matcher(vej).matches()) {
-                where.append("delvej.vejKode = " + vej);
-            } else {
-                where.append("vejversion.vejnavn like :vejNavn");
-                parameters.put("vejNavn", "%"+vej+"%");
-            }
-        }
+
         if (kommune != null || vej != null) {
             join.append("hus.navngivenVej vej");
             join.append("vej.latestVersion vejversion");
             join.append("vejversion.kommunedeleAfNavngivenVej delvej");
+
             if (kommune != null) {
                 join.append("delvej.kommune kommune");
+                params = RepositoryUtil.whereField(kommune, "kommune.kommuneKode", "kommune.latestVersion.navn");
+                where.append(params[0] + " " + params[1] + " :kommune");
+                parameters.put("kommune", params[2]);
+            }
+
+            if (vej != null) {
+                params = RepositoryUtil.whereField(vej, "delvej.vejKode", "vejversion.vejnavn");
+                where.append(params[0] + " " + params[1] + " :vej");
+                parameters.put("vej", params[2]);
             }
         }
 
         if (post != null) {
             join.append("punktversion.liggerIPostnummer post");
-            if (onlyDigits.matcher(post).matches()) {
-                where.append("post.nummer = " + post);
-            } else {
-                where.append("post.latestVersion.navn like :postNavn");
-                parameters.put("postNavn", "%"+post+"%");
-            }
+            params = RepositoryUtil.whereField(post, "post.nummer", "post.latestVersion.navn");
+            where.append(params[0] + " " + params[1] + " :post");
+            parameters.put("post", params[2]);
         }
+
         if (husnr != null) {
-            where.append("hus.husnummerbetegnelse like :husNr");
-            parameters.put("husNr", "%"+husnr+"%");
+            params = RepositoryUtil.whereField(husnr, null, "hus.husnummerbetegnelse");
+            where.append(params[0] + " " + params[1] + " :husnr");
+            parameters.put("husnr", params[2]);
         }
+
         if (etage != null || doer != null) {
             join.append("adresse.latestVersion version");
             if (etage != null) {
-                where.append("version.etageBetegnelse like :etage");
-                parameters.put("etage", "%" + etage + "%");
+                params = RepositoryUtil.whereField(post, null, "version.etageBetegnelse");
+                where.append(params[0] + " " + params[1] + " :etage");
+                parameters.put("etage", params[2]);
             }
             if (doer != null) {
-                where.append("version.doerBetegnelse like :doer");
-                parameters.put("doer", "%" + doer + "%");
+                params = RepositoryUtil.whereField(post, null, "version.doerBetegnelse");
+                where.append(params[0] + " " + params[1] + " :doer");
+                parameters.put("doer", params[2]);
             }
         }
 
@@ -103,9 +99,11 @@ public class AdresseRepositoryImpl implements AdresseRepositoryCustom {
 
         hql.append("order by hus.husnummerbetegnelse");
 
+        System.out.println(hql.join(" "));
         Query q = this.entityManager.createQuery(hql.join(" "));
         for (String key : parameters.keySet()) {
             q.setParameter(key, parameters.get(key));
+            System.out.println(key+" = "+parameters.get(key));
         }
         return q.getResultList();
     }
