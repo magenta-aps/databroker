@@ -11,13 +11,5 @@ import java.util.Collection;
  */
 public interface PostnummerRepository extends JpaRepository<PostnummerEntity, Long> {
     public PostnummerEntity findByNummer(int nummer);
-
-    @Query("select postnr from PostnummerEntity postnr " +
-            "where cast(postnr.nummer as string) like :nummerpart")
-    public Collection<PostnummerEntity> getByNummer(@Param("nummerpart") String nummerPart);
-
-    @Query("select postnr from PostnummerEntity postnr " +
-            "join postnr.latestVersion version " +
-            "where version.navn like :navn")
-    public Collection<PostnummerEntity> getByNavn(@Param("navn") String navn);
+    public Collection<PostnummerEntity> search(String post);
 }

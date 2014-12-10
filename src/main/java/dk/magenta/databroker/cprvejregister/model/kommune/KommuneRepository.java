@@ -19,4 +19,6 @@ public interface KommuneRepository extends JpaRepository<KommuneEntity, Long> {
             "where version.navn like :navn "+
             "order by kom.kommunekode")
     public Collection<KommuneEntity> findByName(@Param("navn") String navn);
+
+    public Collection<KommuneEntity> search(String kommune);
 }

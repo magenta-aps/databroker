@@ -107,20 +107,12 @@ public class SearchService {
         }
     }
 
-    private List<KommuneEntity> getKommuner(String search) throws InputError {
-        if (search == null) {
-            throw new InputError("Invalid kommune id \""+search+"\"");
-        }
-        ArrayList<KommuneEntity> matches = new ArrayList<KommuneEntity>();
-        if (this.onlyDigits.matcher(search).matches()) {
-            KommuneEntity match = this.kommuneRepository.getByKommunekode(Integer.parseInt(search, 10));
-            if (match != null) {
-                matches.add(match);
-            }
-        } else {
-            matches.addAll(this.kommuneRepository.findByName("%"+search+"%"));
-        }
-        return matches;
+    private List<KommuneEntity> getKommuner(String kommune) throws InputError {
+        return new ArrayList<KommuneEntity>(
+                this.kommuneRepository.search(
+                        this.cleanInput(kommune)
+                )
+        );
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -144,24 +136,13 @@ public class SearchService {
         }
     }
 
-    private List<NavngivenVejEntity> getVeje(String kommune, String search) throws InputError {
-        List<KommuneEntity> matchingKommuner = this.getKommuner(kommune);
-        ArrayList<NavngivenVejEntity> matches = new ArrayList<NavngivenVejEntity>();
-
-        if (search == null) {
-            for (KommuneEntity matchingKommune : matchingKommuner) {
-                matches.addAll(this.navngivenVejRepository.getByKommunekode(matchingKommune.getKommunekode()));
-            }
-        } else if (this.onlyDigits.matcher(search).matches()) {
-            for (KommuneEntity matchingKommune : matchingKommuner) {
-                matches.addAll(this.navngivenVejRepository.getByKommunekodeAndVejkode(matchingKommune.getKommunekode(), Integer.parseInt(search,10)));
-            }
-        } else {
-            for (KommuneEntity matchingKommune : matchingKommuner) {
-                matches.addAll(this.navngivenVejRepository.getByKommunekodeAndVejnavn(matchingKommune.getKommunekode(), "%" + search + "%"));
-            }
-        }
-        return matches;
+    private List<NavngivenVejEntity> getVeje(String kommune, String vej) throws InputError {
+        return new ArrayList<NavngivenVejEntity>(
+                this.navngivenVejRepository.search(
+                        this.cleanInput(kommune),
+                        this.cleanInput(vej)
+                )
+        );
     }
 
 
@@ -180,14 +161,12 @@ public class SearchService {
         }
     }
 
-    private List<PostnummerEntity> getPostnumre(String search) throws InputError {
-        ArrayList<PostnummerEntity> matches = new ArrayList<PostnummerEntity>();
-        if (this.onlyDigits.matcher(search).matches()) {
-            matches.addAll(this.postnummerRepository.getByNummer("%" + search + "%"));
-        } else {
-            matches.addAll(this.postnummerRepository.getByNavn("%"+search+"%"));
-        }
-        return matches;
+    private List<PostnummerEntity> getPostnumre(String post) throws InputError {
+        return new ArrayList<PostnummerEntity>(
+                this.postnummerRepository.search(
+                        this.cleanInput(post)
+                )
+        );
     }
 
 
@@ -218,7 +197,6 @@ public class SearchService {
     @Path("husnr/{kommune}/{vej}/{postnr}/{husnr}")
     @Transactional
     public String husnummer(@PathParam("kommune") String kommune, @PathParam("vej") String vej, @PathParam("postnr") String postnr, @PathParam("husnr") String husnr, @QueryParam("format") String formatStr) {
-        System.out.println("kommune: "+kommune+", vej: "+vej+", postnr: "+postnr+", husnr: "+husnr);
         Format fmt = this.getFormat(formatStr);
         try {
             return this.format("husnumre", new ArrayList<OutputFormattable>(this.getHusnumre(kommune, vej, postnr, husnr)), fmt);
@@ -228,12 +206,14 @@ public class SearchService {
     }
 
     private List<HusnummerEntity> getHusnumre(String kommune, String vej, String postnr, String husnr) throws InputError {
-        kommune = this.cleanInput(kommune);
-        vej = this.cleanInput(vej);
-        postnr = this.cleanInput(postnr);
-        husnr = this.cleanInput(husnr);
-        ArrayList<HusnummerEntity> matches = new ArrayList<HusnummerEntity>(this.husnummerRepository.search(kommune, vej, postnr, husnr));
-        return matches;
+        return new ArrayList<HusnummerEntity>(
+                this.husnummerRepository.search(
+                        this.cleanInput(kommune),
+                        this.cleanInput(vej),
+                        this.cleanInput(postnr),
+                        this.cleanInput(husnr)
+                )
+        );
     }
 
 

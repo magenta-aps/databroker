@@ -1,10 +1,11 @@
-package dk.magenta.databroker.cprvejregister.model.husnummer;
+package dk.magenta.databroker.cprvejregister.model.navngivenvej;
 
 import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.StringList;
-import javax.persistence.Query;
+import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.regex.Pattern;
@@ -13,11 +14,11 @@ import java.util.regex.Pattern;
  * Created by lars on 09-12-14.
  */
 
-interface HusnummerRepositoryCustom {
-    public Collection<HusnummerEntity> search(String kommune, String vej, String post, String husnr);
+interface NavngivenVejRepositoryCustom {
+    public Collection<NavngivenVejEntity> search(String kommune, String vej);
 }
 
-public class HusnummerRepositoryImpl implements HusnummerRepositoryCustom {
+public class NavngivenVejRepositoryImpl implements NavngivenVejRepositoryCustom {
 
     private EntityManager entityManager;
 
@@ -27,18 +28,21 @@ public class HusnummerRepositoryImpl implements HusnummerRepositoryCustom {
     }
 
     @Override
-    public Collection<HusnummerEntity> search(String kommune, String vej, String post, String husnr) {
+    public Collection<NavngivenVejEntity> search(String kommune, String vej) {
         Pattern onlyDigits = Pattern.compile("^\\d+$");
 
         StringList hql = new StringList();
         StringList join = new StringList();
         HashMap<String, Object> parameters = new HashMap<String, Object>();
 
-        hql.append("select hus from HusnummerEntity as hus");
+        hql.append("select vej from NavngivenVejEntity as vej");
 
         join.setPrefix("join ");
-        join.append("hus.adgangspunkt punkt");
-        join.append("punkt.latestVersion punktversion");
+        join.append("vej.latestVersion vejversion");
+        join.append("vejversion.kommunedeleAfNavngivenVej delvej");
+        if (kommune != null) {
+            join.append("delvej.kommune kommune");
+        }
 
         StringList where = new StringList();
         if (kommune != null) {
@@ -57,28 +61,6 @@ public class HusnummerRepositoryImpl implements HusnummerRepositoryCustom {
                 parameters.put("vejNavn", "%"+vej+"%");
             }
         }
-        if (kommune != null || vej != null) {
-            join.append("hus.navngivenVej vej");
-            join.append("vej.latestVersion vejversion");
-            join.append("vejversion.kommunedeleAfNavngivenVej delvej");
-            if (kommune != null) {
-                join.append("delvej.kommune kommune");
-            }
-        }
-
-        if (post != null) {
-            join.append("punktversion.liggerIPostnummer post");
-            if (onlyDigits.matcher(post).matches()) {
-                where.append("post.nummer = " + post);
-            } else {
-                where.append("post.latestVersion.navn like :postNavn");
-                parameters.put("postNavn", "%"+post+"%");
-            }
-        }
-        if (husnr != null) {
-            where.append("hus.husnummerbetegnelse like :husNr");
-            parameters.put("husNr", "%"+husnr+"%");
-        }
 
         if (join.size()>0) {
             hql.append(join.join(" "));
@@ -87,8 +69,7 @@ public class HusnummerRepositoryImpl implements HusnummerRepositoryCustom {
             hql.append("where ");
             hql.append(where.join(" and "));
         }
-
-        hql.append("order by hus.husnummerbetegnelse");
+        hql.append("order by vejversion.vejnavn");
 
         Query q = this.entityManager.createQuery(hql.join(" "));
         for (String key : parameters.keySet()) {
