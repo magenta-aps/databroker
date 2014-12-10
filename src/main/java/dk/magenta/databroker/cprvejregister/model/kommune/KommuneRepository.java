@@ -1,5 +1,6 @@
 package dk.magenta.databroker.cprvejregister.model.kommune;
 
+import dk.magenta.databroker.cprvejregister.model.GlobalCondition;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,5 +21,5 @@ public interface KommuneRepository extends JpaRepository<KommuneEntity, Long> {
             "order by kom.kommunekode")
     public Collection<KommuneEntity> findByName(@Param("navn") String navn);
 
-    public Collection<KommuneEntity> search(String kommune);
+    public Collection<KommuneEntity> search(String kommune, GlobalCondition globalCondition);
 }

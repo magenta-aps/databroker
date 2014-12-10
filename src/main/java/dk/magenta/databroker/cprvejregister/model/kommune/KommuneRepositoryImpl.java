@@ -1,14 +1,18 @@
 package dk.magenta.databroker.cprvejregister.model.kommune;
 
 import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.StringList;
+import dk.magenta.databroker.cprvejregister.model.Condition;
+import dk.magenta.databroker.cprvejregister.model.GlobalCondition;
 import dk.magenta.databroker.cprvejregister.model.RepositoryUtil;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.regex.Pattern;
 
 /**
@@ -16,7 +20,7 @@ import java.util.regex.Pattern;
  */
 
 interface KommuneRepositoryCustom {
-    public Collection<KommuneEntity> search(String kommune);
+    public Collection<KommuneEntity> search(String kommune, GlobalCondition globalCondition);
 }
 
 public class KommuneRepositoryImpl implements KommuneRepositoryCustom {
@@ -29,29 +33,45 @@ public class KommuneRepositoryImpl implements KommuneRepositoryCustom {
     }
 
     @Override
-    public Collection<KommuneEntity> search(String kommune) {
+    public Collection<KommuneEntity> search(String kommune, GlobalCondition globalCondition) {
         StringList hql = new StringList();
-        HashMap<String, Object> parameters = new HashMap<String, Object>();
-        Object[] params;
+        StringList join = new StringList();
+        Condition.resetCounter();
+        ArrayList<Condition> conditions = new ArrayList<Condition>();
 
         hql.append("select kommune from KommuneEntity as kommune");
+        join.setPrefix("join ");
 
-        StringList where = new StringList();
         if (kommune != null) {
-            params = RepositoryUtil.whereField(kommune, "kommune.kommunekode", "kommune.latestVersion.navn");
-            where.append(params[0] + " " + params[1] + " :kommune");
-            parameters.put("kommune", params[2]);
+            conditions.add(RepositoryUtil.whereField(kommune, "kommune.kommunekode", "kommune.latestVersion.navn"));
+        }
+        if (globalCondition != null) {
+            conditions.addAll(globalCondition.whereField("kommune"));
         }
 
-        if (where.size()>0) {
-            hql.append("where ");
-            hql.append(where.join(" and "));
+        // our conditions list should now be complete
+
+        for (Condition c : conditions) {
+            if (c.hasRequiredJoin()) {
+                join.append(c.getRequiredJoin());
+            }
+        }
+
+        // our join list should now be complete
+
+        if (join.size()>0) {
+            hql.append(join.join(" "));
+        }
+        if (conditions.size() > 0) {
+            hql.append(Condition.concatWhere(conditions));
         }
         hql.append("order by kommune.kommunekode");
 
+        System.out.println(hql.join(" \n"));
         Query q = this.entityManager.createQuery(hql.join(" "));
-        for (String key : parameters.keySet()) {
-            q.setParameter(key, parameters.get(key));
+        for (Condition c : conditions) {
+            q.setParameter(c.getKey(), c.getValue());
+            System.out.println(c.getKey()+" = "+c.getValue());
         }
         return q.getResultList();
     }

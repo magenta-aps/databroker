@@ -1,9 +1,7 @@
 package dk.magenta.databroker.cprvejregister.model.adgangspunkt;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
-import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -38,10 +36,6 @@ public class AdgangspunktEntity
         AdgangspunktEntity entity = new AdgangspunktEntity();
         entity.generateNewUUID();
         return entity;
-    }
-
-    public JpaRepository getRepository(RepositoryCollection repositoryCollection) {
-        return repositoryCollection.adgangspunktRepository;
     }
 
     @Override

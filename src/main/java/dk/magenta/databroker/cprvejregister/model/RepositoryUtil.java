@@ -25,7 +25,7 @@ public abstract class RepositoryUtil {
     // If the search parameter contains letters and no wildcards, we want to search for that specific value (e.g. WHERE [nameKey] = [search])
     // If the search parameter contains letters and wildcards, we want to search for a partial match (e.g. WHERE [nameKey] = %[search]%)
 
-    public static Object[] whereField(String search, String digitKey, String nameKey) {
+    public static Condition whereField(String search, String digitKey, String nameKey) {
         if (search == null) { // Should never happen
             throw new IllegalArgumentException("Parameter 'search' must not be null");
         }
@@ -34,29 +34,20 @@ public abstract class RepositoryUtil {
 
         if (digitKey != null && onlyDigits.matcher(search).matches()) {
             if (wildcardPresent) {
-                output[0] = "cast("+digitKey+" as string)";
-                output[1] = LIKE;
-                output[2] = search.replaceAll(surroundingWildcards,"%");
+                return new Condition("cast("+digitKey+" as string)", LIKE, search.replaceAll(surroundingWildcards,"%"));
             } else {
-                output[0] = digitKey;
-                output[1] = EQUALS;
-                output[2] = Integer.parseInt(search, 10);
+                return new Condition(digitKey, EQUALS, Integer.parseInt(search, 10));
             }
         } else {
             if (nameKey == null) {
                 throw new IllegalArgumentException("Parameter 'nameKey' must not be null when 'digitKey' is null or search contains non-digits");
             }
             if (wildcardPresent) {
-                output[0] = nameKey;
-                output[1] = LIKE;
-                output[2] = search.replaceAll(surroundingWildcards,"%");
+                return new Condition(nameKey, LIKE, search.replaceAll(surroundingWildcards,"%"));
             } else {
-                output[0] = nameKey;
-                output[1] = EQUALS;
-                output[2] = search;
+                return new Condition(nameKey, EQUALS, search);
             }
         }
-        return output;
     }
 
 }

@@ -17,7 +17,6 @@ import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerEntity;
 import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerRepository;
 import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerVersionEntity;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;

@@ -1,14 +1,18 @@
 package dk.magenta.databroker.cprvejregister.model.navngivenvej;
 
 import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.StringList;
+import dk.magenta.databroker.cprvejregister.model.Condition;
+import dk.magenta.databroker.cprvejregister.model.GlobalCondition;
 import dk.magenta.databroker.cprvejregister.model.RepositoryUtil;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.regex.Pattern;
 
 /**
@@ -16,7 +20,7 @@ import java.util.regex.Pattern;
  */
 
 interface NavngivenVejRepositoryCustom {
-    public Collection<NavngivenVejEntity> search(String kommune, String vej);
+    public Collection<NavngivenVejEntity> search(String kommune, String vej, GlobalCondition globalCondition);
 }
 
 public class NavngivenVejRepositoryImpl implements NavngivenVejRepositoryCustom {
@@ -29,13 +33,12 @@ public class NavngivenVejRepositoryImpl implements NavngivenVejRepositoryCustom 
     }
 
     @Override
-    public Collection<NavngivenVejEntity> search(String kommune, String vej) {
-        Pattern onlyDigits = Pattern.compile("^\\d+$");
+    public Collection<NavngivenVejEntity> search(String kommune, String vej, GlobalCondition globalCondition) {
 
         StringList hql = new StringList();
         StringList join = new StringList();
-        HashMap<String, Object> parameters = new HashMap<String, Object>();
-        Object[] params;
+        Condition.resetCounter();
+        ArrayList<Condition> conditions = new ArrayList<Condition>();
 
         hql.append("select vej from NavngivenVejEntity as vej");
 
@@ -46,44 +49,39 @@ public class NavngivenVejRepositoryImpl implements NavngivenVejRepositoryCustom 
             join.append("delvej.kommune kommune");
         }
 
-        StringList where = new StringList();
         if (kommune != null) {
-            params = RepositoryUtil.whereField(kommune, "kommune.kommunekode", "kommune.latestVersion.navn");
-            where.append(params[0] + " " + params[1] + " :kommune");
-            parameters.put("kommune", params[2]);
-            /*if (onlyDigits.matcher(kommune).matches()) {
-                where.append("kommune.kommunekode = " + kommune);
-            } else {
-                where.append("kommune.latestVersion.navn like :kommuneNavn");
-                parameters.put("kommuneNavn", "%"+kommune+"%");
-            }*/
+            conditions.add(RepositoryUtil.whereField(kommune, "kommune.kommunekode", "kommune.latestVersion.navn"));
         }
         if (vej != null) {
-            params = RepositoryUtil.whereField(vej, "delvej.vejkode", "vejversion.vejnavn");
-            where.append(params[0] + " " + params[1] + " :vej");
-            parameters.put("vej", params[2]);
-            /*if (onlyDigits.matcher(vej).matches()) {
-                where.append("delvej.vejKode = " + vej);
-            } else {
-                where.append("vejversion.vejnavn like :vejNavn");
-                parameters.put("vejNavn", "%"+vej+"%");
-            }*/
+            conditions.add(RepositoryUtil.whereField(vej, "delvej.vejkode", "vejversion.vejnavn"));
         }
+        if (globalCondition != null) {
+            conditions.addAll(globalCondition.whereField("vej"));
+        }
+
+        // our conditions list should now be complete
+
+        for (Condition c : conditions) {
+            if (c.hasRequiredJoin()) {
+                join.append(c.getRequiredJoin());
+            }
+        }
+
+        // our join list should now be complete
 
         if (join.size()>0) {
             hql.append(join.join(" "));
         }
-        if (where.size()>0) {
-            hql.append("where ");
-            hql.append(where.join(" and "));
+        if (conditions.size() > 0) {
+            hql.append(Condition.concatWhere(conditions));
         }
         hql.append("order by vejversion.vejnavn");
 
         System.out.println(hql.join(" \n"));
         Query q = this.entityManager.createQuery(hql.join(" "));
-        for (String key : parameters.keySet()) {
-            System.out.println(key+" = "+parameters.get(key));
-            q.setParameter(key, parameters.get(key));
+        for (Condition c : conditions) {
+            q.setParameter(c.getKey(), c.getValue());
+            System.out.println(c.getKey()+" = "+c.getValue());
         }
         return q.getResultList();
     }

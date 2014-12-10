@@ -1,15 +1,10 @@
 package dk.magenta.databroker.cprvejregister.dataproviders;
 
-
-
-
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
 import dk.magenta.databroker.core.DataProvider;
 import dk.magenta.databroker.core.model.DataProviderEntity;
-import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
-import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.*;
@@ -196,10 +191,6 @@ public abstract class CprRegister extends DataProvider {
     }
 
     protected void saveRunToDatabase(RegisterRun run) {
-        // Override me
-    }
-
-    protected void saveRunToDatabase(RegisterRun run, RepositoryCollection repositories) {
         // Override me
     }
 

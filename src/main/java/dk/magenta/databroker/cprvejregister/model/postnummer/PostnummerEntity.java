@@ -2,13 +2,9 @@ package dk.magenta.databroker.cprvejregister.model.postnummer;
 
 import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
-import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktVersionEntity;
-import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
 import org.hibernate.annotations.Index;
-import org.json.JSONArray;
 import org.json.JSONObject;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
 import javax.xml.soap.Node;
@@ -114,10 +110,6 @@ public class PostnummerEntity
 
     public void setAdgangspunkter(Collection<AdgangspunktVersionEntity> adgangspunkter) {
         this.adgangspunkter = adgangspunkter;
-    }
-
-    public JpaRepository getRepository(RepositoryCollection repositoryCollection) {
-        return repositoryCollection.postnummerRepository;
     }
 
 

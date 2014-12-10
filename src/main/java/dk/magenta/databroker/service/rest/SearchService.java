@@ -3,6 +3,7 @@ package dk.magenta.databroker.service.rest;
 import dk.magenta.databroker.component.DataBean;
 import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.core.testmodel.TestAddressRepository;
+import dk.magenta.databroker.cprvejregister.model.GlobalCondition;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseRepository;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
@@ -103,19 +104,22 @@ public class SearchService {
     @GET
     @Path("kommune/{search}")
     @Transactional
-    public String kommune(@PathParam("search") String search, @QueryParam("format") String formatStr) {
+    public String kommune(@PathParam("search") String search,
+                          @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
         Format fmt = this.getFormat(formatStr);
         try {
-            return this.format("kommuner", new ArrayList<OutputFormattable>(this.getKommuner(search)), fmt);
+            GlobalCondition condition = new GlobalCondition(includeBefore, includeAfter);
+            return this.format("kommuner", new ArrayList<OutputFormattable>(this.getKommuner(search, condition)), fmt);
         } catch (InputError error) {
             return this.format("error", error, fmt);
         }
     }
 
-    private List<KommuneEntity> getKommuner(String kommune) throws InputError {
+    private List<KommuneEntity> getKommuner(String kommune, GlobalCondition globalCondition) throws InputError {
         return new ArrayList<KommuneEntity>(
                 this.kommuneRepository.search(
-                        this.cleanInput(kommune)
+                        this.cleanInput(kommune),
+                        globalCondition
                 )
         );
     }
@@ -125,27 +129,31 @@ public class SearchService {
     @GET
     @Path("vej/{kommune}")
     @Transactional
-    public String vej(@PathParam("kommune") String kommune, @QueryParam("format") String formatStr) {
-        return this.vej(kommune, null, formatStr);
+    public String vej(@PathParam("kommune") String kommune,
+                      @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
+        return this.vej(kommune, null, formatStr, includeBefore, includeAfter);
     }
 
     @GET
     @Path("vej/{kommune}/{search}")
     @Transactional
-    public String vej(@PathParam("kommune") String kommune, @PathParam("search") String search, @QueryParam("format") String formatStr) {
+    public String vej(@PathParam("kommune") String kommune, @PathParam("search") String search,
+                      @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
         Format fmt = this.getFormat(formatStr);
         try {
-            return this.format("veje", new ArrayList<OutputFormattable>(this.getVeje(kommune, search)), fmt);
+            GlobalCondition condition = new GlobalCondition(includeBefore, includeAfter);
+            return this.format("veje", new ArrayList<OutputFormattable>(this.getVeje(kommune, search, condition)), fmt);
         } catch (InputError error) {
             return this.format("error", error, fmt);
         }
     }
 
-    private List<NavngivenVejEntity> getVeje(String kommune, String vej) throws InputError {
+    private List<NavngivenVejEntity> getVeje(String kommune, String vej, GlobalCondition globalCondition) throws InputError {
         return new ArrayList<NavngivenVejEntity>(
                 this.navngivenVejRepository.search(
                         this.cleanInput(kommune),
-                        this.cleanInput(vej)
+                        this.cleanInput(vej),
+                        globalCondition
                 )
         );
     }
@@ -157,19 +165,22 @@ public class SearchService {
     @GET
     @Path("postnr/{search}")
     @Transactional
-    public String postnummer(@PathParam("search") String search, @QueryParam("format") String formatStr) {
+    public String postnummer(@PathParam("search") String search,
+                             @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
         Format fmt = this.getFormat(formatStr);
         try {
-            return this.format("postnumre", new ArrayList<OutputFormattable>(this.getPostnumre(search)), fmt);
+            GlobalCondition condition = new GlobalCondition(includeBefore, includeAfter);
+            return this.format("postnumre", new ArrayList<OutputFormattable>(this.getPostnumre(search, condition)), fmt);
         } catch (InputError error) {
             return this.format("error", error, fmt);
         }
     }
 
-    private List<PostnummerEntity> getPostnumre(String post) throws InputError {
+    private List<PostnummerEntity> getPostnumre(String post, GlobalCondition globalCondition) throws InputError {
         return new ArrayList<PostnummerEntity>(
                 this.postnummerRepository.search(
-                        this.cleanInput(post)
+                        this.cleanInput(post),
+                        globalCondition
                 )
         );
     }
@@ -180,28 +191,32 @@ public class SearchService {
     @GET
     @Path("husnr/{kommune}")
     @Transactional
-    public String husnummer(@PathParam("kommune") String kommune, @QueryParam("format") String formatStr) {
+    public String husnummer(@PathParam("kommune") String kommune,
+                            @QueryParam("format") String formatStr) {
         return this.husnummer(kommune, null, formatStr);
     }
 
     @GET
     @Path("husnr/{kommune}/{vej}")
     @Transactional
-    public String husnummer(@PathParam("kommune") String kommune, @PathParam("vej") String vej, @QueryParam("format") String formatStr) {
+    public String husnummer(@PathParam("kommune") String kommune, @PathParam("vej") String vej,
+                            @QueryParam("format") String formatStr) {
         return this.husnummer(kommune, vej, null, formatStr);
     }
 
     @GET
     @Path("husnr/{kommune}/{vej}/{postnr}")
     @Transactional
-    public String husnummer(@PathParam("kommune") String kommune, @PathParam("vej") String vej, @PathParam("postnr") String postnr, @QueryParam("format") String formatStr) {
+    public String husnummer(@PathParam("kommune") String kommune, @PathParam("vej") String vej, @PathParam("postnr") String postnr,
+                            @QueryParam("format") String formatStr) {
         return this.husnummer(kommune, vej, postnr, null, formatStr);
     }
 
     @GET
     @Path("husnr/{kommune}/{vej}/{postnr}/{husnr}")
     @Transactional
-    public String husnummer(@PathParam("kommune") String kommune, @PathParam("vej") String vej, @PathParam("postnr") String postnr, @PathParam("husnr") String husnr, @QueryParam("format") String formatStr) {
+    public String husnummer(@PathParam("kommune") String kommune, @PathParam("vej") String vej, @PathParam("postnr") String postnr, @PathParam("husnr") String husnr,
+                            @QueryParam("format") String formatStr) {
         Format fmt = this.getFormat(formatStr);
         try {
             return this.format("husnumre", new ArrayList<OutputFormattable>(this.getHusnumre(kommune, vej, postnr, husnr)), fmt);
@@ -226,52 +241,59 @@ public class SearchService {
     @GET
     @Path("adresse/{kommune}")
     @Transactional
-    public String adresse(@PathParam("kommune") String kommune, @QueryParam("format") String formatStr) {
-        return this.adresse(kommune, null, formatStr);
+    public String adresse(@PathParam("kommune") String kommune,
+                          @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
+        return this.adresse(kommune, null, formatStr, includeBefore, includeAfter);
     }
 
     @GET
     @Path("adresse/{kommune}/{vej}")
     @Transactional
-    public String adresse(@PathParam("kommune") String kommune, @PathParam("vej") String vej, @QueryParam("format") String formatStr) {
-        return this.adresse(kommune, vej, null, formatStr);
+    public String adresse(@PathParam("kommune") String kommune, @PathParam("vej") String vej,
+                          @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
+        return this.adresse(kommune, vej, null, formatStr, includeBefore, includeAfter);
     }
 
     @GET
     @Path("adresse/{kommune}/{vej}/{postnr}")
     @Transactional
-    public String adresse(@PathParam("kommune") String kommune, @PathParam("vej") String vej, @PathParam("postnr") String postnr, @QueryParam("format") String formatStr) {
-        return this.adresse(kommune, vej, postnr, null, formatStr);
+    public String adresse(@PathParam("kommune") String kommune, @PathParam("vej") String vej, @PathParam("postnr") String postnr,
+                          @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
+        return this.adresse(kommune, vej, postnr, null, formatStr, includeBefore, includeAfter);
     }
 
     @GET
     @Path("adresse/{kommune}/{vej}/{postnr}/{husnr}")
     @Transactional
-    public String adresse(@PathParam("kommune") String kommune, @PathParam("vej") String vej, @PathParam("postnr") String postnr, @PathParam("husnr") String husnr, @QueryParam("format") String formatStr) {
-        return this.adresse(kommune, vej, postnr, husnr, null, formatStr);
+    public String adresse(@PathParam("kommune") String kommune, @PathParam("vej") String vej, @PathParam("postnr") String postnr, @PathParam("husnr") String husnr,
+                          @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
+        return this.adresse(kommune, vej, postnr, husnr, null, formatStr, includeBefore, includeAfter);
     }
 
     @GET
     @Path("adresse/{kommune}/{vej}/{postnr}/{husnr}/{etage}")
     @Transactional
-    public String adresse(@PathParam("kommune") String kommune, @PathParam("vej") String vej, @PathParam("postnr") String postnr, @PathParam("husnr") String husnr, @PathParam("etage") String etage, @QueryParam("format") String formatStr) {
-        return this.adresse(kommune, vej, postnr, husnr, etage, null, formatStr);
+    public String adresse(@PathParam("kommune") String kommune, @PathParam("vej") String vej, @PathParam("postnr") String postnr, @PathParam("husnr") String husnr, @PathParam("etage") String etage,
+                          @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
+        return this.adresse(kommune, vej, postnr, husnr, etage, null, formatStr, includeBefore, includeAfter);
     }
 
 
     @GET
     @Path("adresse/{kommune}/{vej}/{postnr}/{husnr}/{etage}/{doer}")
     @Transactional
-    public String adresse(@PathParam("kommune") String kommune, @PathParam("vej") String vej, @PathParam("postnr") String postnr, @PathParam("husnr") String husnr, @PathParam("etage") String etage, @PathParam("doer") String doer, @QueryParam("format") String formatStr) {
+    public String adresse(@PathParam("kommune") String kommune, @PathParam("vej") String vej, @PathParam("postnr") String postnr, @PathParam("husnr") String husnr, @PathParam("etage") String etage, @PathParam("doer") String doer,
+                          @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
         Format fmt = this.getFormat(formatStr);
         try {
-            return this.format("husnumre", new ArrayList<OutputFormattable>(this.getAdresser(kommune, vej, postnr, husnr, etage, doer)), fmt);
+            GlobalCondition condition = new GlobalCondition(includeBefore, includeAfter);
+            return this.format("husnumre", new ArrayList<OutputFormattable>(this.getAdresser(kommune, vej, postnr, husnr, etage, doer, condition)), fmt);
         } catch (InputError error) {
             return this.format("error", error, fmt);
         }
     }
 
-    private List<AdresseEntity> getAdresser(String kommune, String vej, String postnr, String husnr, String etage, String doer) throws InputError {
+    private List<AdresseEntity> getAdresser(String kommune, String vej, String postnr, String husnr, String etage, String doer, GlobalCondition globalCondition) throws InputError {
         return new ArrayList<AdresseEntity>(
                 this.adresseRepository.search(
                         this.cleanInput(kommune),
@@ -279,7 +301,8 @@ public class SearchService {
                         this.cleanInput(postnr),
                         this.cleanInput(husnr),
                         this.cleanInput(etage),
-                        this.cleanInput(doer)
+                        this.cleanInput(doer),
+                        globalCondition
                 )
         );
     }

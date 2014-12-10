@@ -1,6 +1,5 @@
 package dk.magenta.databroker.cprvejregister.dataproviders;
 
-import dk.magenta.databroker.Application;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.core.model.oio.RegistreringRepository;
@@ -8,16 +7,10 @@ import dk.magenta.databroker.core.model.oio.VirkningEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.Level2Container;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
 import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
-import dk.magenta.databroker.cprvejregister.model.adresse.AdresseRepository;
-import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerRepository;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneRepository;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneVersionEntity;
-import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejRepository;
-import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejRepository;
-import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.stereotype.Component;
 //import dk.magenta.databroker.models.adresser.Kommune;
 

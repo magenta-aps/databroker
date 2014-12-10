@@ -5,9 +5,7 @@ import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.doerpunkt.DoerpunktEntity;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
-import org.hibernate.annotations.Index;
 import org.json.JSONObject;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
 import javax.xml.soap.Node;
