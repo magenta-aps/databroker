@@ -13,23 +13,11 @@ public abstract class DobbeltHistorikBase<
         R extends DobbeltHistorikVersion<E, R>
         >  extends UniqueBase {
 
-    @Column(nullable = true, insertable = true, updatable = true)
-    private String brugervendtNoegle;
-
     protected DobbeltHistorikBase() {
     }
 
-    public DobbeltHistorikBase(String uuid, String brugervendtNoegle) {
+    public DobbeltHistorikBase(String uuid) {
         super(uuid);
-        this.brugervendtNoegle = brugervendtNoegle;
-    }
-
-    public String getBrugervendtNoegle() {
-        return brugervendtNoegle;
-    }
-
-    public void setBrugervendtNoegle(String brugervendtNoegle) {
-        this.brugervendtNoegle = brugervendtNoegle;
     }
 
     public abstract Collection<R> getVersioner();
@@ -53,6 +41,7 @@ public abstract class DobbeltHistorikBase<
         return newReg;
     }
 
+    @SuppressWarnings("unchecked")
     private void addVersion(R version) throws InputMismatchException {
         version.setEntity((E) this);
 
