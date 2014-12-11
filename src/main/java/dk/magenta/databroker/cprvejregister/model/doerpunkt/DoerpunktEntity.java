@@ -1,7 +1,6 @@
 package dk.magenta.databroker.cprvejregister.model.doerpunkt;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
-import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.isopunkt.IsoPunktEntity;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
 

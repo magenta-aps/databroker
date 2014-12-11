@@ -1,6 +1,5 @@
 package dk.magenta.databroker.cprvejregister.model.adgangspunkt;
 
-import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**

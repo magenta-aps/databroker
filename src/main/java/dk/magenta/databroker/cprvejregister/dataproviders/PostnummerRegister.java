@@ -6,7 +6,6 @@ import dk.magenta.databroker.core.model.oio.RegistreringRepository;
 import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.Level1Container;
 import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.Level2Container;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.Record;
-import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 import dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktEntity;
 import dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktVersionEntity;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;

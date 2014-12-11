@@ -1,6 +1,5 @@
 package dk.magenta.databroker.cprvejregister.model.reserveretvejnavn;
 
-import dk.magenta.databroker.cprvejregister.model.vejnavneforslag.VejnavneforslagEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**

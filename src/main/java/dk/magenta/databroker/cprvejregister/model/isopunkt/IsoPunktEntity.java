@@ -1,6 +1,5 @@
 package dk.magenta.databroker.cprvejregister.model.isopunkt;
 
-import dk.magenta.databroker.cprvejregister.model.RepositoryCollection;
 
 import javax.persistence.*;
 import java.io.Serializable;

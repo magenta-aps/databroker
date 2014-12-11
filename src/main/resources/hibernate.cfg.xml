@@ -19,6 +19,7 @@
         <mapping class="dk.magenta.databroker.core.model.ConsumerEntity"/>
         <mapping class="dk.magenta.databroker.core.model.ConsumerStatusEntity"/>
         <mapping class="dk.magenta.databroker.core.model.DataProviderEntity"/>
+        <mapping class="dk.magenta.databroker.core.model.DataProviderStorageEntity"/>
         <mapping class="dk.magenta.databroker.core.model.IpAuthenticationEntity"/>
         <mapping class="dk.magenta.databroker.core.model.PasswordLoginEntity"/>
         <mapping class="dk.magenta.databroker.core.model.RequestLogEntryEntity"/>
