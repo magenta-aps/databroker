@@ -4,7 +4,7 @@ import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.Strin
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Created by lars on 10-12-14.
@@ -16,8 +16,6 @@ public class Condition {
     private String key;
     private String requiredJoin;
 
-    private static int counter = 0;
-
     public Condition(String fieldspec, String operator, Object value) {
         this(fieldspec, operator, value, null);
     }
@@ -25,9 +23,8 @@ public class Condition {
         this.fieldspec = fieldspec;
         this.operator = operator;
         this.value = value;
-        this.key = "value" + counter;
+        this.key = "id_"+UUID.randomUUID().toString().replace("-","");
         this.requiredJoin = requiredJoin;
-        counter++;
     }
 
     public String getWhere() {
@@ -56,9 +53,5 @@ public class Condition {
             }
         }
         return stringList.join();
-    }
-
-    public static void resetCounter() {
-        counter = 0; // TODO: find another way to manage the keys
     }
 }

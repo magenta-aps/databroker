@@ -35,7 +35,6 @@ public class AdresseRepositoryImpl implements AdresseRepositoryCustom {
 
         StringList hql = new StringList();
         StringList join = new StringList();
-        Condition.resetCounter();
         ArrayList<Condition> conditions = new ArrayList<Condition>();
 
         hql.append("select adresse from AdresseEntity as adresse");

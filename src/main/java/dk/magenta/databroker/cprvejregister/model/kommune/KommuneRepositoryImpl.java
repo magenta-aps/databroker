@@ -36,7 +36,6 @@ public class KommuneRepositoryImpl implements KommuneRepositoryCustom {
     public Collection<KommuneEntity> search(String kommune, GlobalCondition globalCondition) {
         StringList hql = new StringList();
         StringList join = new StringList();
-        Condition.resetCounter();
         ArrayList<Condition> conditions = new ArrayList<Condition>();
 
         hql.append("select kommune from KommuneEntity as kommune");

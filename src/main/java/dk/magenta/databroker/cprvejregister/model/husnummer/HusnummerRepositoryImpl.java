@@ -36,7 +36,6 @@ public class HusnummerRepositoryImpl implements HusnummerRepositoryCustom {
 
         StringList hql = new StringList();
         StringList join = new StringList();
-        Condition.resetCounter();
         ArrayList<Condition> conditions = new ArrayList<Condition>();
 
         hql.append("select hus from HusnummerEntity as hus");

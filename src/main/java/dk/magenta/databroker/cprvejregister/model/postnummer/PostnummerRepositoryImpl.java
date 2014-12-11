@@ -43,7 +43,6 @@ public class PostnummerRepositoryImpl implements PostnummerRepositoryCustom {
 
         StringList hql = new StringList();
         StringList join = new StringList();
-        Condition.resetCounter();
         ArrayList<Condition> conditions = new ArrayList<Condition>();
 
         hql.append("select post from PostnummerEntity as post");
