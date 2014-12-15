@@ -69,6 +69,8 @@ public class GlobalCondition {
         return null;
     }
 
+    // Construct a set of Conditions that are to be inserted in a query, specifying our additional restrictions
+    // Also, make sure we join in the relevant versions table (and only do so once)
     public ArrayList<Condition> whereField(String baseEntityName) {
         ArrayList<Condition> conditions = new ArrayList<Condition>();
         if (this.includeOnlyAfter != null) {

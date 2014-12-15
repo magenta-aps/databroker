@@ -4,7 +4,13 @@ import org.springframework.http.HttpRequest;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.Properties;
+import java.util.zip.ZipInputStream;
 
 
 /**
@@ -29,9 +35,7 @@ public abstract class DataProvider {
     public void setDataProviderEntity(DataProviderEntity dataProviderEntity) { this.dataProviderEntity = dataProviderEntity; }
 
 
-    public void pull() {
-        throw new NotImplementedException();
-    }
+    public abstract void pull();
 
     public void handlePush(HttpRequest request) {
         throw new NotImplementedException();
@@ -39,6 +43,46 @@ public abstract class DataProvider {
 
     public Properties getConfigSpecification() {
         throw new NotImplementedException();
+    }
+
+
+
+    protected InputStream readUrl(URL url) {
+        if (url != null) {
+            try {
+                InputStream input = url.openStream();
+                if (url.getFile().endsWith(".zip")) {
+                    System.out.println("Passing data through ZIP filter");
+                    input = this.unzip(input);
+                }
+                return input;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    protected InputStream readFile(File file) {
+        if (file.canRead()) {
+            try {
+                InputStream input = new FileInputStream(file);
+                if (file.getAbsolutePath().endsWith(".zip")) {
+                    System.out.println("Passing data through ZIP filter");
+                    input = this.unzip(input);
+                }
+                return input;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    private InputStream unzip(InputStream input) throws IOException {
+        ZipInputStream zinput = new ZipInputStream(input);
+        zinput.getNextEntry(); // Load the first entry in the zip archive
+        return zinput;
     }
 
 }

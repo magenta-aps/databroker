@@ -14,12 +14,7 @@ public abstract class RepositoryUtil {
     private static final String LIKE = "like";
     private static final String EQUALS = "=";
 
-
-    // Analyzes the search value and returns a set of data to be used in creating a query
-    // For example:
-    //  Object[] params = RepositoryUtil.whereField(kommune, "kommune.kommunekode", "kommune.latestVersion.navn");
-    //  String where = "WHERE " + params[0] + " " + params[1] + " :kommune";
-    //  parameters.put("kommune", params[2]);
+    // Analyzes the search value and returns corresponding Condition
     // If the search parameter only contains digits and no wildcards, we want to search for that specific value (ie. WHERE [digitKey] = [search])
     // If the search parameter only contains digits and wildcards, we want to search for a partial match (e.g. WHERE cast([digitKey] as string) LIKE %[search]%)
     // If the search parameter contains letters and no wildcards, we want to search for that specific value (e.g. WHERE [nameKey] = [search])
@@ -29,7 +24,6 @@ public abstract class RepositoryUtil {
         if (search == null) { // Should never happen
             throw new IllegalArgumentException("Parameter 'search' must not be null");
         }
-        Object[] output = new Object[3]; // Will mostly contain strings, but occasionally an Integer
         boolean wildcardPresent = hasWildcard.matcher(search).matches();
 
         if (digitKey != null && onlyDigits.matcher(search).matches()) {

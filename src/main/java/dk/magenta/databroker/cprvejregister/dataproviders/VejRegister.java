@@ -330,11 +330,15 @@ public class VejRegister extends CprRegister {
         Level2Container<KommunedelAfNavngivenVejEntity> kommunedelAfNavngivenVejCache = null;
         Level1Container<KommuneEntity> kommuneCache = null;
 
+        public ArrayList<Bolig> boliger;
+
         public VejRegisterRun() {
             super();
             this.aktiveVeje = new Level2Container<AktivVej>();
             this.delvejCounter = new EntityModificationCounter();
             this.navngivenvejCounter = new EntityModificationCounter();
+
+            this.boliger = new ArrayList<Bolig>();
         }
 
         public boolean add(Record record) {
@@ -346,6 +350,10 @@ public class VejRegister extends CprRegister {
                     System.out.println("Collision on kommuneKode "+kommuneKode+", vejKode "+vejKode+" ("+aktiveVeje.get(kommuneKode, vejKode).get("vejNavn")+" vs "+vej.get("vejNavn")+")");
                 }
                 super.add(vej);
+            }
+
+            if (record.getRecordType().equals(VejDataRecord.RECORDTYPE_BOLIG)) {
+                this.boliger.add((Bolig)record);
             }
             return false;
         }
@@ -560,7 +568,7 @@ public class VejRegister extends CprRegister {
     * */
 
     public URL getRecordUrl() throws MalformedURLException {
-        return new URL("https://cpr.dk/media/152096/vejregister_hele_landet_pr_141101.zip");
+        return new URL("https://cpr.dk/media/152096/vejregister_hele_landet_pr_141201.zip");
     }
 
 
@@ -677,6 +685,10 @@ public class VejRegister extends CprRegister {
         this.createRegistreringEntities();
         VejRegisterRun vrun = (VejRegisterRun) run;
 
+        System.out.println("There are "+vrun.boliger.size()+" boliger");
+        for (Bolig bolig : vrun.boliger) {
+            System.out.println(bolig.toJSON().toString(2));
+        }
 
         System.out.println("Storing NavngivenvejEntities and KommunedelAfNavngivenvejEntries in database");
 

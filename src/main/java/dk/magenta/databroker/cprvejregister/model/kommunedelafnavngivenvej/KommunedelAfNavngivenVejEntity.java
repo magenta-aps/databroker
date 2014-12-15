@@ -2,6 +2,7 @@ package dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej;
 
 import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.core.model.oio.UniqueBase;
+import dk.magenta.databroker.cprvejregister.model.lokalitet.LokalitetEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejVersionEntity;
 import dk.magenta.databroker.cprvejregister.model.reserverethusnummerinterval.ReserveretHusnrIntervalEntity;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
@@ -56,6 +57,10 @@ public class KommunedelAfNavngivenVejEntity
     @OneToMany(mappedBy = "kommunedelAfNavngivenVej", fetch = FetchType.LAZY)
     private Collection<ReserveretHusnrIntervalEntity> reserveredeHusnrIntervaller;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    private LokalitetEntity lokalitet;
+
+
     public int getVejkode() {
         return this.vejkode;
     }
@@ -87,6 +92,15 @@ public class KommunedelAfNavngivenVejEntity
     public void setReserveredeHusnrIntervalller(Collection<ReserveretHusnrIntervalEntity> reserveredeHusnrIntervalller) {
         this.reserveredeHusnrIntervaller = reserveredeHusnrIntervalller;
     }
+
+    public LokalitetEntity getLokalitet() {
+        return this.lokalitet;
+    }
+    public void setLokalitet(LokalitetEntity lokalitet) {
+        this.lokalitet = lokalitet;
+    }
+
+
 
     //------------------------------------------------------------------------------------------------------------------
 

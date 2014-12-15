@@ -169,44 +169,6 @@ public abstract class CprRegister extends DataProvider {
         }
     }
 
-    private InputStream readUrl(URL url) {
-        if (url != null) {
-            try {
-                InputStream input = url.openStream();
-                if (url.getFile().endsWith(".zip")) {
-                    System.out.println("Passing data through ZIP filter");
-                    input = this.unzip(input);
-                }
-                return input;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return null;
-    }
-
-    private InputStream readFile(File file) {
-        if (file.canRead()) {
-            try {
-                InputStream input = new FileInputStream(file);
-                if (file.getAbsolutePath().endsWith(".zip")) {
-                    System.out.println("Passing data through ZIP filter");
-                    input = this.unzip(input);
-                }
-                return input;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return null;
-    }
-
-    private InputStream unzip(InputStream input) throws IOException {
-        ZipInputStream zinput = new ZipInputStream(input);
-        zinput.getNextEntry(); // Load the first entry in the zip archive
-        return zinput;
-    }
-
 
     private RegisterRun parse(InputStream input) {
         try {
@@ -317,7 +279,7 @@ public abstract class CprRegister extends DataProvider {
         if (forceCreateNew) {
             String filename = dateFormat.format(new Date()) + ".txt";
             File file = new File(dir, filename);
-            file.createNewFile(); // TODO: process return value
+            file.createNewFile();
             return file;
         } else {
             File[] files = dir.listFiles();

@@ -2,6 +2,7 @@ package dk.magenta.databroker.cprvejregister.model;
 
 import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.StringList;
 
+import javax.persistence.Query;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.UUID;
@@ -9,6 +10,8 @@ import java.util.UUID;
 /**
  * Created by lars on 10-12-14.
  */
+// A Condition represents one part of the WHERE clause in a database query, keeping track of the queried key, the comparison operator, and the value parameter
+// the static concatWhere method will take a list of these objects and make a string out of them
 public class Condition {
     private String fieldspec;
     private String operator;
@@ -53,5 +56,13 @@ public class Condition {
             }
         }
         return stringList.join();
+    }
+
+    public static Query addParameters(Collection<Condition> conditions, Query query) {
+        for (Condition condition : conditions) {
+            System.out.println(condition.getKey()+" = "+condition.getValue());
+            query.setParameter(condition.getKey(), condition.getValue());
+        }
+        return query;
     }
 }

@@ -77,15 +77,8 @@ public class NavngivenVejRepositoryImpl implements NavngivenVejRepositoryCustom 
         hql.append("order by vejversion.vejnavn");
 
         System.out.println(hql.join(" \n"));
-        for (Condition c : conditions) {
-            System.out.println(c.getKey()+" = "+c.getValue());
-        }
-
-
         Query q = this.entityManager.createQuery(hql.join(" "));
-        for (Condition c : conditions) {
-            q.setParameter(c.getKey(), c.getValue());
-        }
+        Condition.addParameters(conditions, q);
         return q.getResultList();
     }
 }

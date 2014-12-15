@@ -1,8 +1,6 @@
 package dk.magenta.databroker.service.rest;
 
-import dk.magenta.databroker.component.DataBean;
 import dk.magenta.databroker.core.model.OutputFormattable;
-import dk.magenta.databroker.core.testmodel.TestAddressRepository;
 import dk.magenta.databroker.cprvejregister.model.GlobalCondition;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseRepository;
@@ -29,12 +27,12 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
 import java.util.*;
-import java.util.regex.Pattern;
 
 
 @Component
 @Path("search")
 //@Produces({ "application/json", "application/xml" })
+//@Produces({ MediaType.APPLICATION_JSON + "; " + MediaType.CHARSET_PARAMETER +"=UTF-8,"+ MediaType.APPLICATION_XML + "; " + MediaType.CHARSET_PARAMETER +"=UTF-8" })
 @Produces({ MediaType.APPLICATION_JSON + "; " + MediaType.CHARSET_PARAMETER +"=UTF-8" })
 public class SearchService {
 
@@ -52,14 +50,6 @@ public class SearchService {
         }
         return Format.json;
     }
-
-    private Pattern onlyDigits = Pattern.compile("^\\d+$");
-
-    @Autowired
-    private DataBean db;
-
-    @Autowired
-    private TestAddressRepository testAddressRepository;
 
     @Autowired
     private KommuneRepository kommuneRepository;
@@ -80,18 +70,7 @@ public class SearchService {
     @GET
     public String getList() {
         return "getList()";
-    }
-
-    @GET
-    @Path("by-street")
-    /*
-     Path: /services/address/search/by-street/
-     Given a street name
-      */
-    public String byStreet() {
-
-        return db.getSomeData();
-    }
+    } // TODO: return index of options
 
     @GET
     @Path("{path}")
@@ -102,14 +81,14 @@ public class SearchService {
     //------------------------------------------------------------------------------------------------------------------
 
     @GET
-    @Path("kommune/{search}")
+    @Path("kommune/{kommune}")
     @Transactional
-    public String kommune(@PathParam("search") String search,
+    public String kommune(@PathParam("vej") String kommune,
                           @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
         Format fmt = this.getFormat(formatStr);
         try {
             GlobalCondition condition = new GlobalCondition(includeBefore, includeAfter);
-            return this.format("kommuner", new ArrayList<OutputFormattable>(this.getKommuner(search, condition)), fmt);
+            return this.format("kommuner", new ArrayList<OutputFormattable>(this.getKommuner(kommune, condition)), fmt);
         } catch (InputError error) {
             return this.format("error", error, fmt);
         }
@@ -135,14 +114,14 @@ public class SearchService {
     }
 
     @GET
-    @Path("vej/{kommune}/{search}")
+    @Path("vej/{kommune}/{vej}")
     @Transactional
-    public String vej(@PathParam("kommune") String kommune, @PathParam("search") String search,
+    public String vej(@PathParam("kommune") String kommune, @PathParam("vej") String vej,
                       @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
         Format fmt = this.getFormat(formatStr);
         try {
             GlobalCondition condition = new GlobalCondition(includeBefore, includeAfter);
-            return this.format("veje", new ArrayList<OutputFormattable>(this.getVeje(kommune, search, condition)), fmt);
+            return this.format("veje", new ArrayList<OutputFormattable>(this.getVeje(kommune, vej, condition)), fmt);
         } catch (InputError error) {
             return this.format("error", error, fmt);
         }
@@ -163,14 +142,14 @@ public class SearchService {
     //------------------------------------------------------------------------------------------------------------------
 
     @GET
-    @Path("postnr/{search}")
+    @Path("postnr/{post}")
     @Transactional
-    public String postnummer(@PathParam("search") String search,
+    public String postnummer(@PathParam("post") String post,
                              @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
         Format fmt = this.getFormat(formatStr);
         try {
             GlobalCondition condition = new GlobalCondition(includeBefore, includeAfter);
-            return this.format("postnumre", new ArrayList<OutputFormattable>(this.getPostnumre(search, condition)), fmt);
+            return this.format("postnumre", new ArrayList<OutputFormattable>(this.getPostnumre(post, condition)), fmt);
         } catch (InputError error) {
             return this.format("error", error, fmt);
         }
@@ -314,7 +293,7 @@ public class SearchService {
     private String format(String key, OutputFormattable output, Format format) {
         ArrayList<OutputFormattable> outputList = new ArrayList<OutputFormattable>();
         outputList.add(output);
-        return this.format(key, output, format);
+        return this.format(key, outputList, format);
     }
 
     private String format(String key, List<OutputFormattable> output, Format format) {

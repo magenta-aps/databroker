@@ -100,10 +100,7 @@ public class AdresseRepositoryImpl implements AdresseRepositoryCustom {
 
         System.out.println(hql.join(" "));
         Query q = this.entityManager.createQuery(hql.join(" "));
-        for (Condition c : conditions) {
-            q.setParameter(c.getKey(), c.getValue());
-            System.out.println(c.getKey()+" = "+c.getValue());
-        }
+        Condition.addParameters(conditions, q);
         return q.getResultList();
     }
 }

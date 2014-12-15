@@ -1,10 +1,7 @@
 package dk.magenta.databroker.test;
 
 import dk.magenta.databroker.Application;
-import dk.magenta.databroker.cprvejregister.dataproviders.LokalitetsRegister;
-import dk.magenta.databroker.cprvejregister.dataproviders.MyndighedsRegister;
-import dk.magenta.databroker.cprvejregister.dataproviders.PostnummerRegister;
-import dk.magenta.databroker.cprvejregister.dataproviders.VejRegister;
+import dk.magenta.databroker.cprvejregister.dataproviders.*;
 
 
 import org.junit.Test;
@@ -53,14 +50,18 @@ public class VejregisterTest {
     @Autowired
     private PostnummerRegister postnummerRegister;
 
+    @Autowired
+    private GrLokalitetsRegister grLokalitetsRegister;
+
     @Test
     //@Transactional
     public void testVejregister() {
-        System.out.println("Starting step 1");
+        /*System.out.println("Starting step 1");
         myndighedsRegister.pull();
-/*
+*/
+        /*
         System.out.println("Starting step 2");
-        vejRegister.read(new File("/home/lars/Projekt/databroker/src/test/resources/vejregister_hele_landet_pr_141101.zip"));
+        vejRegister.pull();
 */
 
         /*
@@ -73,6 +74,8 @@ public class VejregisterTest {
         postnummerRegister.read(new File("/home/lars/Projekt/databroker/src/test/resources/vejregister/a370712.txt"));
         //postnummerRegister.pull();
 */
+        grLokalitetsRegister.pull();
+
 
         System.out.println("Test complete");
     }
@@ -121,7 +124,7 @@ public class VejregisterTest {
 
         entry2 = this.kommunedelAfNavngivenVejRepository.getByKommunekodeAndVejkode(751, 9651);
         assertNotNull(entry2);
-        assertEquals(entry2.getVejkode(), 9651);
+        assertEquals(entry2.getLokalitetsKode(), 9651);
         assertEquals(entry2.getNavngivenVej(), entry1);
     }
 

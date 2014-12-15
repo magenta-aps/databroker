@@ -10,4 +10,5 @@ public class JubkDataProvider extends DataProvider {
     public JubkDataProvider(DataProviderEntity dataProviderEntity) {
         super(dataProviderEntity);
     }
+    public void pull() {}
 }

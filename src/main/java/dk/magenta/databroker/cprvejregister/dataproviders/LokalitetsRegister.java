@@ -170,7 +170,7 @@ public class LokalitetsRegister extends CprRegister {
 
             Collection<KommunedelAfNavngivenVejEntity> dele = n.getKommunedeleAfNavngivenVej();
             for (KommunedelAfNavngivenVejEntity del : dele) {
-                navngivenVejEntities.add(""+del.getKommune().getKommunekode(), ""+del.getVejkode(), n);
+                navngivenVejEntities.add(""+del.getKommune().getKommunekode(), ""+del.getLokalitetsKode(), n);
             }
         }*/
 
