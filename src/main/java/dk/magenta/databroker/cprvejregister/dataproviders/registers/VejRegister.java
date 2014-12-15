@@ -1,10 +1,11 @@
-package dk.magenta.databroker.cprvejregister.dataproviders;
+package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.core.model.oio.RegistreringRepository;
+import dk.magenta.databroker.cprvejregister.dataproviders.RegisterRun;
 import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.*;
 
 import dk.magenta.databroker.core.model.DataProviderEntity;
-import dk.magenta.databroker.cprvejregister.dataproviders.records.Record;
+import dk.magenta.databroker.cprvejregister.dataproviders.records.CprRecord;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseRepository;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerRepository;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
@@ -15,7 +16,6 @@ import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntit
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejRepository;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejVersionEntity;
 import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerRepository;
-import org.hibernate.dialect.pagination.LegacyLimitHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +25,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.*;
-import java.util.logging.Level;
 
 
 /**
@@ -39,7 +38,7 @@ public class VejRegister extends CprRegister {
     * Inner classes for parsed data
     * */
 
-    public abstract class VejDataRecord extends Record {
+    public abstract class VejDataRecord extends CprRecord {
         public static final String RECORDTYPE_AKTVEJ = "001";
         public static final String RECORDTYPE_BOLIG = "002";
         public static final String RECORDTYPE_BYDISTRIKT = "003";
@@ -341,7 +340,7 @@ public class VejRegister extends CprRegister {
             this.boliger = new ArrayList<Bolig>();
         }
 
-        public boolean add(Record record) {
+        public boolean add(CprRecord record) {
             if (record.getRecordType().equals(VejDataRecord.RECORDTYPE_AKTVEJ)) {
                 AktivVej vej = (AktivVej) record;
                 int vejKode = vej.getInt("vejKode");
@@ -576,8 +575,8 @@ public class VejRegister extends CprRegister {
     * Parse definition
     * */
 
-    protected Record parseTrimmedLine(String recordType, String line) {
-        Record r = super.parseTrimmedLine(recordType, line);
+    protected CprRecord parseTrimmedLine(String recordType, String line) {
+        CprRecord r = super.parseTrimmedLine(recordType, line);
         if (r != null) {
             return r;
         }

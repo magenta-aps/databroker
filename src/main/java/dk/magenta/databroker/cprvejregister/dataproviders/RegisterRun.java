@@ -1,12 +1,9 @@
 package dk.magenta.databroker.cprvejregister.dataproviders;
 
 import dk.magenta.databroker.cprvejregister.dataproviders.records.Record;
-//import dk.magenta.databroker.models.adresser.Kommune;
-import org.json.JSONArray;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Created by lars on 10-11-14.
@@ -17,11 +14,11 @@ public class RegisterRun extends ArrayList<Record> {
     private int inputChunks = 0;
     private long startTime = 0;
 
-    protected void startInputProcessing() {
+    public void startInputProcessing() {
         this.startTime = new Date().getTime();
     }
 
-    protected void printInputProcessed() {
+    public void printInputProcessed() {
         this.inputsProcessed++;
         if (this.inputsProcessed >= 1000) {
             this.inputsProcessed = 0;
@@ -30,7 +27,7 @@ public class RegisterRun extends ArrayList<Record> {
         }
     }
 
-    protected void printFinalInputsProcessed() {
+    public void printFinalInputsProcessed() {
         String timeStr = this.startTime != 0 ?
                 " in "+String.format("%.3f", 0.001 * (new Date().getTime() - this.startTime))+" seconds" :
                 "";

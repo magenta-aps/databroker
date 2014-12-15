@@ -1,4 +1,4 @@
-package dk.magenta.databroker.cprvejregister.dataproviders;
+package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
@@ -6,13 +6,13 @@ import dk.magenta.databroker.core.DataProvider;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.core.model.DataProviderStorageEntity;
 import dk.magenta.databroker.core.model.DataProviderStorageRepository;
-import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
+import dk.magenta.databroker.cprvejregister.dataproviders.RegisterRun;
+import dk.magenta.databroker.cprvejregister.dataproviders.records.Record;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.commons.codec.digest.DigestUtils;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
@@ -22,15 +22,13 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.zip.ZipInputStream;
+import java.util.Date;
 
 /**
- * Created by lars on 04-11-14.
+ * Created by lars on 15-12-14.
  */
+public abstract class Register extends DataProvider {
 
-@Component
-public abstract class CprRegister extends DataProvider {
 
     private static final File cacheDir = new File("cache/");
 
@@ -63,15 +61,15 @@ public abstract class CprRegister extends DataProvider {
         }
     }
 
-    public CprRegister(DataProviderEntity dbObject) {
+    public Register(DataProviderEntity dbObject) {
         super(dbObject);
     }
 
-    public CprRegister() {
+    public Register() {
     }
 
     @PostConstruct
-    public void PostConstructCprRegister() {
+    public void PostConstructRegister() {
         if (this.dataProviderStorageRepository != null) {
             DataProviderStorageEntity storageEntity = this.dataProviderStorageRepository.getByOwningClass(this.getClass().getName());
             if (storageEntity == null) {
@@ -201,7 +199,7 @@ public abstract class CprRegister extends DataProvider {
                 if (line != null) {
                     line = line.trim();
                     if (line.length() > 3) {
-                        Record record = this.parseTrimmedLine(line.substring(0, 3), line);
+                        Record record = this.parseTrimmedLine(line);
                         if (record != null) {
                             this.processRecord(record);
                             run.add(record);
@@ -231,17 +229,7 @@ public abstract class CprRegister extends DataProvider {
         return null;
     }
 
-    protected Record parseTrimmedLine(String recordType, String line) {
-        try {
-            if (recordType.equals(Record.RECORDTYPE_START)) {
-                return new Start(line);
-            }
-            if (recordType.equals(Record.RECORDTYPE_SLUT)) {
-                return new Slut(line);
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+    protected Record parseTrimmedLine(String line) {
         return null;
     }
 
@@ -252,22 +240,6 @@ public abstract class CprRegister extends DataProvider {
     protected void processRecord(Record record) {
         // Override me
     }
-
-    private long ticTime = 0;
-    protected long tic() {
-        this.ticTime = this.indepTic();
-        return this.ticTime;
-    }
-    protected long indepTic() {
-        return new Date().getTime();
-    }
-    protected long toc(long ticTime) {
-        return new Date().getTime() - ticTime;
-    }
-    protected long toc() {
-        return new Date().getTime() - this.ticTime;
-    }
-
 
     // obtain a file to cache input data to/from
     protected File getCacheFile(boolean forceCreateNew) throws IOException {
@@ -300,5 +272,24 @@ public abstract class CprRegister extends DataProvider {
 
         }
     }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+
+    private long ticTime = 0;
+    protected long tic() {
+        this.ticTime = this.indepTic();
+        return this.ticTime;
+    }
+    protected long indepTic() {
+        return new Date().getTime();
+    }
+    protected long toc(long ticTime) {
+        return new Date().getTime() - ticTime;
+    }
+    protected long toc() {
+        return new Date().getTime() - this.ticTime;
+    }
+
 
 }

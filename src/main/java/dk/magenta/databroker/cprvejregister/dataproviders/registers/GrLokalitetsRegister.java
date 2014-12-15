@@ -1,4 +1,4 @@
-package dk.magenta.databroker.cprvejregister.dataproviders;
+package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
@@ -13,6 +13,7 @@ import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.Kommu
 import dk.magenta.databroker.cprvejregister.model.lokalitet.LokalitetEntity;
 import dk.magenta.databroker.cprvejregister.model.lokalitet.LokalitetRepository;
 import dk.magenta.databroker.cprvejregister.model.lokalitet.LokalitetVersionEntity;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -88,8 +89,14 @@ public class GrLokalitetsRegister extends DataProvider {
 
     @Transactional
     public void pull() {
-        InputStream input = this.readFile(new File("src/test/resources/grønlandLokaliteter.csv"));
+        File inputFile = new File("src/test/resources/grønlandLokaliteter.csv");
+        InputStream input = this.readFile(inputFile);
+
         try {
+            String checksum = DigestUtils.md5Hex(input);
+            input.close();
+            input = this.readFile(inputFile);
+
             String encoding = this.getEncoding();
             if (encoding != null) {
                 System.out.println("Using explicit encoding " + encoding);
@@ -106,6 +113,9 @@ public class GrLokalitetsRegister extends DataProvider {
                     System.out.println("Falling back to default encoding " + encoding);
                 }
             }
+
+
+
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(input, encoding.toUpperCase()));
 

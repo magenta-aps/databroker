@@ -1,10 +1,12 @@
-package dk.magenta.databroker.cprvejregister.dataproviders;
+package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.core.model.oio.RegistreringRepository;
+import dk.magenta.databroker.cprvejregister.dataproviders.RegisterRun;
 import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.Level1Container;
 import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.Level2Container;
+import dk.magenta.databroker.cprvejregister.dataproviders.records.CprRecord;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.Record;
 import dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktEntity;
 import dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktVersionEntity;
@@ -35,7 +37,7 @@ public class PostnummerRegister extends CprRegister {
     * Inner classes for parsed data
     * */
 
-     public class PostNummer extends Record {
+     public class PostNummer extends CprRecord {
         public static final String RECORDTYPE_POSTNUMMER = "001";
         public String getRecordType() {
             return RECORDTYPE_POSTNUMMER;
@@ -67,7 +69,7 @@ public class PostnummerRegister extends CprRegister {
             this.postdistrikter = new HashMap<String, String>();
         }
 
-        public boolean add(Record record) {
+        public boolean add(CprRecord record) {
             if (record.getRecordType().equals(PostNummer.RECORDTYPE_POSTNUMMER)) {
                 PostNummer postnummer = (PostNummer) record;
                 String nummer = postnummer.get("postNr");
@@ -127,8 +129,8 @@ public class PostnummerRegister extends CprRegister {
     * Parse definition
     * */
 
-    protected Record parseTrimmedLine(String recordType, String line) {
-        Record r = super.parseTrimmedLine(recordType, line);
+    protected CprRecord parseTrimmedLine(String recordType, String line) {
+        CprRecord r = super.parseTrimmedLine(recordType, line);
         if (r != null) {
             return r;
         }

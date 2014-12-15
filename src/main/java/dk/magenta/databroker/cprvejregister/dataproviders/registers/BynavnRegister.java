@@ -1,7 +1,7 @@
-package dk.magenta.databroker.cprvejregister.dataproviders;
+package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
 import dk.magenta.databroker.core.model.DataProviderEntity;
-import dk.magenta.databroker.cprvejregister.dataproviders.records.Record;
+import dk.magenta.databroker.cprvejregister.dataproviders.records.CprRecord;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -12,7 +12,7 @@ import java.text.ParseException;
  */
 public class BynavnRegister extends CprRegister {
 
-    public class ByNavn extends Record {
+    public class ByNavn extends CprRecord {
         public static final String RECORDTYPE_BYNAVN = "001";
         public String getRecordType() {
             return RECORDTYPE_BYNAVN;
@@ -38,8 +38,8 @@ public class BynavnRegister extends CprRegister {
         return new URL("https://cpr.dk/media/152120/a370713.txt");
     }
 
-    protected Record parseTrimmedLine(String recordType, String line) {
-        Record r = super.parseTrimmedLine(recordType, line);
+    protected CprRecord parseTrimmedLine(String recordType, String line) {
+        CprRecord r = super.parseTrimmedLine(recordType, line);
         if (r != null) {
             return r;
         }

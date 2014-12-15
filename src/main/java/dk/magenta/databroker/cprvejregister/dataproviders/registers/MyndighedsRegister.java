@@ -1,9 +1,10 @@
-package dk.magenta.databroker.cprvejregister.dataproviders;
+package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.core.model.oio.RegistreringRepository;
 import dk.magenta.databroker.core.model.oio.VirkningEntity;
+import dk.magenta.databroker.cprvejregister.dataproviders.RegisterRun;
 import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.Level2Container;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
@@ -24,7 +25,7 @@ import java.util.*;
 @Component
 public class MyndighedsRegister extends CprRegister {
 
-    public abstract class MyndighedsDataRecord extends Record {
+    public abstract class MyndighedsDataRecord extends CprRecord {
         public static final String RECORDTYPE_MYNDIGHED = "001";
         public static final String RECORDTYPE_KOMMUNEREL = "002";
         protected int getTimestampStart() {
@@ -88,7 +89,7 @@ public class MyndighedsRegister extends CprRegister {
             super();
             this.myndigheder = new Level2Container<Myndighed>();
         }
-        public boolean add(Record record) {
+        public boolean add(CprRecord record) {
             if (record.getRecordType().equals(MyndighedsDataRecord.RECORDTYPE_MYNDIGHED)) {
                 Myndighed myndighed = (Myndighed) record;
                 String myndighedsType = myndighed.get("myndighedsType");
@@ -151,8 +152,8 @@ public class MyndighedsRegister extends CprRegister {
         return new MyndighedsRegisterRun();
     }
 
-    protected Record parseTrimmedLine(String recordType, String line) {
-        Record r = super.parseTrimmedLine(recordType, line);
+    protected CprRecord parseTrimmedLine(String recordType, String line) {
+        CprRecord r = super.parseTrimmedLine(recordType, line);
         if (r != null) {
             return r;
         }

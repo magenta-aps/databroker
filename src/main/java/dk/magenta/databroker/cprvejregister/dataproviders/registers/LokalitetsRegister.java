@@ -1,8 +1,9 @@
-package dk.magenta.databroker.cprvejregister.dataproviders;
+package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.core.model.oio.RegistreringRepository;
+import dk.magenta.databroker.cprvejregister.dataproviders.RegisterRun;
 import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.Level2Container;
 import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.Level3Container;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
@@ -35,7 +36,7 @@ public class LokalitetsRegister extends CprRegister {
     /*
     * Inner classes for parsed data
     * */
-    public class Lokalitet extends Record {
+    public class Lokalitet extends CprRecord {
         public static final String RECORDTYPE_LOKALITET = "001";
         public String getRecordType() {
             return RECORDTYPE_LOKALITET;
@@ -92,8 +93,8 @@ public class LokalitetsRegister extends CprRegister {
     * Parse definition
     * */
 
-     protected Record parseTrimmedLine(String recordType, String line) {
-        Record r = super.parseTrimmedLine(recordType, line);
+     protected CprRecord parseTrimmedLine(String recordType, String line) {
+        CprRecord r = super.parseTrimmedLine(recordType, line);
         if (r != null) {
             return r;
         }
