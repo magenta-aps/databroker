@@ -39,6 +39,8 @@
         <mapping class="dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity"/>
         <mapping class="dk.magenta.databroker.cprvejregister.model.kommune.KommuneVersionEntity"/>
         <mapping class="dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.lokalitet.LokalitetEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.lokalitet.LokalitetVersionEntity"/>
         <mapping class="dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity"/>
         <mapping class="dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejVersionEntity"/>
         <mapping class="dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerEntity"/>

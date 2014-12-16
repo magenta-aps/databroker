@@ -339,10 +339,11 @@ public class VejRegister extends CprRegister {
     public class VejRegisterRun extends RegisterRun {
 
         private Level2Container<AktivVej> aktiveVeje;
-        EntityModificationCounter delvejCounter;
-        EntityModificationCounter navngivenvejCounter;
-        Level2Container<KommunedelAfNavngivenVejEntity> kommunedelAfNavngivenVejCache = null;
-        Level1Container<KommuneEntity> kommuneCache = null;
+        private EntityModificationCounter delvejCounter;
+        private EntityModificationCounter navngivenvejCounter;
+        private Level2Container<KommunedelAfNavngivenVejEntity> kommunedelAfNavngivenVejCache = null;
+        private Level1Container<KommuneEntity> kommuneCache = null;
+        private ArrayList<PostDistrikt> postDistrikter;
 
         public ArrayList<Bolig> boliger;
 
@@ -369,6 +370,7 @@ public class VejRegister extends CprRegister {
             if (record.getRecordType().equals(VejDataRecord.RECORDTYPE_BOLIG)) {
                 this.boliger.add((Bolig)record);
             }
+
             return false;
         }
 
@@ -376,125 +378,9 @@ public class VejRegister extends CprRegister {
             return aktiveVeje;
         }
 
-/*
-        // Process an AktivVej item, adding relevant database entries
-        public void processAktivVej(AktivVej aktivVej) {
-            ArrayList<Long> time = new ArrayList<Long>();
-
-            int kommuneKode = aktivVej.getInt("kommuneKode");
-            int vejKode = aktivVej.getInt("vejKode");
-            String vejNavn = aktivVej.get("vejNavn");
-            String vejAdresseringsnavn = aktivVej.get("vejAdresseringsnavn");
-
-            //KommuneEntity kommune = kommuneRepository.getByKommunekode(kommuneKode);
-            KommuneEntity kommune = this.getKommuneCache().get(kommuneKode);
-
-            if (kommune == null) {
-                //System.out.println("Kommune with id "+kommuneKode+" not found for vej "+aktivVej.get("vejNavn"));
-            } else {
-                Level2Container<KommunedelAfNavngivenVejEntity> delveje = this.getKommuneDelAfNavngivenVejCache();
-
-                KommunedelAfNavngivenVejEntity delvejEntity = delveje.get(kommuneKode, vejKode);
-
-                boolean createdDelvej = false;
-                boolean updatedDelvej = false;
-
-                NavngivenVejEntity navngivenVej = null;
-                NavngivenVejVersionEntity navngivenVejVersion;
-
-                // If we don't have a KommunedelAfNavngivenVejEntity for this vejKode and kommune, create one
-                if (delvejEntity == null) {
-                    delvejEntity = KommunedelAfNavngivenVejEntity.create();
-                    delvejEntity.setVejkode(vejKode);
-                    delvejEntity.setKommune(kommune);
-                    this.delvejCounter.countCreatedItem();
-                    updatedDelvej = createdDelvej = true;
-                } else {
-                    // Since we do have a delvej, try to find an existing navngivenvej by looking in it
-                    NavngivenVejVersionEntity delvejRefVersion = delvejEntity.getNavngivenVejVersion();
-                    if (delvejRefVersion != null) {
-                        NavngivenVejEntity navngivenVejEntity = delvejRefVersion.getEntity();
-                        if (navngivenVejEntity != null && vejNavn.equals(navngivenVejEntity.getLatestVersion().getVejnavn())) {
-                            navngivenVej = navngivenVejEntity;
-                        }
-                    }
-                }
-
-                if (navngivenVej == null) {
-                    for (AktivVej otherVej : aktivVej.getConnections()) {
-                        navngivenVej = findNavngivenVejByAktivVej(otherVej, vejNavn);
-                        if (navngivenVej != null) {
-                            break;
-                        }
-                    }
-                }
-
-                // No navngivenvej instances found - create one
-                // Also create a new vejversion to put data in
-                RegistreringEntity createRegistrering = VejRegister.this.getCreateRegistrering();
-                RegistreringEntity updateRegistrering = VejRegister.this.getUpdateRegistrering();
-                if (navngivenVej == null) {
-                    navngivenVej = NavngivenVejEntity.create();
-                    navngivenVejVersion = navngivenVej.addVersion(createRegistrering);
-                    this.navngivenvejCounter.countCreatedItem();
-                } else {
-                    // Put a version on our existing navngivenvej
-                    NavngivenVejVersionEntity latestVersion = navngivenVej.getLatestVersion();
-                    if (latestVersion.getRegistrering().equals(updateRegistrering) || latestVersion.getRegistrering().equals(createRegistrering)) {
-                        // If we happen to have created a version for an existing vej in this very run, reuse that version
-                        navngivenVejVersion = latestVersion;
-                    } else {
-                        // Otherwise append a new version
-                        navngivenVejVersion = navngivenVej.addVersion(updateRegistrering);
-                    }
-                }
-
-                // Update and save navngivenVejVersion
-                navngivenVejVersion.setAnsvarligKommune(kommune);
-                navngivenVejVersion.setVejnavn(vejNavn);
-                navngivenVejVersion.setVejaddresseringsnavn(vejAdresseringsnavn);
-                navngivenVejVersion.addKommunedelAfNavngivenVej(delvejEntity);
-                navngivenVejRepository.save(navngivenVej);
-
-                // Update and save delvejEntity
-                delvejEntity.setNavngivenVejVersion(navngivenVejVersion);
-                if (!updatedDelvej) {
-                    this.delvejCounter.countUpdatedItem();
-                    updatedDelvej = true;
-                }
-                if (createdDelvej || updatedDelvej) {
-                    this.getKommuneDelAfNavngivenVejCache().put(kommuneKode, vejKode, delvejEntity);
-                    kommunedelAfNavngivenVejRepository.save(delvejEntity);
-                }
-
-                // Process any linked items
-                aktivVej.setVisited();
-                for (AktivVej otherVej : aktivVej.getConnections()) {
-                    if (!otherVej.getVisited()) {
-                        this.processAktivVej(otherVej);
-                    }
-                }
-
-
-                StringBuilder timeStr = new StringBuilder();
-                boolean exceed = false;
-                long total = 0;
-                for (Long t : time) {
-                    timeStr.append(t);
-                    timeStr.append(",");
-                    if (t > 20) {
-                        exceed = true;
-                    }
-                    total += t;
-                }
-                if (exceed) {
-                    System.out.println(vejNavn + " i " + kommune.getLatestVersion().getNavn() + " processed (" + timeStr.toString() + ") = "+total);
-                }
-
-            }
-            this.printInputProcessed();
+        public ArrayList<PostDistrikt> getPostDistrikter() {
+            return postDistrikter;
         }
-*/
 
         private Level2Container<KommunedelAfNavngivenVejEntity> getKommuneDelAfNavngivenVejCache() {
             if (this.kommunedelAfNavngivenVejCache == null) {
@@ -519,17 +405,6 @@ public class VejRegister extends CprRegister {
             return this.kommuneCache;
         }
 
-        public void printStatus() {
-            this.printFinalInputsProcessed();
-            System.out.println("Stored KommunedelAfNavngivenVejEntities to database:");
-            this.delvejCounter.printModifications();
-            System.out.println("Stored NavngivenVejEntities to database:");
-            navngivenvejCounter.printModifications();
-        }
-
-        private NavngivenVejEntity findNavngivenVejByAktivVej(AktivVej aktivVej) {
-            return this.findNavngivenVejByAktivVej(aktivVej, null);
-        }
         private NavngivenVejEntity findNavngivenVejByAktivVej(AktivVej aktivVej, String vejNavn) {
             if (aktivVej != null) {
                 int kommuneKode = aktivVej.getInt("kommuneKode");
@@ -714,6 +589,7 @@ public class VejRegister extends CprRegister {
         adresseModel.createAddresses(new ArrayList<Record>(vrun.boliger));
 
         System.out.println("Save complete");
+
     }
 
     @Transactional
@@ -737,5 +613,4 @@ public class VejRegister extends CprRegister {
         }
         System.out.println("Integrity check complete in "+this.toc(time)+"ms");
     }
-
 }
