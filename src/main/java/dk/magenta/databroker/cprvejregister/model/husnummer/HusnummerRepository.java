@@ -15,7 +15,8 @@ import java.util.List;
 public interface HusnummerRepository extends JpaRepository<HusnummerEntity, Long> {
     @Query("select husnummer from HusnummerEntity husnummer " +
             "inner join husnummer.navngivenVej vej " +
-            "inner join vej.latestVersion.kommunedeleAfNavngivenVej del " +
+            "inner join vej.latestVersion vejVersion " +
+            "inner join vejVersion.kommunedeleAfNavngivenVej del " +
             "inner join del.kommune kommune " +
             "where del.vejkode = :vej " +
             "and kommune.kommunekode = :kommunekode " +

@@ -1,12 +1,15 @@
 package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
-import dk.magenta.databroker.core.model.oio.RegistreringRepository;
 import dk.magenta.databroker.cprvejregister.dataproviders.RegisterRun;
 import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.*;
 
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.CprRecord;
+import dk.magenta.databroker.cprvejregister.dataproviders.records.Record;
+import dk.magenta.databroker.cprvejregister.model.AdresseModel;
+import dk.magenta.databroker.cprvejregister.model.VejModel;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseRepository;
+import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerRepository;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneRepository;
@@ -15,12 +18,10 @@ import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.Kommu
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejRepository;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejVersionEntity;
-import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
@@ -108,6 +109,7 @@ public class VejRegister extends CprRegister {
             this.obtain("vejAdresseringsnavn", 52, 20);
             this.obtain("vejNavn", 72, 40);
             this.connections = new ArrayList<AktivVej>();
+            this.clean();
         }
     }
 
@@ -126,6 +128,7 @@ public class VejRegister extends CprRegister {
             this.obtain("sidedoer", 18, 4);
             this.obtain("startDato", 35, 12);
             this.obtain("lokalitet", 59, 34);
+            this.clean();
 
         }
     }
@@ -143,6 +146,7 @@ public class VejRegister extends CprRegister {
         public ByDistrikt(String line) throws ParseException {
             super(line);
             this.put("bynavn", this.get("distriktsTekst"));
+            this.clean();
         }
     }
 
@@ -159,6 +163,7 @@ public class VejRegister extends CprRegister {
         public PostDistrikt(String line) throws ParseException {
             super(line);
             this.obtain("postNr", 33, 4);
+            this.clean();
         }
     }
 
@@ -174,6 +179,7 @@ public class VejRegister extends CprRegister {
             this.obtain("notatNr", 12, 2);
             this.obtain("notatLinie", 14, 40);
             this.obtain("startDato", 66, 12);
+            this.clean();
         }
     }
 
@@ -187,6 +193,7 @@ public class VejRegister extends CprRegister {
         public ByfornyelsesDistrikt(String line) throws ParseException {
             super(line);
             this.obtain("byfornyKode", 33, 6);
+            this.clean();
         }
     }
 
@@ -201,6 +208,7 @@ public class VejRegister extends CprRegister {
             super(line);
             this.obtain("distriktType", 33, 2);
             this.obtain("diverseDistriktsKode", 35, 4);
+            this.clean();
         }
     }
 
@@ -214,6 +222,7 @@ public class VejRegister extends CprRegister {
         public EvakueringsDistrikt(String line) throws ParseException {
             super(line);
             this.obtain("evakueringsKode", 33, 1);
+            this.clean();
         }
     }
 
@@ -224,6 +233,7 @@ public class VejRegister extends CprRegister {
         public KirkeDistrikt(String line) throws ParseException {
             super(line);
             this.obtain("kirkeKode", 33, 2);
+            this.clean();
         }
     }
 
@@ -234,6 +244,7 @@ public class VejRegister extends CprRegister {
         public SkoleDistrikt(String line) throws ParseException {
             super(line);
             this.obtain("skoleKode", 33, 2);
+            this.clean();
         }
     }
 
@@ -247,6 +258,7 @@ public class VejRegister extends CprRegister {
         public BefolkningsDistrikt(String line) throws ParseException {
             super(line);
             this.obtain("befolkningsKode", 33, 4);
+            this.clean();
         }
     }
 
@@ -257,6 +269,7 @@ public class VejRegister extends CprRegister {
         public SocialDistrikt(String line) throws ParseException {
             super(line);
             this.obtain("socialKode", 33, 2);
+            this.clean();
         }
     }
 
@@ -274,6 +287,7 @@ public class VejRegister extends CprRegister {
             super(line);
             this.obtain("myndighedsKode", 33, 4);
             this.put("myndighedsNavn", this.get("distriktsTekst"));
+            this.clean();
         }
     }
 
@@ -284,6 +298,7 @@ public class VejRegister extends CprRegister {
         public ValgDistrikt(String line) throws ParseException {
             super(line);
             this.obtain("valgKode", 33, 2);
+            this.clean();
         }
     }
 
@@ -340,7 +355,7 @@ public class VejRegister extends CprRegister {
             this.boliger = new ArrayList<Bolig>();
         }
 
-        public boolean add(CprRecord record) {
+        public boolean add(Record record) {
             if (record.getRecordType().equals(VejDataRecord.RECORDTYPE_AKTVEJ)) {
                 AktivVej vej = (AktivVej) record;
                 int vejKode = vej.getInt("vejKode");
@@ -361,7 +376,7 @@ public class VejRegister extends CprRegister {
             return aktiveVeje;
         }
 
-
+/*
         // Process an AktivVej item, adding relevant database entries
         public void processAktivVej(AktivVej aktivVej) {
             ArrayList<Long> time = new ArrayList<Long>();
@@ -370,10 +385,6 @@ public class VejRegister extends CprRegister {
             int vejKode = aktivVej.getInt("vejKode");
             String vejNavn = aktivVej.get("vejNavn");
             String vejAdresseringsnavn = aktivVej.get("vejAdresseringsnavn");
-
-            if (createRegistrering == null || updateRegistrering == null) {
-                createRegistreringEntities();
-            }
 
             //KommuneEntity kommune = kommuneRepository.getByKommunekode(kommuneKode);
             KommuneEntity kommune = this.getKommuneCache().get(kommuneKode);
@@ -420,6 +431,8 @@ public class VejRegister extends CprRegister {
 
                 // No navngivenvej instances found - create one
                 // Also create a new vejversion to put data in
+                RegistreringEntity createRegistrering = VejRegister.this.getCreateRegistrering();
+                RegistreringEntity updateRegistrering = VejRegister.this.getUpdateRegistrering();
                 if (navngivenVej == null) {
                     navngivenVej = NavngivenVejEntity.create();
                     navngivenVejVersion = navngivenVej.addVersion(createRegistrering);
@@ -481,6 +494,7 @@ public class VejRegister extends CprRegister {
             }
             this.printInputProcessed();
         }
+*/
 
         private Level2Container<KommunedelAfNavngivenVejEntity> getKommuneDelAfNavngivenVejCache() {
             if (this.kommunedelAfNavngivenVejCache == null) {
@@ -553,13 +567,6 @@ public class VejRegister extends CprRegister {
     public VejRegister() {
     }
 
-    @PostConstruct
-    public void PostConstructVejRegister() {
-        DataProviderEntity vejProvider = new DataProviderEntity();
-        vejProvider.setUuid(UUID.randomUUID().toString());
-
-        this.setDataProviderEntity(vejProvider);
-    }
 
 
     /*
@@ -588,43 +595,43 @@ public class VejRegister extends CprRegister {
                 return new Bolig(line);
             }
             if (recordType.equals(VejDataRecord.RECORDTYPE_BYDISTRIKT)) {
-                return new ByDistrikt(line);
+                //return new ByDistrikt(line);
             }
             if (recordType.equals(VejDataRecord.RECORDTYPE_POSTDIST)) {
-                return new PostDistrikt(line);
+                //return new PostDistrikt(line);
             }
             if (recordType.equals(VejDataRecord.RECORDTYPE_NOTATVEJ)) {
-                return new NotatVej(line);
+                //return new NotatVej(line);
             }
             if (recordType.equals(VejDataRecord.RECORDTYPE_BYFORNYDIST)) {
-                return new ByfornyelsesDistrikt(line);
+                //return new ByfornyelsesDistrikt(line);
             }
             if (recordType.equals(VejDataRecord.RECORDTYPE_DIVDIST)) {
-                return new DiverseDistrikt(line);
+                //return new DiverseDistrikt(line);
             }
             if (recordType.equals(VejDataRecord.RECORDTYPE_EVAKUERDIST)) {
-                return new EvakueringsDistrikt(line);
+                //return new EvakueringsDistrikt(line);
             }
             if (recordType.equals(VejDataRecord.RECORDTYPE_KIRKEDIST)) {
-                return new KirkeDistrikt(line);
+                //return new KirkeDistrikt(line);
             }
             if (recordType.equals(VejDataRecord.RECORDTYPE_SKOLEDIST)) {
-                return new SkoleDistrikt(line);
+                //return new SkoleDistrikt(line);
             }
             if (recordType.equals(VejDataRecord.RECORDTYPE_BEFOLKDIST)) {
-                return new BefolkningsDistrikt(line);
+                //return new BefolkningsDistrikt(line);
             }
             if (recordType.equals(VejDataRecord.RECORDTYPE_SOCIALDIST)) {
-                return new SocialDistrikt(line);
+                //return new SocialDistrikt(line);
             }
             if (recordType.equals(VejDataRecord.RECORDTYPE_SOGNEDIST)) {
-                return new SogneDistrikt(line);
+                //return new SogneDistrikt(line);
             }
             if (recordType.equals(VejDataRecord.RECORDTYPE_VALGDIST)) {
-                return new ValgDistrikt(line);
+                //return new ValgDistrikt(line);
             }
             if (recordType.equals(VejDataRecord.RECORDTYPE_VARMEDIST)) {
-                return new VarmeDistrikt(line);
+                //return new VarmeDistrikt(line);
             }
             if (recordType.equals(VejDataRecord.RECORDTYPE_HISTORISKVEJ)) {
                 return new HistoriskVej(line);
@@ -650,29 +657,10 @@ public class VejRegister extends CprRegister {
     private NavngivenVejRepository navngivenVejRepository;
 
     @Autowired
-    private HusnummerRepository husnummerRepository;
-
-    @Autowired
     private AdresseRepository adresseRepository;
 
     @Autowired
-    private PostnummerRepository postnummerRepository;
-
-    @Autowired
-    private RegistreringRepository registreringRepository;
-
-
-    /*
-    * Registration
-    * */
-
-    private RegistreringEntity createRegistrering;
-    private RegistreringEntity updateRegistrering;
-
-    private void createRegistreringEntities() {
-        this.createRegistrering = registreringRepository.createNew(this);
-        this.updateRegistrering = registreringRepository.createUpdate(this);
-    }
+    private HusnummerRepository husnummerRepository;
 
 
     /*
@@ -683,11 +671,6 @@ public class VejRegister extends CprRegister {
         long time;
         this.createRegistreringEntities();
         VejRegisterRun vrun = (VejRegisterRun) run;
-
-        System.out.println("There are "+vrun.boliger.size()+" boliger");
-        for (Bolig bolig : vrun.boliger) {
-            System.out.println(bolig.toJSON().toString(2));
-        }
 
         System.out.println("Storing NavngivenvejEntities and KommunedelAfNavngivenvejEntries in database");
 
@@ -717,37 +700,18 @@ public class VejRegister extends CprRegister {
         // We do this in the VejRegisterRun instance because there is some state information
         // that we don't want to pollute our VejRegister instance with
 
-        //int counter = 0;
-        vrun.getKommuneCache();
-        System.out.println("    Kommuner loaded into cache");
-        vrun.getKommuneDelAfNavngivenVejCache();
-        System.out.println("    KommunedelAfNavngivenVej entries loaded into cache");
-
-        System.out.println("Preparatory caching took "+this.toc(time)+"ms");
-
         System.out.println("Updating entries");
         time = this.indepTic();
-        for (AktivVej aktivVej : aktiveVeje.getList()) {
-            /*if (counter >= 2000) {
-                break;
-            }
-            counter++;*/
-            if (aktivVej != null) {
-                vrun.processAktivVej(aktivVej);
-            }
-        }
+        VejModel vejModel = new VejModel(this.kommuneRepository, this.kommunedelAfNavngivenVejRepository, this.navngivenVejRepository, this.getCreateRegistrering(), this.getUpdateRegistrering());
+        vejModel.createVeje(new ArrayList<Record>(aktiveVeje.getList()));
         System.out.println("Entry update took "+this.toc(time)+"ms");
+        vejModel.cleanNavngivneVeje();
 
-        System.out.println("Cleaning versions");
-        time = this.indepTic();
-        // Clean up redundant versions on NavngivenVej entities
-        for (NavngivenVejEntity navngivenVejEntity : navngivenVejRepository.findAll()) {
-            navngivenVejEntity.cleanLatestVersion(kommunedelAfNavngivenVejRepository);
-            navngivenVejRepository.save(navngivenVejEntity);
-        }
-        System.out.println("Version cleaning took "+toc(time)+"ms");
 
-        vrun.printStatus();
+
+
+        AdresseModel adresseModel = new AdresseModel(this.adresseRepository, this.navngivenVejRepository, this.husnummerRepository, this.getCreateRegistrering(), this.getUpdateRegistrering());
+        adresseModel.createAddresses(new ArrayList<Record>(vrun.boliger));
 
         System.out.println("Save complete");
     }

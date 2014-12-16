@@ -92,7 +92,7 @@ public class KommuneEntity
 
     @Basic
     @Index(name="kommuneKode")
-    @Column(name = "kommunekode", nullable = false, insertable = true, updatable = true, unique = true)
+    @Column(name = "kommuneKode", nullable = false, insertable = true, updatable = true, unique = true)
     private int kommunekode;
 
     @OneToMany(mappedBy = "kommune", fetch = FetchType.LAZY)

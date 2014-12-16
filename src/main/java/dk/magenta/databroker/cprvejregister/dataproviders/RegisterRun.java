@@ -33,4 +33,5 @@ public class RegisterRun extends ArrayList<Record> {
                 "";
         System.out.println("Processed " + (1000 * this.inputChunks + this.inputsProcessed) + " inputs" + timeStr + ".");
     }
+
 }

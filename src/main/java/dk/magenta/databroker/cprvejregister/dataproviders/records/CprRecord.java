@@ -34,4 +34,8 @@ public abstract class CprRecord extends Record {
         this.put(key, leadingZero.matcher(this.substr(this.line, position, length)).replaceFirst(""));
     }
 
+    protected void clean() {
+        this.line = null;
+    }
+
 }

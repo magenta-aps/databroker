@@ -1,19 +1,18 @@
 package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
 import dk.magenta.databroker.core.model.DataProviderEntity;
-import dk.magenta.databroker.core.model.oio.RegistreringEntity;
-import dk.magenta.databroker.core.model.oio.RegistreringRepository;
 import dk.magenta.databroker.core.model.oio.VirkningEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.RegisterRun;
+import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.EntityModificationCounter;
 import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.Level2Container;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
+import dk.magenta.databroker.cprvejregister.model.KommuneModel;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneRepository;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneVersionEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
@@ -82,6 +81,11 @@ public class MyndighedsRegister extends CprRegister {
 
     //------------------------------------------------------------------------------------------------------------------
 
+
+    /*
+    * RegisterRun inner class
+    * */
+
     public class MyndighedsRegisterRun extends RegisterRun {
 
         private Level2Container<Myndighed> myndigheder;
@@ -89,7 +93,8 @@ public class MyndighedsRegister extends CprRegister {
             super();
             this.myndigheder = new Level2Container<Myndighed>();
         }
-        public boolean add(CprRecord record) {
+
+        public boolean add(Record record) {
             if (record.getRecordType().equals(MyndighedsDataRecord.RECORDTYPE_MYNDIGHED)) {
                 Myndighed myndighed = (Myndighed) record;
                 String myndighedsType = myndighed.get("myndighedsType");
@@ -119,10 +124,16 @@ public class MyndighedsRegister extends CprRegister {
         }
     }
 
+    @Override
+    protected RegisterRun createRun() {
+        return new MyndighedsRegisterRun();
+    }
+
     //------------------------------------------------------------------------------------------------------------------
-    //@SuppressWarnings("SpringJavaAutowiringInspection")
-    //@Autowired
-    //private KommuneRepository kommuneRepository;
+
+    /*
+    * Constructors
+    * */
 
     public MyndighedsRegister(DataProviderEntity dbObject) {
         super(dbObject);
@@ -132,25 +143,25 @@ public class MyndighedsRegister extends CprRegister {
     }
 
 
-    @PostConstruct
-    public void PostConstructMyndighedsRegister() {
-        DataProviderEntity vejProvider = new DataProviderEntity();
-        vejProvider.setUuid(UUID.randomUUID().toString());
+    /*
+    * Data source spec
+    * */
 
-        this.setDataProviderEntity(vejProvider);
-    }
-
+    @Override
     public URL getRecordUrl() throws MalformedURLException {
         return new URL("https://cpr.dk/media/219468/a370716.txt");
     }
 
+    @Override
     protected String getEncoding() {
         return "ISO-8859-1";
     }
 
-    protected RegisterRun createRun() {
-        return new MyndighedsRegisterRun();
-    }
+
+
+    /*
+    * Parse definition
+    * */
 
     protected CprRecord parseTrimmedLine(String recordType, String line) {
         CprRecord r = super.parseTrimmedLine(recordType, line);
@@ -177,15 +188,7 @@ public class MyndighedsRegister extends CprRegister {
     @Autowired
     private KommuneRepository kommuneRepository;
 
-
-    @Autowired
-    private RegistreringRepository registreringRepository;
-
     protected void saveRunToDatabase(RegisterRun run) {
-
-        RegistreringEntity createRegistrering = registreringRepository.createNew(this);
-        RegistreringEntity updateRegistrering = registreringRepository.createUpdate(this);
-
 
         if (kommuneRepository == null) {
             System.err.println("Insufficient repositories");
@@ -194,8 +197,11 @@ public class MyndighedsRegister extends CprRegister {
         System.out.println("Storing KommuneEntities in database");
         MyndighedsRegisterRun mrun = (MyndighedsRegisterRun) run;
         List<Myndighed> kommuner = mrun.getMyndigheder("5");
-        EntityModificationCounter counter = new EntityModificationCounter();
 
+        KommuneModel kommuneModel = new KommuneModel(this.kommuneRepository, this.getCreateRegistrering(), this.getUpdateRegistrering());
+        kommuneModel.createKommuner(new ArrayList<Record>(kommuner));
+
+/*
         for (Myndighed kommune : kommuner) {
             int kommuneKode = kommune.getInt("myndighedsKode");
             String kommuneNavn = kommune.get("myndighedsNavn");
@@ -207,10 +213,10 @@ public class MyndighedsRegister extends CprRegister {
             if (kommuneEntity == null) {
                 kommuneEntity = KommuneEntity.create();
                 kommuneEntity.setKommunekode(kommuneKode);
-                kommuneVersion = kommuneEntity.addVersion(createRegistrering, virkninger);
+                kommuneVersion = kommuneEntity.addVersion(this.getCreateRegistrering(), virkninger);
                 counter.countCreatedItem();
             } else if (!kommuneEntity.getLatestVersion().getNavn().equals(kommuneNavn)) {
-                kommuneVersion = kommuneEntity.addVersion(updateRegistrering, virkninger);
+                kommuneVersion = kommuneEntity.addVersion(this.getUpdateRegistrering(), virkninger);
                 counter.countUpdatedItem();
             }
 
@@ -219,18 +225,12 @@ public class MyndighedsRegister extends CprRegister {
                 kommuneRepository.save(kommuneEntity);
             }
 
-
             mrun.printInputProcessed();
         }
         mrun.printFinalInputsProcessed();
         kommuneRepository.flush();
         System.out.println("Stored KommuneEntities in database:");
         counter.printModifications();
+        */
     }
-
-    public static void main(String[] args) {
-        MyndighedsRegister register = new MyndighedsRegister(null);
-        register.pull();
-    }
-
 }
