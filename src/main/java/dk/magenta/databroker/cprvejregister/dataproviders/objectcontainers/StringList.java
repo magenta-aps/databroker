@@ -3,6 +3,7 @@ package dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Created by lars on 09-12-14.
@@ -21,6 +22,14 @@ public class StringList extends ArrayList<String> {
 
     public void append(String s) {
         this.add(s);
+    }
+    public void append(List<String> s) {
+        this.addAll(s);
+    }
+    public void append(String[] s) {
+        for (int i=0; i<s.length; i++) {
+            this.append(s[i]);
+        }
     }
 
     public String join() {

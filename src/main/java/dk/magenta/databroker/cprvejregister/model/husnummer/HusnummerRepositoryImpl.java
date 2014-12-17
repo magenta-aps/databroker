@@ -1,8 +1,8 @@
 package dk.magenta.databroker.cprvejregister.model.husnummer;
 
 import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.StringList;
-import dk.magenta.databroker.cprvejregister.model.Condition;
-import dk.magenta.databroker.cprvejregister.model.GlobalCondition;
+import dk.magenta.databroker.cprvejregister.model.ConditionList;
+import dk.magenta.databroker.cprvejregister.model.SingleCondition;
 import dk.magenta.databroker.cprvejregister.model.RepositoryUtil;
 
 import javax.persistence.Query;
@@ -11,15 +11,14 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.regex.Pattern;
+import java.util.Map;
 
 /**
  * Created by lars on 09-12-14.
  */
 
 interface HusnummerRepositoryCustom {
-    public Collection<HusnummerEntity> search(String kommune, String vej, String post, String husnr);
+    public Collection<HusnummerEntity> search(String land, String[] kommune, String[] vej, String[] post, String[] husnr);
 }
 
 public class HusnummerRepositoryImpl implements HusnummerRepositoryCustom {
@@ -31,12 +30,11 @@ public class HusnummerRepositoryImpl implements HusnummerRepositoryCustom {
         this.entityManager = entityManager;
     }
 
-    @Override
-    public Collection<HusnummerEntity> search(String kommune, String vej, String post, String husnr) {
+    public Collection<HusnummerEntity> search(String land, String[] kommune, String[] vej, String[] post, String[] husnr) {
 
         StringList hql = new StringList();
         StringList join = new StringList();
-        ArrayList<Condition> conditions = new ArrayList<Condition>();
+        ConditionList conditions = new ConditionList(ConditionList.Operator.AND);
 
         hql.append("select hus from HusnummerEntity as hus");
 
@@ -44,34 +42,36 @@ public class HusnummerRepositoryImpl implements HusnummerRepositoryCustom {
         join.append("hus.adgangspunkt punkt");
         join.append("punkt.latestVersion punktversion");
 
-        StringList where = new StringList();
-        if (kommune != null || vej != null) {
+        if (kommune != null || vej != null || land != null) {
             join.append("hus.navngivenVej vej");
             join.append("vej.latestVersion vejversion");
             join.append("vejversion.kommunedeleAfNavngivenVej delvej");
-            if (kommune != null) {
+            if (kommune != null || land != null) {
                 join.append("delvej.kommune kommune");
-                conditions.add(RepositoryUtil.whereField(kommune, "kommune.kommunekode", "kommune.latestVersion.navn"));
+                if (land != null) {
+                    conditions.addCondition(RepositoryUtil.whereFieldLand(land));
+                }
+                if (kommune != null) {
+                    conditions.addCondition(RepositoryUtil.whereField(kommune, "kommune.kommunekode", "kommune.latestVersion.navn"));
+                }
             }
             if (vej != null) {
-                conditions.add(RepositoryUtil.whereField(vej, "delvej.vejKode", "vejversion.vejnavn"));
+                conditions.addCondition(RepositoryUtil.whereField(vej, "delvej.vejKode", "vejversion.vejnavn"));
             }
         }
 
         if (post != null) {
             join.append("punktversion.liggerIPostnummer post");
-            conditions.add(RepositoryUtil.whereField(post, "post.nummer", "post.latestVersion.navn"));
+            conditions.addCondition(RepositoryUtil.whereField(post, "post.nummer", "post.latestVersion.navn"));
         }
         if (husnr != null) {
-            conditions.add(RepositoryUtil.whereField(husnr, null, "hus.husnummerbetegnelse"));
+            conditions.addCondition(RepositoryUtil.whereField(husnr, null, "hus.husnummerbetegnelse"));
         }
 
         // our conditions list should now be complete
 
-        for (Condition c : conditions) {
-            if (c.hasRequiredJoin()) {
-                join.append(c.getRequiredJoin());
-            }
+        if (conditions.hasRequiredJoin()) {
+            join.append(conditions.getRequiredJoin());
         }
 
         // our join list should now be complete
@@ -79,15 +79,20 @@ public class HusnummerRepositoryImpl implements HusnummerRepositoryCustom {
         if (join.size()>0) {
             hql.append(join.join(" "));
         }
-        if (where.size()>0) {
-            hql.append(Condition.concatWhere(conditions));
+        if (conditions.size() > 0) {
+            hql.append("where");
+            hql.append(conditions.getWhere());
         }
 
         hql.append("order by hus.husnummerbetegnelse");
 
         System.out.println(hql.join(" \n"));
         Query q = this.entityManager.createQuery(hql.join(" "));
-        Condition.addParameters(conditions, q);
+        Map<String, Object> parameters = conditions.getParameters();
+        for (String key : parameters.keySet()) {
+            System.out.println(key+" = "+parameters.get(key));
+            q.setParameter(key, parameters.get(key));
+        }
         return q.getResultList();
     }
 }

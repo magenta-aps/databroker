@@ -19,5 +19,5 @@ public interface NavngivenVejRepository extends JpaRepository<NavngivenVejEntity
             "where del.vejkode = :vej and kom.kommunekode = :kommune")
     public NavngivenVejEntity findByKommunekodeAndVejkode(@Param("kommune") int kommunekode, @Param("vej") int vejkode);
 
-    public Collection<NavngivenVejEntity> search(String kommune, String vej, GlobalCondition globalCondition);
+    public Collection<NavngivenVejEntity> search(String land, String[] kommune, String[] vej, GlobalCondition globalCondition);
 }

@@ -24,5 +24,5 @@ public interface KommuneRepository extends JpaRepository<KommuneEntity, Long> {
             "order by kom.kommunekode")
     public Collection<KommuneEntity> findByName(@Param("navn") String navn);
 
-    public Collection<KommuneEntity> search(String kommune, GlobalCondition globalCondition);
+    public Collection<KommuneEntity> search(String land, String[] kommune, GlobalCondition globalCondition);
 }

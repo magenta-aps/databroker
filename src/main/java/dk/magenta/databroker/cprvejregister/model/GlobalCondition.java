@@ -71,13 +71,13 @@ public class GlobalCondition {
 
     // Construct a set of Conditions that are to be inserted in a query, specifying our additional restrictions
     // Also, make sure we join in the relevant versions table (and only do so once)
-    public ArrayList<Condition> whereField(String baseEntityName) {
-        ArrayList<Condition> conditions = new ArrayList<Condition>();
+    public ConditionList whereField(String baseEntityName) {
+        ConditionList conditions = new ConditionList(ConditionList.Operator.AND);
         if (this.includeOnlyAfter != null) {
-            conditions.add(new Condition(baseEntityName+"Version.registrering.registreringFra", ">", this.includeOnlyAfter, baseEntityName+".versioner "+baseEntityName+"Version"));
+            conditions.addCondition(new SingleCondition(baseEntityName+"Version.registrering.registreringFra", ">", this.includeOnlyAfter, baseEntityName+".versioner "+baseEntityName+"Version"));
         }
         if (this.includeOnlyBefore != null) {
-            conditions.add(new Condition(baseEntityName+"Version.registrering.registreringFra", "<", this.includeOnlyBefore, this.includeOnlyAfter == null ? baseEntityName+".versioner "+baseEntityName+"Version" : null));
+            conditions.addCondition(new SingleCondition(baseEntityName+"Version.registrering.registreringFra", "<", this.includeOnlyBefore, this.includeOnlyAfter == null ? baseEntityName+".versioner "+baseEntityName+"Version" : null));
         }
         return conditions;
     }

@@ -30,5 +30,5 @@ public interface AdresseRepository extends JpaRepository<AdresseEntity, Long> {
     public Collection<AdresseEntity> findByKommuneNavn(@Param("kommuneNavn") String kommuneNavn);
 
 
-    public Collection<AdresseEntity> search(String kommune, String vej, String postnr, String husnr, String etage, String doer, GlobalCondition globalCondition);
+    public Collection<AdresseEntity> search(String land, String[] kommune, String[] vej, String[] postnr, String[] husnr, String[] etage, String[] doer, GlobalCondition globalCondition);
 }
