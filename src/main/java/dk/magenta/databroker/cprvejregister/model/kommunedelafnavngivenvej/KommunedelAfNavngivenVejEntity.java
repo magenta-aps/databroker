@@ -108,19 +108,30 @@ public class KommunedelAfNavngivenVejEntity
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
         obj.put("vejKode", this.getVejkode());
-        obj.put("kommuneKode", this.getKommune().getKommunekode());
         return obj;
     }
 
-    public Node toXML(SOAPElement parent, SOAPEnvelope envelope) {
+    public JSONObject toFullJSON() {
+        JSONObject obj = this.toJSON();
+        obj.put("kommune", this.getKommune().toJSON());
+        obj.put("vej", this.getNavngivenVejVersion().getEntity().toJSON());
+        return obj;
+    }
+
+    public SOAPElement toXML(SOAPElement parent, SOAPEnvelope envelope) {
         try {
             SOAPElement node = parent.addChildElement("delvej");
             node.addAttribute(envelope.createName("vejKode"), ""+this.getVejkode());
-            node.addAttribute(envelope.createName("kommuneKode"), ""+this.getKommune().getKommunekode());
             return node;
         } catch (SOAPException e) {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public SOAPElement toFullXML(SOAPElement parent, SOAPEnvelope envelope) {
+        SOAPElement node = this.toXML(parent, envelope);
+        this.getKommune().toXML(node, envelope);
+        return node;
     }
 }

@@ -13,7 +13,9 @@ import javax.xml.soap.SOAPFactory;
 public interface OutputFormattable {
 
     public JSONObject toJSON();
+    public JSONObject toFullJSON();
 
     public Node toXML(SOAPElement parent, SOAPEnvelope envelope);
+    public Node toFullXML(SOAPElement parent, SOAPEnvelope envelope);
 
 }

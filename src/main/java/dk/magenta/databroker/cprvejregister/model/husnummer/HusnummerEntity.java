@@ -81,22 +81,34 @@ public class HusnummerEntity
 
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
-        obj.put("vejnavn", this.getNavngivenVej().getLatestVersion().getVejnavn());
-        obj.put("husnr", this.getHusnummerbetegnelse());
+        obj.put("husnummerbetegnelse", this.getHusnummerbetegnelse());
         /*obj.put("postnr", this.getAdgangspunkt().getLatestVersion().getLiggerIPostnummer().getNummer());*/
         return obj;
     }
 
-    public Node toXML(SOAPElement parent, SOAPEnvelope envelope) {
+    public JSONObject toFullJSON() {
+        JSONObject obj = this.toJSON();
+        obj.put("vej", this.getNavngivenVej().getLatestVersion().getEntity().toJSON());
+        /*obj.put("postnr", this.getAdgangspunkt().getLatestVersion().getLiggerIPostnummer().getNummer());*/
+        return obj;
+    }
+
+    public SOAPElement toXML(SOAPElement parent, SOAPEnvelope envelope) {
         try {
-            SOAPElement node = parent.addChildElement("vej");
-            node.addAttribute(envelope.createName("vejnavn"), this.getNavngivenVej().getLatestVersion().getVejnavn());
-            node.addAttribute(envelope.createName("husnr"), this.getHusnummerbetegnelse());
+            SOAPElement node = parent.addChildElement("husnr");
+            node.addAttribute(envelope.createName("husnummerbetegnelse"), this.getHusnummerbetegnelse());
             /*node.addAttribute(envelope.createName("postnr"), ""+this.getAdgangspunkt().getLatestVersion().getLiggerIPostnummer().getNummer());*/
             return node;
         } catch (SOAPException e) {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public SOAPElement toFullXML(SOAPElement parent, SOAPEnvelope envelope) {
+        SOAPElement node = this.toXML(parent, envelope);
+        this.getNavngivenVej().toXML(node, envelope);
+        /*node.addAttribute(envelope.createName("postnr"), ""+this.getAdgangspunkt().getLatestVersion().getLiggerIPostnummer().getNummer());*/
+        return node;
     }
 }

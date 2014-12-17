@@ -54,7 +54,7 @@ public class AdresseRepositoryImpl implements AdresseRepositoryCustom {
                     conditions.addCondition(RepositoryUtil.whereFieldLand(land));
                 }
                 if (kommune != null) {
-                    conditions.addCondition(RepositoryUtil.whereField(kommune, "kommune.kommuneKode", "kommune.latestVersion.navn"));
+                    conditions.addCondition(RepositoryUtil.whereField(kommune, "kommune.kommunekode", "kommune.latestVersion.navn"));
                 }
             }
             if (vej != null) {

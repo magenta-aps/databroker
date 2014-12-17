@@ -257,7 +257,7 @@ public abstract class Register extends DataProvider {
 
             System.out.println("    parsed " + (j * 100000 + i) + " entries in " + String.format("%.3f", 0.001 * (new Date().getTime() - startTime.getTime())) + " seconds");
 
-            //System.out.println(run.toJSON().toString(2));
+            //System.out.println(run.toFullJSON().toString(2));
             System.out.println("Pull complete ("+run.size()+" entries)");
             return run;
 

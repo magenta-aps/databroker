@@ -7,6 +7,7 @@ import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejVersionEntity;
 import org.hibernate.annotations.Index;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.persistence.*;
@@ -131,7 +132,17 @@ public class LokalitetEntity
         return obj;
     }
 
-    public Node toXML(SOAPElement parent, SOAPEnvelope envelope) {
+    public JSONObject toFullJSON() {
+        JSONObject obj = this.toJSON();
+        JSONArray delveje = new JSONArray();
+        for (KommunedelAfNavngivenVejEntity kommunedelAfNavngivenVejEntity : this.getKommunedeleAfNavngivenVej()) {
+            delveje.put(kommunedelAfNavngivenVejEntity.toJSON());
+        }
+        obj.put("delveje", delveje);
+        return obj;
+    }
+
+    public SOAPElement toXML(SOAPElement parent, SOAPEnvelope envelope) {
         try {
             SOAPElement node = parent.addChildElement("delvej");
             node.addAttribute(envelope.createName("lokalitetsKode"), ""+this.getLokalitetsKode());
@@ -141,5 +152,13 @@ public class LokalitetEntity
             e.printStackTrace();
             return null;
         }
+    }
+
+    public SOAPElement toFullXML(SOAPElement parent, SOAPEnvelope envelope) {
+        SOAPElement node = this.toXML(parent, envelope);
+        for (KommunedelAfNavngivenVejEntity kommunedelAfNavngivenVejEntity : this.getKommunedeleAfNavngivenVej()) {
+            kommunedelAfNavngivenVejEntity.toXML(node, envelope);
+        }
+        return node;
     }
 }

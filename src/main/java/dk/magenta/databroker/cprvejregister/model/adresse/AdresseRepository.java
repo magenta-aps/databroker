@@ -31,4 +31,6 @@ public interface AdresseRepository extends JpaRepository<AdresseEntity, Long> {
 
 
     public Collection<AdresseEntity> search(String land, String[] kommune, String[] vej, String[] postnr, String[] husnr, String[] etage, String[] doer, GlobalCondition globalCondition);
+
+    public AdresseEntity findByUuid(String UUID);
 }

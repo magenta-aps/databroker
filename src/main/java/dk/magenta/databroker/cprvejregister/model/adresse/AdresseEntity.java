@@ -106,19 +106,22 @@ public class AdresseEntity
 
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
-        obj.put("vejnavn", this.getHusnummer().getNavngivenVej().getLatestVersion().getVejnavn());
-        obj.put("husnr", this.getHusnummer().getHusnummerbetegnelse());
         obj.put("etage", this.getLatestVersion().getEtageBetegnelse());
         obj.put("doer", this.getLatestVersion().getDoerBetegnelse());
         /*obj.put("postnr", this.getAdgangspunkt().getLatestVersion().getLiggerIPostnummer().getNummer());*/
         return obj;
     }
 
-    public Node toXML(SOAPElement parent, SOAPEnvelope envelope) {
+    public JSONObject toFullJSON() {
+        JSONObject obj = this.toJSON();
+        obj.put("husnr", this.getHusnummer().toJSON());
+        /*obj.put("postnr", this.getAdgangspunkt().getLatestVersion().getLiggerIPostnummer().getNummer());*/
+        return obj;
+    }
+
+    public SOAPElement toXML(SOAPElement parent, SOAPEnvelope envelope) {
         try {
-            SOAPElement node = parent.addChildElement("vej");
-            node.addAttribute(envelope.createName("vejnavn"), this.getHusnummer().getNavngivenVej().getLatestVersion().getVejnavn());
-            node.addAttribute(envelope.createName("husnr"), this.getHusnummer().getHusnummerbetegnelse());
+            SOAPElement node = parent.addChildElement("adresse");
             node.addAttribute(envelope.createName("etage"), this.getLatestVersion().getEtageBetegnelse());
             node.addAttribute(envelope.createName("doer"), this.getLatestVersion().getDoerBetegnelse());
             /*node.addAttribute(envelope.createName("postnr"), ""+this.getAdgangspunkt().getLatestVersion().getLiggerIPostnummer().getNummer());*/
@@ -127,5 +130,11 @@ public class AdresseEntity
             e.printStackTrace();
             return null;
         }
+    }
+    public SOAPElement toFullXML(SOAPElement parent, SOAPEnvelope envelope) {
+        SOAPElement node = this.toXML(parent, envelope);
+        this.getHusnummer().toXML(node, envelope);
+        /*node.addAttribute(envelope.createName("postnr"), ""+this.getAdgangspunkt().getLatestVersion().getLiggerIPostnummer().getNummer());*/
+        return node;
     }
 }

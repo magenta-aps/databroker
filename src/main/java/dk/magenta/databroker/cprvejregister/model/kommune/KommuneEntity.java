@@ -92,7 +92,7 @@ public class KommuneEntity
 
     @Basic
     @Index(name="kommuneKode")
-    @Column(name = "kommuneKode", nullable = false, insertable = true, updatable = true, unique = true)
+    @Column(name = "kommune_kode", nullable = false, insertable = true, updatable = true, unique = true)
     private int kommunekode;
 
     @OneToMany(mappedBy = "kommune", fetch = FetchType.LAZY)
@@ -145,7 +145,12 @@ public class KommuneEntity
         return obj;
     }
 
-    public Node toXML(SOAPElement parent, SOAPEnvelope envelope) {
+    public JSONObject toFullJSON() {
+        JSONObject obj = this.toJSON();
+        return obj;
+    }
+
+    public SOAPElement toXML(SOAPElement parent, SOAPEnvelope envelope) {
         try {
             SOAPElement node = parent.addChildElement("kommune");
             node.addAttribute(envelope.createName("navn"), this.getLatestVersion().getNavn());
@@ -155,6 +160,11 @@ public class KommuneEntity
             e.printStackTrace();
             return null;
         }
+    }
+
+    public SOAPElement toFullXML(SOAPElement parent, SOAPEnvelope envelope) {
+        SOAPElement node = this.toXML(parent, envelope);
+        return node;
     }
 
 }
