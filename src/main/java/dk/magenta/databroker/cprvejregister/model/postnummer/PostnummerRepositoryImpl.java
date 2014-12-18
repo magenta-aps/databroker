@@ -3,7 +3,7 @@ package dk.magenta.databroker.cprvejregister.model.postnummer;
 import dk.magenta.databroker.register.objectcontainers.StringList;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
-import dk.magenta.databroker.cprvejregister.model.RepositoryUtil;
+import dk.magenta.databroker.register.RepositoryUtil;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;

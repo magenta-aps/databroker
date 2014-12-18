@@ -42,7 +42,7 @@ public class InputProcessingCounter {
         if (this.chunkInputsProcessed >= this.chunkSize) {
             this.chunkInputsProcessed = 0;
             this.inputChunks++;
-            System.out.println("    " + (this.inputChunks * this.chunkSize) + " inputs processed");
+            System.out.println("    " + (this.inputChunks * this.chunkSize) + " items processed");
         }
     }
 
@@ -50,6 +50,6 @@ public class InputProcessingCounter {
         String timeStr = this.startTime != 0 ?
                 " in "+String.format("%.3f", 0.001 * (new Date().getTime() - this.startTime))+" seconds" :
                 "";
-        System.out.println("Processed " + (this.inputChunks * this.chunkSize + this.chunkInputsProcessed) + " inputs" + timeStr + ".");
+        System.out.println("Processed " + (this.inputChunks * this.chunkSize + this.chunkInputsProcessed) + " items" + timeStr + ".");
     }
 }

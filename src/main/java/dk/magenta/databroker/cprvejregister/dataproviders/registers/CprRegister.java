@@ -33,8 +33,8 @@ public class CprRegister extends Register {
 
     @Transactional
     public void pull(boolean forceFetch, boolean forceParse) {
-        this.vejRegister.pull(forceFetch, forceParse);
         this.myndighedsRegister.pull(forceFetch, forceParse);
+        this.vejRegister.pull(forceFetch, forceParse);
         this.lokalitetsRegister.pull(forceFetch, forceParse);
         this.postnummerRegister.pull(forceFetch, forceParse);
     }

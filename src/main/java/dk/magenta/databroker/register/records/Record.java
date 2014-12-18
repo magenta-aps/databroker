@@ -19,7 +19,7 @@ public abstract class Record extends HashMap<String, String> {
     public void setVisited() {
         this.setVisited(true);
     }
-    public void resetProcessed() {
+    public void resetVisited() {
         this.visited = false;
     }
 

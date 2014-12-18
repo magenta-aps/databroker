@@ -2,7 +2,7 @@ package dk.magenta.databroker.cprvejregister.model.husnummer;
 
 import dk.magenta.databroker.register.objectcontainers.StringList;
 import dk.magenta.databroker.register.conditions.ConditionList;
-import dk.magenta.databroker.cprvejregister.model.RepositoryUtil;
+import dk.magenta.databroker.register.RepositoryUtil;
 
 import javax.persistence.Query;
 
