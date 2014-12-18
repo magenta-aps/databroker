@@ -3,6 +3,8 @@ package dk.magenta.databroker.test;
 import dk.magenta.databroker.Application;
 
 
+import dk.magenta.databroker.core.DataProviderRegistry;
+import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.registers.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,6 +15,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -72,7 +76,10 @@ public class VejregisterTest {
         postnummerRegister.read(new File("/home/lars/Projekt/databroker/src/test/resources/vejregister/a370712.txt"));
         //postnummerRegister.pull();
 */
-        grLokalitetsRegister.pull();
+
+        DataProviderEntity dataProviderEntity = new DataProviderEntity();
+        dataProviderEntity.setType(GrLokalitetsRegister.class);
+        dataProviderEntity.pull();
 
 
         System.out.println("Test complete");

@@ -42,10 +42,8 @@ public class DoubleHistoryTest {
         DataProviderEntity dpEntity = new DataProviderEntity();
         dpEntity.setUuid(UUID.randomUUID().toString());
 
-        JubkDataProvider dataProvider = new JubkDataProvider(dpEntity);
-        Timestamp now = new Timestamp(System.currentTimeMillis());
 
-        RegistreringEntity oioReg = regRepo.createNew(dataProvider, "Test");
+        RegistreringEntity oioReg = regRepo.createNew(dpEntity, "Test");
         regRepo.save(oioReg);
 
         List<VirkningEntity> virkninger = new ArrayList<VirkningEntity>();

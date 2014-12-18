@@ -3,6 +3,7 @@ package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
 import dk.magenta.databroker.core.DataProvider;
+import dk.magenta.databroker.core.DataProviderRegistry;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.core.model.DataProviderStorageEntity;
 import dk.magenta.databroker.core.model.DataProviderStorageRepository;
@@ -45,10 +46,6 @@ public class GrLokalitetsRegister extends DataProvider {
     private RegistreringRepository registreringRepository;
 
 
-    public GrLokalitetsRegister(DataProviderEntity dbObject) {
-        super(dbObject);
-    }
-
     public GrLokalitetsRegister() {
     }
 
@@ -63,10 +60,6 @@ public class GrLokalitetsRegister extends DataProvider {
             }
             this.storageEntity = storageEntity;
         }
-        DataProviderEntity vejProvider = new DataProviderEntity();
-        vejProvider.setUuid(UUID.randomUUID().toString());
-
-        this.setDataProviderEntity(vejProvider);
     }
 
 
@@ -82,13 +75,13 @@ public class GrLokalitetsRegister extends DataProvider {
     private RegistreringEntity createRegistrering;
     private RegistreringEntity updateRegistrering;
 
-    private void createRegistreringEntities() {
-        this.createRegistrering = registreringRepository.createNew(this);
-        this.updateRegistrering = registreringRepository.createUpdate(this);
+    private void createRegistreringEntities(DataProviderEntity dataProviderEntity) {
+        this.createRegistrering = registreringRepository.createNew(dataProviderEntity);
+        this.updateRegistrering = registreringRepository.createUpdate(dataProviderEntity);
     }
 
     @Transactional
-    public void pull() {
+    public void pull(DataProviderEntity dataProviderEntity) {
         File inputFile = new File("src/test/resources/grønlandLokaliteter.csv");
         InputStream input = this.readFile(inputFile);
 
@@ -122,7 +115,7 @@ public class GrLokalitetsRegister extends DataProvider {
             System.out.println("Reading data");
             Date startTime = new Date();
             int i = 0, j = 0;
-            createRegistreringEntities();
+            createRegistreringEntities(dataProviderEntity);
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {
                 if (line != null) {
                     line = line.trim();

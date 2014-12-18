@@ -61,10 +61,6 @@ public abstract class Register extends DataProvider {
         }
     }
 
-    public Register(DataProviderEntity dbObject) {
-        super(dbObject);
-    }
-
     public Register() {
     }
 
@@ -95,7 +91,7 @@ public abstract class Register extends DataProvider {
 
 
     @Transactional
-    public void pull() {
+    public void pull(DataProviderEntity entity) {
         this.pull(false);
     }
 

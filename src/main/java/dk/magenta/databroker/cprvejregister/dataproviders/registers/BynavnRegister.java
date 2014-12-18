@@ -6,6 +6,7 @@ import dk.magenta.databroker.cprvejregister.dataproviders.records.CprRecord;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
+import java.util.UUID;
 
 /**
  * Created by lars on 04-11-14.
@@ -30,10 +31,6 @@ public class BynavnRegister extends CprRegister {
         }
     }
 
-    public BynavnRegister(DataProviderEntity dbObject) {
-        super(dbObject);
-    }
-
     public URL getRecordUrl() throws MalformedURLException {
         return new URL("https://cpr.dk/media/152120/a370713.txt");
     }
@@ -54,6 +51,8 @@ public class BynavnRegister extends CprRegister {
     }
 
     public static void main(String[] args) {
-        new BynavnRegister(null).pull();
+        DataProviderEntity dp = new DataProviderEntity();
+        dp.setUuid(UUID.randomUUID().toString());
+        new BynavnRegister().pull(dp);
     }
 }

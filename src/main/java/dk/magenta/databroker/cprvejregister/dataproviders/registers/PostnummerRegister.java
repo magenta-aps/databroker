@@ -96,21 +96,8 @@ public class PostnummerRegister extends CprRegister {
     * Constructors
     * */
 
-    public PostnummerRegister(DataProviderEntity dbObject) {
-        super(dbObject);
-    }
-
     public PostnummerRegister() {
     }
-
-    @PostConstruct
-    public void PostConstructPostnummerRegister() {
-        DataProviderEntity postProvider = new DataProviderEntity();
-        postProvider.setUuid(UUID.randomUUID().toString());
-
-        this.setDataProviderEntity(postProvider);
-    }
-
 
     /*
     * Data source spec
@@ -170,9 +157,9 @@ public class PostnummerRegister extends CprRegister {
     private RegistreringEntity createRegistrering;
     private RegistreringEntity updateRegistrering;
 
-    private void createRegistreringEntities() {
-        this.createRegistrering = registreringRepository.createNew(this);
-        this.updateRegistrering = registreringRepository.createUpdate(this);
+    private void createRegistreringEntities(DataProviderEntity dataProviderEntity) {
+        this.createRegistrering = registreringRepository.createNew(dataProviderEntity);
+        this.updateRegistrering = registreringRepository.createUpdate(dataProviderEntity);
     }
 
 
@@ -180,8 +167,8 @@ public class PostnummerRegister extends CprRegister {
     * Database save
     * */
 
-    protected void saveRunToDatabase(RegisterRun run) {
-        this.createRegistreringEntities();
+    protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
+        this.createRegistreringEntities(dataProviderEntity);
 
         PostnummerRegisterRun prun = (PostnummerRegisterRun) run;
 

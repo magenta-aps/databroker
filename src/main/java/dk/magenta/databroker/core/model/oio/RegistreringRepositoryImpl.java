@@ -8,16 +8,16 @@ import java.sql.Timestamp;
 import java.util.Date;
 
 interface RegistreringRepositoryCustom {
-    public RegistreringEntity createNew(DataProvider sourceDataProvider, String note);
+    public RegistreringEntity createNew(DataProviderEntity sourceDataProvider, String note);
 
-    public RegistreringEntity createNew(DataProvider sourceDataProvider);
+    public RegistreringEntity createNew(DataProviderEntity sourceDataProvider);
 
     public RegistreringEntity importNew(
             Timestamp registreringstidspunk, String aktoerUUID, String note, RegistreringLivscyklusStatus status
     );
 
-    public RegistreringEntity createUpdate(DataProvider sourceDataProvider, String note);
-    public RegistreringEntity createUpdate(DataProvider sourceDataProvider);
+    public RegistreringEntity createUpdate(DataProviderEntity sourceDataProvider, String note);
+    public RegistreringEntity createUpdate(DataProviderEntity sourceDataProvider);
 }
 
 public class RegistreringRepositoryImpl implements RegistreringRepositoryCustom {
@@ -27,11 +27,11 @@ public class RegistreringRepositoryImpl implements RegistreringRepositoryCustom 
     RegistreringRepository regRepo;
 
     private RegistreringEntity create(
-            DataProvider sourceDataProvider, String note, RegistreringLivscyklusStatus status
+            DataProviderEntity sourceDataProvider, String note, RegistreringLivscyklusStatus status
     ) {
         RegistreringEntity result = new RegistreringEntity(
                 new Timestamp(System.currentTimeMillis()),
-                sourceDataProvider.getDataProviderEntity().getUuid(),
+                sourceDataProvider.getUuid(),
                 note
         );
         result.setLivscyklus(lsRepo.findOrCreateByStatus(status));
@@ -40,22 +40,22 @@ public class RegistreringRepositoryImpl implements RegistreringRepositoryCustom 
     }
 
     @Override
-    public RegistreringEntity createNew(DataProvider sourceDataProvider, String note) {
+    public RegistreringEntity createNew(DataProviderEntity sourceDataProvider, String note) {
         return this.create(sourceDataProvider, note, RegistreringLivscyklusStatus.OPRETTET);
     }
 
     @Override
-    public RegistreringEntity createUpdate(DataProvider sourceDataProvider, String note) {
+    public RegistreringEntity createUpdate(DataProviderEntity sourceDataProvider, String note) {
         return this.create(sourceDataProvider, note, RegistreringLivscyklusStatus.RETTET);
     }
 
     @Override
-    public RegistreringEntity createNew(DataProvider sourceDataProvider) {
+    public RegistreringEntity createNew(DataProviderEntity sourceDataProvider) {
         String note = "Created by dataprovider "+sourceDataProvider.getClass().getName();
         return this.createNew(sourceDataProvider, note);
     }
     @Override
-    public RegistreringEntity createUpdate(DataProvider sourceDataProvider) {
+    public RegistreringEntity createUpdate(DataProviderEntity sourceDataProvider) {
         String note = "Updated by dataprovider "+sourceDataProvider.getClass().getName();
         return this.createUpdate(sourceDataProvider, note);
     }

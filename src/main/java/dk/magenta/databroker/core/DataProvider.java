@@ -4,6 +4,7 @@ import org.springframework.http.HttpRequest;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -18,34 +19,24 @@ import java.util.zip.ZipInputStream;
  */
 public abstract class DataProvider {
 
-    private DataProviderEntity dataProviderEntity;
-
-    public DataProvider(DataProviderEntity dataProviderEntity) {
-        this.dataProviderEntity = dataProviderEntity;
-    }
-
     public DataProvider() {
 
     }
 
-    public DataProviderEntity getDataProviderEntity() {
-        return dataProviderEntity;
+    @PostConstruct
+    protected void RegisterDataProviderInstance() {
+        DataProviderRegistry.registerDataProvider(this);
     }
 
-    public void setDataProviderEntity(DataProviderEntity dataProviderEntity) { this.dataProviderEntity = dataProviderEntity; }
+    public abstract void pull(DataProviderEntity dataProviderEntity);
 
-
-    public abstract void pull();
-
-    public void handlePush(HttpRequest request) {
+    public void handlePush(DataProviderEntity dataProviderEntity, HttpRequest request) {
         throw new NotImplementedException();
     }
 
-    public Properties getConfigSpecification() {
+    public Properties getConfigSpecification(DataProviderEntity dataProviderEntity) {
         throw new NotImplementedException();
     }
-
-
 
     protected InputStream readUrl(URL url) {
         if (url != null) {

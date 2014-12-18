@@ -124,20 +124,7 @@ public class MyndighedsRegister extends CprRegister {
     //@Autowired
     //private KommuneRepository kommuneRepository;
 
-    public MyndighedsRegister(DataProviderEntity dbObject) {
-        super(dbObject);
-    }
-
     public MyndighedsRegister() {
-    }
-
-
-    @PostConstruct
-    public void PostConstructMyndighedsRegister() {
-        DataProviderEntity vejProvider = new DataProviderEntity();
-        vejProvider.setUuid(UUID.randomUUID().toString());
-
-        this.setDataProviderEntity(vejProvider);
     }
 
     public URL getRecordUrl() throws MalformedURLException {
@@ -181,10 +168,10 @@ public class MyndighedsRegister extends CprRegister {
     @Autowired
     private RegistreringRepository registreringRepository;
 
-    protected void saveRunToDatabase(RegisterRun run) {
+    protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
 
-        RegistreringEntity createRegistrering = registreringRepository.createNew(this);
-        RegistreringEntity updateRegistrering = registreringRepository.createUpdate(this);
+        RegistreringEntity createRegistrering = registreringRepository.createNew(dataProviderEntity);
+        RegistreringEntity updateRegistrering = registreringRepository.createUpdate(dataProviderEntity);
 
 
         if (kommuneRepository == null) {
@@ -229,8 +216,10 @@ public class MyndighedsRegister extends CprRegister {
     }
 
     public static void main(String[] args) {
-        MyndighedsRegister register = new MyndighedsRegister(null);
-        register.pull();
+        MyndighedsRegister register = new MyndighedsRegister();
+        DataProviderEntity dataProviderEntity = new DataProviderEntity();
+        dataProviderEntity.setUuid(UUID.randomUUID().toString());
+        register.pull(dataProviderEntity);
     }
 
 }

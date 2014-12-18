@@ -363,7 +363,7 @@ public class VejRegister extends CprRegister {
 
 
         // Process an AktivVej item, adding relevant database entries
-        public void processAktivVej(AktivVej aktivVej) {
+        public void processAktivVej(AktivVej aktivVej, DataProviderEntity dataProviderEntity) {
             ArrayList<Long> time = new ArrayList<Long>();
 
             int kommuneKode = aktivVej.getInt("kommuneKode");
@@ -372,7 +372,7 @@ public class VejRegister extends CprRegister {
             String vejAdresseringsnavn = aktivVej.get("vejAdresseringsnavn");
 
             if (createRegistrering == null || updateRegistrering == null) {
-                createRegistreringEntities();
+                createRegistreringEntities(dataProviderEntity);
             }
 
             //KommuneEntity kommune = kommuneRepository.getByKommunekode(kommuneKode);
@@ -458,7 +458,7 @@ public class VejRegister extends CprRegister {
                 aktivVej.setVisited();
                 for (AktivVej otherVej : aktivVej.getConnections()) {
                     if (!otherVej.getVisited()) {
-                        this.processAktivVej(otherVej);
+                        this.processAktivVej(otherVej, dataProviderEntity);
                     }
                 }
 
@@ -546,21 +546,8 @@ public class VejRegister extends CprRegister {
     * Constructors
     * */
 
-    public VejRegister(DataProviderEntity dbObject) {
-        super(dbObject);
-    }
-
     public VejRegister() {
     }
-
-    @PostConstruct
-    public void PostConstructVejRegister() {
-        DataProviderEntity vejProvider = new DataProviderEntity();
-        vejProvider.setUuid(UUID.randomUUID().toString());
-
-        this.setDataProviderEntity(vejProvider);
-    }
-
 
     /*
     * Data source spec
@@ -669,9 +656,9 @@ public class VejRegister extends CprRegister {
     private RegistreringEntity createRegistrering;
     private RegistreringEntity updateRegistrering;
 
-    private void createRegistreringEntities() {
-        this.createRegistrering = registreringRepository.createNew(this);
-        this.updateRegistrering = registreringRepository.createUpdate(this);
+    private void createRegistreringEntities(DataProviderEntity dataProviderEntity) {
+        this.createRegistrering = registreringRepository.createNew(dataProviderEntity);
+        this.updateRegistrering = registreringRepository.createUpdate(dataProviderEntity);
     }
 
 
@@ -679,9 +666,9 @@ public class VejRegister extends CprRegister {
     * Database save
     * */
 
-    protected void saveRunToDatabase(RegisterRun run) {
+    protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
         long time;
-        this.createRegistreringEntities();
+        this.createRegistreringEntities(dataProviderEntity);
         VejRegisterRun vrun = (VejRegisterRun) run;
 
         System.out.println("There are "+vrun.boliger.size()+" boliger");
@@ -733,7 +720,7 @@ public class VejRegister extends CprRegister {
             }
             counter++;*/
             if (aktivVej != null) {
-                vrun.processAktivVej(aktivVej);
+                vrun.processAktivVej(aktivVej, dataProviderEntity);
             }
         }
         System.out.println("Entry update took "+this.toc(time)+"ms");
