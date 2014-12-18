@@ -75,7 +75,7 @@ public class SearchService {
     @GET
     @Path("{path}")
     public String catcher(@PathParam("path") String path) {
-        return "{\"msg\":\"catcher("+path+")\"}";
+        throw new NotFoundException();
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -86,18 +86,18 @@ public class SearchService {
     public String kommune(@QueryParam("land") String land, @QueryParam("kommune") String[] kommune,
                           @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
         Format fmt = this.getFormat(formatStr);
-        GlobalCondition condition = new GlobalCondition(includeBefore, includeAfter);
-        return this.format("kommuner", new ArrayList<OutputFormattable>(this.getKommuner(land, kommune, condition)), fmt);
-    }
 
-    private List<KommuneEntity> getKommuner(String land, String[] kommune, GlobalCondition globalCondition) {
-        return new ArrayList<KommuneEntity>(
+        GlobalCondition globalCondition = new GlobalCondition(includeBefore, includeAfter);
+
+        List<OutputFormattable> kommuner = new ArrayList<OutputFormattable>(
             this.kommuneRepository.search(
                 this.cleanInput(land),
                 this.cleanInput(kommune),
                 globalCondition
             )
         );
+
+        return this.format("kommuner", kommuner, fmt);
     }
 
     @GET
@@ -106,23 +106,25 @@ public class SearchService {
     public String kommune(@PathParam("id") String id,
                       @QueryParam("format") String formatStr) {
         Format fmt = this.getFormat(formatStr);
-        KommuneEntity kommuneEntity = this.getKommune(id);
+
+        KommuneEntity kommuneEntity = null;
+
+        if (id.length() < 4) {
+            try {
+                int kommuneKode = Integer.parseInt(id, 10);
+                kommuneEntity = this.kommuneRepository.getByKommunekode(kommuneKode);
+            } catch (NumberFormatException e) {
+            }
+        }
+        if (kommuneEntity == null) {
+            kommuneEntity = this.kommuneRepository.findByUuid(id);
+        }
+
         if (kommuneEntity != null) {
             return this.format(kommuneEntity, fmt);
         } else {
             throw new NotFoundException();
         }
-    }
-
-    private KommuneEntity getKommune(String id) {
-        if (id.length() < 4) {
-            try {
-                int kommuneKode = Integer.parseInt(id, 10);
-                return this.kommuneRepository.getByKommunekode(kommuneKode);
-            } catch (NumberFormatException e) {
-            }
-        }
-        return this.kommuneRepository.findByUuid(id);
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -133,12 +135,9 @@ public class SearchService {
     public String vej(@QueryParam("land") String land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej,
                       @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
         Format fmt = this.getFormat(formatStr);
-        GlobalCondition condition = new GlobalCondition(includeBefore, includeAfter);
-        return this.format("veje", new ArrayList<OutputFormattable>(this.getVeje(land, kommune, vej, condition)), fmt);
-    }
+        GlobalCondition globalCondition = new GlobalCondition(includeBefore, includeAfter);
 
-    private List<NavngivenVejEntity> getVeje(String land, String[] kommune, String[] vej, GlobalCondition globalCondition) {
-        return new ArrayList<NavngivenVejEntity>(
+        List<OutputFormattable> veje = new ArrayList<OutputFormattable>(
             this.navngivenVejRepository.search(
                 this.cleanInput(land),
                 this.cleanInput(kommune),
@@ -146,6 +145,8 @@ public class SearchService {
                 globalCondition
             )
         );
+
+        return this.format("veje", veje, fmt);
     }
 
     @GET
@@ -154,18 +155,13 @@ public class SearchService {
     public String vej(@PathParam("uuid") String uuid,
                         @QueryParam("format") String formatStr) {
         Format fmt = this.getFormat(formatStr);
-        NavngivenVejEntity navngivenVejEntity = this.getVej(uuid);
+        NavngivenVejEntity navngivenVejEntity = this.navngivenVejRepository.findByUuid(uuid);
         if (navngivenVejEntity != null) {
             return this.format(navngivenVejEntity, fmt);
         } else {
             throw new NotFoundException();
         }
     }
-
-    private NavngivenVejEntity getVej(String uuid) {
-        return this.navngivenVejRepository.findByUuid(uuid);
-    }
-
 
     //------------------------------------------------------------------------------------------------------------------
 
@@ -175,17 +171,16 @@ public class SearchService {
     public String postnummer(@QueryParam("post") String[] post,
                              @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
         Format fmt = this.getFormat(formatStr);
-        GlobalCondition condition = new GlobalCondition(includeBefore, includeAfter);
-        return this.format("postnumre", new ArrayList<OutputFormattable>(this.getPostnumre(post, condition)), fmt);
-    }
+        GlobalCondition globalCondition = new GlobalCondition(includeBefore, includeAfter);
 
-    private List<PostnummerEntity> getPostnumre(String[] post, GlobalCondition globalCondition) {
-        return new ArrayList<PostnummerEntity>(
+        ArrayList<OutputFormattable> postnumre = new ArrayList<OutputFormattable>(
             this.postnummerRepository.search(
                 this.cleanInput(post),
                 globalCondition
             )
         );
+
+        return this.format("postnumre", postnumre, fmt);
     }
 
     @GET
@@ -194,26 +189,25 @@ public class SearchService {
     public String postnummer(@PathParam("id") String id,
                         @QueryParam("format") String formatStr) {
         Format fmt = this.getFormat(formatStr);
-        PostnummerEntity postnummerEntity = this.getPostNummer(id);
+
+        PostnummerEntity postnummerEntity = null;
+        if (id.length() < 5) {
+            try {
+                int postnr = Integer.parseInt(id,10);
+                postnummerEntity = this.postnummerRepository.findByNummer(postnr);
+            } catch (NumberFormatException e) {
+            }
+        }
+        if (postnummerEntity == null) {
+            postnummerEntity = this.postnummerRepository.findByUuid(id);
+        }
+
         if (postnummerEntity != null) {
             return this.format(postnummerEntity, fmt);
         } else {
             throw new NotFoundException();
         }
     }
-
-    private PostnummerEntity getPostNummer(String id) {
-        if (id.length() < 5) {
-            try {
-                int postnr = Integer.parseInt(id,10);
-                return this.postnummerRepository.findByNummer(postnr);
-            } catch (NumberFormatException e) {
-            }
-        }
-        return this.postnummerRepository.findByUuid(id);
-    }
-
-
 
     //------------------------------------------------------------------------------------------------------------------
 
@@ -223,11 +217,8 @@ public class SearchService {
     public String husnummer(@QueryParam("land") String land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej, @QueryParam("postnr") String[] postnr, @QueryParam("husnr") String[] husnr,
                             @QueryParam("format") String formatStr) {
         Format fmt = this.getFormat(formatStr);
-        return this.format("husnumre", new ArrayList<OutputFormattable>(this.getHusnumre(land, kommune, vej, postnr, husnr)), fmt);
-    }
 
-    private List<HusnummerEntity> getHusnumre(String land, String[] kommune, String[] vej, String[] postnr, String[] husnr) {
-        return new ArrayList<HusnummerEntity>(
+        List<OutputFormattable> husnumre = new ArrayList<OutputFormattable>(
             this.husnummerRepository.search(
                 this.cleanInput(land),
                 this.cleanInput(kommune),
@@ -236,8 +227,9 @@ public class SearchService {
                 this.cleanInput(husnr)
             )
         );
-    }
 
+        return this.format("husnumre", husnumre, fmt);
+    }
 
     @GET
     @Path("husnr/{uuid}")
@@ -245,16 +237,12 @@ public class SearchService {
     public String husnr(@PathParam("uuid") String uuid,
                           @QueryParam("format") String formatStr) {
         Format fmt = this.getFormat(formatStr);
-        HusnummerEntity husnummerEntity = this.getHusNummer(uuid);
+        HusnummerEntity husnummerEntity = this.husnummerRepository.findByUuid(uuid);
         if (husnummerEntity != null) {
             return this.format(husnummerEntity, fmt);
         } else {
             throw new NotFoundException();
         }
-    }
-
-    private HusnummerEntity getHusNummer(String uuid) {
-        return this.husnummerRepository.findByUuid(uuid);
     }
 
 //------------------------------------------------------------------------------------------------------------------
@@ -265,12 +253,9 @@ public class SearchService {
     public String adresse(@QueryParam("land") String land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej, @QueryParam("postnr") String[] postnr, @QueryParam("husnr") String[] husnr, @QueryParam("etage") String[] etage, @QueryParam("doer") String[] doer,
                           @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
         Format fmt = this.getFormat(formatStr);
-        GlobalCondition condition = new GlobalCondition(includeBefore, includeAfter);
-        return this.format("husnumre", new ArrayList<OutputFormattable>(this.getAdresser(land, kommune, vej, postnr, husnr, etage, doer, condition)), fmt);
-    }
+        GlobalCondition globalCondition = new GlobalCondition(includeBefore, includeAfter);
 
-    private List<AdresseEntity> getAdresser(String land, String[] kommune, String[] vej, String[] postnr, String[] husnr, String[] etage, String[] doer, GlobalCondition globalCondition) {
-        return new ArrayList<AdresseEntity>(
+        ArrayList<OutputFormattable> adresser = new ArrayList<OutputFormattable>(
             this.adresseRepository.search(
                 this.cleanInput(land),
                 this.cleanInput(kommune),
@@ -282,6 +267,8 @@ public class SearchService {
                 globalCondition
             )
         );
+
+        return this.format("husnumre", adresser, fmt);
     }
 
     @GET
@@ -290,21 +277,14 @@ public class SearchService {
     public String adresse(@PathParam("uuid") String uuid,
                           @QueryParam("format") String formatStr) {
         Format fmt = this.getFormat(formatStr);
-        AdresseEntity adresseEntity = this.getAdresse(uuid);
+        AdresseEntity adresseEntity = this.adresseRepository.findByUuid(uuid);
         if (adresseEntity != null) {
             return this.format(adresseEntity, fmt);
         } else {
             throw new NotFoundException();
         }
     }
-
-    private AdresseEntity getAdresse(String uuid) {
-        return this.adresseRepository.findByUuid(uuid);
-    }
-
-    //------------------------------------------------------------------------------------------------------------------
-
-
+    
     //------------------------------------------------------------------------------------------------------------------
 
     private String format(OutputFormattable output, Format format) {
