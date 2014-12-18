@@ -2,8 +2,12 @@ package dk.magenta.databroker.cprvejregister.model.adgangspunkt;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
+import org.json.JSONObject;
 
 import javax.persistence.*;
+import javax.xml.soap.SOAPElement;
+import javax.xml.soap.SOAPEnvelope;
+import javax.xml.soap.SOAPException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -85,4 +89,36 @@ public class AdgangspunktEntity
     }
 
 
+    //------------------------------------------------------------------------------------------------------------------
+
+    public JSONObject toJSON() {
+        JSONObject obj = new JSONObject();
+        obj.put("id", this.getUuid());
+        /*obj.put("postnr", this.getAdgangspunkt().getLatestVersion().getLiggerIPostnummer().getNummer());*/
+        return obj;
+    }
+
+    public JSONObject toFullJSON() {
+        JSONObject obj = this.toJSON();
+        obj.put("postnr", this.getLatestVersion().getLiggerIPostnummer().toJSON());
+        return obj;
+    }
+
+    public SOAPElement toXML(SOAPElement parent, SOAPEnvelope envelope) {
+        try {
+            SOAPElement node = parent.addChildElement("adgangspunkt");
+            /*node.addAttribute(envelope.createName("postnr"), ""+this.getAdgangspunkt().getLatestVersion().getLiggerIPostnummer().getNummer());*/
+            return node;
+        } catch (SOAPException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public SOAPElement toFullXML(SOAPElement parent, SOAPEnvelope envelope) {
+        SOAPElement node = this.toXML(parent, envelope);
+        this.getLatestVersion().getLiggerIPostnummer().toXML(node, envelope);
+        /*node.addAttribute(envelope.createName("postnr"), ""+this.getAdgangspunkt().getLatestVersion().getLiggerIPostnummer().getNummer());*/
+        return node;
+    }
 }

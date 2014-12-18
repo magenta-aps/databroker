@@ -18,6 +18,8 @@ public class ExceptionHandler implements ExceptionMapper<Exception> {
         Response.Status httpStatus = Response.Status.INTERNAL_SERVER_ERROR;
         if (exception instanceof NotFoundException) {
             httpStatus = Response.Status.NOT_FOUND;
+        } else {
+            exception.printStackTrace();
         }
 
         return Response.status(httpStatus).entity(exception.getMessage()).build();

@@ -55,10 +55,10 @@ public class VejregisterTest {
     //@Transactional
     public void testVejregister() {
         myndighedsRegister.pull();
-        vejRegister.pull();
-        lokalitetsRegister.pull();
+        vejRegister.pull(false, true);
+        /*lokalitetsRegister.pull();
         postnummerRegister.pull();
-        grLokalitetsRegister.pull();
+        grLokalitetsRegister.pull();*/
     }
 
 

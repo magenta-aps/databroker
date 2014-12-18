@@ -25,4 +25,6 @@ public interface HusnummerRepository extends JpaRepository<HusnummerEntity, Long
     public HusnummerEntity getByKommunekodeAndVejkodeAndHusnr(@Param("kommunekode") int kommunekode, @Param("vej") int vejkode, @Param("husnr") String husNr);
 
     public Collection<HusnummerEntity> search(String land, String[] kommuner, String[] vej, String[] post, String[] husnr);
+
+    public HusnummerEntity findByUuid(String uuid);
 }

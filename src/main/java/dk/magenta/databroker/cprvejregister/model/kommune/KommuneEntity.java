@@ -7,6 +7,7 @@ import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntit
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejVersionEntity;
 import dk.magenta.databroker.cprvejregister.model.reserveretvejnavn.ReserveretVejnavnEntity;
 import org.hibernate.annotations.Index;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.persistence.*;
@@ -140,6 +141,7 @@ public class KommuneEntity
 
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
+        obj.put("id", this.getUuid());
         obj.put("navn", this.getLatestVersion().getNavn());
         obj.put("kommuneKode", this.getKommunekode());
         return obj;
@@ -147,6 +149,16 @@ public class KommuneEntity
 
     public JSONObject toFullJSON() {
         JSONObject obj = this.toJSON();
+        JSONArray delveje = new JSONArray();
+        for (KommunedelAfNavngivenVejEntity kommunedelAfNavngivenVejEntity : this.getKommunedeleAfNavngivenVej()) {
+            JSONObject delvej = kommunedelAfNavngivenVejEntity.toJSON();
+            delvej.put("vej", kommunedelAfNavngivenVejEntity.getNavngivenVejVersion().getEntity().toJSON());
+            if (kommunedelAfNavngivenVejEntity.getLokalitet() != null) {
+                delvej.put("lokalitet", kommunedelAfNavngivenVejEntity.getLokalitet().toJSON());
+            }
+            delveje.put(delvej);
+        }
+        obj.put("delveje", delveje);
         return obj;
     }
 
@@ -164,6 +176,19 @@ public class KommuneEntity
 
     public SOAPElement toFullXML(SOAPElement parent, SOAPEnvelope envelope) {
         SOAPElement node = this.toXML(parent, envelope);
+        try {
+            SOAPElement delveje = node.addChildElement(envelope.createName("delveje"));
+            for (KommunedelAfNavngivenVejEntity kommunedelAfNavngivenVejEntity : this.getKommunedeleAfNavngivenVej()) {
+                SOAPElement delvej = kommunedelAfNavngivenVejEntity.toXML(delveje, envelope);
+                kommunedelAfNavngivenVejEntity.getKommune().toXML(delvej, envelope);
+                if (kommunedelAfNavngivenVejEntity.getLokalitet() != null) {
+                    kommunedelAfNavngivenVejEntity.getLokalitet().toXML(delvej, envelope);
+                }
+                kommunedelAfNavngivenVejEntity.getNavngivenVejVersion().getEntity().toXML(delvej, envelope);
+            }
+        } catch (SOAPException e) {
+            e.printStackTrace();
+        }
         return node;
     }
 

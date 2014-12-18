@@ -13,4 +13,5 @@ import java.util.Collection;
 public interface PostnummerRepository extends JpaRepository<PostnummerEntity, Long> {
     public PostnummerEntity findByNummer(int nummer);
     public Collection<PostnummerEntity> search(String[] post, GlobalCondition globalCondition);
+    public PostnummerEntity findByUuid(String uuid);
 }

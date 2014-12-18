@@ -20,4 +20,7 @@ public interface NavngivenVejRepository extends JpaRepository<NavngivenVejEntity
     public NavngivenVejEntity findByKommunekodeAndVejkode(@Param("kommune") int kommunekode, @Param("vej") int vejkode);
 
     public Collection<NavngivenVejEntity> search(String land, String[] kommune, String[] vej, GlobalCondition globalCondition);
+
+    public NavngivenVejEntity findByUuid(String uuid);
+
 }

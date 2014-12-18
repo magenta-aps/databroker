@@ -107,6 +107,7 @@ public class KommunedelAfNavngivenVejEntity
 
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
+        obj.put("id", this.getUuid());
         obj.put("vejKode", this.getVejkode());
         return obj;
     }

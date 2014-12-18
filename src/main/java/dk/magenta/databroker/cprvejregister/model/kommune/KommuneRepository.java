@@ -25,4 +25,6 @@ public interface KommuneRepository extends JpaRepository<KommuneEntity, Long> {
     public Collection<KommuneEntity> findByName(@Param("navn") String navn);
 
     public Collection<KommuneEntity> search(String land, String[] kommune, GlobalCondition globalCondition);
+
+    public KommuneEntity findByUuid(String uuid);
 }

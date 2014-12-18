@@ -3,9 +3,12 @@ package dk.magenta.databroker.cprvejregister.model.husnummer;
 import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.core.model.oio.UniqueBase;
 import dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktEntity;
+import dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktVersionEntity;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
+import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerEntity;
 import org.hibernate.annotations.Index;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.persistence.*;
@@ -77,19 +80,47 @@ public class HusnummerEntity
         this.husnummerbetegnelse = husnummerbetegnelse;
     }
 
+    public Collection<AdresseEntity> getAdresser() {
+        return this.adresser;
+    }
+
+
+    public PostnummerEntity getPostNummer() {
+        AdgangspunktEntity adgangspunktEntity = this.getAdgangspunkt();
+        if (adgangspunktEntity != null) {
+            AdgangspunktVersionEntity adgangspunktVersionEntity = adgangspunktEntity.getLatestVersion();
+            if (adgangspunktVersionEntity != null) {
+                PostnummerEntity postnummerEntity = adgangspunktVersionEntity.getLiggerIPostnummer();
+                if (postnummerEntity != null) {
+                    return postnummerEntity;
+                }
+            }
+        }
+        return null;
+    }
+
     //------------------------------------------------------------------------------------------------------------------
 
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
+        obj.put("id", this.getUuid());
         obj.put("husnummerbetegnelse", this.getHusnummerbetegnelse());
-        /*obj.put("postnr", this.getAdgangspunkt().getLatestVersion().getLiggerIPostnummer().getNummer());*/
         return obj;
     }
 
     public JSONObject toFullJSON() {
         JSONObject obj = this.toJSON();
-        obj.put("vej", this.getNavngivenVej().getLatestVersion().getEntity().toJSON());
-        /*obj.put("postnr", this.getAdgangspunkt().getLatestVersion().getLiggerIPostnummer().getNummer());*/
+        JSONObject vej = this.getNavngivenVej().getLatestVersion().getEntity().toJSON();
+        obj.put("vej", vej);
+        PostnummerEntity postnummerEntity = this.getPostNummer();
+        if (postnummerEntity != null) {
+            obj.put("postnr", postnummerEntity.toJSON());
+        }
+        JSONArray adresser = new JSONArray();
+        for (AdresseEntity adresseEntity : this.getAdresser()) {
+            adresser.put(adresseEntity.toJSON());
+        }
+        obj.put("adresser", adresser);
         return obj;
     }
 
@@ -97,7 +128,6 @@ public class HusnummerEntity
         try {
             SOAPElement node = parent.addChildElement("husnr");
             node.addAttribute(envelope.createName("husnummerbetegnelse"), this.getHusnummerbetegnelse());
-            /*node.addAttribute(envelope.createName("postnr"), ""+this.getAdgangspunkt().getLatestVersion().getLiggerIPostnummer().getNummer());*/
             return node;
         } catch (SOAPException e) {
             e.printStackTrace();
@@ -108,7 +138,10 @@ public class HusnummerEntity
     public SOAPElement toFullXML(SOAPElement parent, SOAPEnvelope envelope) {
         SOAPElement node = this.toXML(parent, envelope);
         this.getNavngivenVej().toXML(node, envelope);
-        /*node.addAttribute(envelope.createName("postnr"), ""+this.getAdgangspunkt().getLatestVersion().getLiggerIPostnummer().getNummer());*/
+        PostnummerEntity postnummerEntity = this.getPostNummer();
+        if (postnummerEntity != null) {
+            postnummerEntity.toXML(node, envelope);
+        }
         return node;
     }
 }

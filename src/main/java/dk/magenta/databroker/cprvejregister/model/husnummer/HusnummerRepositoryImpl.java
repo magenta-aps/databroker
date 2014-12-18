@@ -56,7 +56,7 @@ public class HusnummerRepositoryImpl implements HusnummerRepositoryCustom {
                 }
             }
             if (vej != null) {
-                conditions.addCondition(RepositoryUtil.whereField(vej, "delvej.vejKode", "vejversion.vejnavn"));
+                conditions.addCondition(RepositoryUtil.whereField(vej, "delvej.vejkode", "vejversion.vejnavn"));
             }
         }
 

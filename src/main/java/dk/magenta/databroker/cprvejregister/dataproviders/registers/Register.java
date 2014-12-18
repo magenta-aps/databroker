@@ -114,11 +114,11 @@ public abstract class Register extends DataProvider {
 
     @Transactional
     public void pull() {
-        this.pull(false);
+        this.pull(false, false);
     }
 
     @Transactional
-    public void pull(boolean forceFetch) {
+    public void pull(boolean forceFetch, boolean forceParse) {
         System.out.println("-----------------------------");
         System.out.println(this.getClass().getSimpleName() + " pulling...");
         try {
@@ -168,7 +168,7 @@ public abstract class Register extends DataProvider {
                         }
                     }
 
-                    if (!checksum.equals(storageData.optString("checksum"))) {
+                    if (forceParse || !checksum.equals(storageData.optString("checksum"))) {
                         System.out.println("Checksum mismatch; parsing new data into database");
                         RegisterRun run = this.parse(input);
                         this.saveRunToDatabase(run);

@@ -165,6 +165,7 @@ public class NavngivenVejEntity
 
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
+        obj.put("id", this.getUuid());
         obj.put("navn", this.getLatestVersion().getVejnavn());
         return obj;
     }
@@ -173,7 +174,12 @@ public class NavngivenVejEntity
         JSONObject obj = this.toJSON();
         JSONArray delveje = new JSONArray();
         for (KommunedelAfNavngivenVejEntity kommunedelAfNavngivenVejEntity : this.getLatestVersion().getKommunedeleAfNavngivenVej()) {
-            delveje.put(kommunedelAfNavngivenVejEntity.toJSON());
+            JSONObject delvej = kommunedelAfNavngivenVejEntity.toJSON();
+            delvej.put("kommune", kommunedelAfNavngivenVejEntity.getKommune().toJSON());
+            if (kommunedelAfNavngivenVejEntity.getLokalitet() != null) {
+                delvej.put("lokalitet", kommunedelAfNavngivenVejEntity.getLokalitet().toJSON());
+            }
+            delveje.put(delvej);
         }
         obj.put("delveje", delveje);
         return obj;
@@ -195,7 +201,12 @@ public class NavngivenVejEntity
             SOAPElement node = this.toXML(parent, envelope);
             SOAPElement delveje = node.addChildElement("delveje");
             for (KommunedelAfNavngivenVejEntity kommunedelAfNavngivenVejEntity : this.getLatestVersion().getKommunedeleAfNavngivenVej()) {
-                delveje.addChildElement((SOAPElement) kommunedelAfNavngivenVejEntity.toFullXML(delveje, envelope));
+                SOAPElement delvej = kommunedelAfNavngivenVejEntity.toXML(delveje, envelope);
+                kommunedelAfNavngivenVejEntity.getKommune().toXML(delvej, envelope);
+                if (kommunedelAfNavngivenVejEntity.getLokalitet() != null) {
+                    kommunedelAfNavngivenVejEntity.getLokalitet().toXML(delvej, envelope);
+                }
+                delveje.addChildElement(delvej);
             }
             return node;
         } catch (SOAPException e) {

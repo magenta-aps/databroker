@@ -100,6 +100,31 @@ public class SearchService {
         );
     }
 
+    @GET
+    @Path("kommune/{id}")
+    @Transactional
+    public String kommune(@PathParam("id") String id,
+                      @QueryParam("format") String formatStr) {
+        Format fmt = this.getFormat(formatStr);
+        KommuneEntity kommuneEntity = this.getKommune(id);
+        if (kommuneEntity != null) {
+            return this.format(kommuneEntity, fmt);
+        } else {
+            throw new NotFoundException();
+        }
+    }
+
+    private KommuneEntity getKommune(String id) {
+        if (id.length() < 4) {
+            try {
+                int kommuneKode = Integer.parseInt(id, 10);
+                return this.kommuneRepository.getByKommunekode(kommuneKode);
+            } catch (NumberFormatException e) {
+            }
+        }
+        return this.kommuneRepository.findByUuid(id);
+    }
+
     //------------------------------------------------------------------------------------------------------------------
 
     @GET
@@ -123,6 +148,23 @@ public class SearchService {
         );
     }
 
+    @GET
+    @Path("vej/{uuid}")
+    @Transactional
+    public String vej(@PathParam("uuid") String uuid,
+                        @QueryParam("format") String formatStr) {
+        Format fmt = this.getFormat(formatStr);
+        NavngivenVejEntity navngivenVejEntity = this.getVej(uuid);
+        if (navngivenVejEntity != null) {
+            return this.format(navngivenVejEntity, fmt);
+        } else {
+            throw new NotFoundException();
+        }
+    }
+
+    private NavngivenVejEntity getVej(String uuid) {
+        return this.navngivenVejRepository.findByUuid(uuid);
+    }
 
 
     //------------------------------------------------------------------------------------------------------------------
@@ -146,6 +188,32 @@ public class SearchService {
         );
     }
 
+    @GET
+    @Path("postnr/{id}")
+    @Transactional
+    public String postnummer(@PathParam("id") String id,
+                        @QueryParam("format") String formatStr) {
+        Format fmt = this.getFormat(formatStr);
+        PostnummerEntity postnummerEntity = this.getPostNummer(id);
+        if (postnummerEntity != null) {
+            return this.format(postnummerEntity, fmt);
+        } else {
+            throw new NotFoundException();
+        }
+    }
+
+    private PostnummerEntity getPostNummer(String id) {
+        if (id.length() < 5) {
+            try {
+                int postnr = Integer.parseInt(id,10);
+                return this.postnummerRepository.findByNummer(postnr);
+            } catch (NumberFormatException e) {
+            }
+        }
+        return this.postnummerRepository.findByUuid(id);
+    }
+
+
 
     //------------------------------------------------------------------------------------------------------------------
 
@@ -168,6 +236,25 @@ public class SearchService {
                 this.cleanInput(husnr)
             )
         );
+    }
+
+
+    @GET
+    @Path("husnr/{uuid}")
+    @Transactional
+    public String husnr(@PathParam("uuid") String uuid,
+                          @QueryParam("format") String formatStr) {
+        Format fmt = this.getFormat(formatStr);
+        HusnummerEntity husnummerEntity = this.getHusNummer(uuid);
+        if (husnummerEntity != null) {
+            return this.format(husnummerEntity, fmt);
+        } else {
+            throw new NotFoundException();
+        }
+    }
+
+    private HusnummerEntity getHusNummer(String uuid) {
+        return this.husnummerRepository.findByUuid(uuid);
     }
 
 //------------------------------------------------------------------------------------------------------------------
@@ -205,7 +292,7 @@ public class SearchService {
         Format fmt = this.getFormat(formatStr);
         AdresseEntity adresseEntity = this.getAdresse(uuid);
         if (adresseEntity != null) {
-            return this.format("husnumre", adresseEntity, fmt);
+            return this.format(adresseEntity, fmt);
         } else {
             throw new NotFoundException();
         }
@@ -219,6 +306,16 @@ public class SearchService {
 
 
     //------------------------------------------------------------------------------------------------------------------
+
+    private String format(OutputFormattable output, Format format) {
+        switch (format) {
+            case json:
+                return this.formatJSON(output);
+            case xml:
+                return this.formatXML(output);
+        }
+        return null;
+    }
 
     private String format(String key, OutputFormattable output, Format format) {
         ArrayList<OutputFormattable> outputList = new ArrayList<OutputFormattable>();
@@ -236,6 +333,10 @@ public class SearchService {
         return null;
     }
 
+    private String formatJSON(OutputFormattable output) {
+        return output.toFullJSON().toString(4);
+    }
+
     private String formatJSON(String key, List<OutputFormattable> output) {
         // Setup JSON structure
         JSONArray list = new JSONArray();
@@ -249,6 +350,34 @@ public class SearchService {
 
         // Export JSON structure as string
         return object.toString(4);
+    }
+
+    private String formatXML(OutputFormattable output) {
+        try {
+            // Setup XML structure
+            final MessageFactory messageFactory = MessageFactory.newInstance();
+            SOAPMessage soapMessage = messageFactory.createMessage();
+            SOAPEnvelope soapEnvelope = soapMessage.getSOAPPart().getEnvelope();
+            //soapEnvelope.setPrefix("magenta");
+            SOAPBody soapBody = soapEnvelope.getBody();
+
+            // Insert items in XML structure
+            soapBody.appendChild(output.toFullXML(soapBody, soapEnvelope));
+
+            // Export XML structure as string
+            final StringWriter sw = new StringWriter();
+            try {
+                TransformerFactory.newInstance().newTransformer().transform(
+                        new DOMSource(soapMessage.getSOAPPart()),
+                        new StreamResult(sw));
+                return sw.toString();
+            } catch (TransformerException e) {
+                throw new RuntimeException(e);
+            }
+        } catch (SOAPException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private String formatXML(String key, List<OutputFormattable> output) {

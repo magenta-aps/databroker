@@ -120,6 +120,7 @@ public class PostnummerEntity
 
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
+        obj.put("id", this.getUuid());
         obj.put("navn", this.getLatestVersion().getNavn());
         obj.put("postnummer", this.getNummer());
         return obj;
