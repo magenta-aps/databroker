@@ -1,8 +1,8 @@
 package dk.magenta.databroker.cprvejregister.model;
 
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
-import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.*;
-import dk.magenta.databroker.cprvejregister.dataproviders.records.Record;
+import dk.magenta.databroker.register.objectcontainers.*;
+import dk.magenta.databroker.register.records.Record;
 import dk.magenta.databroker.cprvejregister.dataproviders.registers.VejRegister;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneRepository;

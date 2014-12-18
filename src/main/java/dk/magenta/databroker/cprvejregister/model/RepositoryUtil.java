@@ -1,5 +1,9 @@
 package dk.magenta.databroker.cprvejregister.model;
 
+import dk.magenta.databroker.register.conditions.Condition;
+import dk.magenta.databroker.register.conditions.ConditionList;
+import dk.magenta.databroker.register.conditions.SingleCondition;
+
 import java.util.regex.Pattern;
 
 /**

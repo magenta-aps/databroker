@@ -1,17 +1,11 @@
 package dk.magenta.databroker.cprvejregister.model;
 
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
-import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.EntityModificationCounter;
-import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.InputProcessingCounter;
-import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.Level1Container;
-import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.Level2Container;
-import dk.magenta.databroker.cprvejregister.dataproviders.records.Record;
-import dk.magenta.databroker.cprvejregister.dataproviders.registers.PostnummerRegister;
-import dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktEntity;
-import dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktVersionEntity;
-import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
-import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
-import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
+import dk.magenta.databroker.register.Model;
+import dk.magenta.databroker.register.objectcontainers.EntityModificationCounter;
+import dk.magenta.databroker.register.objectcontainers.InputProcessingCounter;
+import dk.magenta.databroker.register.objectcontainers.Level1Container;
+import dk.magenta.databroker.register.records.Record;
 import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerEntity;
 import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerRepository;
 import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerVersionEntity;

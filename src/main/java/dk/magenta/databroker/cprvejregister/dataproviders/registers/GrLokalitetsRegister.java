@@ -1,14 +1,12 @@
 package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
 import dk.magenta.databroker.core.model.DataProviderEntity;
-import dk.magenta.databroker.cprvejregister.dataproviders.RegisterRun;
-import dk.magenta.databroker.cprvejregister.dataproviders.records.Record;
+import dk.magenta.databroker.register.Register;
+import dk.magenta.databroker.register.RegisterRun;
+import dk.magenta.databroker.register.records.Record;
 import dk.magenta.databroker.cprvejregister.model.LokalitetModel;
-import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejRepository;
-import dk.magenta.databroker.cprvejregister.model.lokalitet.LokalitetEntity;
 import dk.magenta.databroker.cprvejregister.model.lokalitet.LokalitetRepository;
-import dk.magenta.databroker.cprvejregister.model.lokalitet.LokalitetVersionEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

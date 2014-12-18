@@ -1,13 +1,10 @@
 package dk.magenta.databroker.cprvejregister.model.husnummer;
 
-import dk.magenta.databroker.cprvejregister.model.GlobalCondition;
-import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Created by lars on 11-11-14.

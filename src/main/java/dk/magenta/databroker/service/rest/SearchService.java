@@ -1,7 +1,7 @@
 package dk.magenta.databroker.service.rest;
 
 import dk.magenta.databroker.core.model.OutputFormattable;
-import dk.magenta.databroker.cprvejregister.model.GlobalCondition;
+import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseRepository;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
@@ -284,7 +284,7 @@ public class SearchService {
             throw new NotFoundException();
         }
     }
-    
+
     //------------------------------------------------------------------------------------------------------------------
 
     private String format(OutputFormattable output, Format format) {

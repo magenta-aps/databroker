@@ -1,15 +1,13 @@
 package dk.magenta.databroker.cprvejregister.model.navngivenvej;
 
-import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.StringList;
-import dk.magenta.databroker.cprvejregister.model.ConditionList;
-import dk.magenta.databroker.cprvejregister.model.SingleCondition;
-import dk.magenta.databroker.cprvejregister.model.GlobalCondition;
+import dk.magenta.databroker.register.objectcontainers.StringList;
+import dk.magenta.databroker.register.conditions.ConditionList;
+import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.cprvejregister.model.RepositoryUtil;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 

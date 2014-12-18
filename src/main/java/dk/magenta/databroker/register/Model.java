@@ -1,4 +1,4 @@
-package dk.magenta.databroker.cprvejregister.model;
+package dk.magenta.databroker.register;
 
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 

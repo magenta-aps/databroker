@@ -1,4 +1,4 @@
-package dk.magenta.databroker.cprvejregister.dataproviders.records;
+package dk.magenta.databroker.register.records;
 
 import org.json.JSONObject;
 

@@ -1,8 +1,10 @@
-package dk.magenta.databroker.cprvejregister.model;
+package dk.magenta.databroker.register.conditions;
+
+import dk.magenta.databroker.register.conditions.ConditionList;
+import dk.magenta.databroker.register.conditions.SingleCondition;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 
 /**

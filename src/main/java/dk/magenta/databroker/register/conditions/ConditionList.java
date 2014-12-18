@@ -1,6 +1,6 @@
-package dk.magenta.databroker.cprvejregister.model;
+package dk.magenta.databroker.register.conditions;
 
-import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.StringList;
+import dk.magenta.databroker.register.objectcontainers.StringList;
 
 import java.util.*;
 

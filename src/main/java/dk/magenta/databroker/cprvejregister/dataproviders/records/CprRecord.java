@@ -1,4 +1,6 @@
 package dk.magenta.databroker.cprvejregister.dataproviders.records;
+import dk.magenta.databroker.register.records.Record;
+
 import java.text.ParseException;
 import java.util.regex.Pattern;
 

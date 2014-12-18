@@ -1,4 +1,4 @@
-package dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers;
+package dk.magenta.databroker.register.objectcontainers;
 
 /**
 * Created by lars on 16-12-14.

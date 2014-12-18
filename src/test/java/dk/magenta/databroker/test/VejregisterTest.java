@@ -32,21 +32,11 @@ public class VejregisterTest {
     public VejregisterTest(){
     }
 
-
     @Autowired
     private ApplicationContext context;
 
     @Autowired
-    private VejRegister vejRegister;
-
-    @Autowired
-    private MyndighedsRegister myndighedsRegister;
-
-    @Autowired
-    private LokalitetsRegister lokalitetsRegister;
-
-    @Autowired
-    private PostnummerRegister postnummerRegister;
+    private CprRegister cprRegister;
 
     @Autowired
     private GrLokalitetsRegister grLokalitetsRegister;
@@ -54,11 +44,8 @@ public class VejregisterTest {
     @Test
     //@Transactional
     public void testVejregister() {
-        myndighedsRegister.pull();
-        vejRegister.pull(false, true);
-        /*lokalitetsRegister.pull();
-        postnummerRegister.pull();
-        grLokalitetsRegister.pull();*/
+        cprRegister.pull(false, true);
+        //grLokalitetsRegister.pull();
     }
 
 

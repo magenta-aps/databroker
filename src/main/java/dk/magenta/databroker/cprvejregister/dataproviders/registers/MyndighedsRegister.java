@@ -1,15 +1,12 @@
 package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
 import dk.magenta.databroker.core.model.DataProviderEntity;
-import dk.magenta.databroker.core.model.oio.VirkningEntity;
-import dk.magenta.databroker.cprvejregister.dataproviders.RegisterRun;
-import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.EntityModificationCounter;
-import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.Level2Container;
+import dk.magenta.databroker.register.RegisterRun;
+import dk.magenta.databroker.register.objectcontainers.Level2Container;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
 import dk.magenta.databroker.cprvejregister.model.KommuneModel;
-import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
 import dk.magenta.databroker.cprvejregister.model.kommune.KommuneRepository;
-import dk.magenta.databroker.cprvejregister.model.kommune.KommuneVersionEntity;
+import dk.magenta.databroker.register.records.Record;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -22,7 +19,7 @@ import java.util.*;
  * Created by lars on 04-11-14.
  */
 @Component
-public class MyndighedsRegister extends CprRegister {
+public class MyndighedsRegister extends CprSubRegister {
 
     public abstract class MyndighedsDataRecord extends CprRecord {
         public static final String RECORDTYPE_MYNDIGHED = "001";

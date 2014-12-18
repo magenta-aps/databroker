@@ -1,4 +1,4 @@
-package dk.magenta.databroker.cprvejregister.model;
+package dk.magenta.databroker.register.conditions;
 
 import java.util.List;
 import java.util.Map;

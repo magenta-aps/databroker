@@ -2,7 +2,7 @@ package dk.magenta.databroker.cprvejregister.model.adresse;
 
 import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
-import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.StringList;
+import dk.magenta.databroker.register.objectcontainers.StringList;
 import dk.magenta.databroker.cprvejregister.model.doerpunkt.DoerpunktEntity;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
@@ -10,7 +10,6 @@ import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerEntity;
 import org.json.JSONObject;
 
 import javax.persistence.*;
-import javax.xml.soap.Node;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPEnvelope;
 import javax.xml.soap.SOAPException;

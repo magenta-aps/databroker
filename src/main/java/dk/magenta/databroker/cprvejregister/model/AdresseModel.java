@@ -1,11 +1,12 @@
 package dk.magenta.databroker.cprvejregister.model;
 
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
-import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.EntityModificationCounter;
-import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.InputProcessingCounter;
-import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.Level2Container;
-import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.Level3Container;
-import dk.magenta.databroker.cprvejregister.dataproviders.records.Record;
+import dk.magenta.databroker.register.Model;
+import dk.magenta.databroker.register.objectcontainers.EntityModificationCounter;
+import dk.magenta.databroker.register.objectcontainers.InputProcessingCounter;
+import dk.magenta.databroker.register.objectcontainers.Level2Container;
+import dk.magenta.databroker.register.objectcontainers.Level3Container;
+import dk.magenta.databroker.register.records.Record;
 import dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktEntity;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseRepository;
