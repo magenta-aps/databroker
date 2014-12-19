@@ -1,6 +1,6 @@
-package dk.magenta.databroker.cprvejregister.dataproviders;
+package dk.magenta.databroker.register;
 
-import dk.magenta.databroker.cprvejregister.dataproviders.records.Record;
+import dk.magenta.databroker.register.records.Record;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -33,4 +33,5 @@ public class RegisterRun extends ArrayList<Record> {
                 "";
         System.out.println("Processed " + (1000 * this.inputChunks + this.inputsProcessed) + " inputs" + timeStr + ".");
     }
+
 }

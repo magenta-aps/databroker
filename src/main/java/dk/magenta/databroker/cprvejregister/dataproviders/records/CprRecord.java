@@ -1,4 +1,6 @@
 package dk.magenta.databroker.cprvejregister.dataproviders.records;
+import dk.magenta.databroker.register.records.Record;
+
 import java.text.ParseException;
 import java.util.regex.Pattern;
 
@@ -17,7 +19,7 @@ public abstract class CprRecord extends Record {
         if (line == null) {
             throw new ParseException("Invalid NULL input.", 0);
         }
-        this.resetProcessed();
+        this.setVisited(false);
         this.line = line;
         String type = substr(line, 1, 3);
         String thisType = this.getRecordType();
@@ -32,6 +34,10 @@ public abstract class CprRecord extends Record {
 
     protected void obtain(String key, int position, int length) {
         this.put(key, leadingZero.matcher(this.substr(this.line, position, length)).replaceFirst(""));
+    }
+
+    protected void clean() {
+        this.line = null;
     }
 
 }

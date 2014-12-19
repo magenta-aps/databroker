@@ -5,6 +5,7 @@ import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneEntity;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
 import org.hibernate.annotations.Index;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.persistence.*;
@@ -124,14 +125,28 @@ public class LokalitetEntity
 
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
+        obj.put("id", this.getUuid());
         obj.put("lokalitetsKode", this.getLokalitetsKode());
         obj.put("lokalitetsNavn", this.getLatestVersion().getLokalitetsNavn());
         return obj;
     }
 
-    public Node toXML(SOAPElement parent, SOAPEnvelope envelope) {
+    public JSONObject toFullJSON() {
+        JSONObject obj = this.toJSON();
+        JSONArray delveje = new JSONArray();
+        for (KommunedelAfNavngivenVejEntity kommunedelAfNavngivenVejEntity : this.getKommunedeleAfNavngivenVej()) {
+            JSONObject delvej = kommunedelAfNavngivenVejEntity.toJSON();
+            delvej.put("kommune", kommunedelAfNavngivenVejEntity.getKommune().toJSON());
+            delvej.put("vej", kommunedelAfNavngivenVejEntity.getNavngivenVejVersion().getEntity().toJSON());
+            delveje.put(delvej);
+        }
+        obj.put("delveje", delveje);
+        return obj;
+    }
+
+    public SOAPElement toXML(SOAPElement parent, SOAPEnvelope envelope) {
         try {
-            SOAPElement node = parent.addChildElement("delvej");
+            SOAPElement node = parent.addChildElement("lokalitet");
             node.addAttribute(envelope.createName("lokalitetsKode"), ""+this.getLokalitetsKode());
             node.addAttribute(envelope.createName("lokalitetsNavn"), ""+this.getLatestVersion().getLokalitetsNavn());
             return node;
@@ -139,5 +154,19 @@ public class LokalitetEntity
             e.printStackTrace();
             return null;
         }
+    }
+
+    public SOAPElement toFullXML(SOAPElement parent, SOAPEnvelope envelope) {
+        SOAPElement node = this.toXML(parent, envelope);
+        try {
+            SOAPElement delveje = node.addChildElement(envelope.createName("delveje"));
+            for (KommunedelAfNavngivenVejEntity kommunedelAfNavngivenVejEntity : this.getKommunedeleAfNavngivenVej()) {
+                SOAPElement delvej = kommunedelAfNavngivenVejEntity.toXML(delveje, envelope);
+                kommunedelAfNavngivenVejEntity.getNavngivenVejVersion().getEntity().toXML(delvej, envelope);
+            }
+        } catch (SOAPException e) {
+            e.printStackTrace();
+        }
+        return node;
     }
 }

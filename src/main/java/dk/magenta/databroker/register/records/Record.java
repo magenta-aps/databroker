@@ -1,4 +1,4 @@
-package dk.magenta.databroker.cprvejregister.dataproviders.records;
+package dk.magenta.databroker.register.records;
 
 import org.json.JSONObject;
 
@@ -19,7 +19,7 @@ public abstract class Record extends HashMap<String, String> {
     public void setVisited() {
         this.setVisited(true);
     }
-    public void resetProcessed() {
+    public void resetVisited() {
         this.visited = false;
     }
 

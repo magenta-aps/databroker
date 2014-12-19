@@ -1,44 +1,41 @@
 package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
-import dk.magenta.databroker.core.model.DataProviderEntity;
-import dk.magenta.databroker.cprvejregister.dataproviders.RegisterRun;
-import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
+import dk.magenta.databroker.register.Register;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.text.ParseException;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Created by lars on 04-11-14.
+ * Created by lars on 18-12-14.
  */
-
 @Component
-public abstract class CprRegister extends Register {
+public class CprRegister extends Register {
 
-    public CprRegister(DataProviderEntity dbObject) {
-        super(dbObject);
-    }
+    @Autowired
+    private VejRegister vejRegister;
+
+    @Autowired
+    private MyndighedsRegister myndighedsRegister;
+
+    @Autowired
+    private LokalitetsRegister lokalitetsRegister;
+
+    @Autowired
+    private PostnummerRegister postnummerRegister;
+
 
     public CprRegister() {
     }
 
-    protected RegisterRun createRun() {
-        return new RegisterRun();
+    public void pull() {
+        this.pull(false, false);
     }
 
-    protected CprRecord parseTrimmedLine(String line) {
-        return this.parseTrimmedLine(line.substring(0, 3), line);
-    }
-    protected CprRecord parseTrimmedLine(String recordType, String line) {
-        try {
-            if (recordType.equals(CprRecord.RECORDTYPE_START)) {
-                return new CprStartRecord(line);
-            }
-            if (recordType.equals(CprRecord.RECORDTYPE_SLUT)) {
-                return new CprSlutRecord(line);
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return null;
+    @Transactional
+    public void pull(boolean forceFetch, boolean forceParse) {
+        this.myndighedsRegister.pull(forceFetch, forceParse);
+        this.vejRegister.pull(forceFetch, forceParse);
+        this.lokalitetsRegister.pull(forceFetch, forceParse);
+        this.postnummerRegister.pull(forceFetch, forceParse);
     }
 }

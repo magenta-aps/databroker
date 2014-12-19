@@ -1,13 +1,12 @@
 package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
 import dk.magenta.databroker.core.model.DataProviderEntity;
-import dk.magenta.databroker.core.model.oio.RegistreringEntity;
-import dk.magenta.databroker.core.model.oio.RegistreringRepository;
-import dk.magenta.databroker.cprvejregister.dataproviders.RegisterRun;
-import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.Level1Container;
-import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.Level2Container;
+import dk.magenta.databroker.register.RegisterRun;
+import dk.magenta.databroker.register.objectcontainers.Level1Container;
+import dk.magenta.databroker.register.objectcontainers.Level2Container;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.CprRecord;
-import dk.magenta.databroker.cprvejregister.dataproviders.records.Record;
+import dk.magenta.databroker.register.records.Record;
+import dk.magenta.databroker.cprvejregister.model.PostnummerModel;
 import dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktEntity;
 import dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktVersionEntity;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
@@ -16,11 +15,9 @@ import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntit
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejRepository;
 import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerEntity;
 import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerRepository;
-import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerVersionEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
@@ -30,7 +27,7 @@ import java.util.*;
  * Created by lars on 04-11-14.
  */
 @Component
-public class PostnummerRegister extends CprRegister {
+public class PostnummerRegister extends CprSubRegister {
 
 
     /*
@@ -62,27 +59,12 @@ public class PostnummerRegister extends CprRegister {
 
     public class PostnummerRegisterRun extends RegisterRun {
 
-        private HashMap<String, String> postdistrikter;
-
-        public PostnummerRegisterRun() {
-            super();
-            this.postdistrikter = new HashMap<String, String>();
-        }
-
-        public boolean add(CprRecord record) {
+        public boolean add(Record record) {
             if (record.getRecordType().equals(PostNummer.RECORDTYPE_POSTNUMMER)) {
                 PostNummer postnummer = (PostNummer) record;
-                String nummer = postnummer.get("postNr");
-                if (nummer != null) {
-                    this.postdistrikter.put(nummer, postnummer.get("postDistriktTekst"));
-                }
                 return super.add(postnummer);
             }
             return false;
-        }
-
-        public HashMap<String, String> getPostdistrikter() {
-            return this.postdistrikter;
         }
     }
 
@@ -103,23 +85,17 @@ public class PostnummerRegister extends CprRegister {
     public PostnummerRegister() {
     }
 
-    @PostConstruct
-    public void PostConstructPostnummerRegister() {
-        DataProviderEntity postProvider = new DataProviderEntity();
-        postProvider.setUuid(UUID.randomUUID().toString());
-
-        this.setDataProviderEntity(postProvider);
-    }
-
 
     /*
     * Data source spec
     * */
 
+    @Override
     public URL getRecordUrl() throws MalformedURLException {
         return new URL("https://cpr.dk/media/152114/a370712.txt");
     }
 
+    @Override
     protected String getEncoding() {
         return "ISO-8859-1";
     }
@@ -156,24 +132,8 @@ public class PostnummerRegister extends CprRegister {
     }
 
     @Autowired
-    private RegistreringRepository registreringRepository;
-
-    @Autowired
     private NavngivenVejRepository navngivenVejRepository;
 
-
-    /*
-    * Registration
-    * */
-
-    // RegistreringEntities that must be attached to all versioned data entities
-    private RegistreringEntity createRegistrering;
-    private RegistreringEntity updateRegistrering;
-
-    private void createRegistreringEntities() {
-        this.createRegistrering = registreringRepository.createNew(this);
-        this.updateRegistrering = registreringRepository.createUpdate(this);
-    }
 
 
     /*
@@ -185,19 +145,22 @@ public class PostnummerRegister extends CprRegister {
 
         PostnummerRegisterRun prun = (PostnummerRegisterRun) run;
 
-        EntityModificationCounter counter = new EntityModificationCounter();
-
         if (postnummerRepository == null) {
             System.err.println("Insufficient repositories");
             return;
         }
 
-        Level1Container<PostnummerEntity> postnummerCache = new Level1Container<PostnummerEntity>();
+        Level1Container<PostnummerEntity> postnummerCache;
 
         System.out.println("Storing PostnummerEntities in database");
 
-        Map<String, String> postDistrikter = prun.getPostdistrikter();
-        for (String nummer : postDistrikter.keySet()) {
+        PostnummerModel postnummerModel = new PostnummerModel(this.postnummerRepository, this.getCreateRegistrering(), this.getUpdateRegistrering());
+        postnummerCache = postnummerModel.createPostnumre(prun);
+
+
+
+
+/*        for (String nummer : postDistrikter.keySet()) {
             String navn = postDistrikter.get(nummer);
             int postNummer = Integer.parseInt(nummer, 10);
             PostnummerEntity postnummerEntity = postnummerRepository.findByNummer(postNummer);
@@ -206,11 +169,11 @@ public class PostnummerRegister extends CprRegister {
             if (postnummerEntity == null) {
                 postnummerEntity = PostnummerEntity.create();
                 postnummerEntity.setNummer(postNummer);
-                postnummerVersion = postnummerEntity.addVersion(createRegistrering);
+                postnummerVersion = postnummerEntity.addVersion(this.getCreateRegistrering());
                 counter.countCreatedItem();
 
             } else if (!postnummerEntity.getLatestVersion().getNavn().equals(navn)) {
-                postnummerVersion = postnummerEntity.addVersion(updateRegistrering);
+                postnummerVersion = postnummerEntity.addVersion(this.getUpdateRegistrering());
                 counter.countUpdatedItem();
             }
 
@@ -225,9 +188,15 @@ public class PostnummerRegister extends CprRegister {
         prun.printFinalInputsProcessed();
         System.out.println("Stored PostnummerEntities in database:");
         counter.printModifications();
+*/
+        createAdgangspunktPostRef(prun, postnummerCache);
+    }
 
 
 
+
+
+    private void createAdgangspunktPostRef(PostnummerRegisterRun prun, Level1Container<PostnummerEntity> postnummerCache) {
         Level2Container<NavngivenVejEntity> navngivenVejCache = new Level2Container<NavngivenVejEntity>();
         Collection<NavngivenVejEntity> navngivenVejEntities = this.navngivenVejRepository.findAll();
         for (NavngivenVejEntity navngivenVejEntity : navngivenVejEntities) {

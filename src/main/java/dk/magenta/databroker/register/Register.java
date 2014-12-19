@@ -1,4 +1,4 @@
-package dk.magenta.databroker.cprvejregister.dataproviders.registers;
+package dk.magenta.databroker.register;
 
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
@@ -6,13 +6,14 @@ import dk.magenta.databroker.core.DataProvider;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.core.model.DataProviderStorageEntity;
 import dk.magenta.databroker.core.model.DataProviderStorageRepository;
-import dk.magenta.databroker.cprvejregister.dataproviders.RegisterRun;
-import dk.magenta.databroker.cprvejregister.dataproviders.records.Record;
+import dk.magenta.databroker.core.model.oio.RegistreringEntity;
+import dk.magenta.databroker.core.model.oio.RegistreringRepository;
+import dk.magenta.databroker.register.RegisterRun;
+import dk.magenta.databroker.register.records.Record;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
@@ -23,6 +24,7 @@ import java.nio.file.StandardCopyOption;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * Created by lars on 15-12-14.
@@ -38,28 +40,6 @@ public abstract class Register extends DataProvider {
 
 
     private DataProviderStorageEntity storageEntity;
-
-    protected class EntityModificationCounter {
-
-        private int itemsCreated = 0;
-        private int itemsUpdated = 0;
-
-        public void countCreatedItem() {
-            this.itemsCreated++;
-        }
-
-        public void countUpdatedItem() {
-            this.itemsUpdated++;
-        }
-
-        public void printModifications() {
-            if (this.itemsCreated > 0 || this.itemsUpdated > 0) {
-                System.out.println("    " + this.itemsCreated + " new entries created\n    " + this.itemsUpdated + " existing entries updated");
-            } else {
-                System.out.println("    no changes necessary; old dataset matches new dataset");
-            }
-        }
-    }
 
     public Register(DataProviderEntity dbObject) {
         super(dbObject);
@@ -79,9 +59,19 @@ public abstract class Register extends DataProvider {
             }
             this.storageEntity = storageEntity;
         }
+
+        DataProviderEntity provider = new DataProviderEntity();
+        provider.setUuid(UUID.randomUUID().toString());
+        this.setDataProviderEntity(provider);
+
+        this.createRegistreringEntities();
     }
 
     public URL getRecordUrl() throws MalformedURLException {
+        return null;
+    }
+
+    public File getRecordFile() {
         return null;
     }
 
@@ -94,14 +84,38 @@ public abstract class Register extends DataProvider {
     }
 
 
-    @Transactional
-    public void pull() {
-        this.pull(false);
+
+
+    /*
+    * Registration
+    * */
+    @Autowired
+    private RegistreringRepository registreringRepository;
+
+    private RegistreringEntity createRegistrering;
+    private RegistreringEntity updateRegistrering;
+
+    protected void createRegistreringEntities() {
+        this.createRegistrering = registreringRepository.createNew(this);
+        this.updateRegistrering = registreringRepository.createUpdate(this);
+    }
+    protected RegistreringEntity getCreateRegistrering() {
+        return this.createRegistrering;
+    }
+    protected RegistreringEntity getUpdateRegistrering() {
+        return this.updateRegistrering;
     }
 
-    @Transactional
-    public void pull(boolean forceFetch) {
-        System.out.println("Pulling...");
+
+
+
+    public void pull() {
+        this.pull(false, false);
+    }
+
+    public void pull(boolean forceFetch, boolean forceParse) {
+        System.out.println("-----------------------------");
+        System.out.println(this.getClass().getSimpleName() + " pulling...");
         try {
             InputStream input = null;
             boolean fromCache = false;
@@ -119,9 +133,14 @@ public abstract class Register extends DataProvider {
                 }
             }
 
-            if (input == null) {
+            if (input == null && this.getRecordUrl() != null) {
                 System.out.println("Loading data from " + this.getRecordUrl().toString());
                 input = this.readUrl(this.getRecordUrl());
+            }
+
+            if (input == null && this.getRecordFile() != null) {
+                System.out.println("Loading data from " + this.getRecordFile().toString());
+                input = this.readFile(this.getRecordFile());
             }
 
             if (input != null) {
@@ -144,7 +163,7 @@ public abstract class Register extends DataProvider {
                         }
                     }
 
-                    if (!checksum.equals(storageData.optString("checksum"))) {
+                    if (forceParse || !checksum.equals(storageData.optString("checksum"))) {
                         System.out.println("Checksum mismatch; parsing new data into database");
                         RegisterRun run = this.parse(input);
                         this.saveRunToDatabase(run);
@@ -165,12 +184,13 @@ public abstract class Register extends DataProvider {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println(this.getClass().getSimpleName() + " done!");
+        System.gc();
     }
 
 
     private RegisterRun parse(InputStream input) {
         try {
-            RegisterRun run = this.createRun();
             BufferedInputStream inputstream = new BufferedInputStream(input);
 
             String encoding = this.getEncoding();
@@ -195,30 +215,47 @@ public abstract class Register extends DataProvider {
             System.out.println("Reading data");
             Date startTime = new Date();
             int i = 0, j = 0;
+
+            RegisterRun run = this.createRun();
+
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {
                 if (line != null) {
                     line = line.trim();
                     if (line.length() > 3) {
-                        Record record = this.parseTrimmedLine(line);
-                        if (record != null) {
-                            this.processRecord(record);
-                            run.add(record);
+                        try {
+                            Record record = this.parseTrimmedLine(line);
+                            if (record != null) {
+                                //this.processRecord(record);
+                                run.add(record);
+                            }
+                        } catch (OutOfMemoryError e) {
+                            System.out.println(line);
                         }
                     }
                 }
                 i++;
                 if (i >= 100000) {
                     j++;
-                    System.out.println("    parsed " + (j * i) + " entries");
+                    tic();
+                    System.gc();
+
+                    System.out.println("    parsed " + (j * i) + " entries (cleanup took "+toc()+" ms)");
+
                     i = 0;
+
+                    //Runtime runtime = Runtime.getRuntime();
+                    //NumberFormat format = NumberFormat.getInstance();
+                    //System.out.println("free memory: " + format.format(runtime.freeMemory() / 1024) + " of " + format.format(runtime.maxMemory() / 1024));
+
                 }
             }
-            System.out.println("    parsed " + (j * 100000 + i) + " entries in " + String.format("%.3f", 0.001 * (new Date().getTime() - startTime.getTime())) + " seconds");
-            System.out.println("Input parsed, making sense of it");
 
-            //System.out.println(run.toJSON().toString(2));
-            System.out.println("Pull complete");
+            System.out.println("    parsed " + (j * 100000 + i) + " entries in " + String.format("%.3f", 0.001 * (new Date().getTime() - startTime.getTime())) + " seconds");
+
+            //System.out.println(run.toFullJSON().toString(2));
+            System.out.println("Pull complete ("+run.size()+" entries)");
             return run;
+
 
         } catch (MalformedURLException e) {
             e.printStackTrace();

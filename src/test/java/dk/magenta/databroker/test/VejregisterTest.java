@@ -32,21 +32,11 @@ public class VejregisterTest {
     public VejregisterTest(){
     }
 
-
     @Autowired
     private ApplicationContext context;
 
     @Autowired
-    private VejRegister vejRegister;
-
-    @Autowired
-    private MyndighedsRegister myndighedsRegister;
-
-    @Autowired
-    private LokalitetsRegister lokalitetsRegister;
-
-    @Autowired
-    private PostnummerRegister postnummerRegister;
+    private CprRegister cprRegister;
 
     @Autowired
     private GrLokalitetsRegister grLokalitetsRegister;
@@ -54,28 +44,8 @@ public class VejregisterTest {
     @Test
     //@Transactional
     public void testVejregister() {
-        /*System.out.println("Starting step 1");
-        myndighedsRegister.pull();
-*/
-        /*
-        System.out.println("Starting step 2");
-        vejRegister.pull();
-*/
-
-        /*
-        System.out.println("Starting step 3");
-        lokalitetsRegister.read(new File("/home/lars/Projekt/databroker/src/test/resources/vejregister/a370714.txt"));
-*/
-/*
-
-        System.out.println("Starting step 4");
-        postnummerRegister.read(new File("/home/lars/Projekt/databroker/src/test/resources/vejregister/a370712.txt"));
-        //postnummerRegister.pull();
-*/
-        grLokalitetsRegister.pull();
-
-
-        System.out.println("Test complete");
+        cprRegister.pull(false, true);
+        //grLokalitetsRegister.pull();
     }
 
 

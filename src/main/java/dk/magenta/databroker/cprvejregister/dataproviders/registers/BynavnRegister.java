@@ -10,7 +10,7 @@ import java.text.ParseException;
 /**
  * Created by lars on 04-11-14.
  */
-public class BynavnRegister extends CprRegister {
+public class BynavnRegister extends CprSubRegister {
 
     public class ByNavn extends CprRecord {
         public static final String RECORDTYPE_BYNAVN = "001";

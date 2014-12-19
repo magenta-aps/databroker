@@ -1,13 +1,10 @@
 package dk.magenta.databroker.cprvejregister.model.husnummer;
 
-import dk.magenta.databroker.cprvejregister.model.GlobalCondition;
-import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Created by lars on 11-11-14.
@@ -15,7 +12,8 @@ import java.util.List;
 public interface HusnummerRepository extends JpaRepository<HusnummerEntity, Long> {
     @Query("select husnummer from HusnummerEntity husnummer " +
             "inner join husnummer.navngivenVej vej " +
-            "inner join vej.latestVersion.kommunedeleAfNavngivenVej del " +
+            "inner join vej.latestVersion vejVersion " +
+            "inner join vejVersion.kommunedeleAfNavngivenVej del " +
             "inner join del.kommune kommune " +
             "where del.vejkode = :vej " +
             "and kommune.kommunekode = :kommunekode " +
@@ -23,5 +21,7 @@ public interface HusnummerRepository extends JpaRepository<HusnummerEntity, Long
     )
     public HusnummerEntity getByKommunekodeAndVejkodeAndHusnr(@Param("kommunekode") int kommunekode, @Param("vej") int vejkode, @Param("husnr") String husNr);
 
-    public Collection<HusnummerEntity> search(String kommune, String vej, String post, String husnr);
+    public Collection<HusnummerEntity> search(String land, String[] kommuner, String[] vej, String[] post, String[] husnr);
+
+    public HusnummerEntity findByUuid(String uuid);
 }
