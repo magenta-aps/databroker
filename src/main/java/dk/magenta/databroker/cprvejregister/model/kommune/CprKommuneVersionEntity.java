@@ -9,27 +9,27 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "kommune_registrering")
-public class KommuneVersionEntity
-        extends DobbeltHistorikVersion<KommuneEntity, KommuneVersionEntity> {
+public class CprKommuneVersionEntity
+        extends DobbeltHistorikVersion<CprKommuneEntity, CprKommuneVersionEntity> {
 
         @ManyToOne(fetch = FetchType.EAGER)
-        private KommuneEntity entity;
+        private CprKommuneEntity entity;
 
-        protected KommuneVersionEntity() {
+        protected CprKommuneVersionEntity() {
                 super();
         }
 
-        public KommuneVersionEntity(KommuneEntity entity) {
+        public CprKommuneVersionEntity(CprKommuneEntity entity) {
                 super(entity);
         }
 
         @Override
-        public KommuneEntity getEntity() {
+        public CprKommuneEntity getEntity() {
                 return entity;
         }
 
         @Override
-        public void setEntity(KommuneEntity entitet) {
+        public void setEntity(CprKommuneEntity entitet) {
                 this.entity = entitet;
         }
 

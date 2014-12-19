@@ -1,14 +1,13 @@
 package dk.magenta.databroker.cprvejregister.model.navngivenvej;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikVersion;
-import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
+import dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneEntity;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
 import org.hibernate.annotations.Index;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 
 /**
  * Created by jubk on 11/12/14.
@@ -73,7 +72,7 @@ public class NavngivenVejVersionEntity
         private Collection<KommunedelAfNavngivenVejEntity> kommunedeleAfNavngivenVej;
 
         @ManyToOne(fetch = FetchType.LAZY, optional = true)
-        private KommuneEntity ansvarligKommune;
+        private CprKommuneEntity ansvarligKommune;
 
         public String getVejnavn() {
                 return this.vejnavn;
@@ -132,11 +131,11 @@ public class NavngivenVejVersionEntity
             this.kommunedeleAfNavngivenVej.clear();
         }
 
-        public KommuneEntity getAnsvarligKommune() {
+        public CprKommuneEntity getAnsvarligKommune() {
                 return this.ansvarligKommune;
         }
 
-        public void setAnsvarligKommune(KommuneEntity ansvarligKommune) {
+        public void setAnsvarligKommune(CprKommuneEntity ansvarligKommune) {
                 this.ansvarligKommune = ansvarligKommune;
         }
 

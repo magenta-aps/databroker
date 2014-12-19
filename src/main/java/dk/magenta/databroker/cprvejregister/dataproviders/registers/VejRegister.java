@@ -8,8 +8,8 @@ import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.CprRecord;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseRepository;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerRepository;
-import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
-import dk.magenta.databroker.cprvejregister.model.kommune.KommuneRepository;
+import dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneEntity;
+import dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneRepository;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejRepository;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
@@ -327,7 +327,7 @@ public class VejRegister extends CprRegister {
         EntityModificationCounter delvejCounter;
         EntityModificationCounter navngivenvejCounter;
         Level2Container<KommunedelAfNavngivenVejEntity> kommunedelAfNavngivenVejCache = null;
-        Level1Container<KommuneEntity> kommuneCache = null;
+        Level1Container<CprKommuneEntity> kommuneCache = null;
 
         public ArrayList<Bolig> boliger;
 
@@ -376,7 +376,7 @@ public class VejRegister extends CprRegister {
             }
 
             //KommuneEntity kommune = kommuneRepository.getByKommunekode(kommuneKode);
-            KommuneEntity kommune = this.getKommuneCache().get(kommuneKode);
+            CprKommuneEntity kommune = this.getKommuneCache().get(kommuneKode);
 
             if (kommune == null) {
                 //System.out.println("Kommune with id "+kommuneKode+" not found for vej "+aktivVej.get("vejNavn"));
@@ -494,11 +494,11 @@ public class VejRegister extends CprRegister {
             return this.kommunedelAfNavngivenVejCache;
         }
 
-        private Level1Container<KommuneEntity> getKommuneCache() {
+        private Level1Container<CprKommuneEntity> getKommuneCache() {
             if (this.kommuneCache == null) {
-                this.kommuneCache = new Level1Container<KommuneEntity>();
-                Collection<KommuneEntity> kommuneListe = kommuneRepository.findAll();
-                for (KommuneEntity kommune : kommuneListe) {
+                this.kommuneCache = new Level1Container<CprKommuneEntity>();
+                Collection<CprKommuneEntity> kommuneListe = cprKommuneRepository.findAll();
+                for (CprKommuneEntity kommune : kommuneListe) {
                     this.kommuneCache.put(kommune.getKommunekode(), kommune);
                 }
             }
@@ -641,7 +641,7 @@ public class VejRegister extends CprRegister {
     * */
 
     @Autowired
-    private KommuneRepository kommuneRepository;
+    private CprKommuneRepository cprKommuneRepository;
 
     @Autowired
     private KommunedelAfNavngivenVejRepository kommunedelAfNavngivenVejRepository;
@@ -761,7 +761,7 @@ public class VejRegister extends CprRegister {
                 System.out.println("    Navngiven vej "+navngivenVejEntity.getLatestVersion().getVejnavn()+" bruges af følgende delveje:");
                 Collection<KommunedelAfNavngivenVejEntity> delveje2 = navngivenVejEntity.getLatestVersion().getKommunedeleAfNavngivenVej();
                 for (KommunedelAfNavngivenVejEntity del : delveje2) {
-                    KommuneEntity kommune = del.getKommune();
+                    CprKommuneEntity kommune = del.getKommune();
                     if (kommune == null) {
                         System.err.println("        Kommune not found for delvej "+del.getId());
                         System.err.println("        This should not happen");

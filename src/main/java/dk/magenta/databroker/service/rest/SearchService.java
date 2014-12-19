@@ -6,8 +6,8 @@ import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseRepository;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerRepository;
-import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
-import dk.magenta.databroker.cprvejregister.model.kommune.KommuneRepository;
+import dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneEntity;
+import dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneRepository;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejRepository;
 import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerEntity;
@@ -52,7 +52,7 @@ public class SearchService {
     }
 
     @Autowired
-    private KommuneRepository kommuneRepository;
+    private CprKommuneRepository cprKommuneRepository;
 
     @Autowired
     private NavngivenVejRepository navngivenVejRepository;
@@ -94,9 +94,9 @@ public class SearchService {
         }
     }
 
-    private List<KommuneEntity> getKommuner(String kommune, GlobalCondition globalCondition) throws InputError {
-        return new ArrayList<KommuneEntity>(
-                this.kommuneRepository.search(
+    private List<CprKommuneEntity> getKommuner(String kommune, GlobalCondition globalCondition) throws InputError {
+        return new ArrayList<CprKommuneEntity>(
+                this.cprKommuneRepository.search(
                         this.cleanInput(kommune),
                         globalCondition
                 )
@@ -149,7 +149,7 @@ public class SearchService {
         Format fmt = this.getFormat(formatStr);
         try {
             GlobalCondition condition = new GlobalCondition(includeBefore, includeAfter);
-            return this.format("postnumre", new ArrayList<OutputFormattable>(this.getPostnumre(post, condition)), fmt);
+            return this.format("postnummer", new ArrayList<OutputFormattable>(this.getPostnumre(post, condition)), fmt);
         } catch (InputError error) {
             return this.format("error", error, fmt);
         }

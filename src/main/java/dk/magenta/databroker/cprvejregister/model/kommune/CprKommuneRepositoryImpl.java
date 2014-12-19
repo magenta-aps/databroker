@@ -4,26 +4,22 @@ import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.Strin
 import dk.magenta.databroker.cprvejregister.model.Condition;
 import dk.magenta.databroker.cprvejregister.model.GlobalCondition;
 import dk.magenta.databroker.cprvejregister.model.RepositoryUtil;
-import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.regex.Pattern;
 
 /**
  * Created by lars on 09-12-14.
  */
 
-interface KommuneRepositoryCustom {
-    public Collection<KommuneEntity> search(String kommune, GlobalCondition globalCondition);
+interface CprKommuneRepositoryCustom {
+    public Collection<CprKommuneEntity> search(String kommune, GlobalCondition globalCondition);
 }
 
-public class KommuneRepositoryImpl implements KommuneRepositoryCustom {
+public class CprKommuneRepositoryImpl implements CprKommuneRepositoryCustom {
 
     private EntityManager entityManager;
 
@@ -36,7 +32,7 @@ public class KommuneRepositoryImpl implements KommuneRepositoryCustom {
     // Run a search where each input field may be a code or a name, and may contain leading and/or trailing wildcards
     // subject to a global condition (e.g. only extract entries with a version newer than a certain date)
     @Override
-    public Collection<KommuneEntity> search(String kommune, GlobalCondition globalCondition) {
+    public Collection<CprKommuneEntity> search(String kommune, GlobalCondition globalCondition) {
         StringList hql = new StringList();
         StringList join = new StringList();
         ArrayList<Condition> conditions = new ArrayList<Condition>();

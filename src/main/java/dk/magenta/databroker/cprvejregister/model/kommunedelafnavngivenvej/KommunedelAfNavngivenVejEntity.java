@@ -5,9 +5,8 @@ import dk.magenta.databroker.core.model.oio.UniqueBase;
 import dk.magenta.databroker.cprvejregister.model.lokalitet.LokalitetEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejVersionEntity;
 import dk.magenta.databroker.cprvejregister.model.reserverethusnummerinterval.ReserveretHusnrIntervalEntity;
-import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
+import dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneEntity;
 import org.hibernate.annotations.Index;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.persistence.*;
@@ -52,7 +51,7 @@ public class KommunedelAfNavngivenVejEntity
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "kommune_id", nullable = false)
-    private KommuneEntity kommune;
+    private CprKommuneEntity kommune;
 
     @OneToMany(mappedBy = "kommunedelAfNavngivenVej", fetch = FetchType.LAZY)
     private Collection<ReserveretHusnrIntervalEntity> reserveredeHusnrIntervaller;
@@ -77,11 +76,11 @@ public class KommunedelAfNavngivenVejEntity
         this.navngivenVejVersion = navngivenVejRegistrering;
     }
 
-    public KommuneEntity getKommune() {
+    public CprKommuneEntity getKommune() {
         return this.kommune;
     }
 
-    public void setKommune(KommuneEntity kommune) {
+    public void setKommune(CprKommuneEntity kommune) {
         this.kommune = kommune;
     }
 

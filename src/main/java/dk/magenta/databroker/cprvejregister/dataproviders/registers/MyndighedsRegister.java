@@ -7,9 +7,9 @@ import dk.magenta.databroker.core.model.oio.VirkningEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.RegisterRun;
 import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.Level2Container;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
-import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
-import dk.magenta.databroker.cprvejregister.model.kommune.KommuneRepository;
-import dk.magenta.databroker.cprvejregister.model.kommune.KommuneVersionEntity;
+import dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneEntity;
+import dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneRepository;
+import dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneVersionEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -175,7 +175,7 @@ public class MyndighedsRegister extends CprRegister {
 
 
     @Autowired
-    private KommuneRepository kommuneRepository;
+    private CprKommuneRepository cprKommuneRepository;
 
 
     @Autowired
@@ -187,7 +187,7 @@ public class MyndighedsRegister extends CprRegister {
         RegistreringEntity updateRegistrering = registreringRepository.createUpdate(this);
 
 
-        if (kommuneRepository == null) {
+        if (cprKommuneRepository == null) {
             System.err.println("Insufficient repositories");
             return;
         }
@@ -199,31 +199,31 @@ public class MyndighedsRegister extends CprRegister {
         for (Myndighed kommune : kommuner) {
             int kommuneKode = kommune.getInt("myndighedsKode");
             String kommuneNavn = kommune.get("myndighedsNavn");
-            KommuneEntity kommuneEntity = kommuneRepository.getByKommunekode(kommuneKode);
+            CprKommuneEntity cprKommuneEntity = cprKommuneRepository.getByKommunekode(kommuneKode);
 
             List<VirkningEntity> virkninger = new ArrayList<VirkningEntity>(); // TODO: Populate this list
 
-            KommuneVersionEntity kommuneVersion = null;
-            if (kommuneEntity == null) {
-                kommuneEntity = KommuneEntity.create();
-                kommuneEntity.setKommunekode(kommuneKode);
-                kommuneVersion = kommuneEntity.addVersion(createRegistrering, virkninger);
+            CprKommuneVersionEntity kommuneVersion = null;
+            if (cprKommuneEntity == null) {
+                cprKommuneEntity = CprKommuneEntity.create();
+                cprKommuneEntity.setKommunekode(kommuneKode);
+                kommuneVersion = cprKommuneEntity.addVersion(createRegistrering, virkninger);
                 counter.countCreatedItem();
-            } else if (!kommuneEntity.getLatestVersion().getNavn().equals(kommuneNavn)) {
-                kommuneVersion = kommuneEntity.addVersion(updateRegistrering, virkninger);
+            } else if (!cprKommuneEntity.getLatestVersion().getNavn().equals(kommuneNavn)) {
+                kommuneVersion = cprKommuneEntity.addVersion(updateRegistrering, virkninger);
                 counter.countUpdatedItem();
             }
 
             if (kommuneVersion != null) {
                 kommuneVersion.setNavn(kommuneNavn);
-                kommuneRepository.save(kommuneEntity);
+                cprKommuneRepository.save(cprKommuneEntity);
             }
 
 
             mrun.printInputProcessed();
         }
         mrun.printFinalInputsProcessed();
-        kommuneRepository.flush();
+        cprKommuneRepository.flush();
         System.out.println("Stored KommuneEntities in database:");
         counter.printModifications();
     }

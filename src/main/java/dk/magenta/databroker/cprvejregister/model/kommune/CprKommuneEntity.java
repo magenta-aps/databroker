@@ -3,7 +3,6 @@ package dk.magenta.databroker.cprvejregister.model.kommune;
 import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.core.model.oio.*;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
-import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejVersionEntity;
 import dk.magenta.databroker.cprvejregister.model.reserveretvejnavn.ReserveretVejnavnEntity;
 import org.hibernate.annotations.Index;
@@ -20,17 +19,17 @@ import java.util.Collection;
  */
 @Entity
 @Table(name = "kommune")
-public class KommuneEntity
-        extends DobbeltHistorikBase<KommuneEntity, KommuneVersionEntity>
+public class CprKommuneEntity
+        extends DobbeltHistorikBase<CprKommuneEntity, CprKommuneVersionEntity>
         implements Serializable, OutputFormattable {
 
 
-    protected KommuneEntity() {
-        this.versioner = new ArrayList<KommuneVersionEntity>();
+    protected CprKommuneEntity() {
+        this.versioner = new ArrayList<CprKommuneVersionEntity>();
     }
 
-    public static KommuneEntity create() {
-        KommuneEntity entity = new KommuneEntity();
+    public static CprKommuneEntity create() {
+        CprKommuneEntity entity = new CprKommuneEntity();
         entity.generateNewUUID();
         return entity;
     }
@@ -41,37 +40,37 @@ public class KommuneEntity
     * */
 
     @OneToMany(mappedBy = "entity", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Collection<KommuneVersionEntity> versioner;
+    private Collection<CprKommuneVersionEntity> versioner;
 
     @OneToOne(fetch = FetchType.EAGER)
-    private KommuneVersionEntity latestVersion;
+    private CprKommuneVersionEntity latestVersion;
 
     @OneToOne(fetch = FetchType.LAZY)
-    private KommuneVersionEntity preferredVersion;
+    private CprKommuneVersionEntity preferredVersion;
 
 
     @Override
-    public Collection<KommuneVersionEntity> getVersioner() {
+    public Collection<CprKommuneVersionEntity> getVersioner() {
         return versioner;
     }
 
     @Override
-    public KommuneVersionEntity getLatestVersion() {
+    public CprKommuneVersionEntity getLatestVersion() {
         return latestVersion;
     }
 
     @Override
-    public void setLatestVersion(KommuneVersionEntity latestVersion) {
+    public void setLatestVersion(CprKommuneVersionEntity latestVersion) {
         this.latestVersion = latestVersion;
     }
 
     @Override
-    public KommuneVersionEntity getPreferredVersion() {
+    public CprKommuneVersionEntity getPreferredVersion() {
         return preferredVersion;
     }
 
     @Override
-    public void setPreferredVersion(KommuneVersionEntity preferredVersion) {
+    public void setPreferredVersion(CprKommuneVersionEntity preferredVersion) {
         this.preferredVersion = preferredVersion;
     }
 
@@ -81,8 +80,8 @@ public class KommuneEntity
     * */
 
     @Override
-    protected KommuneVersionEntity createVersionEntity() {
-        return new KommuneVersionEntity(this);
+    protected CprKommuneVersionEntity createVersionEntity() {
+        return new CprKommuneVersionEntity(this);
     }
 
 

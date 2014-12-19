@@ -2,10 +2,8 @@ package dk.magenta.databroker.cprvejregister.model.lokalitet;
 
 import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
-import dk.magenta.databroker.core.model.oio.UniqueBase;
-import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
+import dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneEntity;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
-import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejVersionEntity;
 import org.hibernate.annotations.Index;
 import org.json.JSONObject;
 
@@ -114,7 +112,7 @@ public class LokalitetEntity
         this.kommunedeleAfNavngivenVej = kommunedelAfNavngivenVej;
     }
 
-    public KommuneEntity getKommune() {
+    public CprKommuneEntity getKommune() {
         for (KommunedelAfNavngivenVejEntity delvej : this.getKommunedeleAfNavngivenVej()) {
             return delvej.getKommune();
         }

@@ -4,17 +4,12 @@ import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.Strin
 import dk.magenta.databroker.cprvejregister.model.Condition;
 import dk.magenta.databroker.cprvejregister.model.GlobalCondition;
 import dk.magenta.databroker.cprvejregister.model.RepositoryUtil;
-import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.regex.Pattern;
 
 /**
  * Created by lars on 09-12-14.
