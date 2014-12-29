@@ -163,6 +163,11 @@ public class NavngivenVejEntity
 
     //------------------------------------------------------------------------------------------------------------------
 
+
+    public String getTypeName() {
+        return "navngivenVej";
+    }
+
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
         obj.put("id", this.getUuid());

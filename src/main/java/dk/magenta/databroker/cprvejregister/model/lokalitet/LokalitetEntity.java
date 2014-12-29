@@ -122,6 +122,9 @@ public class LokalitetEntity
 
     //------------------------------------------------------------------------------------------------------------------
 
+    public String getTypeName() {
+        return "lokalitet";
+    }
 
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();

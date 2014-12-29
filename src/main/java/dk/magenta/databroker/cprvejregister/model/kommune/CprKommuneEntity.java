@@ -138,6 +138,11 @@ public class CprKommuneEntity
 
     //------------------------------------------------------------------------------------------------------------------
 
+
+    public String getTypeName() {
+        return "kommune";
+    }
+
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
         obj.put("id", this.getUuid());

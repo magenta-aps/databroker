@@ -136,6 +136,11 @@ public class AdresseEntity
 
     //------------------------------------------------------------------------------------------------------------------
 
+
+    public String getTypeName() {
+        return "adresse";
+    }
+
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
         obj.put("id", this.getUuid());

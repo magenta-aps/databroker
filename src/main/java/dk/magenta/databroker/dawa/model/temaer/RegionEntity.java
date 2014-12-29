@@ -1,5 +1,7 @@
 package dk.magenta.databroker.dawa.model.temaer;
 
+import org.json.JSONObject;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
@@ -38,4 +40,15 @@ public class RegionEntity extends TemaBase {
     public void setKommuner(Collection<KommuneEntity> kommuner) {
         this.kommuner = kommuner;
     }
+
+    public String getTypeName() {
+        return "region";
+    }
+
+    public JSONObject toJSON() {
+        JSONObject obj = new JSONObject();
+        obj.put("kode",kode);
+        return obj;
+    }
+
 }

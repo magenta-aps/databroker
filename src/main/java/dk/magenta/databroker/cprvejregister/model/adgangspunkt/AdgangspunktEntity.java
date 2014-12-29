@@ -91,6 +91,11 @@ public class AdgangspunktEntity
 
     //------------------------------------------------------------------------------------------------------------------
 
+
+    public String getTypeName() {
+        return "adgangspunkt";
+    }
+
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
         obj.put("id", this.getUuid());

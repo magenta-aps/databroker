@@ -2,6 +2,7 @@ package dk.magenta.databroker.dawa.model.stormodtagere;
 
 import dk.magenta.databroker.core.model.oio.UniqueBase;
 import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseEntity;
+import org.json.JSONObject;
 
 import javax.persistence.*;
 
@@ -42,5 +43,13 @@ public class StormodtagerEntity extends UniqueBase {
 
     public void setAdgangsadresse(AdgangsAdresseEntity adgangsAdresse) {
         this.adgangsadresse = adgangsAdresse;
+    }
+
+
+    public String getTypeName() {
+        return "stormodtager";
+    }
+    public JSONObject toJSON() {
+        return new JSONObject();
     }
 }

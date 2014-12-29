@@ -1,6 +1,7 @@
 package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
 import dk.magenta.databroker.core.model.DataProviderEntity;
+import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
 import dk.magenta.databroker.cprvejregister.model.AdresseModel;
@@ -8,6 +9,7 @@ import dk.magenta.databroker.cprvejregister.model.adresse.AdresseRepository;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerRepository;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejRepository;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejRepository;
+import dk.magenta.databroker.register.objectcontainers.EntityModificationCounter;
 import dk.magenta.databroker.register.records.Record;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,6 +18,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by lars on 04-11-14.
@@ -126,8 +129,30 @@ public class LokalitetsRegister extends CprSubRegister {
     * Database save
     * */
 
+
+    @Autowired
+    private DawaModel model;
+
     protected void saveRunToDatabase(RegisterRun run) {
-        this.createRegistreringEntities();
+
+        System.out.println("Storing KommuneEntities in database");
+        LokalitetRegisterRun lrun = (LokalitetRegisterRun) run;
+        EntityModificationCounter counter = new EntityModificationCounter();
+
+        for (Record record : lrun) {
+            if (record.getRecordType().equals(Lokalitet.RECORDTYPE_LOKALITET)) {
+                Lokalitet lokalitet = (Lokalitet) record;
+                /*int kommuneKode = kommune.getInt("myndighedsKode");
+                String kommuneNavn = kommune.get("myndighedsNavn");
+                model.set(kommuneKode, kommuneNavn);
+                mrun.printInputProcessed();*/
+            }
+        }
+        lrun.printFinalInputsProcessed();
+        System.out.println("Stored LokalitetEntities in database:");
+        counter.printModifications();
+
+        /*this.createRegistreringEntities();
         LokalitetRegisterRun lrun = (LokalitetRegisterRun) run;
 
         if (adresseRepository == null || husnummerRepository == null || navngivenVejRepository == null || kommunedelAfNavngivenVejRepository == null) {
@@ -151,7 +176,7 @@ public class LokalitetsRegister extends CprSubRegister {
 
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
 

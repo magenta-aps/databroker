@@ -3,6 +3,7 @@ package dk.magenta.databroker.cprvejregister.model.vejnavneomraade;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.cprvejregister.model.isopunkt.IsoPunktEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
+import org.json.JSONObject;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -103,5 +104,13 @@ public class VejnavneomraadeEntity
 
     public void setNavngivenVej(NavngivenVejEntity navngivenVej) {
         this.navngivenVej = navngivenVej;
+    }
+
+
+    public String getTypeName() {
+        return "vejnavneOmraade";
+    }
+    public JSONObject toJSON() {
+        return new JSONObject();
     }
 }

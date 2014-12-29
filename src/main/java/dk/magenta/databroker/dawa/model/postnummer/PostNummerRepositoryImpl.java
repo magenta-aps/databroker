@@ -1,6 +1,5 @@
 package dk.magenta.databroker.dawa.model.postnummer;
 
-import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerEntity;
 import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
@@ -17,7 +16,7 @@ import java.util.Map;
  */
 
 interface PostNummerRepositoryCustom {
-    public Collection<PostnummerEntity> search(String land, String[] post, String[] kommune, GlobalCondition globalCondition);
+    public Collection<PostNummerEntity> search(String land, String[] post, String[] kommune, GlobalCondition globalCondition);
 }
 
 public class PostNummerRepositoryImpl implements PostNummerRepositoryCustom {
@@ -30,13 +29,13 @@ public class PostNummerRepositoryImpl implements PostNummerRepositoryCustom {
     }
 
     @Override
-    public Collection<PostnummerEntity> search(String land, String[] post, String[] kommune, GlobalCondition globalCondition) {
+    public Collection<PostNummerEntity> search(String land, String[] post, String[] kommune, GlobalCondition globalCondition) {
 
         StringList hql = new StringList();
         StringList join = new StringList();
         ConditionList conditions = new ConditionList(ConditionList.Operator.AND);
 
-        hql.append("select post from PostnummerEntity as post");
+        hql.append("select post from PostNummerEntity as post");
         join.setPrefix("join ");
 
 

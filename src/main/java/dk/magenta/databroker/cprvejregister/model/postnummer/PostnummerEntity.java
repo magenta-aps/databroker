@@ -118,6 +118,11 @@ public class PostnummerEntity
 
     //------------------------------------------------------------------------------------------------------------------
 
+
+    public String getTypeName() {
+        return "postnummer";
+    }
+
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
         obj.put("id", this.getUuid());

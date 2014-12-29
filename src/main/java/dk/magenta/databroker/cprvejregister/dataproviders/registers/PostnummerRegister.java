@@ -3,10 +3,7 @@ package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.register.RegisterRun;
-import dk.magenta.databroker.register.objectcontainers.EntityModificationCounter;
-import dk.magenta.databroker.register.objectcontainers.InputProcessingCounter;
-import dk.magenta.databroker.register.objectcontainers.Level1Container;
-import dk.magenta.databroker.register.objectcontainers.Level2Container;
+import dk.magenta.databroker.register.objectcontainers.*;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.CprRecord;
 import dk.magenta.databroker.register.records.Record;
 import dk.magenta.databroker.cprvejregister.model.PostnummerModel;
@@ -21,6 +18,7 @@ import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerRepositor
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.ws.rs.POST;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
@@ -62,25 +60,28 @@ public class PostnummerRegister extends CprSubRegister {
 
     public class PostnummerRegisterRun extends RegisterRun {
 
-        private Level1Container<String> postnumre;
+        private Level1Container<ArrayList<PostNummer>> postnumre;
 
         public PostnummerRegisterRun() {
-            this.postnumre = new Level1Container<String>();
+            this.postnumre = new Level1Container<ArrayList<PostNummer>>();
         }
 
         public boolean add(Record record) {
             if (record.getClass() == PostNummer.class) {
+                PostNummer postNummer = (PostNummer) record;
                 int postnr = record.getInt("postNr");
-                String navn = record.get("postDistriktTekst");
-                if (!this.postnumre.containsKey(postnr)) {
-                    this.postnumre.put(postnr, navn);
+                ArrayList<PostNummer> list = this.postnumre.get(postnr);
+                if (!this.postnumre.containsKey(""+postnr)) {
+                    list = new ArrayList<PostNummer>();
+                    this.postnumre.put(postnr, list);
                 }
+                list.add(postNummer);
                 return super.add(record);
             }
             return false;
         }
 
-        public Level1Container<String> getPostnumre() {
+        public Level1Container<ArrayList<PostNummer>> getPostnumre() {
             return this.postnumre;
         }
     }
@@ -180,10 +181,20 @@ public class PostnummerRegister extends CprSubRegister {
 
         InputProcessingCounter postCounter = new InputProcessingCounter();
         for (String nummer : prun.getPostnumre().keySet()) {
+            ArrayList<PostNummer> records = prun.getPostnumre().get(nummer);
             int nr = Integer.parseInt(nummer, 10);
-            String navn = prun.getPostnumre().get(nummer);
-            model.setPostNummer(nr, navn, this.getCreateRegistrering(), this.getUpdateRegistrering());
-            postCounter.printInputProcessed();
+            if (records.size() > 0 && nr != 9999) {
+                String navn = records.get(0).get("postDistriktTekst");
+                HashSet<Pair<Integer,Integer>> veje = new HashSet<Pair<Integer, Integer>>();
+                for (PostNummer postNummer : records) {
+                    int kommuneKode = postNummer.getInt("kommuneKode");
+                    int vejKode = postNummer.getInt("vejKode");
+                    veje.add(new Pair<Integer, Integer>(kommuneKode, vejKode));
+                }
+
+                model.setPostNummer(nr, navn, veje, this.getCreateRegistrering(), this.getUpdateRegistrering());
+                postCounter.printInputProcessed();
+            }
         }
         postCounter.printFinalInputsProcessed();
 

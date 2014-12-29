@@ -1,7 +1,11 @@
 package dk.magenta.databroker.dawa.model.postnummer;
 
+import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
+import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeVersionEntity;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -12,7 +16,7 @@ import java.util.Collection;
  */
 @Entity
 @Table(name = "dawa_postnummer")
-public class PostNummerEntity extends DobbeltHistorikBase<PostNummerEntity, PostNummerVersionEntity> {
+public class PostNummerEntity extends DobbeltHistorikBase<PostNummerEntity, PostNummerVersionEntity> implements OutputFormattable {
 
     @OneToMany(mappedBy="entity", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Collection<PostNummerVersionEntity> versioner;
@@ -73,4 +77,26 @@ public class PostNummerEntity extends DobbeltHistorikBase<PostNummerEntity, Post
     public void setVejstykkeVersioner(Collection<VejstykkeVersionEntity> vejstykkeVersioner) {
         this.vejstykkeVersioner = vejstykkeVersioner;
     }
+
+    public String getTypeName() {
+        return "postnummer";
+    }
+
+    public JSONObject toJSON() {
+        JSONObject obj = new JSONObject();
+        obj.put("navn", this.getLatestVersion().getNavn());
+        obj.put("nummer", this.getLatestVersion().getNr());
+        return obj;
+    }
+
+    public JSONObject toFullJSON() {
+        JSONObject obj = this.toJSON();
+        JSONArray kommuner = new JSONArray();
+        for (KommuneEntity kommuneEntity : this.getLatestVersion().getKommuner()) {
+            kommuner.put(kommuneEntity.toJSON());
+        }
+        obj.put("kommuner", kommuner);
+        return obj;
+    }
+
 }

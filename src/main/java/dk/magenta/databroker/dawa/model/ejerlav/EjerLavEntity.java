@@ -2,6 +2,7 @@ package dk.magenta.databroker.dawa.model.ejerlav;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseVersionEntity;
+import org.json.JSONObject;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -60,5 +61,13 @@ public class EjerLavEntity extends DobbeltHistorikBase<EjerLavEntity, EjerLavVer
 
     public void setAdgangsAdresseVersioner(Collection<AdgangsAdresseVersionEntity> adgangsAdresseVersioner) {
         this.adgangsAdresseVersioner = adgangsAdresseVersioner;
+    }
+
+
+    public String getTypeName() {
+        return "ejerlav";
+    }
+    public JSONObject toJSON() {
+        return new JSONObject();
     }
 }

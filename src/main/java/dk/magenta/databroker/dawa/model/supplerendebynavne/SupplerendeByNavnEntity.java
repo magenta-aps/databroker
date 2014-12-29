@@ -2,6 +2,7 @@ package dk.magenta.databroker.dawa.model.supplerendebynavne;
 
 import dk.magenta.databroker.core.model.oio.UniqueBase;
 import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
+import org.json.JSONObject;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -45,5 +46,13 @@ public class SupplerendeByNavnEntity extends UniqueBase {
 
     public void setPostnummer(PostNummerEntity postnummer) {
         this.postnummer = postnummer;
+    }
+
+
+    public String getTypeName() {
+        return "supplerendeBynavn";
+    }
+    public JSONObject toJSON() {
+        return new JSONObject();
     }
 }

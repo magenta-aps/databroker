@@ -104,6 +104,10 @@ public class KommunedelAfNavngivenVejEntity
     //------------------------------------------------------------------------------------------------------------------
 
 
+    public String getTypeName() {
+        return "kommunedelAfNavngivenVej";
+    }
+
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
         obj.put("id", this.getUuid());

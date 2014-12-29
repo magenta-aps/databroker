@@ -3,6 +3,7 @@ package dk.magenta.databroker.jubk.model;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.core.model.oio.VirkningEntity;
+import org.json.JSONObject;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -78,5 +79,13 @@ public class JubkEntity extends DobbeltHistorikBase<JubkEntity, JubkRegistrering
                 JubkRegistreringEntity newVersion = super.addVersion(fromOIORegistrering, virkninger);
                 newVersion.setCustomData(customData);
                 return newVersion;
+        }
+
+
+        public String getTypeName() {
+                return "jubk";
+        }
+        public JSONObject toJSON() {
+                return new JSONObject();
         }
 }

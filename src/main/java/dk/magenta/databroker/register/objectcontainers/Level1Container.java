@@ -45,4 +45,8 @@ public class Level1Container<T> extends HashMap<String, T> {
         }
         return intSet;
     }
+
+    public boolean containsKey(int ident1) {
+        return this.containsKey(""+ident1);
+    }
 }

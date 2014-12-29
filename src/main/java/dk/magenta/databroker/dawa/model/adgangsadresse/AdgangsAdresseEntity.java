@@ -3,6 +3,7 @@ package dk.magenta.databroker.dawa.model.adgangsadresse;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseVersionEntity;
 import dk.magenta.databroker.dawa.model.stormodtagere.StormodtagerEntity;
+import org.json.JSONObject;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -78,5 +79,13 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
 
     public void setEnhedsAdresseVersioner(Collection<EnhedsAdresseVersionEntity> enhedsAdresseVersioner) {
         this.enhedsAdresseVersioner = enhedsAdresseVersioner;
+    }
+
+
+    public String getTypeName() {
+        return "adgangsAdresse";
+    }
+    public JSONObject toJSON() {
+        return new JSONObject();
     }
 }

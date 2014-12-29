@@ -3,6 +3,7 @@ package dk.magenta.databroker.cprvejregister.model.doerpunkt;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.cprvejregister.model.isopunkt.IsoPunktEntity;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
+import org.json.JSONObject;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -100,4 +101,10 @@ public class DoerpunktEntity
     }
 
 
+    public String getTypeName() {
+        return "doerpunkt";
+    }
+    public JSONObject toJSON() {
+        return new JSONObject();
+    }
 }

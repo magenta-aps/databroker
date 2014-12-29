@@ -1,6 +1,7 @@
 package dk.magenta.databroker.dawa.model.enhedsadresser;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
+import org.json.JSONObject;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -50,5 +51,13 @@ public class EnhedsAdresseEntity extends DobbeltHistorikBase<EnhedsAdresseEntity
     @Override
     protected EnhedsAdresseVersionEntity createVersionEntity() {
         return new EnhedsAdresseVersionEntity(this);
+    }
+
+
+    public String getTypeName() {
+        return "enhedsAdresse";
+    }
+    public JSONObject toJSON() {
+        return new JSONObject();
     }
 }

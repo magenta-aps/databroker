@@ -2,6 +2,7 @@ package dk.magenta.databroker.cprvejregister.model.reserverethusnummerinterval;
 
 import dk.magenta.databroker.core.model.oio.UniqueBase;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
+import org.json.JSONObject;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -116,6 +117,15 @@ public class ReserveretHusnrIntervalEntity extends UniqueBase implements Seriali
         result = 31 * result + (this.lige ? 1 : 0);
         result = 31 * result + (this.notat != null ? this.notat.hashCode() : 0);
         return (int) result;
+    }
+
+
+
+    public String getTypeName() {
+        return "reserveretHusnrInterval";
+    }
+    public JSONObject toJSON() {
+        return new JSONObject();
     }
 
 }

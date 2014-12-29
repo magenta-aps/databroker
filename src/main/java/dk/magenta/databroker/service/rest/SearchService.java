@@ -3,6 +3,9 @@ package dk.magenta.databroker.service.rest;
 import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneEntity;
 import dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneRepository;
+import dk.magenta.databroker.dawa.model.DawaModel;
+import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
+import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseRepository;
@@ -66,6 +69,9 @@ public class SearchService {
     @Autowired
     private PostnummerRepository postnummerRepository;
 
+    @Autowired
+    private DawaModel model;
+
 
     @GET
     public String getList() {
@@ -90,11 +96,11 @@ public class SearchService {
         GlobalCondition globalCondition = new GlobalCondition(includeBefore, includeAfter);
 
         List<OutputFormattable> kommuner = new ArrayList<OutputFormattable>(
-            this.kommuneRepository.search(
-                this.cleanInput(land),
-                this.cleanInput(kommune),
-                globalCondition
-            )
+                this.model.getKommune(
+                        this.cleanInput(land),
+                        this.cleanInput(kommune),
+                        globalCondition
+                )
         );
 
         return this.format("kommuner", kommuner, fmt);
@@ -107,18 +113,14 @@ public class SearchService {
                       @QueryParam("format") String formatStr) {
         Format fmt = this.getFormat(formatStr);
 
-        CprKommuneEntity kommuneEntity = null;
+        KommuneEntity kommuneEntity = null;
 
-        if (id.length() < 4) {
-            try {
-                int kommuneKode = Integer.parseInt(id, 10);
-                kommuneEntity = this.kommuneRepository.getByKommunekode(kommuneKode);
-            } catch (NumberFormatException e) {
-            }
+        try {
+            int kommuneKode = Integer.parseInt(id, 10);
+            kommuneEntity = this.model.getKommune(kommuneKode);
+        } catch (NumberFormatException e) {
         }
-        if (kommuneEntity == null) {
-            kommuneEntity = this.kommuneRepository.findByUuid(id);
-        }
+
 
         if (kommuneEntity != null) {
             return this.format(kommuneEntity, fmt);
@@ -168,15 +170,17 @@ public class SearchService {
     @GET
     @Path("postnr")
     @Transactional
-    public String postnummer(@QueryParam("post") String[] post,
+    public String postnummer(@QueryParam("land") String land, @QueryParam("post") String[] post, @QueryParam("kommune") String[] kommune,
                              @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
         Format fmt = this.getFormat(formatStr);
         GlobalCondition globalCondition = new GlobalCondition(includeBefore, includeAfter);
 
         ArrayList<OutputFormattable> postnumre = new ArrayList<OutputFormattable>(
-            this.postnummerRepository.search(
-                this.cleanInput(post),
-                globalCondition
+            this.model.getPostnummer(
+                    this.cleanInput(land),
+                    this.cleanInput(post),
+                    this.cleanInput(kommune),
+                    globalCondition
             )
         );
 
@@ -190,16 +194,13 @@ public class SearchService {
                         @QueryParam("format") String formatStr) {
         Format fmt = this.getFormat(formatStr);
 
-        PostnummerEntity postnummerEntity = null;
+        PostNummerEntity postnummerEntity = null;
         if (id.length() < 5) {
             try {
                 int postnr = Integer.parseInt(id,10);
-                postnummerEntity = this.postnummerRepository.findByNummer(postnr);
+                postnummerEntity = this.model.getPostnummer(postnr);
             } catch (NumberFormatException e) {
             }
-        }
-        if (postnummerEntity == null) {
-            postnummerEntity = this.postnummerRepository.findByUuid(id);
         }
 
         if (postnummerEntity != null) {

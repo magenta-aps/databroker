@@ -3,6 +3,8 @@ package dk.magenta.databroker.dawa.model.vejstykker;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseVersionEntity;
 import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -99,5 +101,25 @@ public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, Vejsty
 
     public void setAdgangsAdresseVersioner(Collection<AdgangsAdresseVersionEntity> adgangsAdresseVersioner) {
         this.adgangsAdresseVersioner = adgangsAdresseVersioner;
+    }
+
+
+
+    public String getTypeName() {
+        return "vejstykke";
+    }
+
+    public JSONObject toJSON() {
+        JSONObject obj = new JSONObject();
+        obj.put("vejnavn", this.getLatestVersion().getVejnavn());
+        obj.put("vejaddresseringsnavn", this.getLatestVersion().getVejadresseringsnavn());
+        obj.put("vejkode", this.getKode());
+        obj.put("uuid", this.getUuid());
+        return obj;
+    }
+
+    public JSONObject toFullJSON() {
+        JSONObject obj = this.toJSON();
+        return obj;
     }
 }
