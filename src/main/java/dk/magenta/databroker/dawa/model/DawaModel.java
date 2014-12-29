@@ -160,6 +160,11 @@ public class DawaModel {
         return this.vejstykkeRepository.search(land, kommune, vej, globalCondition);
     }
 
+    public VejstykkeEntity getVejstykke(String uuid) {
+        return this.vejstykkeRepository.getByUuid(uuid);
+    }
+
+
     private Level2Container<VejstykkeEntity> getVejstykkeCache() {
         if (this.vejstykkeCache == null) {
             this.vejstykkeCache = new Level2Container<VejstykkeEntity>();

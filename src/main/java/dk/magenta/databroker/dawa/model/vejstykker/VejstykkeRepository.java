@@ -18,6 +18,8 @@ public interface VejstykkeRepository extends JpaRepository<VejstykkeEntity, Long
             "and vej.kode = :vejkode")
     public VejstykkeEntity getByKommunekodeAndVejkode(@Param("kommunekode") int kommunekode, @Param("vejkode") int vejkode);
 
+    public VejstykkeEntity getByUuid(String uuid);
+
 
     /*
     * To be implemented in interface implementation

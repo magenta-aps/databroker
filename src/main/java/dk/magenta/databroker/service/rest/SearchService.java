@@ -6,6 +6,7 @@ import dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneRepository;
 import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
 import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
+import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
 import dk.magenta.databroker.cprvejregister.model.adresse.AdresseRepository;
@@ -140,11 +141,11 @@ public class SearchService {
         GlobalCondition globalCondition = new GlobalCondition(includeBefore, includeAfter);
 
         List<OutputFormattable> veje = new ArrayList<OutputFormattable>(
-            this.navngivenVejRepository.search(
-                this.cleanInput(land),
-                this.cleanInput(kommune),
-                this.cleanInput(vej),
-                globalCondition
+            this.model.getVejstykke(
+                    this.cleanInput(land),
+                    this.cleanInput(kommune),
+                    this.cleanInput(vej),
+                    globalCondition
             )
         );
 
@@ -157,7 +158,7 @@ public class SearchService {
     public String vej(@PathParam("uuid") String uuid,
                         @QueryParam("format") String formatStr) {
         Format fmt = this.getFormat(formatStr);
-        NavngivenVejEntity navngivenVejEntity = this.navngivenVejRepository.findByUuid(uuid);
+        VejstykkeEntity navngivenVejEntity = this.model.getVejstykke(uuid);
         if (navngivenVejEntity != null) {
             return this.format(navngivenVejEntity, fmt);
         } else {

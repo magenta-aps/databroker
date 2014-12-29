@@ -48,7 +48,7 @@ public class VejstykkeRepositoryImpl implements VejstykkeRepositoryCustom {
             }
         }
         if (vej != null) {
-            conditions.addCondition(RepositoryUtil.whereField(vej, "vej.vejkode", "vejversion.vejnavn"));
+            conditions.addCondition(RepositoryUtil.whereField(vej, "vej.kode", "vejversion.vejnavn"));
         }
         if (globalCondition != null) {
             conditions.addCondition(globalCondition.whereField("vej"));
