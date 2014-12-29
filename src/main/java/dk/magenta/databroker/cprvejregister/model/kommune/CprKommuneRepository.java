@@ -21,7 +21,6 @@ public interface CprKommuneRepository extends JpaRepository<CprKommuneEntity, Lo
             "order by kom.kommunekode")
     public Collection<CprKommuneEntity> findByName(@Param("navn") String navn);
 
-    public Collection<CprKommuneEntity> search(String kommune, GlobalCondition globalCondition);
     public Collection<CprKommuneEntity> search(String land, String[] kommune, GlobalCondition globalCondition);
 
     public CprKommuneEntity findByUuid(String uuid);

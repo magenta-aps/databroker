@@ -1,6 +1,7 @@
 package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 import dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneEntity;
 import dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneRepository;
+import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.register.objectcontainers.*;
 
@@ -535,6 +536,10 @@ public class VejRegister extends CprSubRegister {
     private HusnummerRepository husnummerRepository;
 
 
+
+    @Autowired
+    private DawaModel model;
+
     /*
     * Database save
     * */
@@ -574,19 +579,49 @@ public class VejRegister extends CprSubRegister {
 
         System.out.println("Updating entries");
         time = this.indepTic();
-        VejModel vejModel = new VejModel(this.kommuneRepository, this.kommunedelAfNavngivenVejRepository, this.navngivenVejRepository, this.getCreateRegistrering(), this.getUpdateRegistrering());
-        vejModel.createVeje(new ArrayList<Record>(aktiveVeje.getList()));
+        //VejModel vejModel = new VejModel(this.kommuneRepository, this.kommunedelAfNavngivenVejRepository, this.navngivenVejRepository, this.getCreateRegistrering(), this.getUpdateRegistrering());
+
+        ArrayList<AktivVej> orderedList = new ArrayList<AktivVej>();
+        for (AktivVej vej : aktiveVeje.getList()) {
+            this.recursiveSortRoads(vej, orderedList);
+        }
+        //vejModel.createVeje(orderedList);
+        System.out.println("orderedList length: "+orderedList.size());
+
+        ArrayList<AktivVej> unorderedList = new ArrayList<AktivVej>(aktiveVeje.getList());
+        System.out.println("unorderedList length: "+unorderedList.size());
+
+        InputProcessingCounter vejCounter = new InputProcessingCounter();
+        for (AktivVej vej : orderedList) {
+            this.model.setVejstykke(vej.getInt("kommuneKode"), vej.getInt("vejKode"), vej.get("vejNavn"), vej.get("vejAddresseringsnavn"), this.getCreateRegistrering(), this.getUpdateRegistrering());
+            vejCounter.printInputProcessed();
+        }
+        vejCounter.printFinalInputsProcessed();
+
+        //vejModel.createVeje(new ArrayList<Record>(aktiveVeje.getList()));
+
+
         System.out.println("Entry update took "+this.toc(time)+"ms");
-        vejModel.cleanNavngivneVeje();
+        //vejModel.cleanNavngivneVeje();
 
 
 
 
-        AdresseModel adresseModel = new AdresseModel(this.adresseRepository, this.navngivenVejRepository, this.husnummerRepository, this.getCreateRegistrering(), this.getUpdateRegistrering());
-        adresseModel.createAddresses(new ArrayList<Record>(vrun.boliger));
+        //AdresseModel adresseModel = new AdresseModel(this.adresseRepository, this.navngivenVejRepository, this.kommunedelAfNavngivenVejRepository, this.husnummerRepository, this.getCreateRegistrering(), this.getUpdateRegistrering());
+        //adresseModel.createAddresses(new ArrayList<Record>(vrun.boliger));
 
         System.out.println("Save complete");
 
+    }
+
+    private void recursiveSortRoads(AktivVej vej, ArrayList<AktivVej> list) {
+        if (!vej.getVisited()) {
+            list.add(vej);
+            vej.setVisited(true);
+            for (AktivVej otherVej : vej.getConnections()) {
+                recursiveSortRoads(otherVej, list);
+            }
+        }
     }
 
     @Transactional

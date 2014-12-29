@@ -4,6 +4,7 @@ import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeVersionEntity;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -13,14 +14,19 @@ import java.util.Collection;
 @Table(name = "dawa_postnummer")
 public class PostNummerEntity extends DobbeltHistorikBase<PostNummerEntity, PostNummerVersionEntity> {
 
-    @OneToMany(mappedBy="entity")
+    @OneToMany(mappedBy="entity", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Collection<PostNummerVersionEntity> versioner;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     private PostNummerVersionEntity latestVersion;
 
     @OneToOne
     private PostNummerVersionEntity preferredVersion;
+
+    public PostNummerEntity() {
+        this.versioner = new ArrayList<PostNummerVersionEntity>();
+        this.generateNewUUID();
+    }
 
     @Override
     public Collection<PostNummerVersionEntity> getVersioner() {

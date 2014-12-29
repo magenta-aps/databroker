@@ -35,7 +35,7 @@ public class CprRegister extends Register {
     public void pull(boolean forceFetch, boolean forceParse) {
         this.myndighedsRegister.pull(forceFetch, forceParse);
         this.vejRegister.pull(forceFetch, forceParse);
-        this.lokalitetsRegister.pull(forceFetch, forceParse);
+        //this.lokalitetsRegister.pull(forceFetch, forceParse);
         this.postnummerRegister.pull(forceFetch, forceParse);
     }
 }

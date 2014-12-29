@@ -139,7 +139,7 @@ public class LokalitetsRegister extends CprSubRegister {
 
         try {
 
-            AdresseModel adresseModel = new AdresseModel(this.adresseRepository, this.navngivenVejRepository, this.husnummerRepository, this.getCreateRegistrering(), this.getUpdateRegistrering());
+            AdresseModel adresseModel = new AdresseModel(this.adresseRepository, this.navngivenVejRepository, this.kommunedelAfNavngivenVejRepository, this.husnummerRepository, this.getCreateRegistrering(), this.getUpdateRegistrering());
             ArrayList<Record> lokaliteter = new ArrayList<Record>();
 
             for (Record record : run) {

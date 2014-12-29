@@ -1,6 +1,7 @@
 package dk.magenta.databroker.dawa.model.temaer;
 
 import dk.magenta.databroker.dawa.model.postnummer.PostNummerVersionEntity;
+import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeVersionEntity;
 
 import javax.persistence.*;
@@ -20,7 +21,7 @@ public class KommuneEntity extends TemaBase {
     private RegionEntity region;
 
     @OneToMany(mappedBy = "kommune")
-    private Collection<VejstykkeVersionEntity> vejstykkeVersioner;
+    private Collection<VejstykkeEntity> vejstykker;
 
     @ManyToMany(mappedBy = "kommuner")
     private Collection<PostNummerVersionEntity> postnumre;
@@ -46,12 +47,12 @@ public class KommuneEntity extends TemaBase {
         this.region = region;
     }
 
-    public Collection<VejstykkeVersionEntity> getVejstykkeVersioner() {
-        return vejstykkeVersioner;
+    public Collection<VejstykkeEntity> getVejstykkeVersioner() {
+        return vejstykker;
     }
 
-    public void setVejstykkeVersioner(Collection<VejstykkeVersionEntity> vejstykkeVersioner) {
-        this.vejstykkeVersioner = vejstykkeVersioner;
+    public void setVejstykker(Collection<VejstykkeEntity> vejstykker) {
+        this.vejstykker = vejstykker;
     }
 
     public Collection<PostNummerVersionEntity> getPostnumre() {

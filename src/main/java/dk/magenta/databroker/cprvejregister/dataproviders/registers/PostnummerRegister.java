@@ -1,7 +1,10 @@
 package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
 import dk.magenta.databroker.core.model.DataProviderEntity;
+import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.register.RegisterRun;
+import dk.magenta.databroker.register.objectcontainers.EntityModificationCounter;
+import dk.magenta.databroker.register.objectcontainers.InputProcessingCounter;
 import dk.magenta.databroker.register.objectcontainers.Level1Container;
 import dk.magenta.databroker.register.objectcontainers.Level2Container;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.CprRecord;
@@ -59,12 +62,26 @@ public class PostnummerRegister extends CprSubRegister {
 
     public class PostnummerRegisterRun extends RegisterRun {
 
+        private Level1Container<String> postnumre;
+
+        public PostnummerRegisterRun() {
+            this.postnumre = new Level1Container<String>();
+        }
+
         public boolean add(Record record) {
-            if (record.getRecordType().equals(PostNummer.RECORDTYPE_POSTNUMMER)) {
-                PostNummer postnummer = (PostNummer) record;
-                return super.add(postnummer);
+            if (record.getClass() == PostNummer.class) {
+                int postnr = record.getInt("postNr");
+                String navn = record.get("postDistriktTekst");
+                if (!this.postnumre.containsKey(postnr)) {
+                    this.postnumre.put(postnr, navn);
+                }
+                return super.add(record);
             }
             return false;
+        }
+
+        public Level1Container<String> getPostnumre() {
+            return this.postnumre;
         }
     }
 
@@ -136,6 +153,9 @@ public class PostnummerRegister extends CprSubRegister {
 
 
 
+    @Autowired
+    private DawaModel model;
+
     /*
     * Database save
     * */
@@ -153,11 +173,19 @@ public class PostnummerRegister extends CprSubRegister {
         Level1Container<PostnummerEntity> postnummerCache;
 
         System.out.println("Storing PostnummerEntities in database");
-
+/*
         PostnummerModel postnummerModel = new PostnummerModel(this.postnummerRepository, this.getCreateRegistrering(), this.getUpdateRegistrering());
         postnummerCache = postnummerModel.createPostnumre(prun);
+*/
 
-
+        InputProcessingCounter postCounter = new InputProcessingCounter();
+        for (String nummer : prun.getPostnumre().keySet()) {
+            int nr = Integer.parseInt(nummer, 10);
+            String navn = prun.getPostnumre().get(nummer);
+            model.setPostNummer(nr, navn, this.getCreateRegistrering(), this.getUpdateRegistrering());
+            postCounter.printInputProcessed();
+        }
+        postCounter.printFinalInputsProcessed();
 
 
 /*        for (String nummer : postDistrikter.keySet()) {
@@ -189,7 +217,7 @@ public class PostnummerRegister extends CprSubRegister {
         System.out.println("Stored PostnummerEntities in database:");
         counter.printModifications();
 */
-        createAdgangspunktPostRef(prun, postnummerCache);
+        //createAdgangspunktPostRef(prun, postnummerCache);
     }
 
 

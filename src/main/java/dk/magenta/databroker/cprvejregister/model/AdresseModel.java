@@ -1,6 +1,7 @@
 package dk.magenta.databroker.cprvejregister.model;
 
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
+import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejRepository;
 import dk.magenta.databroker.register.Model;
 import dk.magenta.databroker.register.objectcontainers.EntityModificationCounter;
 import dk.magenta.databroker.register.objectcontainers.InputProcessingCounter;
@@ -30,13 +31,15 @@ public class AdresseModel extends Model {
     private AdresseRepository adresseRepository;
     private NavngivenVejRepository navngivenVejRepository;
     private HusnummerRepository husnummerRepository;
+    private KommunedelAfNavngivenVejRepository kommunedelAfNavngivenVejRepository;
 
 
-    public AdresseModel(AdresseRepository adresseRepository, NavngivenVejRepository navngivenVejRepository, HusnummerRepository husnummerRepository, RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering) {
+    public AdresseModel(AdresseRepository adresseRepository, NavngivenVejRepository navngivenVejRepository, KommunedelAfNavngivenVejRepository kommunedelAfNavngivenVejRepository, HusnummerRepository husnummerRepository, RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering) {
         super(createRegistrering, updateRegistrering);
         this.adresseRepository = adresseRepository;
         this.navngivenVejRepository = navngivenVejRepository;
         this.husnummerRepository = husnummerRepository;
+        this.kommunedelAfNavngivenVejRepository = kommunedelAfNavngivenVejRepository;
     }
 
     public void createAddresses(List<Record> records) {
@@ -142,7 +145,8 @@ public class AdresseModel extends Model {
 
         if (adgangspunktEntity == null) {
             if (navngivenVejEntity == null && husNummerEntity.getNavngivenVej() == null) {
-                System.err.println("No navngivenVejEntity for husnummer "+husNummerEntity.getUuid()+" (created: "+createdHusnummer+")");
+                System.err.println("No navngivenVejEntity ("+kommuneKode+":"+vejKode+") for husnummer "+husNummerEntity.getUuid()+" (created: "+createdHusnummer+")");
+                return;
             } else {
                 adgangspunktEntity = AdgangspunktEntity.create();
                 adgangspunktEntity.addVersion(this.getCreateRegistrering());
@@ -227,6 +231,7 @@ public class AdresseModel extends Model {
 
 
     private Level2Container<NavngivenVejEntity> loadNavngivenVejCache() {
+        System.out.println("loadNavngivenVejCache");
         Level2Container<NavngivenVejEntity> navngivenVejCache = new Level2Container<NavngivenVejEntity>();
         Collection<NavngivenVejEntity> navngivenVejList = this.navngivenVejRepository.findAll();
         for (NavngivenVejEntity navngivenVejEntity : navngivenVejList) {
@@ -239,6 +244,12 @@ public class AdresseModel extends Model {
                 }
             }
         }
+        /*Collection<KommunedelAfNavngivenVejEntity> kommunedelAfNavngivenVejList = this.kommunedelAfNavngivenVejRepository.findAll();
+        for (KommunedelAfNavngivenVejEntity kommunedelAfNavngivenVejEntity : kommunedelAfNavngivenVejList) {
+            NavngivenVejVersionEntity navngivenVejVersionEntity = kommunedelAfNavngivenVejEntity.getNavngivenVejVersion();
+            NavngivenVejEntity navngivenVejEntity = navngivenVejVersionEntity.getEntity();
+            navngivenVejCache.put(kommunedelAfNavngivenVejEntity.getKommune().getKommunekode(), kommunedelAfNavngivenVejEntity.getVejkode(), navngivenVejEntity);
+        }*/
         return navngivenVejCache;
     }
 

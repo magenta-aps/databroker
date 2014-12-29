@@ -13,7 +13,7 @@ import java.util.Collection;
 @Entity
 @Table(name = "dawa_vejstykke_version")
 public class VejstykkeVersionEntity extends DobbeltHistorikVersion<VejstykkeEntity, VejstykkeVersionEntity> {
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     private VejstykkeEntity entity;
 
     @Override
@@ -34,11 +34,6 @@ public class VejstykkeVersionEntity extends DobbeltHistorikVersion<VejstykkeEnti
     }
 
     /* Domain specific fields */
-    @Column
-    private int kode;
-
-    @ManyToOne
-    private KommuneEntity kommune;
 
     @ManyToOne
     private PostNummerEntity postnummer;
@@ -48,22 +43,6 @@ public class VejstykkeVersionEntity extends DobbeltHistorikVersion<VejstykkeEnti
 
     @Column
     private String vejadresseringsnavn;
-
-    public int getKode() {
-        return kode;
-    }
-
-    public void setKode(int kode) {
-        this.kode = kode;
-    }
-
-    public KommuneEntity getKommune() {
-        return kommune;
-    }
-
-    public void setKommune(KommuneEntity kommune) {
-        this.kommune = kommune;
-    }
 
     public PostNummerEntity getPostnummer() {
         return postnummer;

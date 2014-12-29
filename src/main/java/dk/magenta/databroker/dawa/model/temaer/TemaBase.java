@@ -3,10 +3,7 @@ package dk.magenta.databroker.dawa.model.temaer;
 import dk.magenta.databroker.core.model.oio.UniqueBase;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import javax.persistence.Id;
-import javax.persistence.Column;
-import javax.persistence.IdClass;
-import javax.persistence.MappedSuperclass;
+import javax.persistence.*;
 
 /**
  * Created by jubk on 18-12-2014.
@@ -16,11 +13,28 @@ import javax.persistence.MappedSuperclass;
 public abstract class TemaBase {
 
     @Id
-    @Column(nullable = false)
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(nullable = false, insertable = true, updatable = true)
     private Long id;
 
     @Column
     private String navn;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getNavn() {
+        return navn;
+    }
+
+    public void setNavn(String navn) {
+        this.navn = navn;
+    }
 
     public abstract TemaType getTemaType();
 

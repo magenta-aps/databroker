@@ -2,11 +2,10 @@ package dk.magenta.databroker.dawa.model.vejstykker;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseVersionEntity;
+import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -15,14 +14,21 @@ import java.util.Collection;
 @Entity
 @Table(name = "dawa_vejstykke")
 public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, VejstykkeVersionEntity> {
-    @OneToMany(mappedBy = "entity")
+
+    @OneToMany(mappedBy = "entity", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Collection<VejstykkeVersionEntity> versioner;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private VejstykkeVersionEntity latestVersion;
 
     @OneToOne
     private VejstykkeVersionEntity preferredVersion;
+
+
+    public VejstykkeEntity() {
+        this.versioner = new ArrayList<VejstykkeVersionEntity>();
+        this.generateNewUUID();
+    }
 
     @Override
     public Collection<VejstykkeVersionEntity> getVersioner() {
@@ -60,8 +66,32 @@ public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, Vejsty
 
     /* Domain specific fields */
 
+    @Column
+    private int kode;
+
+    @ManyToOne
+    private KommuneEntity kommune;
+
     @OneToMany(mappedBy = "vejstykke")
     private Collection<AdgangsAdresseVersionEntity> adgangsAdresseVersioner;
+
+
+    public int getKode() {
+        return kode;
+    }
+
+    public void setKode(int kode) {
+        this.kode = kode;
+    }
+
+    public KommuneEntity getKommune() {
+        return kommune;
+    }
+
+    public void setKommune(KommuneEntity kommune) {
+        this.kommune = kommune;
+    }
+
 
     public Collection<AdgangsAdresseVersionEntity> getAdgangsAdresseVersioner() {
         return adgangsAdresseVersioner;

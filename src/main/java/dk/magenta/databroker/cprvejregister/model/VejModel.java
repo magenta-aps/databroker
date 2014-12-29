@@ -61,6 +61,8 @@ public class VejModel {
                 inputCounter.printInputProcessed();
             }
         }
+        this.navngivenVejRepository.flush();
+        this.kommunedelAfNavngivenVejRepository.flush();
 
         inputCounter.printFinalInputsProcessed();
         System.out.println("Stored NavngivenVejEntities to database");
@@ -151,6 +153,17 @@ public class VejModel {
             navngivenVejVersion.setVejnavn(vejNavn);
             navngivenVejVersion.setVejaddresseringsnavn(vejAdresseringsNavn);
             navngivenVejVersion.addKommunedelAfNavngivenVej(delvejEntity);
+
+            if (kommuneKode == 173 && vejKode == 614) {
+                System.out.println("Created 173:614");
+            }
+            if (kommuneKode == 175 && vejKode == 468) {
+                System.out.println("Created 175:468");
+            }
+            if (kommuneKode == 187 && vejKode == 745) {
+                System.out.println("Created 187:745");
+            }
+
             this.navngivenVejRepository.save(navngivenVej);
 
             // Update and save delvejEntity
