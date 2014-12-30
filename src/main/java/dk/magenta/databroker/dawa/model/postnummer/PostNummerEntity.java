@@ -21,7 +21,7 @@ public class PostNummerEntity extends DobbeltHistorikBase<PostNummerEntity, Post
     @OneToMany(mappedBy="entity", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Collection<PostNummerVersionEntity> versioner;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private PostNummerVersionEntity latestVersion;
 
     @OneToOne
@@ -96,6 +96,13 @@ public class PostNummerEntity extends DobbeltHistorikBase<PostNummerEntity, Post
             kommuner.put(kommuneEntity.toJSON());
         }
         obj.put("kommuner", kommuner);
+        JSONArray veje = new JSONArray();
+        for (VejstykkeVersionEntity vejstykkeVersionEntity : this.getVejstykkeVersioner()) {
+            if (vejstykkeVersionEntity.getEntity().getLatestVersion() == vejstykkeVersionEntity) {
+                veje.put(vejstykkeVersionEntity.getEntity().toJSON());
+            }
+        }
+        obj.put("veje", veje);
         return obj;
     }
 

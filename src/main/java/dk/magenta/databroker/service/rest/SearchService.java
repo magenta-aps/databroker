@@ -158,9 +158,9 @@ public class SearchService {
     public String vej(@PathParam("uuid") String uuid,
                         @QueryParam("format") String formatStr) {
         Format fmt = this.getFormat(formatStr);
-        VejstykkeEntity navngivenVejEntity = this.model.getVejstykke(uuid);
-        if (navngivenVejEntity != null) {
-            return this.format(navngivenVejEntity, fmt);
+        OutputFormattable vejEntity = this.model.getVejstykke(uuid);
+        if (vejEntity != null) {
+            return this.format(vejEntity, fmt);
         } else {
             throw new NotFoundException();
         }
@@ -195,7 +195,7 @@ public class SearchService {
                         @QueryParam("format") String formatStr) {
         Format fmt = this.getFormat(formatStr);
 
-        PostNummerEntity postnummerEntity = null;
+        OutputFormattable postnummerEntity = null;
         if (id.length() < 5) {
             try {
                 int postnr = Integer.parseInt(id,10);
@@ -247,7 +247,38 @@ public class SearchService {
         }
     }
 
-//------------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------------------------------------------
+
+    @GET
+    @Path("adgangsadresse")
+    @Transactional
+    public String adgangsadresse(@QueryParam("land") String land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej, @QueryParam("postnr") String[] postnr, @QueryParam("husnr") String[] husnr,
+                          @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
+        Format fmt = this.getFormat(formatStr);
+        GlobalCondition globalCondition = new GlobalCondition(includeBefore, includeAfter);
+
+        ArrayList<OutputFormattable> adresser = new ArrayList<OutputFormattable>(
+                this.model.getAdgangsAdresse(land, postnr, kommune, vej, husnr, globalCondition)
+        );
+
+        return this.format("adgangsadresser", adresser, fmt);
+    }
+
+    @GET
+    @Path("adgangsadresse/{uuid}")
+    @Transactional
+    public String adgangsadresse(@PathParam("uuid") String uuid,
+                          @QueryParam("format") String formatStr) {
+        Format fmt = this.getFormat(formatStr);
+        OutputFormattable adresseEntity = this.model.getAdgangsAdresse(uuid);
+        if (adresseEntity != null) {
+            return this.format(adresseEntity, fmt);
+        } else {
+            throw new NotFoundException();
+        }
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
 
     @GET
     @Path("adresse")
@@ -258,19 +289,10 @@ public class SearchService {
         GlobalCondition globalCondition = new GlobalCondition(includeBefore, includeAfter);
 
         ArrayList<OutputFormattable> adresser = new ArrayList<OutputFormattable>(
-            this.adresseRepository.search(
-                this.cleanInput(land),
-                this.cleanInput(kommune),
-                this.cleanInput(vej),
-                this.cleanInput(postnr),
-                this.cleanInput(husnr),
-                this.cleanInput(etage),
-                this.cleanInput(doer),
-                globalCondition
-            )
+                this.model.getEnhedsAdresse(land, postnr, kommune, vej, husnr, etage, doer, globalCondition)
         );
 
-        return this.format("husnumre", adresser, fmt);
+        return this.format("adresser", adresser, fmt);
     }
 
     @GET
@@ -279,7 +301,7 @@ public class SearchService {
     public String adresse(@PathParam("uuid") String uuid,
                           @QueryParam("format") String formatStr) {
         Format fmt = this.getFormat(formatStr);
-        AdresseEntity adresseEntity = this.adresseRepository.findByUuid(uuid);
+        OutputFormattable adresseEntity = this.model.getEnhedsAdresse(uuid);
         if (adresseEntity != null) {
             return this.format(adresseEntity, fmt);
         } else {

@@ -18,4 +18,5 @@ public interface OutputFormattable {
     public SOAPElement toXML(SOAPElement parent, SOAPEnvelope envelope);
     public SOAPElement toFullXML(SOAPElement parent, SOAPEnvelope envelope);
 
+
 }

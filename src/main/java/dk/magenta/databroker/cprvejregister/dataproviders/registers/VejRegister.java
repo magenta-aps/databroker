@@ -604,8 +604,9 @@ public class VejRegister extends CprSubRegister {
         System.out.println("Entry update took "+this.toc(time)+"ms");
         //vejModel.cleanNavngivneVeje();
 
-
-
+        for (Bolig bolig : vrun.boliger) {
+            this.model.setAdresse(bolig.getInt("kommuneKode"), bolig.getInt("vejKode"), bolig.get("husNr"), bolig.get("etage"), bolig.get("sidedoer"), this.getCreateRegistrering(), this.getUpdateRegistrering());
+        }
 
         //AdresseModel adresseModel = new AdresseModel(this.adresseRepository, this.navngivenVejRepository, this.kommunedelAfNavngivenVejRepository, this.husnummerRepository, this.getCreateRegistrering(), this.getUpdateRegistrering());
         //adresseModel.createAddresses(new ArrayList<Record>(vrun.boliger));

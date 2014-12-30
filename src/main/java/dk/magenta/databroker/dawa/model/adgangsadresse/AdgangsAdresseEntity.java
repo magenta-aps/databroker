@@ -3,9 +3,12 @@ package dk.magenta.databroker.dawa.model.adgangsadresse;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseVersionEntity;
 import dk.magenta.databroker.dawa.model.stormodtagere.StormodtagerEntity;
+import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -18,11 +21,17 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
     @OneToMany(mappedBy="entity")
     private Collection<AdgangsAdresseVersionEntity> versioner;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private AdgangsAdresseVersionEntity latestVersion;
 
     @OneToOne
     private AdgangsAdresseVersionEntity preferredVersion;
+
+    public AdgangsAdresseEntity() {
+        this.versioner = new ArrayList<AdgangsAdresseVersionEntity>();
+        this.enhedsAdresseVersioner = new ArrayList<EnhedsAdresseVersionEntity>();
+        this.generateNewUUID();
+    }
 
     @Override
     public Collection<AdgangsAdresseVersionEntity> getVersioner() {
@@ -86,6 +95,29 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
         return "adgangsAdresse";
     }
     public JSONObject toJSON() {
-        return new JSONObject();
+        JSONObject obj = new JSONObject();
+        obj.put("id", this.getUuid());
+        obj.put("husnr", this.latestVersion.getHusnr());
+        return obj;
+    }
+
+    public JSONObject toFullJSON() {
+        JSONObject obj = this.toJSON();
+        VejstykkeEntity vejstykkeEntity = this.latestVersion.getVejstykke();
+        if (vejstykkeEntity != null) {
+            obj.put("vej", vejstykkeEntity.toJSON());
+            obj.put("kommune", vejstykkeEntity.getKommune().toJSON());
+            obj.put("postnr", vejstykkeEntity.getLatestVersion().getPostnummer().toJSON());
+        }
+        if (!this.enhedsAdresseVersioner.isEmpty()) {
+            JSONArray enhedsAdresser = new JSONArray();
+            for (EnhedsAdresseVersionEntity enhedsAdresseVersionEntity : this.getEnhedsAdresseVersioner()) {
+                if (enhedsAdresseVersionEntity.getEntity().getLatestVersion() == enhedsAdresseVersionEntity) {
+                    enhedsAdresser.put(enhedsAdresseVersionEntity.getEntity().toJSON());
+                }
+            }
+            obj.put("enhedsadresser", enhedsAdresser);
+        }
+        return obj;
     }
 }

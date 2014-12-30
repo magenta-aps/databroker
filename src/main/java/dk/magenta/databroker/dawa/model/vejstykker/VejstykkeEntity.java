@@ -114,12 +114,18 @@ public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, Vejsty
         obj.put("vejnavn", this.getLatestVersion().getVejnavn());
         obj.put("vejaddresseringsnavn", this.getLatestVersion().getVejadresseringsnavn());
         obj.put("vejkode", this.getKode());
-        obj.put("uuid", this.getUuid());
+        obj.put("id", this.getUuid());
         return obj;
     }
 
     public JSONObject toFullJSON() {
         JSONObject obj = this.toJSON();
+        if (this.getKommune() != null) {
+            obj.put("kommune", this.getKommune().toJSON());
+        }
+        if (this.getLatestVersion().getPostnummer() != null) {
+            obj.put("postnr", this.getLatestVersion().getPostnummer().toJSON());
+        }
         return obj;
     }
 }

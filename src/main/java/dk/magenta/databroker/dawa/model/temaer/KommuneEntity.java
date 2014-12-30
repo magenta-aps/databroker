@@ -10,6 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -20,6 +21,11 @@ import java.util.Set;
 @Entity
 @Table(name = "dawa_kommune")
 public class KommuneEntity extends TemaBase {
+
+    public KommuneEntity() {
+        this.postnumre = new HashSet<PostNummerVersionEntity>();
+    }
+
     @Column(nullable = false)
     private int kode;
 

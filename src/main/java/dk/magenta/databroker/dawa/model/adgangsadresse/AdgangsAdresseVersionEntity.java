@@ -35,10 +35,10 @@ public class AdgangsAdresseVersionEntity
     }
 
     @ManyToOne(optional = false)
-    private VejstykkeEntity vejstykke;
+    private VejstykkeEntity vejstykke; // TODO: hvorfor er denne versioneret?
 
     @Column(nullable = false)
-    private int husnr;
+    private String husnr; // TODO: hvorfor er denne versioneret?
 
     @Column
     private String supplerendeByNavn;
@@ -96,11 +96,11 @@ public class AdgangsAdresseVersionEntity
         this.vejstykke = vejstykke;
     }
 
-    public int getHusnr() {
+    public String getHusnr() {
         return husnr;
     }
 
-    public void setHusnr(int husnr) {
+    public void setHusnr(String husnr) {
         this.husnr = husnr;
     }
 
