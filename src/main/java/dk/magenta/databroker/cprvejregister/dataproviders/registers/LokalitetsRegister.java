@@ -116,23 +116,6 @@ public class LokalitetsRegister extends CprSubRegister {
 
 
     /*
-    * Repositories
-    * */
-
-    @Autowired
-    private AdresseRepository adresseRepository;
-
-    @Autowired
-    private HusnummerRepository husnummerRepository;
-
-    @Autowired
-    private NavngivenVejRepository navngivenVejRepository;
-
-    @Autowired
-    private KommunedelAfNavngivenVejRepository kommunedelAfNavngivenVejRepository;
-
-
-    /*
     * Database save
     * */
 
@@ -165,32 +148,6 @@ public class LokalitetsRegister extends CprSubRegister {
 
         System.out.println("Stored LokalitetEntities in database:");
         counter.printModifications();
-
-        /*this.createRegistreringEntities();
-        LokalitetRegisterRun lrun = (LokalitetRegisterRun) run;
-
-        if (adresseRepository == null || husnummerRepository == null || navngivenVejRepository == null || kommunedelAfNavngivenVejRepository == null) {
-            System.err.println("Insufficient repositories");
-            return;
-        }
-
-        System.out.println("Storing HusnummerEntities in database");
-
-        try {
-
-            AdresseModel adresseModel = new AdresseModel(this.adresseRepository, this.navngivenVejRepository, this.kommunedelAfNavngivenVejRepository, this.husnummerRepository, this.getCreateRegistrering(), this.getUpdateRegistrering());
-            ArrayList<Record> lokaliteter = new ArrayList<Record>();
-
-            for (Record record : run) {
-                if (record.getRecordType().equals(Lokalitet.RECORDTYPE_LOKALITET)) {
-                    lokaliteter.add(record);
-                }
-            }
-            adresseModel.createAddresses(lokaliteter);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }*/
     }
 
 

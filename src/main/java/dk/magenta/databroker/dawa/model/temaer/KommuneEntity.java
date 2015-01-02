@@ -1,20 +1,14 @@
 package dk.magenta.databroker.dawa.model.temaer;
 
-import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
-import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
 import dk.magenta.databroker.dawa.model.postnummer.PostNummerVersionEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
-import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeVersionEntity;
-import dk.magenta.databroker.register.objectcontainers.Level1Container;
 import dk.magenta.databroker.service.rest.SearchService;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Created by jubk on 18-12-2014.

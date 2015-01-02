@@ -1,6 +1,6 @@
 package dk.magenta.databroker.cprvejregister.dataproviders.registers;
+
 import dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneEntity;
-import dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneRepository;
 import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.dawa.model.RawVej;
 import dk.magenta.databroker.register.RegisterRun;
@@ -9,17 +9,9 @@ import dk.magenta.databroker.register.objectcontainers.*;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.CprRecord;
 import dk.magenta.databroker.register.records.Record;
-import dk.magenta.databroker.cprvejregister.model.AdresseModel;
-import dk.magenta.databroker.cprvejregister.model.VejModel;
-import dk.magenta.databroker.cprvejregister.model.adresse.AdresseRepository;
-import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerRepository;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
-import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejRepository;
-import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
-import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.net.MalformedURLException;
 import java.net.URL;

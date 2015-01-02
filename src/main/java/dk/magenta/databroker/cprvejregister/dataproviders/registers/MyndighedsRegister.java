@@ -125,9 +125,6 @@ public class MyndighedsRegister extends CprSubRegister {
     }
 
     //------------------------------------------------------------------------------------------------------------------
-    //@SuppressWarnings("SpringJavaAutowiringInspection")
-    //@Autowired
-    //private KommuneRepository kommuneRepository;
 
     public MyndighedsRegister(DataProviderEntity dbObject) {
         super(dbObject);

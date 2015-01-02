@@ -23,6 +23,9 @@ public class CprRegister extends Register {
     @Autowired
     private PostnummerRegister postnummerRegister;
 
+    @Autowired
+    private BynavnRegister bynavnRegister;
+
 
     public CprRegister() {
     }
@@ -37,5 +40,6 @@ public class CprRegister extends Register {
         this.vejRegister.pull(forceFetch, forceParse);
         this.lokalitetsRegister.pull(forceFetch, forceParse);
         this.postnummerRegister.pull(forceFetch, forceParse);
+        this.bynavnRegister.pull(forceFetch, forceParse);
     }
 }

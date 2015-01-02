@@ -2,7 +2,6 @@ package dk.magenta.databroker.dawa.model;
 
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.core.model.oio.VirkningEntity;
-import dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktVersionEntity;
 import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseEntity;
 import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseRepository;
 import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseVersionEntity;
@@ -20,8 +19,6 @@ import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeVersionEntity;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.register.objectcontainers.Level1Container;
 import dk.magenta.databroker.register.objectcontainers.Level2Container;
-import dk.magenta.databroker.register.objectcontainers.Pair;
-import dk.magenta.databroker.register.objectcontainers.StringList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -204,12 +201,12 @@ public class DawaModel {
 
     private Level1Container<PostNummerEntity> postNummerCache = null;
 
-    public PostNummerEntity setPostNummer(int nummer, String navn, Set<Pair<Integer, Integer>> veje,
+    public PostNummerEntity setPostNummer(int nummer, String navn, Set<RawVej> veje,
                                           RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering) {
         return this.setPostNummer(nummer, navn, veje, createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>());
     }
 
-    public PostNummerEntity setPostNummer(int nummer, String navn, Set<Pair<Integer, Integer>> veje,
+    public PostNummerEntity setPostNummer(int nummer, String navn, Set<RawVej> veje,
                                           RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering, List<VirkningEntity> virkninger) {
         if (createRegistrering == null && updateRegistrering == null) {
             System.err.println("Both registrations are null; cannot create database entity");
@@ -226,23 +223,24 @@ public class DawaModel {
         }
 
 
-        ArrayList<VejstykkeVersionEntity> vejListe = new ArrayList<VejstykkeVersionEntity>();
+        // Convert List of RawVej to lists of Kommuner and Veje
+        ArrayList<VejstykkeEntity> vejListe = new ArrayList<VejstykkeEntity>();
         Level1Container<KommuneEntity> kommuneMap = new Level1Container<KommuneEntity>();
-        for (Pair<Integer, Integer> delvej : veje) {
-            int kommuneKode = delvej.getLeft();
-            int vejKode = delvej.getRight();
+        for (RawVej delvej : veje) {
+            int kommuneKode = delvej.getKommuneKode();
+            int vejKode = delvej.getVejKode();
+
+
+            // Obtain a VejstykkeVersion to update
             VejstykkeEntity vejstykkeEntity = this.getVejstykkeCache().get(kommuneKode, vejKode);
             //VejstykkeEntity vejstykkeEntity = this.getVejstykke(kommuneKode, vejKode);
             if (vejstykkeEntity != null) {
-                VejstykkeVersionEntity vejstykkeVersionEntity = vejstykkeEntity.getLatestVersion();
-                vejListe.add(vejstykkeVersionEntity);
-                if (vejstykkeVersionEntity.getPostnummer() != postNummerEntity) {
-
-                    System.out.println("vejstykke doesn't point to postnummer");
-                    //PostNummerEntity otherEntity = vejstykkeVersionEntity.getPostnummer();
-                    // ("+vejstykkeVersionEntity.getPostnummer().getLatestVersion().getNr()+" "+vejstykkeVersionEntity.getPostnummer().getLatestVersion().getNavn()+" != "+nummer+" "+navn+")");
-                }
+                vejListe.add(vejstykkeEntity);
             }
+
+
+
+
             if (!kommuneMap.containsKey(kommuneKode)) {
                 KommuneEntity kommuneEntity = this.getKommuneCache().get(kommuneKode);
                 //KommuneEntity kommuneEntity = this.getKommune(kommuneKode);
@@ -289,19 +287,31 @@ public class DawaModel {
                 }
             }
 
-            postNummerEntity.setLatestVersion(postNummerVersionEntity); // TODO: may not always be relevant
+
+            for (VejstykkeEntity vejstykkeEntity : vejListe) {
 
 
-            for (VejstykkeVersionEntity vejstykkeVersionEntity : vejListe) {
-                if (vejstykkeVersionEntity.getPostnummer() != postNummerEntity) {
-                    System.out.println("need to set postnr "+nummer+" on vejstykke "+vejstykkeVersionEntity.getEntity().getKommune().getKode()+":"+vejstykkeVersionEntity.getEntity().getKode());
+                VejstykkeVersionEntity vejstykkeVersionEntity = vejstykkeEntity.getLatestVersion();
+                // If the newest version isn't made by us (TODO: make sure we really want that)
+                // Create a new version copied from the old
+                if (vejstykkeVersionEntity.getRegistrering() != createRegistrering && vejstykkeVersionEntity.getRegistrering() != updateRegistrering) {
+                    VejstykkeVersionEntity oldVersion = vejstykkeVersionEntity;
+                    vejstykkeVersionEntity = vejstykkeEntity.addVersion(updateRegistrering);
+                    vejstykkeVersionEntity.copyFrom(oldVersion);
+                    vejstykkeEntity.setLatestVersion(vejstykkeVersionEntity);
+                }
+                // TODO: Vejstykker can have more than one postnummer, so we need to change the model
+
+                //if (vejstykkeVersionEntity.getPostnummer() != postNummerEntity) {
+                //    System.out.println("need to set postnr "+nummer+" on vejstykke "+vejstykkeVersionEntity.getEntity().getKommune().getKode()+":"+vejstykkeVersionEntity.getEntity().getKode());
                     //vejstykkeVersionEntity.setPostnummer(postNummerEntity);
                     //this.vejstykkeRepository.save(vejstykkeVersionEntity.getEntity());
-                }
+                //}
             }
 
 
 
+            postNummerEntity.setLatestVersion(postNummerVersionEntity); // TODO: may not always be relevant
             this.postNummerRepository.save(postNummerEntity);
         } else {
             //System.out.println("    no changes");
@@ -450,7 +460,7 @@ public class DawaModel {
 
     public void setLokalitet(String lokalitetsnavn, Set<RawVej> veje,
                              RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering, List<VirkningEntity> virkninger) {
-        // TODO: do something
+        // TODO: Put the lokalitet into the database (need to create a model for it first)
         System.out.println("lokalitet(" + lokalitetsnavn + ") {");
         for (RawVej vej : veje) {
             System.out.println(vej.getKommuneKode()+":"+vej.getVejKode());

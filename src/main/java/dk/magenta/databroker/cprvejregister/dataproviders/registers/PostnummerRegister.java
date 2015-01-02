@@ -2,6 +2,7 @@ package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.dawa.model.DawaModel;
+import dk.magenta.databroker.dawa.model.RawVej;
 import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.register.objectcontainers.*;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.CprRecord;
@@ -163,15 +164,14 @@ public class PostnummerRegister extends CprSubRegister {
             int nr = Integer.parseInt(nummer, 10);
             if (postnummerRecords.size() > 0 && nr != 9999) {
                 String navn = postnummerRecords.get(0).get("postDistriktTekst");
-                HashSet<Pair<Integer,Integer>> veje = new HashSet<Pair<Integer, Integer>>();
+                HashSet<RawVej> veje = new HashSet<RawVej>();
 
-                /*
                 for (PostNummer postNummer : postnummerRecords) {
                     int kommuneKode = postNummer.getInt("kommuneKode");
                     int vejKode = postNummer.getInt("vejKode");
-                    veje.add(new Pair<Integer, Integer>(kommuneKode, vejKode));
+                    veje.add(new RawVej(kommuneKode, vejKode));
 
-                    for (String nummer2 : prun.getPostnumre().keySet()) {
+                    /*for (String nummer2 : prun.getPostnumre().keySet()) {
                         if (!nummer.equals(nummer2)) {
                             ArrayList<PostNummer> postnummerRecords2 = prun.getPostnumre().get(nummer2);
                             for (PostNummer postNummer2 : postnummerRecords2) {
@@ -183,8 +183,9 @@ public class PostnummerRegister extends CprSubRegister {
                             }
 
                         }
-                    }
-                }*/
+                    }*/
+
+                }
 
                 model.setPostNummer(nr, navn, veje, this.getCreateRegistrering(), this.getUpdateRegistrering());
                 postCounter.printInputProcessed();

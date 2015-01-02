@@ -67,4 +67,12 @@ public class VejstykkeVersionEntity extends DobbeltHistorikVersion<VejstykkeEnti
     public void setVejadresseringsnavn(String vejadresseringsnavn) {
         this.vejadresseringsnavn = vejadresseringsnavn;
     }
+
+    public void copyFrom(VejstykkeVersionEntity otherVersion) {
+        if (this.getEntity() == otherVersion.getEntity()) {
+            this.postnummer = otherVersion.getPostnummer();
+            this.vejnavn = otherVersion.getVejnavn();
+            this.vejadresseringsnavn = otherVersion.getVejadresseringsnavn();
+        }
+    }
 }

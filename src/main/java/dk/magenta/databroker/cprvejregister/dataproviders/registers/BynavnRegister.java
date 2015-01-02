@@ -2,14 +2,26 @@ package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.CprRecord;
+import dk.magenta.databroker.dawa.model.DawaModel;
+import dk.magenta.databroker.dawa.model.RawVej;
+import dk.magenta.databroker.register.RegisterRun;
+import dk.magenta.databroker.register.objectcontainers.InputProcessingCounter;
+import dk.magenta.databroker.register.objectcontainers.Level2Container;
+import dk.magenta.databroker.register.records.Record;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * Created by lars on 04-11-14.
  */
+@Component
 public class BynavnRegister extends CprSubRegister {
 
     public class ByNavn extends CprRecord {
@@ -34,6 +46,10 @@ public class BynavnRegister extends CprSubRegister {
         super(dbObject);
     }
 
+    public BynavnRegister() {
+    }
+
+
     public URL getRecordUrl() throws MalformedURLException {
         return new URL("https://cpr.dk/media/152120/a370713.txt");
     }
@@ -53,7 +69,49 @@ public class BynavnRegister extends CprSubRegister {
         return null;
     }
 
-    public static void main(String[] args) {
-        new BynavnRegister(null).pull();
+
+
+
+    /*
+    * Repositories
+    * */
+
+    @Autowired
+    private DawaModel model;
+
+    /*
+    * Database save
+    * */
+
+    protected void saveRunToDatabase(RegisterRun run) {
+        this.createRegistreringEntities();
+
+        System.out.println("Storing Bynavne in database");
+
+        HashMap<String, HashSet<RawVej>> lokalitetData = new HashMap<String, HashSet<RawVej>>();
+
+        for (Record record : run) {
+            if (record.getClass() == ByNavn.class) {
+                ByNavn by = (ByNavn) record;
+                int kommuneKode = by.getInt("kommuneKode");
+                int vejKode = by.getInt("vejKode");
+                String byNavn = by.get("byNavn");
+                HashSet<RawVej> veje = lokalitetData.get(byNavn);
+                if (veje == null) {
+                    veje = new HashSet<RawVej>();
+                    lokalitetData.put(byNavn, veje);
+                }
+                RawVej vej = new RawVej(kommuneKode, vejKode);
+                veje.add(vej);
+            }
+        }
+
+        for (String lokalitetsNavn : lokalitetData.keySet()) {
+            HashSet<RawVej> veje = lokalitetData.get(lokalitetsNavn);
+            this.model.setLokalitet(lokalitetsNavn, veje, this.getCreateRegistrering(), this.getUpdateRegistrering());
+        }
+
+        System.out.println("Save complete");
+
     }
 }
