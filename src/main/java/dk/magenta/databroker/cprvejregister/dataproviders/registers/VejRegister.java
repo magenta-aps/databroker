@@ -127,7 +127,6 @@ public class VejRegister extends CprSubRegister {
             this.obtain("startDato", 35, 12);
             this.obtain("lokalitet", 59, 34);
             this.clean();
-
         }
     }
 

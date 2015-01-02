@@ -68,9 +68,9 @@ public abstract class RepositoryUtil {
         if (land != null) {
             land = land.toLowerCase();
             if (land.equals("gl") || land.equals("grønland")) {
-                return whereField("9*", "kommune.kommunekode", null);
+                return whereField("9*", "kommune.kode", null);
             } else if (land.equals("dk") || land.equals("danmark")) {
-                return whereField("!9*", "kommune.kommunekode", null);
+                return whereField("!9*", "kommune.kode", null);
             }
         }
         return null;
