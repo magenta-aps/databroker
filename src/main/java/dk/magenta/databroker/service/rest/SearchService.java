@@ -73,7 +73,8 @@ public class SearchService {
     // Base url to create hrefs in output objects
     // Be sure to modify this when the webservice changes
     private static String getBaseUrl() {
-        return "http://localhost:8181/services/search";
+        return /*"http://localhost:8181" + */
+                "/services/search";
     }
 
     //------------------------------------------------------------------------------------------------------------------
