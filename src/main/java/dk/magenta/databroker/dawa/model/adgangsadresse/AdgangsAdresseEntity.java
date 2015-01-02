@@ -1,7 +1,6 @@
 package dk.magenta.databroker.dawa.model.adgangsadresse;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
-import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseVersionEntity;
 import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
 import dk.magenta.databroker.dawa.model.stormodtagere.StormodtagerEntity;
@@ -9,7 +8,6 @@ import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.service.rest.SearchService;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -111,9 +109,12 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
         if (vejstykkeEntity != null) {
             obj.put("vej", vejstykkeEntity.toJSON());
             obj.put("kommune", vejstykkeEntity.getKommune().toJSON());
-            PostNummerEntity postNummerEntity =  vejstykkeEntity.getLatestVersion().getPostnummer();
-            if (postNummerEntity != null) {
-                obj.put("postnr", postNummerEntity.toJSON());
+            if (!vejstykkeEntity.getLatestVersion().getPostnumre().isEmpty()) {
+                JSONArray postnumre = new JSONArray();
+                for (PostNummerEntity postNummerEntity : vejstykkeEntity.getLatestVersion().getPostnumre()) {
+                    postnumre.put(postNummerEntity.toJSON());
+                }
+                obj.put("postnr", postnumre);
             }
         }
         if (!this.enhedsAdresseVersioner.isEmpty()) {

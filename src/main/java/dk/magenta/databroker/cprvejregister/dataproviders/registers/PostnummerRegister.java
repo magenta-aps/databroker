@@ -169,7 +169,11 @@ public class PostnummerRegister extends CprSubRegister {
                 for (PostNummer postNummer : postnummerRecords) {
                     int kommuneKode = postNummer.getInt("kommuneKode");
                     int vejKode = postNummer.getInt("vejKode");
-                    veje.add(new RawVej(kommuneKode, vejKode));
+                    int husnrFra = postNummer.getInt("husNrFra", true);
+                    int husnrTil = postNummer.getInt("husNrTil", true);
+                    RawVej rawVej = new RawVej(kommuneKode, vejKode);
+                    rawVej.setRange(husnrFra, husnrTil);
+                    veje.add(rawVej);
 
                     /*for (String nummer2 : prun.getPostnumre().keySet()) {
                         if (!nummer.equals(nummer2)) {

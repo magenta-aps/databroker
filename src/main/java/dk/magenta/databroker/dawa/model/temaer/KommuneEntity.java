@@ -31,7 +31,7 @@ public class KommuneEntity extends TemaBase {
     @OneToMany(mappedBy = "kommune")
     private Collection<VejstykkeEntity> vejstykker;
 
-    @ManyToMany(mappedBy = "kommuner")
+    @ManyToMany
     private Collection<PostNummerVersionEntity> postnumre;
 
     @Override

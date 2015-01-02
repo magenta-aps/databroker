@@ -4,7 +4,9 @@ import dk.magenta.databroker.core.model.oio.DobbeltHistorikVersion;
 import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * Created by jubk on 18-12-2014.
@@ -60,10 +62,12 @@ public class PostNummerVersionEntity extends DobbeltHistorikVersion<PostNummerEn
     }
 
     public PostNummerVersionEntity() {
+        this.kommuner = new HashSet<KommuneEntity>();
     }
 
     public PostNummerVersionEntity(PostNummerEntity entitet) {
         super(entitet);
+        this.kommuner = new HashSet<KommuneEntity>();
     }
 
     @ManyToMany
@@ -73,7 +77,14 @@ public class PostNummerVersionEntity extends DobbeltHistorikVersion<PostNummerEn
         return kommuner;
     }
 
-    public void setKommuner(Collection<KommuneEntity> kommuner) {
-        this.kommuner = kommuner;
+    public void addKommune(KommuneEntity kommune) {
+        if (!this.kommuner.contains(kommune)) {
+            this.kommuner.add(kommune);
+        }
+    }
+    public void removeKommune(KommuneEntity kommune) {
+        if (this.kommuner.contains(kommune)) {
+            this.kommuner.remove(kommune);
+        }
     }
 }

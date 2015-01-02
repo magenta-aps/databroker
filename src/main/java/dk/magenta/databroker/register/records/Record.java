@@ -33,7 +33,14 @@ public abstract class Record extends HashMap<String, String> {
     }
 
     public int getInt(String key) {
+        return this.getInt(key, false);
+    }
+
+    public int getInt(String key, boolean lenient) {
         String value = this.get(key);
+        if (lenient) {
+            value = value.replaceAll("[^\\d]", "");
+        }
         try {
             return Integer.parseInt(value, 10);
         } catch (NumberFormatException e) {

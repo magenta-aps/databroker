@@ -2,8 +2,10 @@ package dk.magenta.databroker.dawa.model.enhedsadresser;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseEntity;
+import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.service.rest.SearchService;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.persistence.*;
@@ -87,8 +89,12 @@ public class EnhedsAdresseEntity extends DobbeltHistorikBase<EnhedsAdresseEntity
                 if (vejstykkeEntity.getKommune() != null) {
                     obj.put("kommune", vejstykkeEntity.getKommune().toJSON());
                 }
-                if (vejstykkeEntity.getLatestVersion().getPostnummer() != null) {
-                    obj.put("postnr", vejstykkeEntity.getLatestVersion().getPostnummer().toJSON());
+                if (!vejstykkeEntity.getLatestVersion().getPostnumre().isEmpty()) {
+                    JSONArray postnumre = new JSONArray();
+                    for (PostNummerEntity postNummerEntity : vejstykkeEntity.getLatestVersion().getPostnumre()) {
+                        postnumre.put(postNummerEntity.toJSON());
+                    }
+                    obj.put("postnr", postnumre);
                 }
             }
         }
