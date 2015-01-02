@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * Created by jubk on 18-12-2014.
@@ -29,6 +30,7 @@ public class PostNummerEntity extends DobbeltHistorikBase<PostNummerEntity, Post
 
     public PostNummerEntity() {
         this.versioner = new ArrayList<PostNummerVersionEntity>();
+        this.vejstykkeVersioner = new HashSet<VejstykkeVersionEntity>();
         this.generateNewUUID();
     }
 
@@ -74,8 +76,11 @@ public class PostNummerEntity extends DobbeltHistorikBase<PostNummerEntity, Post
         return vejstykkeVersioner;
     }
 
-    public void setVejstykkeVersioner(Collection<VejstykkeVersionEntity> vejstykkeVersioner) {
-        this.vejstykkeVersioner = vejstykkeVersioner;
+    public void addVejstykkeVersion(VejstykkeVersionEntity vejstykkeVersionEntity) {
+        this.vejstykkeVersioner.add(vejstykkeVersionEntity);
+    }
+    public void removeVejstykkeVersion(VejstykkeVersionEntity vejstykkeVersionEntity) {
+        this.vejstykkeVersioner.remove(vejstykkeVersionEntity);
     }
 
     public String getTypeName() {

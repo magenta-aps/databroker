@@ -184,10 +184,6 @@ public class MyndighedsRegister extends CprSubRegister {
     private DawaModel model;
 
     protected void saveRunToDatabase(RegisterRun run) {
-
-        //RegistreringEntity createRegistrering = registreringRepository.createNew(this);
-        //RegistreringEntity updateRegistrering = registreringRepository.createUpdate(this);
-
         System.out.println("Storing KommuneEntities in database");
         MyndighedsRegisterRun mrun = (MyndighedsRegisterRun) run;
         System.out.println("mrun size: "+mrun.size());
@@ -197,7 +193,7 @@ public class MyndighedsRegister extends CprSubRegister {
         for (Myndighed kommune : kommuner) {
             int kommuneKode = kommune.getInt("myndighedsKode");
             String kommuneNavn = kommune.get("myndighedsNavn");
-            model.setKommune(kommuneKode, kommuneNavn);
+            model.setKommune(kommuneKode, kommuneNavn, this.getCreateRegistrering(), this.getUpdateRegistrering());
             mrun.printInputProcessed();
         }
         mrun.printFinalInputsProcessed();

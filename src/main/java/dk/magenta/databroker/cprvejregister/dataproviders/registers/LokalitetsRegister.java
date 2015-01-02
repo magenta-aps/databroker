@@ -10,6 +10,7 @@ import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerRepository;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejRepository;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejRepository;
 import dk.magenta.databroker.register.objectcontainers.EntityModificationCounter;
+import dk.magenta.databroker.register.objectcontainers.InputProcessingCounter;
 import dk.magenta.databroker.register.records.Record;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -49,6 +50,12 @@ public class LokalitetsRegister extends CprSubRegister {
     }
 
     private class LokalitetRegisterRun extends RegisterRun {
+        public boolean add(Record record) {
+            if (record.getClass() == Lokalitet.class) {
+                return super.add(record);
+            }
+            return false;
+        }
     }
 
 
@@ -138,17 +145,24 @@ public class LokalitetsRegister extends CprSubRegister {
         System.out.println("Storing KommuneEntities in database");
         LokalitetRegisterRun lrun = (LokalitetRegisterRun) run;
         EntityModificationCounter counter = new EntityModificationCounter();
+        InputProcessingCounter inputCounter = new InputProcessingCounter(true);
+
 
         for (Record record : lrun) {
-            if (record.getRecordType().equals(Lokalitet.RECORDTYPE_LOKALITET)) {
+            if (record.getClass() == Lokalitet.class) {
                 Lokalitet lokalitet = (Lokalitet) record;
-                /*int kommuneKode = kommune.getInt("myndighedsKode");
-                String kommuneNavn = kommune.get("myndighedsNavn");
-                model.set(kommuneKode, kommuneNavn);
-                mrun.printInputProcessed();*/
+                int kommuneKode = lokalitet.getInt("kommuneKode");
+                int vejKode = lokalitet.getInt("vejKode");
+                String lokalitetsNavn = lokalitet.get("myndighedsNavn");
+                String husnr = lokalitet.get("husNr");
+                String etage = lokalitet.get("etage");
+                String sidedoer = lokalitet.get("sidedoer");
+                model.setAdresse(kommuneKode, vejKode, husnr, etage, sidedoer, this.getCreateRegistrering(), this.getUpdateRegistrering());
+                inputCounter.printInputProcessed();
             }
         }
-        lrun.printFinalInputsProcessed();
+        inputCounter.printFinalInputsProcessed();
+
         System.out.println("Stored LokalitetEntities in database:");
         counter.printModifications();
 

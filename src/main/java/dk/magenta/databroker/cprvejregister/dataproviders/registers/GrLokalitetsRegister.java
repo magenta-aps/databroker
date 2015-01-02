@@ -1,6 +1,7 @@
 package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
 import dk.magenta.databroker.core.model.DataProviderEntity;
+import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.register.Register;
 import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.register.records.Record;
@@ -81,27 +82,17 @@ public class GrLokalitetsRegister extends Register {
 
 
     /*
-    * Repositories
-    * */
-
-    @Autowired
-    private LokalitetRepository lokalitetRepository;
-
-    @Autowired
-    private KommunedelAfNavngivenVejRepository kommunedelAfNavngivenVejRepository;
-
-
-    /*
     * Database save
     * */
 
-     protected void saveRunToDatabase(RegisterRun run) {
-        GrRegisterRun grun = (GrRegisterRun) run;
-        this.createRegistreringEntities();
+    @Autowired
+    private DawaModel model;
 
-         LokalitetModel lokalitetModel = new LokalitetModel(this.lokalitetRepository, this.kommunedelAfNavngivenVejRepository, this.getCreateRegistrering(), this.getUpdateRegistrering());
-         lokalitetModel.createLocations(grun);
-/*
+     protected void saveRunToDatabase(RegisterRun run) {
+         GrRegisterRun grun = (GrRegisterRun) run;
+         this.createRegistreringEntities();
+
+
         for (Record record : grun) {
             GrLokalitetRecord gRecord = (GrLokalitetRecord) record;
             int lokalitetsKode = gRecord.getInt("lokalitetsKode");
@@ -109,6 +100,8 @@ public class GrLokalitetsRegister extends Register {
             int kommuneKode = gRecord.getInt("kommuneKode");
             int vejKode = gRecord.getInt("vejKode");
 
+            this.model.setLokalitet(kommuneKode, vejKode, lokalitetsNavn, this.getCreateRegistrering(), this.getUpdateRegistrering());
+/*
             if (kommuneKode != 0 && vejKode != 0) {
                 // Several input entries will share the same LokalitetEntity
                 LokalitetEntity lokalitetEntity = lokalitetRepository.findByLokalitetsKode(lokalitetsKode);
@@ -138,7 +131,7 @@ public class GrLokalitetsRegister extends Register {
                 if (kommunedelAfNavngivenVejEntity == null) {
                     System.out.println("No kommune for " + lokalitetsNavn + " (KommuneKode: " + kommuneKode + ", VejKode: " + vejKode + " not found)");
                 }
-            }
-        }*/
+            }*/
+        }
     }
 }

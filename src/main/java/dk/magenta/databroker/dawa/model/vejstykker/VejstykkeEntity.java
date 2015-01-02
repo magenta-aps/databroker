@@ -29,6 +29,7 @@ public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, Vejsty
 
     public VejstykkeEntity() {
         this.versioner = new ArrayList<VejstykkeVersionEntity>();
+        this.adgangsAdresseVersioner = new ArrayList<AdgangsAdresseVersionEntity>();
         this.generateNewUUID();
     }
 

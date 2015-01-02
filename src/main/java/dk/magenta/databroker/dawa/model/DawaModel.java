@@ -21,6 +21,7 @@ import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.register.objectcontainers.Level1Container;
 import dk.magenta.databroker.register.objectcontainers.Level2Container;
 import dk.magenta.databroker.register.objectcontainers.Pair;
+import dk.magenta.databroker.register.objectcontainers.StringList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -43,11 +44,18 @@ public class DawaModel {
 
     private Level1Container<KommuneEntity> kommuneCache = null;
 
-    public KommuneEntity setKommune(int kode, String navn) {
+    public KommuneEntity setKommune(int kode, String navn,
+                                    RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering) {
+        return this.setKommune(kode, navn, createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>());
+    }
+
+    public KommuneEntity setKommune(int kode, String navn,
+                                    RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering, List<VirkningEntity> virkninger) {
         boolean changed = false;
         KommuneEntity kommuneEntity = this.getKommuneCache().get(kode);
         //KommuneEntity kommuneEntity = this.kommuneRepository.getByKode(kode);
         if (kommuneEntity == null) {
+            System.out.println("    creating new KommuneEntity "+kode);
             kommuneEntity = new KommuneEntity();
             kommuneEntity.setKode(kode);
             if (this.kommuneCache != null) {
@@ -62,6 +70,8 @@ public class DawaModel {
 
         if (changed) {
             this.kommuneRepository.save(kommuneEntity);
+        } else {
+            //System.out.println("    no changes");
         }
         return kommuneEntity;
     }
@@ -121,6 +131,7 @@ public class DawaModel {
                         "Unable to create vej "+vejKode+" ("+vejNavn+")");
                 return null;
             }
+            System.out.println("    creating new VejstykkeEntity "+kommuneKode+":"+vejKode);
             vejstykkeEntity = new VejstykkeEntity();
             vejstykkeEntity.setKode(vejKode);
             vejstykkeEntity.setKommune(kommuneEntity);
@@ -130,18 +141,20 @@ public class DawaModel {
         }
         VejstykkeVersionEntity vejstykkeVersionEntity = vejstykkeEntity.getLatestVersion();
         if (vejstykkeVersionEntity == null) {
+            System.out.println("    creating initial VejstykkeVersionEntity");
             vejstykkeVersionEntity = vejstykkeEntity.addVersion(createRegistrering, virkninger);
 
         } else {
             String dbVejNavn = vejstykkeVersionEntity.getVejnavn();
             String dbVejAddresseringsNavn = vejstykkeVersionEntity.getVejadresseringsnavn();
-            if (!(dbVejNavn != null || dbVejNavn.equals(vejNavn)) ||
-                    !(dbVejAddresseringsNavn != null && dbVejAddresseringsNavn.equals(vejAddresseringsnavn))) {
-            vejstykkeVersionEntity = vejstykkeEntity.addVersion(updateRegistrering, virkninger);
-        } else {
-            // No need to update anything
-            vejstykkeVersionEntity = null;
-        }
+            if (!(dbVejNavn == null || dbVejNavn.equals(vejNavn)) ||
+                    !(dbVejAddresseringsNavn == null || dbVejAddresseringsNavn.equals(vejAddresseringsnavn))) {
+                System.out.println("    creating updated VejstykkeVersionEntity ("+dbVejNavn+" != "+vejNavn+" || "+dbVejAddresseringsNavn+" != "+vejAddresseringsnavn+")");
+                vejstykkeVersionEntity = vejstykkeEntity.addVersion(updateRegistrering, virkninger);
+            } else {
+                // No need to update anything
+                vejstykkeVersionEntity = null;
+            }
         }
 
         if (vejstykkeVersionEntity != null) {
@@ -149,6 +162,8 @@ public class DawaModel {
             vejstykkeVersionEntity.setVejadresseringsnavn(vejAddresseringsnavn);
             vejstykkeEntity.setLatestVersion(vejstykkeVersionEntity); // TODO: may not always be relevant
             this.vejstykkeRepository.save(vejstykkeEntity);
+        } else {
+            //System.out.println("    no changes");
         }
 
         return vejstykkeEntity;
@@ -196,7 +211,6 @@ public class DawaModel {
 
     public PostNummerEntity setPostNummer(int nummer, String navn, Set<Pair<Integer, Integer>> veje,
                                           RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering, List<VirkningEntity> virkninger) {
-        System.out.println(nummer+":"+navn);
         if (createRegistrering == null && updateRegistrering == null) {
             System.err.println("Both registrations are null; cannot create database entity");
         } else if (createRegistrering == null) {
@@ -207,8 +221,8 @@ public class DawaModel {
 
         PostNummerEntity postNummerEntity = this.getPostNummerCache().get(nummer);
         if (postNummerEntity == null) {
+            System.out.println("    creating new postnummerEntity "+nummer);
             postNummerEntity = new PostNummerEntity();
-            System.out.println("Creating new postnummerEntity "+nummer);
         }
 
 
@@ -220,7 +234,14 @@ public class DawaModel {
             VejstykkeEntity vejstykkeEntity = this.getVejstykkeCache().get(kommuneKode, vejKode);
             //VejstykkeEntity vejstykkeEntity = this.getVejstykke(kommuneKode, vejKode);
             if (vejstykkeEntity != null) {
-                vejListe.add(vejstykkeEntity.getLatestVersion());
+                VejstykkeVersionEntity vejstykkeVersionEntity = vejstykkeEntity.getLatestVersion();
+                vejListe.add(vejstykkeVersionEntity);
+                if (vejstykkeVersionEntity.getPostnummer() != postNummerEntity) {
+
+                    System.out.println("vejstykke doesn't point to postnummer");
+                    //PostNummerEntity otherEntity = vejstykkeVersionEntity.getPostnummer();
+                    // ("+vejstykkeVersionEntity.getPostnummer().getLatestVersion().getNr()+" "+vejstykkeVersionEntity.getPostnummer().getLatestVersion().getNavn()+" != "+nummer+" "+navn+")");
+                }
             }
             if (!kommuneMap.containsKey(kommuneKode)) {
                 KommuneEntity kommuneEntity = this.getKommuneCache().get(kommuneKode);
@@ -230,17 +251,21 @@ public class DawaModel {
                 }
             }
         }
-        System.out.println("postnr "+nummer+" har "+vejListe.size()+" veje og "+kommuneMap.size()+" kommuner");
-
 
         PostNummerVersionEntity postNummerVersionEntity = postNummerEntity.getLatestVersion();
         if (postNummerVersionEntity == null) {
+            System.out.println("    creating initial PostNummerVersionEntity");
             postNummerVersionEntity = postNummerEntity.addVersion(createRegistrering, virkninger);
 
         } else if (postNummerVersionEntity.getNr() != nummer ||
                 postNummerVersionEntity.getNavn() == null || !postNummerVersionEntity.getNavn().equals(navn) ||
-                !postNummerEntity.getVejstykkeVersioner().equals(vejListe) ||
-                !postNummerVersionEntity.getKommuner().equals(kommuneMap)) {
+                //!postNummerEntity.getVejstykkeVersioner().containsAll(vejListe) ||
+                !postNummerVersionEntity.getKommuner().containsAll(kommuneMap.getList())) {
+
+
+
+            System.out.println("    creating updated PostNummerVersionEntity");
+
             postNummerVersionEntity = postNummerEntity.addVersion(updateRegistrering, virkninger);
         } else {
             // No need to update anything
@@ -251,18 +276,35 @@ public class DawaModel {
             postNummerVersionEntity.setNr(nummer);
             postNummerVersionEntity.setNavn(navn);
 
-            postNummerEntity.setVejstykkeVersioner(vejListe);
-            for (VejstykkeVersionEntity vejstykkeVersionEntity : vejListe) {
+            /*for (VejstykkeVersionEntity vejstykkeVersionEntity : vejListe) {
                 vejstykkeVersionEntity.setPostnummer(postNummerEntity);
-            }
+                this.vejstykkeRepository.save(vejstykkeVersionEntity.getEntity());
+            }*/
 
-            postNummerVersionEntity.setKommuner(kommuneMap.getList());
+            //postNummerVersionEntity.setKommuner(kommuneMap.getList());
             for (KommuneEntity kommune : kommuneMap.getList()) {
-                kommune.addPostnummer(postNummerVersionEntity);
+                if (!kommune.getPostnumre().contains(postNummerVersionEntity)) {
+                    kommune.addPostnummer(postNummerVersionEntity);
+                    this.kommuneRepository.save(kommune);
+                }
             }
 
             postNummerEntity.setLatestVersion(postNummerVersionEntity); // TODO: may not always be relevant
+
+
+            for (VejstykkeVersionEntity vejstykkeVersionEntity : vejListe) {
+                if (vejstykkeVersionEntity.getPostnummer() != postNummerEntity) {
+                    System.out.println("need to set postnr "+nummer+" on vejstykke "+vejstykkeVersionEntity.getEntity().getKommune().getKode()+":"+vejstykkeVersionEntity.getEntity().getKode());
+                    //vejstykkeVersionEntity.setPostnummer(postNummerEntity);
+                    //this.vejstykkeRepository.save(vejstykkeVersionEntity.getEntity());
+                }
+            }
+
+
+
             this.postNummerRepository.save(postNummerEntity);
+        } else {
+            //System.out.println("    no changes");
         }
 
         return postNummerEntity;
@@ -305,75 +347,79 @@ public class DawaModel {
     public AdgangsAdresseEntity setAdresse(int kommuneKode, int vejKode, String husNr, String etage, String doer,
                                           RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering, List<VirkningEntity> virkninger) {
 
-        System.out.println("setAdresse("+kommuneKode+", "+vejKode+", "+husNr+", "+etage+", "+doer+")");
+        //System.out.println("setAdresse("+kommuneKode+", "+vejKode+", '"+husNr+"', '"+etage+"', '"+doer+"')");
         VejstykkeEntity vejstykkeEntity = this.getVejstykkeCache().get(kommuneKode, vejKode);
         AdgangsAdresseEntity adgangsAdresseEntity = null;
 
-        Collection<AdgangsAdresseVersionEntity> adgangsAdresseVersionEntities = vejstykkeEntity.getAdgangsAdresseVersioner();
-        if (adgangsAdresseVersionEntities != null) {
-            for (AdgangsAdresseVersionEntity adgangsAdresseVersionEntity : adgangsAdresseVersionEntities) {
-                if (husNr.equals(adgangsAdresseVersionEntity.getHusnr())) {
-                    adgangsAdresseEntity = adgangsAdresseVersionEntity.getEntity();
+        if (vejstykkeEntity == null) {
+            System.err.println("Vejstykke "+kommuneKode+":"+vejKode+" not found");
+        } else {
+            Collection<AdgangsAdresseVersionEntity> adgangsAdresseVersionEntities = vejstykkeEntity.getAdgangsAdresseVersioner();
+            if (adgangsAdresseVersionEntities != null) {
+                for (AdgangsAdresseVersionEntity adgangsAdresseVersionEntity : adgangsAdresseVersionEntities) {
+                    if (husNr.equals(adgangsAdresseVersionEntity.getHusnr())) {
+                        adgangsAdresseEntity = adgangsAdresseVersionEntity.getEntity();
+                    }
                 }
             }
-        }
-        if (adgangsAdresseEntity == null) {
-            adgangsAdresseEntity = new AdgangsAdresseEntity();
-            System.out.println("Creating new AdgangsAdresseEntity");
-        }
+            if (adgangsAdresseEntity == null) {
+                adgangsAdresseEntity = new AdgangsAdresseEntity();
+                System.out.println("    creating new AdgangsAdresseEntity");
+            }
 
 
-        AdgangsAdresseVersionEntity adgangsAdresseVersionEntity = adgangsAdresseEntity.getLatestVersion();
-        if (adgangsAdresseVersionEntity == null) {
-            adgangsAdresseVersionEntity = adgangsAdresseEntity.addVersion(createRegistrering, virkninger);
-            System.out.println("Creating initial AdgangsAdresseVersionEntity");
-        } else if (false) {
+            AdgangsAdresseVersionEntity adgangsAdresseVersionEntity = adgangsAdresseEntity.getLatestVersion();
+            if (adgangsAdresseVersionEntity == null) {
+                adgangsAdresseVersionEntity = adgangsAdresseEntity.addVersion(createRegistrering, virkninger);
+                System.out.println("    creating initial AdgangsAdresseVersionEntity");
+            } else if (false) {
 
-            System.out.println("Creating updated AdgangsAdresseVersionEntity");
-        } else {
-            adgangsAdresseVersionEntity = null;
-        }
+                System.out.println("    creating updated AdgangsAdresseVersionEntity");
+            } else {
+                adgangsAdresseVersionEntity = null;
+            }
 
-        if (adgangsAdresseVersionEntity != null) {
-            adgangsAdresseVersionEntity.setVejstykke(vejstykkeEntity);
-            adgangsAdresseVersionEntity.setHusnr(husNr);
-            adgangsAdresseEntity.setLatestVersion(adgangsAdresseVersionEntity);
-            this.adgangsAdresseRepository.save(adgangsAdresseEntity);
-        }
+            if (adgangsAdresseVersionEntity != null) {
+                adgangsAdresseVersionEntity.setVejstykke(vejstykkeEntity);
+                adgangsAdresseVersionEntity.setHusnr(husNr);
+                adgangsAdresseEntity.setLatestVersion(adgangsAdresseVersionEntity);
+                this.adgangsAdresseRepository.save(adgangsAdresseEntity);
+            }
 
 
+            EnhedsAdresseEntity enhedsAdresseEntity = null;
+            for (EnhedsAdresseVersionEntity e : adgangsAdresseEntity.getEnhedsAdresseVersioner()) {
+                if (e.getEntity().getLatestVersion() == e && e.getEtage().equals(etage) && e.getDoer().equals(doer)) {
+                    enhedsAdresseEntity = e.getEntity();
+                }
+            }
+            if (enhedsAdresseEntity == null) {
+                enhedsAdresseEntity = new EnhedsAdresseEntity();
+                System.out.println("    creating new EnhedsAdresseEntity");
+            }
 
-        EnhedsAdresseEntity enhedsAdresseEntity = null;
-        for (EnhedsAdresseVersionEntity e : adgangsAdresseEntity.getEnhedsAdresseVersioner()) {
-            if (e.getEntity().getLatestVersion() == e && e.getEtage().equals(etage) && e.getDoer().equals(doer)) {
-                enhedsAdresseEntity = e.getEntity();
+            EnhedsAdresseVersionEntity enhedsAdresseVersionEntity = enhedsAdresseEntity.getLatestVersion();
+            if (enhedsAdresseVersionEntity == null) {
+                enhedsAdresseVersionEntity = enhedsAdresseEntity.addVersion(createRegistrering, virkninger);
+                System.out.println("    creating initial EnhedsAdresseVersionEntity");
+            } else if (!enhedsAdresseVersionEntity.getEtage().equals(etage) ||
+                    !enhedsAdresseVersionEntity.getDoer().equals(doer) ||
+                    enhedsAdresseVersionEntity.getAdgangsadresse() != adgangsAdresseEntity) {
+                enhedsAdresseVersionEntity = enhedsAdresseEntity.addVersion(updateRegistrering, virkninger);
+                System.out.println("    creating updated EnhedsAdresseVersionEntity");
+            } else {
+                enhedsAdresseVersionEntity = null;
+            }
+
+            if (enhedsAdresseVersionEntity != null) {
+                enhedsAdresseVersionEntity.setEtage(etage);
+                enhedsAdresseVersionEntity.setDoer(doer);
+                enhedsAdresseVersionEntity.setAdgangsadresse(adgangsAdresseEntity);
+                this.enhedsAdresseRepository.save(enhedsAdresseEntity);
+            } else {
+                //System.out.println("    no changes");
             }
         }
-        if (enhedsAdresseEntity == null) {
-            enhedsAdresseEntity = new EnhedsAdresseEntity();
-            System.out.println("Creating new EnhedsAdresseEntity");
-        }
-
-        EnhedsAdresseVersionEntity enhedsAdresseVersionEntity = enhedsAdresseEntity.getLatestVersion();
-        if (enhedsAdresseVersionEntity == null) {
-            enhedsAdresseVersionEntity = enhedsAdresseEntity.addVersion(createRegistrering, virkninger);
-            System.out.println("Creating initial EnhedsAdresseVersionEntity");
-        } else if (!enhedsAdresseVersionEntity.getEtage().equals(etage) ||
-                !enhedsAdresseVersionEntity.getDoer().equals(doer) ||
-                enhedsAdresseVersionEntity.getAdgangsadresse() != adgangsAdresseEntity) {
-            enhedsAdresseVersionEntity = enhedsAdresseEntity.addVersion(updateRegistrering, virkninger);
-            System.out.println("Creating updated EnhedsAdresseVersionEntity");
-        } else {
-            enhedsAdresseVersionEntity = null;
-        }
-
-        if (enhedsAdresseVersionEntity != null) {
-            enhedsAdresseVersionEntity.setEtage(etage);
-            enhedsAdresseVersionEntity.setDoer(doer);
-            enhedsAdresseVersionEntity.setAdgangsadresse(adgangsAdresseEntity);
-            this.enhedsAdresseRepository.save(enhedsAdresseEntity);
-        }
-
         return adgangsAdresseEntity;
     }
 
@@ -394,4 +440,18 @@ public class DawaModel {
         return this.enhedsAdresseRepository.search(land, post, kommune, vej, husnr, etage, doer, globalCondition);
     }
 
+    //------------------------------------------------------------------------------------------------------------------
+
+
+    public void setLokalitet(int kommuneKode, int vejKode, String lokalitetsnavn,
+                             RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering) {
+        this.setLokalitet(kommuneKode, vejKode, lokalitetsnavn, createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>());
     }
+
+    public void setLokalitet(int kommuneKode, int vejKode, String lokalitetsnavn,
+                             RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering, List<VirkningEntity> virkninger) {
+        // TODO: do something
+        System.out.println("lokalitet("+kommuneKode+", "+vejKode+", "+lokalitetsnavn+")");
+    }
+
+}

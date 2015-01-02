@@ -77,10 +77,10 @@ public class KommuneEntity extends TemaBase {
     }
 
     public void addPostnummer(PostNummerVersionEntity postnummer) {
-        System.out.println("Adding postnummer to kommune");
-        Set<PostNummerVersionEntity> postNummerVersionEntities = new HashSet<PostNummerVersionEntity>(this.postnumre);
-        postNummerVersionEntities.add(postnummer);
-        this.postnumre = postNummerVersionEntities;
+        if (!this.postnumre.contains(postnummer)) {
+            System.out.println("Adding postnummer to kommune");
+            this.postnumre.add(postnummer);
+        }
     }
 
     public String getTypeName() {

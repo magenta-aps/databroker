@@ -56,21 +56,6 @@ public class SearchService {
     }
 
     @Autowired
-    private CprKommuneRepository kommuneRepository;
-
-    @Autowired
-    private NavngivenVejRepository navngivenVejRepository;
-
-    @Autowired
-    private HusnummerRepository husnummerRepository;
-
-    @Autowired
-    private AdresseRepository adresseRepository;
-
-    @Autowired
-    private PostnummerRepository postnummerRepository;
-
-    @Autowired
     private DawaModel model;
 
 
@@ -206,42 +191,6 @@ public class SearchService {
 
         if (postnummerEntity != null) {
             return this.format(postnummerEntity, fmt);
-        } else {
-            throw new NotFoundException();
-        }
-    }
-
-    //------------------------------------------------------------------------------------------------------------------
-
-    @GET
-    @Path("husnr")
-    @Transactional
-    public String husnummer(@QueryParam("land") String land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej, @QueryParam("postnr") String[] postnr, @QueryParam("husnr") String[] husnr,
-                            @QueryParam("format") String formatStr) {
-        Format fmt = this.getFormat(formatStr);
-
-        List<OutputFormattable> husnumre = new ArrayList<OutputFormattable>(
-            this.husnummerRepository.search(
-                this.cleanInput(land),
-                this.cleanInput(kommune),
-                this.cleanInput(vej),
-                this.cleanInput(postnr),
-                this.cleanInput(husnr)
-            )
-        );
-
-        return this.format("husnumre", husnumre, fmt);
-    }
-
-    @GET
-    @Path("husnr/{uuid}")
-    @Transactional
-    public String husnr(@PathParam("uuid") String uuid,
-                          @QueryParam("format") String formatStr) {
-        Format fmt = this.getFormat(formatStr);
-        HusnummerEntity husnummerEntity = this.husnummerRepository.findByUuid(uuid);
-        if (husnummerEntity != null) {
-            return this.format(husnummerEntity, fmt);
         } else {
             throw new NotFoundException();
         }
