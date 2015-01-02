@@ -44,8 +44,8 @@ public class VejregisterTest {
     @Test
     //@Transactional
     public void testVejregister() {
-        cprRegister.pull(false, true);
-        grLokalitetsRegister.pull();
+        //cprRegister.pull(false, true);
+        grLokalitetsRegister.pull(false, true);
     }
 
 

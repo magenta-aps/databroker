@@ -2,8 +2,10 @@ package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.dawa.model.DawaModel;
+import dk.magenta.databroker.dawa.model.RawVej;
 import dk.magenta.databroker.register.Register;
 import dk.magenta.databroker.register.RegisterRun;
+import dk.magenta.databroker.register.objectcontainers.Pair;
 import dk.magenta.databroker.register.records.Record;
 import dk.magenta.databroker.cprvejregister.model.LokalitetModel;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejRepository;
@@ -12,6 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by lars on 12-12-14.
@@ -92,46 +98,24 @@ public class GrLokalitetsRegister extends Register {
          GrRegisterRun grun = (GrRegisterRun) run;
          this.createRegistreringEntities();
 
-
-        for (Record record : grun) {
-            GrLokalitetRecord gRecord = (GrLokalitetRecord) record;
-            int lokalitetsKode = gRecord.getInt("lokalitetsKode");
-            String lokalitetsNavn = gRecord.get("lokalitetsNavn");
-            int kommuneKode = gRecord.getInt("kommuneKode");
-            int vejKode = gRecord.getInt("vejKode");
-
-            this.model.setLokalitet(kommuneKode, vejKode, lokalitetsNavn, this.getCreateRegistrering(), this.getUpdateRegistrering());
-/*
-            if (kommuneKode != 0 && vejKode != 0) {
-                // Several input entries will share the same LokalitetEntity
-                LokalitetEntity lokalitetEntity = lokalitetRepository.findByLokalitetsKode(lokalitetsKode);
-                LokalitetVersionEntity lokalitetVersionEntity = null;
-                if (lokalitetEntity == null) {
-                    lokalitetEntity = LokalitetEntity.create();
-                    lokalitetEntity.setLokalitetsKode(lokalitetsKode);
-                    lokalitetVersionEntity = lokalitetEntity.addVersion(this.getCreateRegistrering());
-                } else if (!lokalitetsNavn.equals(lokalitetEntity.getLatestVersion().getLokalitetsNavn())) {
-                    lokalitetVersionEntity = lokalitetEntity.addVersion(this.getUpdateRegistrering());
-                }
-                // If there's anything to save, do it
-                if (lokalitetVersionEntity != null) {
-                    lokalitetVersionEntity.setLokalitetsNavn(lokalitetsNavn);
-                    this.lokalitetRepository.save(lokalitetEntity);
-                }
-
-
-                // Refer to the new/updated entity
-                KommunedelAfNavngivenVejEntity kommunedelAfNavngivenVejEntity = kommunedelAfNavngivenVejRepository.getByKommunekodeAndVejkode(kommuneKode, vejKode);
-                if (kommunedelAfNavngivenVejEntity != null && lokalitetEntity != kommunedelAfNavngivenVejEntity.getLokalitet()) {
-                    kommunedelAfNavngivenVejEntity.setLokalitet(lokalitetEntity);
-                    kommunedelAfNavngivenVejRepository.save(kommunedelAfNavngivenVejEntity);
-                }
-
-                // Complain if we can't find any
-                if (kommunedelAfNavngivenVejEntity == null) {
-                    System.out.println("No kommune for " + lokalitetsNavn + " (KommuneKode: " + kommuneKode + ", VejKode: " + vejKode + " not found)");
-                }
-            }*/
-        }
+         HashMap<String, HashSet<RawVej>> lokalitetData = new HashMap<String, HashSet<RawVej>>();
+         for (Record record : grun) {
+             GrLokalitetRecord gRecord = (GrLokalitetRecord) record;
+             int lokalitetsKode = gRecord.getInt("lokalitetsKode");
+             String lokalitetsNavn = gRecord.get("lokalitetsNavn");
+             int kommuneKode = gRecord.getInt("kommuneKode");
+             int vejKode = gRecord.getInt("vejKode");
+             HashSet<RawVej> veje = lokalitetData.get(lokalitetsNavn);
+             if (veje == null) {
+                 veje = new HashSet<RawVej>();
+                 lokalitetData.put(lokalitetsNavn, veje);
+             }
+             RawVej vej = new RawVej(kommuneKode, vejKode);
+             veje.add(vej);
+         }
+         for (String lokalitetsNavn : lokalitetData.keySet()) {
+             HashSet<RawVej> veje = lokalitetData.get(lokalitetsNavn);
+             this.model.setLokalitet(lokalitetsNavn, veje, this.getCreateRegistrering(), this.getUpdateRegistrering());
+         }
     }
 }

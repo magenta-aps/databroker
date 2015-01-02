@@ -443,15 +443,19 @@ public class DawaModel {
     //------------------------------------------------------------------------------------------------------------------
 
 
-    public void setLokalitet(int kommuneKode, int vejKode, String lokalitetsnavn,
+    public void setLokalitet(String lokalitetsnavn, Set<RawVej> veje,
                              RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering) {
-        this.setLokalitet(kommuneKode, vejKode, lokalitetsnavn, createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>());
+        this.setLokalitet(lokalitetsnavn, veje, createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>());
     }
 
-    public void setLokalitet(int kommuneKode, int vejKode, String lokalitetsnavn,
+    public void setLokalitet(String lokalitetsnavn, Set<RawVej> veje,
                              RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering, List<VirkningEntity> virkninger) {
         // TODO: do something
-        System.out.println("lokalitet("+kommuneKode+", "+vejKode+", "+lokalitetsnavn+")");
+        System.out.println("lokalitet(" + lokalitetsnavn + ") {");
+        for (RawVej vej : veje) {
+            System.out.println(vej.getKommuneKode()+":"+vej.getVejKode());
+        }
+        System.out.println("}");
     }
 
 }

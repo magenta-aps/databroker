@@ -2,6 +2,7 @@ package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 import dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneEntity;
 import dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneRepository;
 import dk.magenta.databroker.dawa.model.DawaModel;
+import dk.magenta.databroker.dawa.model.RawVej;
 import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.register.objectcontainers.*;
 
@@ -342,7 +343,8 @@ public class VejRegister extends CprSubRegister {
         private Level1Container<CprKommuneEntity> kommuneCache = null;
         private ArrayList<PostDistrikt> postDistrikter;
 
-        public ArrayList<Bolig> boliger;
+        private ArrayList<Bolig> boliger;
+        private ArrayList<ByDistrikt> byDistrikter;
 
         public VejRegisterRun() {
             super();
@@ -351,6 +353,7 @@ public class VejRegister extends CprSubRegister {
             this.navngivenvejCounter = new EntityModificationCounter();
 
             this.boliger = new ArrayList<Bolig>();
+            this.byDistrikter = new ArrayList<ByDistrikt>();
         }
 
         public boolean add(Record record) {
@@ -368,6 +371,11 @@ public class VejRegister extends CprSubRegister {
                 this.boliger.add((Bolig)record);
             }
 
+
+            if (record.getRecordType().equals(VejDataRecord.RECORDTYPE_BYDISTRIKT)) {
+                this.byDistrikter.add((ByDistrikt)record);
+            }
+
             return false;
         }
 
@@ -377,6 +385,14 @@ public class VejRegister extends CprSubRegister {
 
         public ArrayList<PostDistrikt> getPostDistrikter() {
             return postDistrikter;
+        }
+
+        public ArrayList<Bolig> getBoliger() {
+            return boliger;
+        }
+
+        public ArrayList<ByDistrikt> getByDistrikter() {
+            return this.byDistrikter;
         }
 
     }
@@ -426,7 +442,7 @@ public class VejRegister extends CprSubRegister {
                 return new Bolig(line);
             }
             if (recordType.equals(VejDataRecord.RECORDTYPE_BYDISTRIKT)) {
-                //return new ByDistrikt(line);
+                return new ByDistrikt(line);
             }
             if (recordType.equals(VejDataRecord.RECORDTYPE_POSTDIST)) {
                 //return new PostDistrikt(line);
@@ -545,12 +561,32 @@ public class VejRegister extends CprSubRegister {
         System.out.println("Entry update took "+this.toc(time)+"ms");
         //vejModel.cleanNavngivneVeje();
 
-        for (Bolig bolig : vrun.boliger) {
+        for (Bolig bolig : vrun.getBoliger()) {
             this.model.setAdresse(bolig.getInt("kommuneKode"), bolig.getInt("vejKode"), bolig.get("husNr"), bolig.get("etage"), bolig.get("sidedoer"), this.getCreateRegistrering(), this.getUpdateRegistrering());
         }
 
-        //AdresseModel adresseModel = new AdresseModel(this.adresseRepository, this.navngivenVejRepository, this.kommunedelAfNavngivenVejRepository, this.husnummerRepository, this.getCreateRegistrering(), this.getUpdateRegistrering());
-        //adresseModel.createAddresses(new ArrayList<Record>(vrun.boliger));
+
+
+        HashMap<String, HashSet<RawVej>> lokalitetData = new HashMap<String, HashSet<RawVej>>();
+
+
+        for (ByDistrikt byDistrikt : vrun.getByDistrikter()) {
+            int kommuneKode = byDistrikt.getInt("kommuneKode");
+            int vejKode = byDistrikt.getInt("vejKode");
+            String byNavn = byDistrikt.get("bynavn");
+            HashSet<RawVej> veje = lokalitetData.get(byNavn);
+            if (veje == null) {
+                veje = new HashSet<RawVej>();
+                lokalitetData.put(byNavn, veje);
+            }
+            RawVej vej = new RawVej(kommuneKode, vejKode);
+            veje.add(vej);
+        }
+
+        for (String lokalitetsNavn : lokalitetData.keySet()) {
+            HashSet<RawVej> veje = lokalitetData.get(lokalitetsNavn);
+            this.model.setLokalitet(lokalitetsNavn, veje, this.getCreateRegistrering(), this.getUpdateRegistrering());
+        }
 
         System.out.println("Save complete");
 
