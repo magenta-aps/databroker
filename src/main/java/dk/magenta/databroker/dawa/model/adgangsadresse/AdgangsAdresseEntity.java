@@ -1,11 +1,15 @@
 package dk.magenta.databroker.dawa.model.adgangsadresse;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
+import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseVersionEntity;
+import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
 import dk.magenta.databroker.dawa.model.stormodtagere.StormodtagerEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
+import dk.magenta.databroker.service.rest.SearchService;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -90,7 +94,6 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
         this.enhedsAdresseVersioner = enhedsAdresseVersioner;
     }
 
-
     public String getTypeName() {
         return "adgangsAdresse";
     }
@@ -98,6 +101,7 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
         JSONObject obj = new JSONObject();
         obj.put("id", this.getUuid());
         obj.put("husnr", this.latestVersion.getHusnr());
+        obj.put("href", SearchService.getAdgangsAdresseBaseUrl()+"/"+this.getUuid());
         return obj;
     }
 
@@ -107,7 +111,10 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
         if (vejstykkeEntity != null) {
             obj.put("vej", vejstykkeEntity.toJSON());
             obj.put("kommune", vejstykkeEntity.getKommune().toJSON());
-            obj.put("postnr", vejstykkeEntity.getLatestVersion().getPostnummer().toJSON());
+            PostNummerEntity postNummerEntity =  vejstykkeEntity.getLatestVersion().getPostnummer();
+            if (postNummerEntity != null) {
+                obj.put("postnr", postNummerEntity.toJSON());
+            }
         }
         if (!this.enhedsAdresseVersioner.isEmpty()) {
             JSONArray enhedsAdresser = new JSONArray();

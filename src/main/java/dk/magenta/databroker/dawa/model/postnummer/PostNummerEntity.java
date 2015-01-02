@@ -4,6 +4,7 @@ import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeVersionEntity;
+import dk.magenta.databroker.service.rest.SearchService;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -89,8 +90,10 @@ public class PostNummerEntity extends DobbeltHistorikBase<PostNummerEntity, Post
 
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
-        obj.put("navn", this.getLatestVersion().getNavn());
-        obj.put("nummer", this.getLatestVersion().getNr());
+        PostNummerVersionEntity version = this.latestVersion;
+        obj.put("navn", version.getNavn());
+        obj.put("nummer", version.getNr());
+        obj.put("href", SearchService.getPostnummerBaseUrl() + "/" + version.getNr());
         return obj;
     }
 

@@ -6,6 +6,7 @@ import dk.magenta.databroker.dawa.model.postnummer.PostNummerVersionEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeVersionEntity;
 import dk.magenta.databroker.register.objectcontainers.Level1Container;
+import dk.magenta.databroker.service.rest.SearchService;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -91,6 +92,7 @@ public class KommuneEntity extends TemaBase {
         JSONObject obj = new JSONObject();
         obj.put("navn", this.getNavn());
         obj.put("kode", this.getKode());
+        obj.put("href", SearchService.getKommuneBaseUrl() + "/" + this.getKode());
         return obj;
     }
 
@@ -101,7 +103,7 @@ public class KommuneEntity extends TemaBase {
             JSONObject delvej = vejstykkeEntity.toJSON();
             delveje.put(delvej);
         }
-        obj.put("delveje", delveje);
+        obj.put("veje", delveje);
         JSONArray postnumre = new JSONArray();
         for (PostNummerVersionEntity postNummerVersionEntity : this.postnumre) {
             if (postNummerVersionEntity.getEntity().getLatestVersion() == postNummerVersionEntity) {

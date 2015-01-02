@@ -70,7 +70,18 @@ public class SearchService {
         throw new NotFoundException();
     }
 
+    // Base url to create hrefs in output objects
+    // Be sure to modify this when the webservice changes
+    private static String getBaseUrl() {
+        return "http://localhost:8181/services/search";
+    }
+
     //------------------------------------------------------------------------------------------------------------------
+
+
+    public static String getKommuneBaseUrl() {
+        return SearchService.getBaseUrl() + "/kommune";
+    }
 
     @GET
     @Path("kommune")
@@ -117,6 +128,11 @@ public class SearchService {
 
     //------------------------------------------------------------------------------------------------------------------
 
+
+    public static String getVejBaseUrl() {
+        return SearchService.getBaseUrl() + "/vej";
+    }
+
     @GET
     @Path("vej")
     @Transactional
@@ -152,6 +168,10 @@ public class SearchService {
     }
 
     //------------------------------------------------------------------------------------------------------------------
+
+    public static String getPostnummerBaseUrl() {
+        return SearchService.getBaseUrl() + "/postnr";
+    }
 
     @GET
     @Path("postnr")
@@ -198,6 +218,10 @@ public class SearchService {
 
     //------------------------------------------------------------------------------------------------------------------
 
+    public static String getAdgangsAdresseBaseUrl() {
+        return SearchService.getBaseUrl() + "/adgangsadresse";
+    }
+
     @GET
     @Path("adgangsadresse")
     @Transactional
@@ -228,6 +252,10 @@ public class SearchService {
     }
 
     //------------------------------------------------------------------------------------------------------------------
+
+    public static String getEnhedsAdresseBaseUrl() {
+        return SearchService.getBaseUrl() + "/adresse";
+    }
 
     @GET
     @Path("adresse")

@@ -3,6 +3,7 @@ package dk.magenta.databroker.dawa.model.enhedsadresser;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
+import dk.magenta.databroker.service.rest.SearchService;
 import org.json.JSONObject;
 
 import javax.persistence.*;
@@ -72,6 +73,7 @@ public class EnhedsAdresseEntity extends DobbeltHistorikBase<EnhedsAdresseEntity
         obj.put("id", this.getUuid());
         obj.put("etage", this.latestVersion.getEtage());
         obj.put("sidedoer", this.latestVersion.getDoer());
+        obj.put("href", SearchService.getEnhedsAdresseBaseUrl()+"/"+this.getUuid());
         return obj;
     }
     public JSONObject toFullJSON() {

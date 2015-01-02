@@ -3,6 +3,7 @@ package dk.magenta.databroker.dawa.model.vejstykker;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseVersionEntity;
 import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
+import dk.magenta.databroker.service.rest.SearchService;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -116,6 +117,7 @@ public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, Vejsty
         obj.put("vejaddresseringsnavn", this.getLatestVersion().getVejadresseringsnavn());
         obj.put("vejkode", this.getKode());
         obj.put("id", this.getUuid());
+        obj.put("href", SearchService.getVejBaseUrl() + "/" + this.getUuid());
         return obj;
     }
 
