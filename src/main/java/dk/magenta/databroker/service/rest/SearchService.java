@@ -295,6 +295,22 @@ public class SearchService {
 
 
     @GET
+    @Path("lokalitet")
+    @Transactional
+    public String lokalitet(@QueryParam("land") String land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej, @QueryParam("postnr") String[] postnr,
+                          @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
+        Format fmt = this.getFormat(formatStr);
+        GlobalCondition globalCondition = new GlobalCondition(includeBefore, includeAfter);
+
+        ArrayList<OutputFormattable> adresser = new ArrayList<OutputFormattable>(
+                this.model.getLokalitet(land, postnr, kommune, vej, globalCondition)
+        );
+
+        return this.format("adresser", adresser, fmt);
+    }
+
+
+    @GET
     @Path("lokalitet/{uuid}")
     @Transactional
     public String lokalitet(@PathParam("uuid") String uuid,

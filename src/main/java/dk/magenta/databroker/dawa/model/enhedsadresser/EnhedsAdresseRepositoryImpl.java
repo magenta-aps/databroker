@@ -36,7 +36,7 @@ public class EnhedsAdresseRepositoryImpl implements EnhedsAdresseRepositoryCusto
         StringList join = new StringList();
         ConditionList conditions = new ConditionList(ConditionList.Operator.AND);
 
-        hql.append("select adresse from EnhedsAdresseEntity as adresse");
+        hql.append("select distinct adresse from EnhedsAdresseEntity as adresse");
         join.setPrefix("join ");
 
         if (land != null || kommune != null || vej != null || post != null || husnr != null) {

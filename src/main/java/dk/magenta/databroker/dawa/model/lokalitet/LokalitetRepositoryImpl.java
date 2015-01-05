@@ -16,7 +16,7 @@ import java.util.Map;
  */
 
 interface LokalitetRepositoryCustom {
-    public Collection<LokalitetEntity> search(String land, String[] post, String[] kommune, GlobalCondition globalCondition);
+    public Collection<LokalitetEntity> search(String land, String[] post, String[] kommune, String[] vej, GlobalCondition globalCondition);
 }
 
 public class LokalitetRepositoryImpl implements LokalitetRepositoryCustom {
@@ -29,13 +29,13 @@ public class LokalitetRepositoryImpl implements LokalitetRepositoryCustom {
     }
 
     @Override
-    public Collection<LokalitetEntity> search(String land, String[] post, String[] kommune, GlobalCondition globalCondition) {
+    public Collection<LokalitetEntity> search(String land, String[] post, String[] kommune, String[] vej, GlobalCondition globalCondition) {
 
         StringList hql = new StringList();
         StringList join = new StringList();
         ConditionList conditions = new ConditionList(ConditionList.Operator.AND);
 
-        hql.append("select post from PostNummerEntity as post");
+        hql.append("select distinct lokalitet from LokalitetEntity as lokalitet");
         join.setPrefix("join ");
 
 
@@ -43,13 +43,23 @@ public class LokalitetRepositoryImpl implements LokalitetRepositoryCustom {
             conditions.addCondition(RepositoryUtil.whereFieldLand(land));
         }
 
-        if (post != null) {
-            conditions.addCondition(RepositoryUtil.whereField(post, "post.latestVersion.nr", "post.latestVersion.navn"));
-        }
+        if ((vej != null && vej.length>0) || (kommune != null && kommune.length>0) || (post != null && post.length>0)) {
+            join.append("lokalitet.vejstykkeVersioner vejversion");
+            join.append("vejversion.entity as vej");
 
-        if (kommune != null) {
-            join.append("post.latestVersion.kommuner kommune");
-            conditions.addCondition(RepositoryUtil.whereField(kommune, "kommune.kode", "kommune.navn"));
+            if (vej != null) {
+                conditions.addCondition(RepositoryUtil.whereField(vej, "vej.kode", "vejversion.vejnavn"));
+            }
+
+            if (post != null) {
+                join.append("vejversion.postnumre post");
+                conditions.addCondition(RepositoryUtil.whereField(post, "post.latestVersion.nr", "post.latestVersion.navn"));
+            }
+
+            if (kommune != null) {
+                join.append("vej.kommune kommune");
+                conditions.addCondition(RepositoryUtil.whereField(kommune, "kommune.kode", "kommune.navn"));
+            }
         }
 
         if (globalCondition != null) {
@@ -72,7 +82,7 @@ public class LokalitetRepositoryImpl implements LokalitetRepositoryCustom {
             hql.append(conditions.getWhere());
         }
 
-        hql.append("order by post.latestVersion.nr");
+        hql.append("order by lokalitet.navn");
 
         System.out.println(hql.join(" \n"));
         Query q = this.entityManager.createQuery(hql.join(" "));

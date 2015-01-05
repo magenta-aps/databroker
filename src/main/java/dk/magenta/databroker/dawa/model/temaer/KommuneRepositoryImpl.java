@@ -36,7 +36,7 @@ public class KommuneRepositoryImpl implements KommuneRepositoryCustom {
         StringList join = new StringList();
         ConditionList conditions = new ConditionList(ConditionList.Operator.AND);
 
-        hql.append("select kommune from KommuneEntity as kommune");
+        hql.append("select distinct kommune from KommuneEntity as kommune");
         join.setPrefix("join ");
 
         if (land != null) {

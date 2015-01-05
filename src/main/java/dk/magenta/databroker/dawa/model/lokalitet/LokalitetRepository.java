@@ -20,13 +20,9 @@ public interface LokalitetRepository extends JpaRepository<LokalitetEntity, Long
             "where kommune.kode = :kommunekode " +
             "and lokalitet.navn = :navn")
     public LokalitetEntity getByKommunekodeAndLokalitetsnavn(@Param("kommunekode") int kommuneKode, @Param("navn") String lokalitetsnavn);
-/*
-    @Query("select lokalitet from LokalitetEntity lokalitet " +
-            "where version.nr = :nummer")
-    public LokalitetEntity getByNr(@Param("nummer") int nummer);
-*/
+
     /*
     * To be implemented in interface implementation
     * */
-    //public Collection<LokalitetEntity> search(String land, String[] post, String[] kommune, GlobalCondition globalCondition);
+    public Collection<LokalitetEntity> search(String land, String[] post, String[] kommune, String[] vej, GlobalCondition globalCondition);
 }

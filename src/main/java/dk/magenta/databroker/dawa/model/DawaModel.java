@@ -555,6 +555,11 @@ public class DawaModel {
     }
 
 
+    public Collection<LokalitetEntity> getLokalitet(String land, String[] post, String[] kommune, String[] vej, GlobalCondition globalCondition) {
+        return this.lokalitetRepository.search(land, post, kommune, vej, globalCondition);
+    }
+
+
     private Level2Container<LokalitetEntity> lokalitetCache = null;
 
     private Level2Container<LokalitetEntity> getLokalitetCache() {

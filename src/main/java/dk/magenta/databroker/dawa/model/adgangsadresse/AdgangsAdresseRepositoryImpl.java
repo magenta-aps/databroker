@@ -35,7 +35,7 @@ public class AdgangsAdresseRepositoryImpl implements AdgangsAdresseRepositoryCus
         StringList join = new StringList();
         ConditionList conditions = new ConditionList(ConditionList.Operator.AND);
 
-        hql.append("select adresse from AdgangsAdresseEntity as adresse");
+        hql.append("select distinct adresse from AdgangsAdresseEntity as adresse");
         join.setPrefix("join ");
 
 

@@ -34,7 +34,7 @@ public class VejstykkeRepositoryImpl implements VejstykkeRepositoryCustom {
         StringList join = new StringList();
         ConditionList conditions = new ConditionList(ConditionList.Operator.AND);
 
-        hql.append("select vej from VejstykkeEntity as vej");
+        hql.append("select distinct vej from VejstykkeEntity as vej");
 
         join.setPrefix("join ");
         join.append("vej.latestVersion vejversion");

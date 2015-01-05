@@ -35,7 +35,7 @@ public class PostNummerRepositoryImpl implements PostNummerRepositoryCustom {
         StringList join = new StringList();
         ConditionList conditions = new ConditionList(ConditionList.Operator.AND);
 
-        hql.append("select post from PostNummerEntity as post");
+        hql.append("select distinct post from PostNummerEntity as post");
         join.setPrefix("join ");
 
 
