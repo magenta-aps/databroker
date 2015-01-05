@@ -251,7 +251,7 @@ public class DawaModel {
             if (vejstykkeEntity != null) {
                 vejListe.add(vejstykkeEntity);
             } else {
-                System.out.println("NOT adding vej " + kommuneKode + ":" + vejKode);
+                System.out.println("NOT adding postnummer for vej " + kommuneKode + ":" + vejKode+"; vej not loaded");
             }
         }
 
@@ -406,11 +406,11 @@ public class DawaModel {
                 if (printProcessing) {
                     System.out.println("    creating initial AdgangsAdresseVersionEntity");
                 }
-            } else if (false) {
-// TODO
+            } else if (!adgangsAdresseVersionEntity.getHusnr().equals(husNr) || adgangsAdresseVersionEntity.getVejstykke() != vejstykkeEntity) {
                 if (printProcessing) {
                     System.out.println("    creating updated AdgangsAdresseVersionEntity");
                 }
+                adgangsAdresseVersionEntity = adgangsAdresseEntity.addVersion(updateRegistrering, virkninger);
             } else {
                 adgangsAdresseVersionEntity = null;
             }
@@ -497,7 +497,7 @@ public class DawaModel {
         // TODO: Put the lokalitet into the database (need to create a model for it first)
         /*System.out.println("lokalitet(" + lokalitetsnavn + ") {");
         for (RawVej vej : veje) {
-            System.out.println(vej.getKommuneKode()+":"+vej.getVejKode());
+            System.out.println(vej.getKommuneKode()+":"+vej.getVejKode()+" ("+this.getVejstykkeCache().get(vej.getKommuneKode(), vej.getVejKode()).getLatestVersion().getVejnavn()+", "+ this.getKommune(vej.getKommuneKode()).getNavn()+")");
         }
         System.out.println("}");*/
     }
