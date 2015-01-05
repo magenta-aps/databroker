@@ -9,6 +9,7 @@ import dk.magenta.databroker.register.objectcontainers.Level2Container;
 import dk.magenta.databroker.register.records.Record;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.*;
 import java.util.HashMap;
@@ -82,6 +83,12 @@ public class GrLokalitetsRegister extends Register {
     }
 
 
+    @Transactional
+    public void pull(boolean forceFetch, boolean forceParse) {
+        super.pull(forceFetch, forceParse);
+    }
+
+
     /*
     * Database save
     * */
@@ -92,6 +99,8 @@ public class GrLokalitetsRegister extends Register {
      protected void saveRunToDatabase(RegisterRun run) {
          GrRegisterRun grun = (GrRegisterRun) run;
          this.createRegistreringEntities();
+         this.model.resetVejstykkeCache();
+         this.model.resetLokalitetCache();
 
          Level2Container<HashSet<RawVej>> lokalitetData = new Level2Container<HashSet<RawVej>>();
          for (Record record : grun) {

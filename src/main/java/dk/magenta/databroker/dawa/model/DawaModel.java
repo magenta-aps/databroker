@@ -208,6 +208,11 @@ public class DawaModel {
         return this.vejstykkeCache;
     }
 
+
+    public void resetVejstykkeCache() {
+        this.vejstykkeCache = null;
+    }
+
     //------------------------------------------------------------------------------------------------------------------
 
 
@@ -505,18 +510,21 @@ public class DawaModel {
         LokalitetEntity lokalitetEntity = this.getLokalitetCache().get(kommuneKode, lokalitetsnavn);
 
         if (lokalitetEntity == null) {
-            lokalitetEntity = new LokalitetEntity();
-            lokalitetEntity.setNavn(lokalitetsnavn);
-            lokalitetEntity.setKommune(this.getKommuneCache().get(kommuneKode));
-            this.lokalitetRepository.save(lokalitetEntity);
-            this.getLokalitetCache().put(kommuneKode, lokalitetsnavn, lokalitetEntity);
+            KommuneEntity kommuneEntity = this.getKommuneCache().get(kommuneKode);
+            if (kommuneEntity != null) {
+                lokalitetEntity = new LokalitetEntity();
+                lokalitetEntity.setNavn(lokalitetsnavn);
+                lokalitetEntity.setKommune(kommuneEntity);
+                this.lokalitetRepository.save(lokalitetEntity);
+                this.getLokalitetCache().put(kommuneKode, lokalitetsnavn, lokalitetEntity);
+            }
         }
         //System.out.println("lokalitet(" + lokalitetsnavn + ") {");
         for (RawVej vej : veje) {
             int vejKommuneKode = vej.getKommuneKode();
             int vejKode = vej.getVejKode();
             VejstykkeEntity vejstykkeEntity = this.getVejstykkeCache().get(vejKommuneKode, vejKode);
-            KommuneEntity kommuneEntity = this.getKommuneCache().get(vejKommuneKode);
+            //KommuneEntity kommuneEntity = this.getKommuneCache().get(vejKommuneKode);
 
             //System.out.println(vejKommuneKode + ":" + vejKode + " (" + (vejstykkeEntity != null ? vejstykkeEntity.getLatestVersion().getVejnavn() : "null") + ", " + (kommuneEntity != null ? kommuneEntity.getNavn() : "null") + ")");
             if (vejstykkeEntity != null) {
@@ -553,10 +561,17 @@ public class DawaModel {
         if (this.lokalitetCache == null) {
             this.lokalitetCache = new Level2Container<LokalitetEntity>();
             for (LokalitetEntity item : this.lokalitetRepository.findAll()) {
-                this.lokalitetCache.put(item.getKommune().getKode(), item.getNavn(), item);
+                KommuneEntity kommuneEntity = item.getKommune();
+                if (kommuneEntity != null) {
+                    this.lokalitetCache.put(kommuneEntity.getKode(), item.getNavn(), item);
+                } else {System.out.println("kommuneEntity is null - why? "+item.getId());}
             }
         }
         return this.lokalitetCache;
+    }
+
+    public void resetLokalitetCache() {
+        this.lokalitetCache = null;
     }
 
 }

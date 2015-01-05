@@ -114,7 +114,6 @@ public abstract class Register extends DataProvider {
         this.pull(false, false);
     }
 
-    @Transactional
     public void pull(boolean forceFetch, boolean forceParse) {
         System.out.println("-----------------------------");
         System.out.println(this.getClass().getSimpleName() + " pulling...");
