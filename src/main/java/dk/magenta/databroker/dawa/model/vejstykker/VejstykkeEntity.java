@@ -2,6 +2,7 @@ package dk.magenta.databroker.dawa.model.vejstykker;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseVersionEntity;
+import dk.magenta.databroker.dawa.model.lokalitet.LokalitetEntity;
 import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
 import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.service.rest.SearchService;
@@ -133,6 +134,13 @@ public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, Vejsty
                 postnumre.put(postNummerEntity.toJSON());
             }
             obj.put("postnr", postnumre);
+        }
+        if (!this.getLatestVersion().getLokaliteter().isEmpty()) {
+            JSONArray lokaliteter = new JSONArray();
+            for (LokalitetEntity lokalitetEntity : this.getLatestVersion().getLokaliteter()) {
+                lokaliteter.put(lokalitetEntity.toJSON());
+            }
+            obj.put("lokaliteter", lokaliteter);
         }
         return obj;
     }

@@ -10,28 +10,28 @@ import javax.persistence.*;
 @Entity
 @Table(name = "lokalitet_registrering")
 @PersistenceContext(type = PersistenceContextType.EXTENDED)
-public class LokalitetVersionEntity
-    extends DobbeltHistorikVersion<LokalitetEntity, LokalitetVersionEntity> {
+public class CprLokalitetVersionEntity
+    extends DobbeltHistorikVersion<CprLokalitetEntity, CprLokalitetVersionEntity> {
 
 
         @ManyToOne(fetch = FetchType.EAGER)
-        private LokalitetEntity entity;
+        private CprLokalitetEntity entity;
 
-        protected LokalitetVersionEntity() {
+        protected CprLokalitetVersionEntity() {
             super();
         }
 
-        public LokalitetVersionEntity(LokalitetEntity entity) {
+        public CprLokalitetVersionEntity(CprLokalitetEntity entity) {
             super(entity);
         }
 
         @Override
-        public LokalitetEntity getEntity() {
+        public CprLokalitetEntity getEntity() {
                 return entity;
         }
 
         @Override
-        public void setEntity(LokalitetEntity entitet) {
+        public void setEntity(CprLokalitetEntity entitet) {
                 this.entity = entitet;
         }
 

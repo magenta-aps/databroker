@@ -15,10 +15,6 @@ public class Level2Container<T> extends HashMap<String, Level1Container<T>> {
         return null;
     }
 
-    public T get(int ident2, int ident1) {
-        return this.get(""+ident2, ""+ident1);
-    }
-
     public Level1Container<T> get(int ident2) {
         return this.get(""+ident2);
     }
@@ -35,14 +31,6 @@ public class Level2Container<T> extends HashMap<String, Level1Container<T>> {
             this.put(ident2, new Level1Container<T>());
         }
         return this.get(ident2).put(ident1, value, reportCollision);
-    }
-
-    public void put(int ident2, int ident1, T value) {
-        this.put(""+ident2, ""+ident1, value);
-    }
-
-    public boolean put(int ident2, int ident1, T value, boolean reportCollision) {
-        return this.put(""+ident2, ""+ident1, value, reportCollision);
     }
 
     public List<T> getList() {
@@ -76,6 +64,44 @@ public class Level2Container<T> extends HashMap<String, Level1Container<T>> {
         }
         return intSet;
     }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    public T get(int ident2, int ident1) {
+        return this.get(""+ident2, ""+ident1);
+    }
+    public T get(String ident2, int ident1) {
+        return this.get(ident2, ""+ident1);
+    }
+    public T get(int ident2, String ident1) {
+        return this.get(""+ident2, ident1);
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    public void put(int ident2, int ident1, T value) {
+        this.put(""+ident2, ""+ident1, value);
+    }
+
+    public boolean put(int ident2, int ident1, T value, boolean reportCollision) {
+        return this.put(""+ident2, ""+ident1, value, reportCollision);
+    }
+
+    public void put(int ident2, String ident1, T value) {
+        this.put(""+ident2, ident1, value);
+    }
+    public boolean put(int ident2, String ident1, T value, boolean reportCollision) {
+        return this.put(""+ident2, ident1, value, reportCollision);
+    }
+
+    public void put(String ident2, int ident1, T value) {
+        this.put(ident2, ""+ident1, value);
+    }
+    public boolean put(String ident2, int ident1, T value, boolean reportCollision) {
+        return this.put(ident2, ""+ident1, value, reportCollision);
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
 
     public boolean containsKey(int ident2) {
         return this.containsKey(""+ident2);

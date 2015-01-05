@@ -5,19 +5,14 @@ import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.dawa.model.RawVej;
 import dk.magenta.databroker.register.Register;
 import dk.magenta.databroker.register.RegisterRun;
-import dk.magenta.databroker.register.objectcontainers.Pair;
+import dk.magenta.databroker.register.objectcontainers.Level2Container;
 import dk.magenta.databroker.register.records.Record;
-import dk.magenta.databroker.cprvejregister.model.LokalitetModel;
-import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejRepository;
-import dk.magenta.databroker.cprvejregister.model.lokalitet.LokalitetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Created by lars on 12-12-14.
@@ -98,24 +93,34 @@ public class GrLokalitetsRegister extends Register {
          GrRegisterRun grun = (GrRegisterRun) run;
          this.createRegistreringEntities();
 
-         HashMap<String, HashSet<RawVej>> lokalitetData = new HashMap<String, HashSet<RawVej>>();
+         Level2Container<HashSet<RawVej>> lokalitetData = new Level2Container<HashSet<RawVej>>();
          for (Record record : grun) {
              GrLokalitetRecord gRecord = (GrLokalitetRecord) record;
              int lokalitetsKode = gRecord.getInt("lokalitetsKode");
              String lokalitetsNavn = gRecord.get("lokalitetsNavn");
              int kommuneKode = gRecord.getInt("kommuneKode");
              int vejKode = gRecord.getInt("vejKode");
-             HashSet<RawVej> veje = lokalitetData.get(lokalitetsNavn);
+             HashSet<RawVej> veje = lokalitetData.get(kommuneKode, lokalitetsNavn);
              if (veje == null) {
                  veje = new HashSet<RawVej>();
-                 lokalitetData.put(lokalitetsNavn, veje);
+                 lokalitetData.put(kommuneKode, lokalitetsNavn, veje);
              }
              RawVej vej = new RawVej(kommuneKode, vejKode);
-             veje.add(vej);
+             boolean contains = false;
+             for (RawVej v : veje) {
+                 if (vej.equals(v)) {
+                     contains = true;
+                 }
+             }
+             if (!contains) {
+                 veje.add(vej);
+             }
          }
-         for (String lokalitetsNavn : lokalitetData.keySet()) {
-             HashSet<RawVej> veje = lokalitetData.get(lokalitetsNavn);
-             this.model.setLokalitet(lokalitetsNavn, veje, this.getCreateRegistrering(), this.getUpdateRegistrering());
+         for (int kommuneKode : lokalitetData.intKeySet()) {
+             for (String lokalitetsNavn : lokalitetData.get(kommuneKode).keySet()) {
+                 HashSet<RawVej> veje = lokalitetData.get(kommuneKode, lokalitetsNavn);
+                 this.model.setLokalitet(kommuneKode, lokalitetsNavn, veje, this.getCreateRegistrering(), this.getUpdateRegistrering());
+             }
          }
     }
 }

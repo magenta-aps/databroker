@@ -1,6 +1,8 @@
 package dk.magenta.databroker.dawa.model.vejstykker;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikVersion;
+import dk.magenta.databroker.cprvejregister.dataproviders.registers.LokalitetsRegister;
+import dk.magenta.databroker.dawa.model.lokalitet.LokalitetEntity;
 import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
 
 import javax.persistence.*;
@@ -29,17 +31,22 @@ public class VejstykkeVersionEntity extends DobbeltHistorikVersion<VejstykkeEnti
 
     public VejstykkeVersionEntity() {
         this.postnumre = new HashSet<PostNummerEntity>();
+        this.lokaliteter = new HashSet<LokalitetEntity>();
     }
 
     public VejstykkeVersionEntity(VejstykkeEntity entitet) {
         super(entitet);
         this.postnumre = new HashSet<PostNummerEntity>();
+        this.lokaliteter = new HashSet<LokalitetEntity>();
     }
 
     /* Domain specific fields */
 
     @ManyToMany
     private Collection<PostNummerEntity> postnumre;
+
+    @ManyToMany
+    private Collection<LokalitetEntity> lokaliteter;
 
     @Column
     private String vejnavn;
@@ -62,6 +69,26 @@ public class VejstykkeVersionEntity extends DobbeltHistorikVersion<VejstykkeEnti
         }
     }
 
+
+    public Collection<LokalitetEntity> getLokaliteter() {
+        return lokaliteter;
+    }
+
+    public void addLokalitet(LokalitetEntity lokalitet) {
+        if (!this.lokaliteter.contains(lokalitet)) {
+            this.lokaliteter.add(lokalitet);
+        }
+    }
+    public void removeLokalitet(LokalitetEntity lokalitet) {
+        if (this.lokaliteter.contains(lokalitet)) {
+            this.lokaliteter.remove(lokalitet);
+        }
+    }
+
+    public boolean hasLokalitet(LokalitetEntity lokalitet) {
+        return this.lokaliteter.contains(lokalitet);
+    }
+
     public String getVejnavn() {
         return vejnavn;
     }
@@ -81,6 +108,7 @@ public class VejstykkeVersionEntity extends DobbeltHistorikVersion<VejstykkeEnti
     public void copyFrom(VejstykkeVersionEntity otherVersion) {
         if (this.getEntity() == otherVersion.getEntity()) {
             this.postnumre = new HashSet<PostNummerEntity>(otherVersion.getPostnumre());
+            this.lokaliteter = new HashSet<LokalitetEntity>(otherVersion.getLokaliteter());
             this.vejnavn = otherVersion.getVejnavn();
             this.vejadresseringsnavn = otherVersion.getVejadresseringsnavn();
         }

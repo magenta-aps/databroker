@@ -7,9 +7,9 @@ import dk.magenta.databroker.register.objectcontainers.InputProcessingCounter;
 import dk.magenta.databroker.register.records.Record;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejRepository;
-import dk.magenta.databroker.cprvejregister.model.lokalitet.LokalitetEntity;
-import dk.magenta.databroker.cprvejregister.model.lokalitet.LokalitetRepository;
-import dk.magenta.databroker.cprvejregister.model.lokalitet.LokalitetVersionEntity;
+import dk.magenta.databroker.cprvejregister.model.lokalitet.CprLokalitetEntity;
+import dk.magenta.databroker.cprvejregister.model.lokalitet.CprLokalitetRepository;
+import dk.magenta.databroker.cprvejregister.model.lokalitet.CprLokalitetVersionEntity;
 
 import java.util.List;
 
@@ -18,10 +18,10 @@ import java.util.List;
  */
 public class LokalitetModel extends Model {
 
-    private LokalitetRepository lokalitetRepository;
+    private CprLokalitetRepository lokalitetRepository;
     private KommunedelAfNavngivenVejRepository kommunedelAfNavngivenVejRepository;
 
-    public LokalitetModel(LokalitetRepository lokalitetRepository, KommunedelAfNavngivenVejRepository kommunedelAfNavngivenVejRepository, RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering) {
+    public LokalitetModel(CprLokalitetRepository lokalitetRepository, KommunedelAfNavngivenVejRepository kommunedelAfNavngivenVejRepository, RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering) {
         super(createRegistrering, updateRegistrering);
         this.lokalitetRepository = lokalitetRepository;
         this.kommunedelAfNavngivenVejRepository = kommunedelAfNavngivenVejRepository;
@@ -65,10 +65,10 @@ public class LokalitetModel extends Model {
 
         if (kommuneKode != 0 && vejKode != 0) {
             // Several input entries will share the same LokalitetEntity
-            LokalitetEntity lokalitetEntity = lokalitetRepository.findByLokalitetsKode(lokalitetsKode);
-            LokalitetVersionEntity lokalitetVersionEntity = null;
+            CprLokalitetEntity lokalitetEntity = lokalitetRepository.findByLokalitetsKode(lokalitetsKode);
+            CprLokalitetVersionEntity lokalitetVersionEntity = null;
             if (lokalitetEntity == null) {
-                lokalitetEntity = LokalitetEntity.create();
+                lokalitetEntity = CprLokalitetEntity.create();
                 lokalitetEntity.setLokalitetsKode(lokalitetsKode);
                 lokalitetVersionEntity = lokalitetEntity.addVersion(this.getCreateRegistrering());
             } else if (!lokalitetsNavn.equals(lokalitetEntity.getLatestVersion().getLokalitetsNavn())) {

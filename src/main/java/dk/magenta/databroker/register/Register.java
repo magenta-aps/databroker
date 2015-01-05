@@ -14,6 +14,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
@@ -113,6 +114,7 @@ public abstract class Register extends DataProvider {
         this.pull(false, false);
     }
 
+    @Transactional
     public void pull(boolean forceFetch, boolean forceParse) {
         System.out.println("-----------------------------");
         System.out.println(this.getClass().getSimpleName() + " pulling...");

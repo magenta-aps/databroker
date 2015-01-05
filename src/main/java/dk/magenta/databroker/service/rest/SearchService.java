@@ -289,6 +289,27 @@ public class SearchService {
 
     //------------------------------------------------------------------------------------------------------------------
 
+    public static String getLokalitetBaseUrl() {
+        return SearchService.getBaseUrl() + "/lokalitet";
+    }
+
+
+    @GET
+    @Path("lokalitet/{uuid}")
+    @Transactional
+    public String lokalitet(@PathParam("uuid") String uuid,
+                          @QueryParam("format") String formatStr) {
+        Format fmt = this.getFormat(formatStr);
+        OutputFormattable lokalitetEntity = this.model.getLokalitet(uuid);
+        if (lokalitetEntity != null) {
+            return this.format(lokalitetEntity, fmt);
+        } else {
+            throw new NotFoundException();
+        }
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
     private String format(OutputFormattable output, Format format) {
         switch (format) {
             case json:

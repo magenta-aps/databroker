@@ -9,7 +9,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.persistence.*;
-import javax.xml.soap.Node;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPEnvelope;
 import javax.xml.soap.SOAPException;
@@ -22,16 +21,16 @@ import java.util.Collection;
  */
 @Entity
 @Table(name = "lokalitet")
-public class LokalitetEntity
-        extends DobbeltHistorikBase<LokalitetEntity, LokalitetVersionEntity>
+public class CprLokalitetEntity
+        extends DobbeltHistorikBase<CprLokalitetEntity, CprLokalitetVersionEntity>
         implements Serializable, OutputFormattable {
 
-    public LokalitetEntity() {
-        this.versioner = new ArrayList<LokalitetVersionEntity>();
+    public CprLokalitetEntity() {
+        this.versioner = new ArrayList<CprLokalitetVersionEntity>();
     }
 
-    public static LokalitetEntity create() {
-        LokalitetEntity lokalitetEntity = new LokalitetEntity();
+    public static CprLokalitetEntity create() {
+        CprLokalitetEntity lokalitetEntity = new CprLokalitetEntity();
         lokalitetEntity.generateNewUUID();
         return lokalitetEntity;
     }
@@ -42,44 +41,44 @@ public class LokalitetEntity
     * */
 
     @OneToMany(mappedBy = "entity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private Collection<LokalitetVersionEntity> versioner;
+    private Collection<CprLokalitetVersionEntity> versioner;
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private LokalitetVersionEntity latestVersion;
+    private CprLokalitetVersionEntity latestVersion;
 
     @OneToOne(fetch = FetchType.LAZY)
-    private LokalitetVersionEntity preferredVersion;
+    private CprLokalitetVersionEntity preferredVersion;
 
     @Override
-    public Collection<LokalitetVersionEntity> getVersioner() {
+    public Collection<CprLokalitetVersionEntity> getVersioner() {
         return versioner;
     }
 
     @Override
-    public LokalitetVersionEntity getLatestVersion() {
+    public CprLokalitetVersionEntity getLatestVersion() {
         return latestVersion;
     }
 
     @Override
-    public void setLatestVersion(LokalitetVersionEntity latestVersion) {
+    public void setLatestVersion(CprLokalitetVersionEntity latestVersion) {
         this.latestVersion = latestVersion;
     }
 
     @Override
-    public LokalitetVersionEntity getPreferredVersion() {
+    public CprLokalitetVersionEntity getPreferredVersion() {
         return preferredVersion;
     }
 
     @Override
-    public void setPreferredVersion(LokalitetVersionEntity preferredVersion) {
+    public void setPreferredVersion(CprLokalitetVersionEntity preferredVersion) {
         this.preferredVersion = preferredVersion;
     }
 
 
 
     @Override
-    protected LokalitetVersionEntity createVersionEntity() {
-        return new LokalitetVersionEntity(this);
+    protected CprLokalitetVersionEntity createVersionEntity() {
+        return new CprLokalitetVersionEntity(this);
     }
 
     /*

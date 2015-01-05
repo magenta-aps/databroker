@@ -1,5 +1,7 @@
 package dk.magenta.databroker.dawa.model;
 
+import java.util.Objects;
+
 /**
  * Created by lars on 02-01-15.
  */
@@ -24,8 +26,6 @@ public class RawVej {
         return this.vejKode;
     }
 
-
-
     public void setRange(int husnrFra, int husnrTil) {
         this.husnrFra = husnrFra;
         this.husnrTil = husnrTil;
@@ -40,5 +40,21 @@ public class RawVej {
 
     public String toString() {
         return "RawVej("+this.getKommuneKode()+","+this.getVejKode()+"" + (this.husnrFra!=0 || this.husnrTil!=0 ? (" "+this.husnrFra+"-"+this.husnrTil) : "") + ")";
+    }
+
+    public boolean equals(RawVej otherObject) {
+        return this.equals((Object) otherObject);
+    }
+
+    @Override
+    public boolean equals(Object otherObject) {
+        if (otherObject == null) return false;
+        if (otherObject.getClass() != RawVej.class) return false;
+        RawVej otherVej = (RawVej) otherObject;
+        if (otherVej.getKommuneKode() != this.kommuneKode) return false;
+        if (otherVej.getVejKode() != this.vejKode) return false;
+        /*if (otherVej.getHusnrFra() != this.husnrFra) return false;
+        if (otherVej.getHusnrTil() != this.husnrTil) return false;*/
+        return true;
     }
 }

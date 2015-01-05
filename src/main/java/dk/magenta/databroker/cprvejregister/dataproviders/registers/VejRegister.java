@@ -559,25 +559,36 @@ public class VejRegister extends CprSubRegister {
 
 
 
-        HashMap<String, HashSet<RawVej>> lokalitetData = new HashMap<String, HashSet<RawVej>>();
+        Level2Container<HashSet<RawVej>> lokalitetData = new Level2Container<HashSet<RawVej>>();
 
 
         for (ByDistrikt byDistrikt : vrun.getByDistrikter()) {
             int kommuneKode = byDistrikt.getInt("kommuneKode");
             int vejKode = byDistrikt.getInt("vejKode");
             String byNavn = byDistrikt.get("bynavn");
-            HashSet<RawVej> veje = lokalitetData.get(byNavn);
+            HashSet<RawVej> veje = lokalitetData.get(kommuneKode, byNavn);
             if (veje == null) {
                 veje = new HashSet<RawVej>();
-                lokalitetData.put(byNavn, veje);
+                lokalitetData.put(kommuneKode, byNavn, veje);
             }
             RawVej vej = new RawVej(kommuneKode, vejKode);
-            veje.add(vej);
+
+            boolean contains = false;
+            for (RawVej v : veje) {
+                if (vej.equals(v)) {
+                    contains = true;
+                }
+            }
+            if (!contains) {
+                veje.add(vej);
+            }
         }
 
-        for (String lokalitetsNavn : lokalitetData.keySet()) {
-            HashSet<RawVej> veje = lokalitetData.get(lokalitetsNavn);
-            this.model.setLokalitet(lokalitetsNavn, veje, this.getCreateRegistrering(), this.getUpdateRegistrering());
+        for (int kommuneKode : lokalitetData.intKeySet()) {
+            for (String lokalitetsNavn : lokalitetData.get(kommuneKode).keySet()) {
+                HashSet<RawVej> veje = lokalitetData.get(kommuneKode, lokalitetsNavn);
+                this.model.setLokalitet(kommuneKode, lokalitetsNavn, veje, this.getCreateRegistrering(), this.getUpdateRegistrering());
+            }
         }
 
         System.out.println("Save complete");

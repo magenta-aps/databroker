@@ -5,12 +5,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Created by lars on 11-11-14.
  */
-public interface LokalitetRepository extends JpaRepository<LokalitetEntity, Long> {
+public interface CprLokalitetRepository extends JpaRepository<CprLokalitetEntity, Long> {
 
     @Query("select lokalitet from KommunedelAfNavngivenVejEntity del " +
             "join del.lokalitet lokalitet " +
@@ -20,7 +19,7 @@ public interface LokalitetRepository extends JpaRepository<LokalitetEntity, Long
             "where kommune.kommunekode = :kommune " +
             "and del.vejkode = :vej " +
             "and vej.latestVersion = version")
-    public Collection<LokalitetEntity> findByKommunekodeAndVejkode(@Param("kommune") int kommune, @Param("vej") int vej);
+    public Collection<CprLokalitetEntity> findByKommunekodeAndVejkode(@Param("kommune") int kommune, @Param("vej") int vej);
 
-    public LokalitetEntity findByLokalitetsKode(int lokalitetsKode);
+    public CprLokalitetEntity findByLokalitetsKode(int lokalitetsKode);
 }

@@ -2,6 +2,9 @@ package dk.magenta.databroker.dawa.model;
 
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.core.model.oio.VirkningEntity;
+import dk.magenta.databroker.cprvejregister.dataproviders.registers.LokalitetsRegister;
+import dk.magenta.databroker.dawa.model.lokalitet.LokalitetEntity;
+import dk.magenta.databroker.dawa.model.lokalitet.LokalitetRepository;
 import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseEntity;
 import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseRepository;
 import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseVersionEntity;
@@ -111,6 +114,7 @@ public class DawaModel {
                                         RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering) {
         return this.setVejstykke(kommuneKode, vejKode, vejNavn, vejAddresseringsnavn, createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>());
     }
+
     public VejstykkeEntity setVejstykke(int kommuneKode, int vejKode, String vejNavn, String vejAddresseringsnavn,
                                         RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering, List<VirkningEntity> virkninger) {
 
@@ -128,8 +132,8 @@ public class DawaModel {
         if (vejstykkeEntity == null) {
             KommuneEntity kommuneEntity = this.getKommuneCache().get(kommuneKode);
             if (kommuneEntity == null) {
-                System.err.println("Kommune with kode "+kommuneKode+" not found. (There are "+this.kommuneRepository.count()+" entries in the table).\n" +
-                        "Unable to create vej "+vejKode+" ("+vejNavn+")");
+                System.err.println("Kommune with kode " + kommuneKode + " not found. (There are " + this.kommuneRepository.count() + " entries in the table).\n" +
+                        "Unable to create vej " + vejKode + " (" + vejNavn + ")");
                 return null;
             }
             if (printProcessing) {
@@ -204,7 +208,6 @@ public class DawaModel {
         return this.vejstykkeCache;
     }
 
-
     //------------------------------------------------------------------------------------------------------------------
 
 
@@ -237,7 +240,6 @@ public class DawaModel {
         }
 
 
-
         // Convert List of RawVej to a lists of Veje
 
         HashSet<VejstykkeEntity> vejListe = new HashSet<VejstykkeEntity>();
@@ -251,7 +253,7 @@ public class DawaModel {
             if (vejstykkeEntity != null) {
                 vejListe.add(vejstykkeEntity);
             } else {
-                System.out.println("NOT adding postnummer for vej " + kommuneKode + ":" + vejKode+"; vej not loaded");
+                System.out.println("NOT adding postnummer for vej " + kommuneKode + ":" + vejKode + "; vej not loaded");
             }
         }
 
@@ -352,7 +354,6 @@ public class DawaModel {
     }
 
 
-
     public PostNummerEntity getPostnummer(int postnr) {
         return this.postNummerRepository.getByNr(postnr);
     }
@@ -371,18 +372,18 @@ public class DawaModel {
 
 
     public AdgangsAdresseEntity setAdresse(int kommuneKode, int vejKode, String husNr, String etage, String doer,
-                                          RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering) {
+                                           RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering) {
         return this.setAdresse(kommuneKode, vejKode, husNr, etage, doer, createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>());
     }
 
     public AdgangsAdresseEntity setAdresse(int kommuneKode, int vejKode, String husNr, String etage, String doer,
-                                          RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering, List<VirkningEntity> virkninger) {
+                                           RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering, List<VirkningEntity> virkninger) {
 
         VejstykkeEntity vejstykkeEntity = this.getVejstykkeCache().get(kommuneKode, vejKode);
         AdgangsAdresseEntity adgangsAdresseEntity = null;
 
         if (vejstykkeEntity == null) {
-            System.err.println("Vejstykke "+kommuneKode+":"+vejKode+" not found");
+            System.err.println("Vejstykke " + kommuneKode + ":" + vejKode + " not found");
         } else {
             Collection<AdgangsAdresseVersionEntity> adgangsAdresseVersionEntities = vejstykkeEntity.getAdgangsAdresseVersioner();
             if (adgangsAdresseVersionEntities != null) {
@@ -487,19 +488,75 @@ public class DawaModel {
     //------------------------------------------------------------------------------------------------------------------
 
 
-    public void setLokalitet(String lokalitetsnavn, Set<RawVej> veje,
+    @Autowired
+    private LokalitetRepository lokalitetRepository;
+
+    public void setLokalitet(int kommuneKode, String lokalitetsnavn, Set<RawVej> veje,
                              RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering) {
-        this.setLokalitet(lokalitetsnavn, veje, createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>());
+        this.setLokalitet(kommuneKode, lokalitetsnavn, veje, createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>());
     }
 
-    public void setLokalitet(String lokalitetsnavn, Set<RawVej> veje,
+    public void setLokalitet(int kommuneKode, String lokalitetsnavn, Set<RawVej> veje,
                              RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering, List<VirkningEntity> virkninger) {
         // TODO: Put the lokalitet into the database (need to create a model for it first)
-        /*System.out.println("lokalitet(" + lokalitetsnavn + ") {");
-        for (RawVej vej : veje) {
-            System.out.println(vej.getKommuneKode()+":"+vej.getVejKode()+" ("+this.getVejstykkeCache().get(vej.getKommuneKode(), vej.getVejKode()).getLatestVersion().getVejnavn()+", "+ this.getKommune(vej.getKommuneKode()).getNavn()+")");
+
+
+        //LokalitetEntity lokalitetEntity = this.lokalitetRepository.getByKommunekodeAndLokalitetsnavn(kommuneKode, lokalitetsnavn);
+        LokalitetEntity lokalitetEntity = this.getLokalitetCache().get(kommuneKode, lokalitetsnavn);
+
+        if (lokalitetEntity == null) {
+            lokalitetEntity = new LokalitetEntity();
+            lokalitetEntity.setNavn(lokalitetsnavn);
+            lokalitetEntity.setKommune(this.getKommuneCache().get(kommuneKode));
+            this.lokalitetRepository.save(lokalitetEntity);
+            this.getLokalitetCache().put(kommuneKode, lokalitetsnavn, lokalitetEntity);
         }
-        System.out.println("}");*/
+        //System.out.println("lokalitet(" + lokalitetsnavn + ") {");
+        for (RawVej vej : veje) {
+            int vejKommuneKode = vej.getKommuneKode();
+            int vejKode = vej.getVejKode();
+            VejstykkeEntity vejstykkeEntity = this.getVejstykkeCache().get(vejKommuneKode, vejKode);
+            KommuneEntity kommuneEntity = this.getKommuneCache().get(vejKommuneKode);
+
+            //System.out.println(vejKommuneKode + ":" + vejKode + " (" + (vejstykkeEntity != null ? vejstykkeEntity.getLatestVersion().getVejnavn() : "null") + ", " + (kommuneEntity != null ? kommuneEntity.getNavn() : "null") + ")");
+            if (vejstykkeEntity != null) {
+                VejstykkeVersionEntity vejstykkeVersionEntity = vejstykkeEntity.getLatestVersion();
+                if (vejstykkeVersionEntity != null) {
+                    if (!vejstykkeVersionEntity.hasLokalitet(lokalitetEntity) && vejstykkeVersionEntity.getRegistrering() != createRegistrering && vejstykkeVersionEntity.getRegistrering() != updateRegistrering) {
+                        this.vejstykkeRepository.save(vejstykkeEntity);
+                        //System.out.println("Creating new version");
+                        VejstykkeVersionEntity oldVersionEntity = vejstykkeVersionEntity;
+                        vejstykkeVersionEntity = vejstykkeEntity.addVersion(updateRegistrering);
+                        vejstykkeVersionEntity.copyFrom(oldVersionEntity);
+                    }
+                    vejstykkeVersionEntity.addLokalitet(lokalitetEntity);
+                    this.vejstykkeRepository.save(vejstykkeEntity);
+                }
+                //lokalitetEntity.addVejstykkeVersion(vejstykkeEntity.getLatestVersion());
+            }
+        }
+        //System.out.println("}");
+    }
+
+    public LokalitetEntity getLokalitet(String uuid) {
+        return this.lokalitetRepository.getByUuid(uuid);
+    }
+
+    public LokalitetEntity getLokalitet(int kommuneKode, String lokalitetsNavn) {
+        return this.lokalitetRepository.getByKommunekodeAndLokalitetsnavn(kommuneKode, lokalitetsNavn);
+    }
+
+
+    private Level2Container<LokalitetEntity> lokalitetCache = null;
+
+    private Level2Container<LokalitetEntity> getLokalitetCache() {
+        if (this.lokalitetCache == null) {
+            this.lokalitetCache = new Level2Container<LokalitetEntity>();
+            for (LokalitetEntity item : this.lokalitetRepository.findAll()) {
+                this.lokalitetCache.put(item.getKommune().getKode(), item.getNavn(), item);
+            }
+        }
+        return this.lokalitetCache;
     }
 
 }

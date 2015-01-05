@@ -38,6 +38,8 @@
         <mapping class="dk.magenta.databroker.cprvejregister.model.isopunkt.IsoPunktEntity"/>
         <mapping class="dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneEntity"/>
         <mapping class="dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneVersionEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.lokalitet.CprLokalitetEntity"/>
+        <mapping class="dk.magenta.databroker.cprvejregister.model.lokalitet.CprLokalitetVersionEntity"/>
         <mapping class="dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity"/>
         <mapping class="dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity"/>
         <mapping class="dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejVersionEntity"/>
@@ -57,6 +59,7 @@
         <mapping class="dk.magenta.databroker.dawa.model.ejerlav.EjerLavVersionEntity"/>
         <mapping class="dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseEntity"/>
         <mapping class="dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseVersionEntity"/>
+        <mapping class="dk.magenta.databroker.dawa.model.lokalitet.LokalitetEntity"/>
         <mapping class="dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity"/>
         <mapping class="dk.magenta.databroker.dawa.model.postnummer.PostNummerVersionEntity"/>
         <mapping class="dk.magenta.databroker.dawa.model.stormodtagere.StormodtagerEntity"/>
