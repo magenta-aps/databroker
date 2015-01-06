@@ -3,7 +3,6 @@ package dk.magenta.databroker.test;
 import dk.magenta.databroker.Application;
 
 
-import dk.magenta.databroker.core.DataProviderRegistry;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.registers.*;
 import org.junit.Test;
@@ -31,8 +30,6 @@ import static org.junit.Assert.assertTrue;
 @EnableTransactionManagement
 public class VejregisterTest {
 
-    //@SuppressWarnings("SpringJavaAutowiringInspection")
-
     public VejregisterTest(){
     }
 
@@ -40,9 +37,11 @@ public class VejregisterTest {
     private ApplicationContext context;
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private CprRegister cprRegister;
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private GrLokalitetsRegister grLokalitetsRegister;
 
     @Test

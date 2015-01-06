@@ -60,6 +60,17 @@ public class SupplerendeByNavnEntity extends UniqueBase {
     }
 
     public JSONObject toJSON() {
-        return new JSONObject();
+        JSONObject obj = new JSONObject();
+        obj.put("supplerendeBynavn", this.supplerendeByNavn);
+        obj.put("kommunekode", this.kommunekode);
+        return obj;
+    }
+
+    public JSONObject toFullJSON() {
+        JSONObject obj = this.toJSON();
+        if (this.postnummer != null) {
+            obj.put("postnr", this.postnummer.toJSON());
+        }
+        return obj;
     }
 }

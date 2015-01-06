@@ -59,6 +59,17 @@ public class StormodtagerEntity extends UniqueBase {
     }
 
     public JSONObject toJSON() {
-        return new JSONObject();
+        JSONObject obj = new JSONObject();
+        obj.put("nr", this.nr);
+        obj.put("navn", this.navn);
+        return obj;
+    }
+
+    public JSONObject toFullJSON() {
+        JSONObject obj = this.toJSON();
+        if (this.adgangsadresse != null) {
+            obj.put("adgangsadresse", this.adgangsadresse.toJSON());
+        }
+        return obj;
     }
 }
