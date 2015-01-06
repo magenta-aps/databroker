@@ -126,20 +126,7 @@ public class MyndighedsRegister extends CprSubRegister {
 
     //------------------------------------------------------------------------------------------------------------------
 
-    public MyndighedsRegister(DataProviderEntity dbObject) {
-        super(dbObject);
-    }
-
     public MyndighedsRegister() {
-    }
-
-
-    @PostConstruct
-    public void PostConstructMyndighedsRegister() {
-        DataProviderEntity vejProvider = new DataProviderEntity();
-        vejProvider.setUuid(UUID.randomUUID().toString());
-
-        this.setDataProviderEntity(vejProvider);
     }
 
     public URL getRecordUrl() throws MalformedURLException {
@@ -180,7 +167,7 @@ public class MyndighedsRegister extends CprSubRegister {
     @Autowired
     private DawaModel model;
 
-    protected void saveRunToDatabase(RegisterRun run) {
+    protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
         System.out.println("Storing KommuneEntities in database");
         MyndighedsRegisterRun mrun = (MyndighedsRegisterRun) run;
         System.out.println("mrun size: "+mrun.size());
@@ -190,7 +177,10 @@ public class MyndighedsRegister extends CprSubRegister {
         for (Myndighed kommune : kommuner) {
             int kommuneKode = kommune.getInt("myndighedsKode");
             String kommuneNavn = kommune.get("myndighedsNavn");
-            model.setKommune(kommuneKode, kommuneNavn, this.getCreateRegistrering(), this.getUpdateRegistrering());
+            model.setKommune(
+                    kommuneKode, kommuneNavn,
+                    this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
+            );
             mrun.printInputProcessed();
         }
         mrun.printFinalInputsProcessed();

@@ -1,5 +1,12 @@
 package dk.magenta.databroker.core.model;
 
+import dk.magenta.databroker.core.DataProvider;
+import dk.magenta.databroker.core.DataProviderRegistry;
+import dk.magenta.databroker.core.model.oio.RegistreringEntity;
+import dk.magenta.databroker.core.model.oio.RegistreringRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
+
 import javax.persistence.*;
 import java.util.Collection;
 
@@ -43,8 +50,12 @@ public class DataProviderEntity {
         return type;
     }
 
-    public void setType(String type) {
+    private void setType(String type) {
         this.type = type;
+    }
+
+    public void setType(Class<? extends DataProvider> cls) {
+        this.type = cls.getCanonicalName();
     }
 
     @Basic
@@ -113,4 +124,38 @@ public class DataProviderEntity {
     public void setUpdateLogEntries(Collection<UpdateLogEntryEntity> updateLogEntries) {
         this.updateLogEntries = updateLogEntries;
     }
+
+    /**************************************************************************************
+     * Non-column fields                                                                  *
+     **************************************************************************************/
+
+    @Transient
+    private DataProvider dataProvider;
+
+    @Transient
+    public DataProvider getDataProvider() {
+        if(dataProvider == null) {
+            dataProvider = DataProviderRegistry.getDataProviderForEntity(this);
+        }
+        return dataProvider;
+    }
+
+    @Transient
+    private void setDataProvider(DataProvider dataProvider) {
+        this.dataProvider = dataProvider;
+    }
+
+
+    /**************************************************************************************
+     * Proxy-methods DataProvider implementations                                         *
+     **************************************************************************************/
+
+    public void pull() {
+        this.getDataProvider().pull(this);
+    }
+
+    public void handlePush(HttpRequest request) {
+        this.getDataProvider().handlePush(this, request);
+    }
+
 }

@@ -15,10 +15,6 @@ import java.text.ParseException;
 @Component
 public abstract class CprSubRegister extends Register {
 
-    public CprSubRegister(DataProviderEntity dbObject) {
-        super(dbObject);
-    }
-
     public CprSubRegister() {
     }
 

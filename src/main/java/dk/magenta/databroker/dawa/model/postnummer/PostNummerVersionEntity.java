@@ -2,9 +2,9 @@ package dk.magenta.databroker.dawa.model.postnummer;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikVersion;
 import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
+import org.hibernate.annotations.Index;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -15,17 +15,20 @@ import java.util.HashSet;
 @Table(name = "dawa_postnummer_version")
 public class PostNummerVersionEntity extends DobbeltHistorikVersion<PostNummerEntity, PostNummerVersionEntity> {
 
+
+    public PostNummerVersionEntity() {
+        this.kommuner = new HashSet<KommuneEntity>();
+    }
+
+    public PostNummerVersionEntity(PostNummerEntity entitet) {
+        super(entitet);
+        this.kommuner = new HashSet<KommuneEntity>();
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
     @ManyToOne(optional = false)
     private PostNummerEntity entity;
-
-    @Column(nullable = false)
-    private int nr;
-
-    @Column(nullable = false)
-    private String navn;
-
-    @Column(nullable = false)
-    private boolean stormodtager = false;
 
     @Override
     public PostNummerEntity getEntity() {
@@ -37,6 +40,12 @@ public class PostNummerVersionEntity extends DobbeltHistorikVersion<PostNummerEn
         this.entity = entity;
     }
 
+    //----------------------------------------------------
+
+    @Column(nullable = false)
+    @Index(name = "nr")
+    private int nr;
+
     public int getNr() {
         return nr;
     }
@@ -44,6 +53,11 @@ public class PostNummerVersionEntity extends DobbeltHistorikVersion<PostNummerEn
     public void setNr(int nr) {
         this.nr = nr;
     }
+
+    //----------------------------------------------------
+
+    @Column(nullable = false)
+    private String navn;
 
     public String getNavn() {
         return navn;
@@ -53,6 +67,11 @@ public class PostNummerVersionEntity extends DobbeltHistorikVersion<PostNummerEn
         this.navn = navn;
     }
 
+    //----------------------------------------------------
+
+    @Column(nullable = false)
+    private boolean stormodtager = false;
+
     public boolean isStormodtager() {
         return stormodtager;
     }
@@ -61,14 +80,7 @@ public class PostNummerVersionEntity extends DobbeltHistorikVersion<PostNummerEn
         this.stormodtager = stormodtager;
     }
 
-    public PostNummerVersionEntity() {
-        this.kommuner = new HashSet<KommuneEntity>();
-    }
-
-    public PostNummerVersionEntity(PostNummerEntity entitet) {
-        super(entitet);
-        this.kommuner = new HashSet<KommuneEntity>();
-    }
+    //----------------------------------------------------
 
     @ManyToMany
     private Collection<KommuneEntity> kommuner;

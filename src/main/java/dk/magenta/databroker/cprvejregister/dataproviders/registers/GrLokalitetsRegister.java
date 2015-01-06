@@ -42,13 +42,8 @@ public class GrLokalitetsRegister extends Register {
     * Constructors
     * */
 
-    public GrLokalitetsRegister(DataProviderEntity dbObject) {
-        super(dbObject);
-    }
-
     public GrLokalitetsRegister() {
     }
-
 
     /*
     * Data source spec
@@ -84,8 +79,8 @@ public class GrLokalitetsRegister extends Register {
 
 
     @Transactional
-    public void pull(boolean forceFetch, boolean forceParse) {
-        super.pull(forceFetch, forceParse);
+    public void pull(boolean forceFetch, boolean forceParse, DataProviderEntity dataProviderEntity) {
+        super.pull(forceFetch, forceParse, dataProviderEntity);
     }
 
 
@@ -96,9 +91,8 @@ public class GrLokalitetsRegister extends Register {
     @Autowired
     private DawaModel model;
 
-     protected void saveRunToDatabase(RegisterRun run) {
+     protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
          GrRegisterRun grun = (GrRegisterRun) run;
-         this.createRegistreringEntities();
          this.model.resetVejstykkeCache();
          this.model.resetLokalitetCache();
 
@@ -128,7 +122,9 @@ public class GrLokalitetsRegister extends Register {
          for (int kommuneKode : lokalitetData.intKeySet()) {
              for (String lokalitetsNavn : lokalitetData.get(kommuneKode).keySet()) {
                  HashSet<RawVej> veje = lokalitetData.get(kommuneKode, lokalitetsNavn);
-                 this.model.setLokalitet(kommuneKode, lokalitetsNavn, veje, this.getCreateRegistrering(), this.getUpdateRegistrering());
+                 this.model.setLokalitet(kommuneKode, lokalitetsNavn, veje,
+                         this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
+                 );
              }
          }
     }

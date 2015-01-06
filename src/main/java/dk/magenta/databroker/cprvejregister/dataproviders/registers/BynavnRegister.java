@@ -14,8 +14,7 @@ import org.springframework.stereotype.Component;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.UUID;
 import java.util.HashSet;
 
 /**
@@ -42,13 +41,8 @@ public class BynavnRegister extends CprSubRegister {
         }
     }
 
-    public BynavnRegister(DataProviderEntity dbObject) {
-        super(dbObject);
-    }
-
     public BynavnRegister() {
     }
-
 
     public URL getRecordUrl() throws MalformedURLException {
         return new URL("https://cpr.dk/media/152120/a370713.txt");
@@ -69,9 +63,6 @@ public class BynavnRegister extends CprSubRegister {
         return null;
     }
 
-
-
-
     /*
     * Repositories
     * */
@@ -83,8 +74,7 @@ public class BynavnRegister extends CprSubRegister {
     * Database save
     * */
 
-    protected void saveRunToDatabase(RegisterRun run) {
-        this.createRegistreringEntities();
+    protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
 
         System.out.println("Storing Bynavne in database");
 
@@ -119,7 +109,10 @@ public class BynavnRegister extends CprSubRegister {
         for (int kommuneKode : lokalitetData.intKeySet()) {
             for (String lokalitetsNavn : lokalitetData.get(kommuneKode).keySet()) {
                 HashSet<RawVej> veje = lokalitetData.get(kommuneKode, lokalitetsNavn);
-                this.model.setLokalitet(kommuneKode, lokalitetsNavn, veje, this.getCreateRegistrering(), this.getUpdateRegistrering());
+                this.model.setLokalitet(
+                        kommuneKode, lokalitetsNavn, veje,
+                        this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
+                );
             }
         }
 

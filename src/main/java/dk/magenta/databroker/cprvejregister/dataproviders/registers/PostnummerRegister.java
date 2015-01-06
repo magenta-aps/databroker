@@ -97,13 +97,8 @@ public class PostnummerRegister extends CprSubRegister {
     * Constructors
     * */
 
-    public PostnummerRegister(DataProviderEntity dbObject) {
-        super(dbObject);
-    }
-
     public PostnummerRegister() {
     }
-
 
     /*
     * Data source spec
@@ -151,9 +146,7 @@ public class PostnummerRegister extends CprSubRegister {
     * Database save
     * */
 
-    protected void saveRunToDatabase(RegisterRun run) {
-        this.createRegistreringEntities();
-
+    protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
         PostnummerRegisterRun prun = (PostnummerRegisterRun) run;
 
         System.out.println("Storing PostnummerEntities in database");
@@ -191,7 +184,10 @@ public class PostnummerRegister extends CprSubRegister {
 
                 }
 
-                model.setPostNummer(nr, navn, veje, this.getCreateRegistrering(), this.getUpdateRegistrering());
+                model.setPostNummer(
+                        nr, navn, veje,
+                        this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
+                );
                 postCounter.printInputProcessed();
             }
         }

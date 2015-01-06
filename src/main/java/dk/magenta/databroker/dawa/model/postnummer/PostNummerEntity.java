@@ -20,20 +20,17 @@ import java.util.HashSet;
 @Table(name = "dawa_postnummer")
 public class PostNummerEntity extends DobbeltHistorikBase<PostNummerEntity, PostNummerVersionEntity> implements OutputFormattable {
 
-    @OneToMany(mappedBy="entity", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Collection<PostNummerVersionEntity> versioner;
-
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private PostNummerVersionEntity latestVersion;
-
-    @OneToOne
-    private PostNummerVersionEntity preferredVersion;
-
     public PostNummerEntity() {
         this.versioner = new ArrayList<PostNummerVersionEntity>();
         this.vejstykkeVersioner = new HashSet<VejstykkeVersionEntity>();
         this.generateNewUUID();
     }
+
+    //------------------------------------------------------------------------------------------------------------------
+    /* Versioning */
+
+    @OneToMany(mappedBy="entity", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Collection<PostNummerVersionEntity> versioner;
 
     @Override
     public Collection<PostNummerVersionEntity> getVersioner() {
@@ -43,6 +40,11 @@ public class PostNummerEntity extends DobbeltHistorikBase<PostNummerEntity, Post
     protected void setVersioner(Collection<PostNummerVersionEntity> versioner) {
         this.versioner = versioner;
     }
+
+    //----------------------------------------------------
+
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private PostNummerVersionEntity latestVersion;
 
     @Override
     public PostNummerVersionEntity getLatestVersion() {
@@ -54,6 +56,11 @@ public class PostNummerEntity extends DobbeltHistorikBase<PostNummerEntity, Post
         this.latestVersion = latestVersion;
     }
 
+    //----------------------------------------------------
+
+    @OneToOne
+    private PostNummerVersionEntity preferredVersion;
+
     @Override
     public PostNummerVersionEntity getPreferredVersion() {
         return preferredVersion;
@@ -64,11 +71,14 @@ public class PostNummerEntity extends DobbeltHistorikBase<PostNummerEntity, Post
         this.preferredVersion = preferredVersion;
     }
 
+    //----------------------------------------------------
+
     @Override
     protected PostNummerVersionEntity createVersionEntity() {
         return new PostNummerVersionEntity(this);
     }
 
+    //------------------------------------------------------------------------------------------------------------------
     /* Domain specific fields */
     @ManyToMany
     private Collection<VejstykkeVersionEntity> vejstykkeVersioner;
@@ -83,6 +93,8 @@ public class PostNummerEntity extends DobbeltHistorikBase<PostNummerEntity, Post
     public void removeVejstykkeVersion(VejstykkeVersionEntity vejstykkeVersionEntity) {
         this.vejstykkeVersioner.remove(vejstykkeVersionEntity);
     }
+
+    //------------------------------------------------------------------------------------------------------------------
 
     public String getTypeName() {
         return "postnummer";

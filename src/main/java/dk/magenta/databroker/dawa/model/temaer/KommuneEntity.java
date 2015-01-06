@@ -3,6 +3,7 @@ package dk.magenta.databroker.dawa.model.temaer;
 import dk.magenta.databroker.dawa.model.postnummer.PostNummerVersionEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.service.rest.SearchService;
+import org.hibernate.annotations.Index;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -19,25 +20,19 @@ public class KommuneEntity extends TemaBase {
 
     public KommuneEntity() {
         this.postnumre = new HashSet<PostNummerVersionEntity>();
+        this.vejstykker = new HashSet<VejstykkeEntity>();
     }
-
-    @Column(nullable = false)
-    private int kode;
-
-    // Not sure all data sources can supply this
-    @ManyToOne(optional = true)
-    private RegionEntity region;
-
-    @OneToMany(mappedBy = "kommune")
-    private Collection<VejstykkeEntity> vejstykker;
-
-    @ManyToMany
-    private Collection<PostNummerVersionEntity> postnumre;
 
     @Override
     public TemaType getTemaType() {
         return TemaType.KOMMUNE;
     }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    @Column(nullable = false)
+    @Index(name = "kode")
+    private int kode;
 
     public int getKode() {
         return kode;
@@ -47,6 +42,12 @@ public class KommuneEntity extends TemaBase {
         this.kode = kode;
     }
 
+    //----------------------------------------------------
+
+    // Not sure all data sources can supply this
+    @ManyToOne(optional = true)
+    private RegionEntity region;
+
     public RegionEntity getRegion() {
         return region;
     }
@@ -55,6 +56,11 @@ public class KommuneEntity extends TemaBase {
         this.region = region;
     }
 
+    //----------------------------------------------------
+
+    @OneToMany(mappedBy = "kommune")
+    private Collection<VejstykkeEntity> vejstykker;
+
     public Collection<VejstykkeEntity> getVejstykkeVersioner() {
         return vejstykker;
     }
@@ -62,6 +68,11 @@ public class KommuneEntity extends TemaBase {
     public void setVejstykker(Collection<VejstykkeEntity> vejstykker) {
         this.vejstykker = vejstykker;
     }
+
+    //----------------------------------------------------
+
+    @ManyToMany
+    private Collection<PostNummerVersionEntity> postnumre;
 
     public Collection<PostNummerVersionEntity> getPostnumre() {
         return postnumre;
@@ -72,11 +83,9 @@ public class KommuneEntity extends TemaBase {
     }
 
     public void addPostnummer(PostNummerVersionEntity postnummer) {
-        if (!this.postnumre.contains(postnummer)) {
-            System.out.println("Adding postnummer to kommune");
-            this.postnumre.add(postnummer);
-        }
+        this.postnumre.add(postnummer);
     }
+    //------------------------------------------------------------------------------------------------------------------
 
     public String getTypeName() {
         return "kommune";

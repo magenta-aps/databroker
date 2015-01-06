@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DataProviderRepository extends JpaRepository<DataProviderEntity, Long> {
+    public DataProviderEntity getFirstByType(String name);
 }

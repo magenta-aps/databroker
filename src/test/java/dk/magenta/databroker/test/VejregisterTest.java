@@ -3,6 +3,7 @@ package dk.magenta.databroker.test;
 import dk.magenta.databroker.Application;
 
 
+import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.registers.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,6 +14,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -27,8 +30,6 @@ import static org.junit.Assert.assertTrue;
 @EnableTransactionManagement
 public class VejregisterTest {
 
-    //@SuppressWarnings("SpringJavaAutowiringInspection")
-
     public VejregisterTest(){
     }
 
@@ -36,16 +37,25 @@ public class VejregisterTest {
     private ApplicationContext context;
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private CprRegister cprRegister;
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private GrLokalitetsRegister grLokalitetsRegister;
 
     @Test
     //@Transactional
     public void testVejregister() {
-        cprRegister.pull(false, true);
-        grLokalitetsRegister.pull(false, true);
+        DataProviderEntity tmpDataProviderEntity = new DataProviderEntity();
+        tmpDataProviderEntity.setUuid(UUID.randomUUID().toString());
+        tmpDataProviderEntity.setType(CprRegister.class);
+        cprRegister.pull(false, true, tmpDataProviderEntity);
+
+        tmpDataProviderEntity = new DataProviderEntity();
+        tmpDataProviderEntity.setUuid(UUID.randomUUID().toString());
+        tmpDataProviderEntity.setType(GrLokalitetsRegister.class);
+        grLokalitetsRegister.pull(false, true, tmpDataProviderEntity);
     }
 
 

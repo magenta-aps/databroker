@@ -8,13 +8,11 @@ import dk.magenta.databroker.core.model.DataProviderStorageEntity;
 import dk.magenta.databroker.core.model.DataProviderStorageRepository;
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.core.model.oio.RegistreringRepository;
-import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.register.records.Record;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
@@ -25,7 +23,6 @@ import java.nio.file.StandardCopyOption;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.UUID;
 
 /**
  * Created by lars on 15-12-14.
@@ -36,15 +33,12 @@ public abstract class Register extends DataProvider {
     private static final File cacheDir = new File("cache/");
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private DataProviderStorageRepository dataProviderStorageRepository;
 
 
 
     private DataProviderStorageEntity storageEntity;
-
-    public Register(DataProviderEntity dbObject) {
-        super(dbObject);
-    }
 
     public Register() {
     }
@@ -60,12 +54,6 @@ public abstract class Register extends DataProvider {
             }
             this.storageEntity = storageEntity;
         }
-
-        DataProviderEntity provider = new DataProviderEntity();
-        provider.setUuid(UUID.randomUUID().toString());
-        this.setDataProviderEntity(provider);
-
-        this.createRegistreringEntities();
     }
 
     public URL getRecordUrl() throws MalformedURLException {
@@ -85,36 +73,42 @@ public abstract class Register extends DataProvider {
     }
 
 
-
-
     /*
     * Registration
     * */
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private RegistreringRepository registreringRepository;
 
     private RegistreringEntity createRegistrering;
     private RegistreringEntity updateRegistrering;
 
-    protected void createRegistreringEntities() {
-        this.createRegistrering = registreringRepository.createNew(this);
-        this.updateRegistrering = registreringRepository.createUpdate(this);
+    protected void clearRegistreringEntities() {
+        createRegistrering = null;
+        updateRegistrering = null;
     }
-    protected RegistreringEntity getCreateRegistrering() {
+
+    protected RegistreringEntity getCreateRegistrering(DataProviderEntity entity) {
+        if(this.createRegistrering == null) {
+            this.createRegistrering = registreringRepository.createNew(entity);
+        }
         return this.createRegistrering;
     }
-    protected RegistreringEntity getUpdateRegistrering() {
+    protected RegistreringEntity getUpdateRegistrering(DataProviderEntity entity) {
+        if(this.updateRegistrering == null) {
+            this.updateRegistrering = registreringRepository.createUpdate(entity);
+        }
         return this.updateRegistrering;
     }
 
+    protected abstract void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity);
 
-
-
-    public void pull() {
-        this.pull(false, false);
+    public void pull(DataProviderEntity dataProviderEntity) {
+        this.pull(false, false, dataProviderEntity);
     }
 
-    public void pull(boolean forceFetch, boolean forceParse) {
+    public void pull(boolean forceFetch, boolean forceParse, DataProviderEntity dataProviderEntity) {
+        this.clearRegistreringEntities();
         System.out.println("-----------------------------");
         System.out.println(this.getClass().getSimpleName() + " pulling...");
         try {
@@ -167,7 +161,7 @@ public abstract class Register extends DataProvider {
                     if (forceParse || !checksum.equals(storageData.optString("checksum"))) {
                         System.out.println("Checksum mismatch; parsing new data into database");
                         RegisterRun run = this.parse(input);
-                        this.saveRunToDatabase(run);
+                        this.saveRunToDatabase(run, dataProviderEntity);
                         storageData.put("checksum", checksum);
                         this.storageEntity.setData(storageData.toString());
                         this.dataProviderStorageRepository.saveAndFlush(this.storageEntity);
@@ -269,10 +263,6 @@ public abstract class Register extends DataProvider {
 
     protected Record parseTrimmedLine(String line) {
         return null;
-    }
-
-    protected void saveRunToDatabase(RegisterRun run) {
-        // Override me
     }
 
     protected void processRecord(Record record) {

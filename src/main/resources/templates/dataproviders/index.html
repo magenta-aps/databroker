@@ -1,0 +1,17 @@
+<html xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+  layout:decorator="layout">
+  <head>
+    <title>DataBroker : Dataproviders</title>
+  </head>
+  <body>
+
+    <div layout:fragment="content" style="text-align: left;">
+      <h1 th:text="${test}"></h1>
+      <ul>
+        <li th:each="dptype : ${dataprovidertypes}" th:text="${dptype}">Data provider type</li>
+      </ul>
+    </div>
+
+  </body>
+</html>

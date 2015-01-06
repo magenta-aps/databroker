@@ -71,14 +71,8 @@ public class LokalitetsRegister extends CprSubRegister {
     * Constructors
     * */
 
-    public LokalitetsRegister(DataProviderEntity dbObject) {
-        super(dbObject);
-    }
-
     public LokalitetsRegister() {
     }
-
-
 
     /*
     * Data source spec
@@ -123,7 +117,7 @@ public class LokalitetsRegister extends CprSubRegister {
     @Autowired
     private DawaModel model;
 
-    protected void saveRunToDatabase(RegisterRun run) {
+    protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
 
         System.out.println("Storing KommuneEntities in database");
         LokalitetRegisterRun lrun = (LokalitetRegisterRun) run;
@@ -140,7 +134,9 @@ public class LokalitetsRegister extends CprSubRegister {
                 String husnr = lokalitet.get("husNr");
                 String etage = lokalitet.get("etage");
                 String sidedoer = lokalitet.get("sidedoer");
-                model.setAdresse(kommuneKode, vejKode, husnr, etage, sidedoer, this.getCreateRegistrering(), this.getUpdateRegistrering());
+                model.setAdresse(kommuneKode, vejKode, husnr, etage, sidedoer,
+                        this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
+                );
                 inputCounter.printInputProcessed();
             }
         }

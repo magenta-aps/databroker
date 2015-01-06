@@ -399,21 +399,15 @@ public class VejRegister extends CprSubRegister {
     * Constructors
     * */
 
-    public VejRegister(DataProviderEntity dbObject) {
-        super(dbObject);
-    }
-
     public VejRegister() {
     }
-
-
 
     /*
     * Data source spec
     * */
 
     public URL getRecordUrl() throws MalformedURLException {
-        return new URL("https://cpr.dk/media/152096/vejregister_hele_landet_pr_141201.zip");
+        return new URL("https://cpr.dk/media/152096/vejregister_hele_landet_pr_150101.zip");
     }
 
 
@@ -493,9 +487,8 @@ public class VejRegister extends CprSubRegister {
     * Database save
     * */
 
-    protected void saveRunToDatabase(RegisterRun run) {
+    protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
         long time;
-        this.createRegistreringEntities();
         VejRegisterRun vrun = (VejRegisterRun) run;
 
         System.out.println("Storing NavngivenvejEntities and KommunedelAfNavngivenvejEntries in database");
@@ -542,7 +535,11 @@ public class VejRegister extends CprSubRegister {
 
         InputProcessingCounter vejCounter = new InputProcessingCounter();
         for (AktivVej vej : orderedList) {
-            this.model.setVejstykke(vej.getInt("kommuneKode"), vej.getInt("vejKode"), vej.get("vejNavn"), vej.get("vejAddresseringsnavn"), this.getCreateRegistrering(), this.getUpdateRegistrering());
+            this.model.setVejstykke(
+                    vej.getInt("kommuneKode"), vej.getInt("vejKode"), vej.get("vejNavn"),
+                    vej.get("vejAddresseringsnavn"),
+                    this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
+            );
             vejCounter.printInputProcessed();
         }
         vejCounter.printFinalInputsProcessed();
@@ -554,7 +551,11 @@ public class VejRegister extends CprSubRegister {
         //vejModel.cleanNavngivneVeje();
 
         for (Bolig bolig : vrun.getBoliger()) {
-            this.model.setAdresse(bolig.getInt("kommuneKode"), bolig.getInt("vejKode"), bolig.get("husNr"), bolig.get("etage"), bolig.get("sidedoer"), this.getCreateRegistrering(), this.getUpdateRegistrering());
+            this.model.setAdresse(
+                    bolig.getInt("kommuneKode"), bolig.getInt("vejKode"), bolig.get("husNr"),
+                    bolig.get("etage"), bolig.get("sidedoer"),
+                    this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
+            );
         }
 
 
@@ -587,7 +588,10 @@ public class VejRegister extends CprSubRegister {
         for (int kommuneKode : lokalitetData.intKeySet()) {
             for (String lokalitetsNavn : lokalitetData.get(kommuneKode).keySet()) {
                 HashSet<RawVej> veje = lokalitetData.get(kommuneKode, lokalitetsNavn);
-                this.model.setLokalitet(kommuneKode, lokalitetsNavn, veje, this.getCreateRegistrering(), this.getUpdateRegistrering());
+                this.model.setLokalitet(
+                        kommuneKode, lokalitetsNavn, veje,
+                        this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
+                );
             }
         }
 

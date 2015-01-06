@@ -21,13 +21,14 @@ import java.util.HashSet;
 @Table(name = "dawa_lokalitet")
 public class LokalitetEntity extends UniqueBase implements OutputFormattable {
 
-
     public LokalitetEntity() {
         this.vejstykkeVersioner = new HashSet<VejstykkeVersionEntity>();
         this.generateNewUUID();
     }
 
+    //------------------------------------------------------------------------------------------------------------------
     /* Domain specific fields */
+
     @ManyToMany(mappedBy = "lokaliteter")
     private Collection<VejstykkeVersionEntity> vejstykkeVersioner;
 
@@ -42,6 +43,8 @@ public class LokalitetEntity extends UniqueBase implements OutputFormattable {
         this.vejstykkeVersioner.remove(vejstykkeVersionEntity);
     }
 
+    //----------------------------------------------------
+
     @ManyToOne
     private KommuneEntity kommune;
 
@@ -52,6 +55,8 @@ public class LokalitetEntity extends UniqueBase implements OutputFormattable {
     public void setKommune(KommuneEntity kommune) {
         this.kommune = kommune;
     }
+
+    //----------------------------------------------------
 
     @Column(nullable = false)
     @Index(name = "navn")
@@ -65,9 +70,7 @@ public class LokalitetEntity extends UniqueBase implements OutputFormattable {
         this.navn = navn;
     }
 
-
-
-
+    //------------------------------------------------------------------------------------------------------------------
 
     public String getTypeName() {
         return "lokalitet";
@@ -83,7 +86,6 @@ public class LokalitetEntity extends UniqueBase implements OutputFormattable {
 
     public JSONObject toFullJSON() {
         JSONObject obj = this.toJSON();
-
         JSONArray veje = new JSONArray();
         for (VejstykkeVersionEntity vejstykkeVersionEntity : this.getVejstykkeVersioner()) {
             if (vejstykkeVersionEntity.getEntity().getLatestVersion() == vejstykkeVersionEntity) {

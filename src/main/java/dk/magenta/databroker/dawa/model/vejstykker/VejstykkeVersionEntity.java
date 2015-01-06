@@ -1,12 +1,10 @@
 package dk.magenta.databroker.dawa.model.vejstykker;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikVersion;
-import dk.magenta.databroker.cprvejregister.dataproviders.registers.LokalitetsRegister;
 import dk.magenta.databroker.dawa.model.lokalitet.LokalitetEntity;
 import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -16,6 +14,20 @@ import java.util.HashSet;
 @Entity
 @Table(name = "dawa_vejstykke_version")
 public class VejstykkeVersionEntity extends DobbeltHistorikVersion<VejstykkeEntity, VejstykkeVersionEntity> {
+
+    public VejstykkeVersionEntity() {
+        this.postnumre = new HashSet<PostNummerEntity>();
+        this.lokaliteter = new HashSet<LokalitetEntity>();
+    }
+
+    public VejstykkeVersionEntity(VejstykkeEntity entitet) {
+        super(entitet);
+        this.postnumre = new HashSet<PostNummerEntity>();
+        this.lokaliteter = new HashSet<LokalitetEntity>();
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     private VejstykkeEntity entity;
 
@@ -29,30 +41,11 @@ public class VejstykkeVersionEntity extends DobbeltHistorikVersion<VejstykkeEnti
         this.entity = entity;
     }
 
-    public VejstykkeVersionEntity() {
-        this.postnumre = new HashSet<PostNummerEntity>();
-        this.lokaliteter = new HashSet<LokalitetEntity>();
-    }
-
-    public VejstykkeVersionEntity(VejstykkeEntity entitet) {
-        super(entitet);
-        this.postnumre = new HashSet<PostNummerEntity>();
-        this.lokaliteter = new HashSet<LokalitetEntity>();
-    }
-
+    //------------------------------------------------------------------------------------------------------------------
     /* Domain specific fields */
 
     @ManyToMany
     private Collection<PostNummerEntity> postnumre;
-
-    @ManyToMany
-    private Collection<LokalitetEntity> lokaliteter;
-
-    @Column
-    private String vejnavn;
-
-    @Column
-    private String vejadresseringsnavn;
 
     public Collection<PostNummerEntity> getPostnumre() {
         return postnumre;
@@ -63,12 +56,17 @@ public class VejstykkeVersionEntity extends DobbeltHistorikVersion<VejstykkeEnti
             this.postnumre.add(postnummer);
         }
     }
+
     public void removePostnummer(PostNummerEntity postnummer) {
         if (this.postnumre.contains(postnummer)) {
             this.postnumre.remove(postnummer);
         }
     }
 
+    //----------------------------------------------------
+
+    @ManyToMany
+    private Collection<LokalitetEntity> lokaliteter;
 
     public Collection<LokalitetEntity> getLokaliteter() {
         return lokaliteter;
@@ -89,6 +87,11 @@ public class VejstykkeVersionEntity extends DobbeltHistorikVersion<VejstykkeEnti
         return this.lokaliteter.contains(lokalitet);
     }
 
+    //----------------------------------------------------
+
+    @Column
+    private String vejnavn;
+
     public String getVejnavn() {
         return vejnavn;
     }
@@ -97,6 +100,11 @@ public class VejstykkeVersionEntity extends DobbeltHistorikVersion<VejstykkeEnti
         this.vejnavn = vejnavn;
     }
 
+    //----------------------------------------------------
+
+    @Column
+    private String vejadresseringsnavn;
+
     public String getVejadresseringsnavn() {
         return vejadresseringsnavn;
     }
@@ -104,6 +112,8 @@ public class VejstykkeVersionEntity extends DobbeltHistorikVersion<VejstykkeEnti
     public void setVejadresseringsnavn(String vejadresseringsnavn) {
         this.vejadresseringsnavn = vejadresseringsnavn;
     }
+
+    //----------------------------------------------------
 
     public void copyFrom(VejstykkeVersionEntity otherVersion) {
         if (this.getEntity() == otherVersion.getEntity()) {

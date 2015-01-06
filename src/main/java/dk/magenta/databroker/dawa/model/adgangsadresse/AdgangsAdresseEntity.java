@@ -20,20 +20,17 @@ import java.util.Collection;
 @Table(name = "dawa_adgangsadresse")
 public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEntity, AdgangsAdresseVersionEntity> {
 
-    @OneToMany(mappedBy="entity")
-    private Collection<AdgangsAdresseVersionEntity> versioner;
-
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private AdgangsAdresseVersionEntity latestVersion;
-
-    @OneToOne
-    private AdgangsAdresseVersionEntity preferredVersion;
-
     public AdgangsAdresseEntity() {
         this.versioner = new ArrayList<AdgangsAdresseVersionEntity>();
         this.enhedsAdresseVersioner = new ArrayList<EnhedsAdresseVersionEntity>();
         this.generateNewUUID();
     }
+
+    //------------------------------------------------------------------------------------------------------------------
+    /* Versioning */
+
+    @OneToMany(mappedBy="entity")
+    private Collection<AdgangsAdresseVersionEntity> versioner;
 
     @Override
     public Collection<AdgangsAdresseVersionEntity> getVersioner() {
@@ -43,6 +40,11 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
     public void setVersioner(Collection<AdgangsAdresseVersionEntity> versioner) {
         this.versioner = versioner;
     }
+
+    //----------------------------------------------------
+
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private AdgangsAdresseVersionEntity latestVersion;
 
     @Override
     public AdgangsAdresseVersionEntity getLatestVersion() {
@@ -54,6 +56,11 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
         this.latestVersion = latestVersion;
     }
 
+    //----------------------------------------------------
+
+    @OneToOne
+    private AdgangsAdresseVersionEntity preferredVersion;
+
     @Override
     public AdgangsAdresseVersionEntity getPreferredVersion() {
         return preferredVersion;
@@ -63,6 +70,8 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
     public void setPreferredVersion(AdgangsAdresseVersionEntity preferredVersion) {
         this.preferredVersion = preferredVersion;
     }
+
+    //----------------------------------------------------
 
     @Override
     protected AdgangsAdresseVersionEntity createVersionEntity() {
