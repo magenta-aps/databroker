@@ -318,33 +318,61 @@ public class DawaModel {
             }
 
             this.postNummerRepository.save(postNummerEntity);
-
-            for (VejstykkeEntity vejstykkeEntity : vejListe) {
-
-                VejstykkeVersionEntity vejstykkeVersionEntity = vejstykkeEntity.getLatestVersion();
-
-                // If the newest version isn't made by us (TODO: make sure we really want that)
-                // create a new version copied from the old
-                if (vejstykkeVersionEntity.getRegistrering() != createRegistrering && vejstykkeVersionEntity.getRegistrering() != updateRegistrering) {
-                    this.vejstykkeRepository.save(vejstykkeEntity);
-                    VejstykkeVersionEntity oldVersion = vejstykkeVersionEntity;
-                    vejstykkeVersionEntity = vejstykkeEntity.addVersion(updateRegistrering);
-                    vejstykkeVersionEntity.copyFrom(oldVersion);
-                    vejstykkeEntity.setLatestVersion(vejstykkeVersionEntity);
-                }
-                vejstykkeVersionEntity.addPostnummer(postNummerEntity);
-
-                this.vejstykkeRepository.save(vejstykkeEntity);
+            if (postNummerVersionEntity != postNummerEntity.getLatestVersion()) {
+                postNummerEntity.setLatestVersion(postNummerVersionEntity); // TODO: may not always be relevant
+                this.postNummerRepository.save(postNummerEntity);
             }
-
-            postNummerEntity.setLatestVersion(postNummerVersionEntity); // TODO: may not always be relevant
-            this.postNummerRepository.save(postNummerEntity);
         } else {
             if (printProcessing) {
                 System.out.println("    no changes");
             }
         }
 
+
+        // Update postnummer ref on vejstykkeEntities
+        for (VejstykkeEntity vejstykkeEntity : vejListe) {
+            VejstykkeVersionEntity vejstykkeVersionEntity = vejstykkeEntity.getLatestVersion();
+            // If the newest version isn't made by us (TODO: make sure we really want that)
+            // create a new version copied from the old
+            if (vejstykkeVersionEntity.getRegistrering() != createRegistrering && vejstykkeVersionEntity.getRegistrering() != updateRegistrering) {
+                this.vejstykkeRepository.save(vejstykkeEntity);
+                VejstykkeVersionEntity oldVersion = vejstykkeVersionEntity;
+                vejstykkeVersionEntity = vejstykkeEntity.addVersion(updateRegistrering);
+                vejstykkeVersionEntity.copyFrom(oldVersion);
+                vejstykkeEntity.setLatestVersion(vejstykkeVersionEntity);
+            }
+            vejstykkeVersionEntity.addPostnummer(postNummerEntity);
+            this.vejstykkeRepository.save(vejstykkeEntity);
+        }
+
+
+        for (RawVej delvej : veje) {
+            int kommuneKode = delvej.getKommuneKode();
+            int vejKode = delvej.getVejKode();
+            int husnrFra = delvej.getHusnrFra();
+            int husnrTil = delvej.getHusnrTil();
+
+            VejstykkeEntity vejstykkeEntity = this.getVejstykkeCache().get(kommuneKode, vejKode);
+            if (vejstykkeEntity != null) {
+                for (AdgangsAdresseEntity adgangsAdresseEntity : vejstykkeEntity.getAdgangsAdresser()) {
+                    int husnr = adgangsAdresseEntity.getIntHusnr();
+                    if (husnr % 2 == husnrFra % 2 && husnr >= husnrFra && husnr <= husnrTil) {
+                        AdgangsAdresseVersionEntity adgangsAdresseVersionEntity = adgangsAdresseEntity.getLatestVersion();
+                        if (adgangsAdresseVersionEntity == null) {
+                            adgangsAdresseVersionEntity = adgangsAdresseEntity.addVersion(createRegistrering, virkninger);
+                        } else if (adgangsAdresseVersionEntity.getPostnummer() != postNummerEntity) {
+                            adgangsAdresseVersionEntity = adgangsAdresseEntity.addVersion(updateRegistrering, virkninger);
+                        } else {
+                            adgangsAdresseVersionEntity = null;
+                        }
+                        if (adgangsAdresseVersionEntity != null) {
+                            adgangsAdresseEntity.getLatestVersion().setPostnummer(postNummerEntity);
+                            this.adgangsAdresseRepository.save(adgangsAdresseEntity);
+                        }
+                    }
+                }
+            }
+        }
         return postNummerEntity;
     }
 

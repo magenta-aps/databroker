@@ -89,13 +89,17 @@ public class EnhedsAdresseEntity extends DobbeltHistorikBase<EnhedsAdresseEntity
                 if (vejstykkeEntity.getKommune() != null) {
                     obj.put("kommune", vejstykkeEntity.getKommune().toJSON());
                 }
-                if (!vejstykkeEntity.getLatestVersion().getPostnumre().isEmpty()) {
-                    JSONArray postnumre = new JSONArray();
-                    for (PostNummerEntity postNummerEntity : vejstykkeEntity.getLatestVersion().getPostnumre()) {
-                        postnumre.put(postNummerEntity.toJSON());
-                    }
-                    obj.put("postnr", postnumre);
+            }
+            if (adgangsAdresseEntity.getLatestVersion().getPostnummer() != null) {
+                obj.put("postnr", adgangsAdresseEntity.getLatestVersion().getPostnummer().toJSON());
+            } else if (adgangsAdresseEntity.getVejstykke().getLatestVersion().getPostnumre().size() == 1) {
+                obj.put("postnr", adgangsAdresseEntity.getVejstykke().getLatestVersion().getPostnumre().iterator().next().toJSON());
+            } else {
+                JSONArray postnumre = new JSONArray();
+                for (PostNummerEntity p : vejstykkeEntity.getLatestVersion().getPostnumre()) {
+                    postnumre.put(p.toJSON());
                 }
+                obj.put("postnumre", postnumre);
             }
         }
         return obj;

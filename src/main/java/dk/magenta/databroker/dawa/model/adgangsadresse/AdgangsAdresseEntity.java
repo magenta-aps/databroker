@@ -69,8 +69,8 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
         return new AdgangsAdresseVersionEntity(this);
     }
 
+    //------------------------------------------------------------------------------------------------------------------
     /* Domain specific fields */
-
 
     @OneToOne(mappedBy = "adgangsadresse")
     private StormodtagerEntity stormodtager;
@@ -83,7 +83,7 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
         this.stormodtager = stormodtager;
     }
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------
 
     @OneToMany(mappedBy = "adgangsadresse")
     private Collection<EnhedsAdresseVersionEntity> enhedsAdresseVersioner;
@@ -96,7 +96,7 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
         this.enhedsAdresseVersioner = enhedsAdresseVersioner;
     }
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------
 
     @ManyToOne(optional = false)
     private VejstykkeEntity vejstykke;
@@ -109,7 +109,7 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
         this.vejstykke = vejstykke;
     }
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------
 
     @Column(nullable = false)
     private String husnr;
@@ -120,6 +120,14 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
 
     public void setHusnr(String husnr) {
         this.husnr = husnr;
+    }
+
+    public int getIntHusnr() {
+        try {
+            return Integer.parseInt(this.husnr.replaceAll("[^\\d]",""), 10);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -141,14 +149,19 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
         if (vejstykkeEntity != null) {
             obj.put("vej", vejstykkeEntity.toJSON());
             obj.put("kommune", vejstykkeEntity.getKommune().toJSON());
-            if (!vejstykkeEntity.getLatestVersion().getPostnumre().isEmpty()) {
-                JSONArray postnumre = new JSONArray();
-                for (PostNummerEntity postNummerEntity : vejstykkeEntity.getLatestVersion().getPostnumre()) {
-                    postnumre.put(postNummerEntity.toJSON());
-                }
-                obj.put("postnr", postnumre);
-            }
         }
+        if (this.latestVersion.getPostnummer() != null) {
+            obj.put("postnr", this.latestVersion.getPostnummer().toJSON());
+        } else if (this.getVejstykke().getLatestVersion().getPostnumre().size() == 1) {
+            obj.put("postnr", this.getVejstykke().getLatestVersion().getPostnumre().iterator().next().toJSON());
+        } else {
+            JSONArray postnumre = new JSONArray();
+            for (PostNummerEntity p : vejstykkeEntity.getLatestVersion().getPostnumre()) {
+                postnumre.put(p.toJSON());
+            }
+            obj.put("postnumre", postnumre);
+        }
+
         if (!this.enhedsAdresseVersioner.isEmpty()) {
             JSONArray enhedsAdresser = new JSONArray();
             for (EnhedsAdresseVersionEntity enhedsAdresseVersionEntity : this.getEnhedsAdresseVersioner()) {

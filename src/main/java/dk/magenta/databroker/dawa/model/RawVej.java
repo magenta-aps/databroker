@@ -53,8 +53,8 @@ public class RawVej {
         RawVej otherVej = (RawVej) otherObject;
         if (otherVej.getKommuneKode() != this.kommuneKode) return false;
         if (otherVej.getVejKode() != this.vejKode) return false;
-        /*if (otherVej.getHusnrFra() != this.husnrFra) return false;
-        if (otherVej.getHusnrTil() != this.husnrTil) return false;*/
+        if (otherVej.getHusnrFra() != this.husnrFra) return false;
+        if (otherVej.getHusnrTil() != this.husnrTil) return false;
         return true;
     }
 }

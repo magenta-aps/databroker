@@ -72,15 +72,11 @@ public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, Vejsty
         return new VejstykkeVersionEntity(this);
     }
 
+    //------------------------------------------------------------------------------------------------------------------
     /* Domain specific fields */
 
     @Column
     private int kode;
-
-    @ManyToOne
-    private KommuneEntity kommune;
-
-
 
     public int getKode() {
         return kode;
@@ -89,6 +85,11 @@ public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, Vejsty
     public void setKode(int kode) {
         this.kode = kode;
     }
+
+    //----------------------------------------------------
+
+    @ManyToOne
+    private KommuneEntity kommune;
 
     public KommuneEntity getKommune() {
         return kommune;

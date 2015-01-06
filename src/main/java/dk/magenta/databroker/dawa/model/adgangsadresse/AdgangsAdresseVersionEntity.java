@@ -2,6 +2,7 @@ package dk.magenta.databroker.dawa.model.adgangsadresse;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikVersion;
 import dk.magenta.databroker.dawa.model.ejerlav.EjerLavEntity;
+import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 
 import javax.persistence.*;
@@ -81,6 +82,9 @@ public class AdgangsAdresseVersionEntity
 
     @Column
     private String kn10kmdk;
+
+    @ManyToOne(optional = true)
+    private PostNummerEntity postnummer;
 
     public String getSupplerendeByNavn() {
         return supplerendeByNavn;
@@ -208,5 +212,13 @@ public class AdgangsAdresseVersionEntity
 
     public void setKn10kmdk(String kn10kmdk) {
         this.kn10kmdk = kn10kmdk;
+    }
+
+    public PostNummerEntity getPostnummer() {
+        return postnummer;
+    }
+
+    public void setPostnummer(PostNummerEntity postnummer) {
+        this.postnummer = postnummer;
     }
 }
