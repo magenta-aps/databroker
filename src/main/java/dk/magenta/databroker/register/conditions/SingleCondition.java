@@ -27,7 +27,9 @@ public class SingleCondition implements Condition {
 
     public List<String> getRequiredJoin() {
         ArrayList<String> list = new ArrayList<String>();
-        list.add(this.requiredJoin);
+        if (this.requiredJoin != null) {
+            list.add(this.requiredJoin);
+        }
         return list;
     }
     public boolean hasRequiredJoin() {return this.requiredJoin!=null; }

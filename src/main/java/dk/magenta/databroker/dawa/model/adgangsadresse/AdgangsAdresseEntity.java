@@ -70,11 +70,10 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
     }
 
     /* Domain specific fields */
+
+
     @OneToOne(mappedBy = "adgangsadresse")
     private StormodtagerEntity stormodtager;
-
-    @OneToMany(mappedBy = "adgangsadresse")
-    private Collection<EnhedsAdresseVersionEntity> enhedsAdresseVersioner;
 
     public StormodtagerEntity getStormodtager() {
         return stormodtager;
@@ -84,6 +83,11 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
         this.stormodtager = stormodtager;
     }
 
+    //------------------------------------------------------------------------------------------------------------------
+
+    @OneToMany(mappedBy = "adgangsadresse")
+    private Collection<EnhedsAdresseVersionEntity> enhedsAdresseVersioner;
+
     public Collection<EnhedsAdresseVersionEntity> getEnhedsAdresseVersioner() {
         return enhedsAdresseVersioner;
     }
@@ -92,20 +96,48 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
         this.enhedsAdresseVersioner = enhedsAdresseVersioner;
     }
 
+    //------------------------------------------------------------------------------------------------------------------
+
+    @ManyToOne(optional = false)
+    private VejstykkeEntity vejstykke;
+
+    public VejstykkeEntity getVejstykke() {
+        return vejstykke;
+    }
+
+    public void setVejstykke(VejstykkeEntity vejstykke) {
+        this.vejstykke = vejstykke;
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    @Column(nullable = false)
+    private String husnr;
+
+    public String getHusnr() {
+        return husnr;
+    }
+
+    public void setHusnr(String husnr) {
+        this.husnr = husnr;
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
     public String getTypeName() {
         return "adgangsAdresse";
     }
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
         obj.put("id", this.getUuid());
-        obj.put("husnr", this.latestVersion.getHusnr());
+        obj.put("husnr", this.getHusnr());
         obj.put("href", SearchService.getAdgangsAdresseBaseUrl()+"/"+this.getUuid());
         return obj;
     }
 
     public JSONObject toFullJSON() {
         JSONObject obj = this.toJSON();
-        VejstykkeEntity vejstykkeEntity = this.latestVersion.getVejstykke();
+        VejstykkeEntity vejstykkeEntity = this.getVejstykke();
         if (vejstykkeEntity != null) {
             obj.put("vej", vejstykkeEntity.toJSON());
             obj.put("kommune", vejstykkeEntity.getKommune().toJSON());

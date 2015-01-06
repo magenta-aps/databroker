@@ -390,16 +390,20 @@ public class DawaModel {
         if (vejstykkeEntity == null) {
             System.err.println("Vejstykke " + kommuneKode + ":" + vejKode + " not found");
         } else {
-            Collection<AdgangsAdresseVersionEntity> adgangsAdresseVersionEntities = vejstykkeEntity.getAdgangsAdresseVersioner();
-            if (adgangsAdresseVersionEntities != null) {
-                for (AdgangsAdresseVersionEntity adgangsAdresseVersionEntity : adgangsAdresseVersionEntities) {
-                    if (husNr.equals(adgangsAdresseVersionEntity.getHusnr())) {
-                        adgangsAdresseEntity = adgangsAdresseVersionEntity.getEntity();
+
+            Collection<AdgangsAdresseEntity> adgangsAdresseEntities = vejstykkeEntity.getAdgangsAdresser();
+            if (adgangsAdresseEntities != null) {
+                for (AdgangsAdresseEntity a : adgangsAdresseEntities) {
+                    if (husNr.equals(a.getHusnr())) {
+                        adgangsAdresseEntity = a;
                     }
                 }
             }
+
             if (adgangsAdresseEntity == null) {
                 adgangsAdresseEntity = new AdgangsAdresseEntity();
+                adgangsAdresseEntity.setVejstykke(vejstykkeEntity);
+                adgangsAdresseEntity.setHusnr(husNr);
                 if (printProcessing) {
                     System.out.println("    creating new AdgangsAdresseEntity");
                 }
@@ -412,7 +416,7 @@ public class DawaModel {
                 if (printProcessing) {
                     System.out.println("    creating initial AdgangsAdresseVersionEntity");
                 }
-            } else if (!adgangsAdresseVersionEntity.getHusnr().equals(husNr) || adgangsAdresseVersionEntity.getVejstykke() != vejstykkeEntity) {
+            } else if (false /* anything changed? */) {
                 if (printProcessing) {
                     System.out.println("    creating updated AdgangsAdresseVersionEntity");
                 }
@@ -422,8 +426,6 @@ public class DawaModel {
             }
 
             if (adgangsAdresseVersionEntity != null) {
-                adgangsAdresseVersionEntity.setVejstykke(vejstykkeEntity);
-                adgangsAdresseVersionEntity.setHusnr(husNr);
                 adgangsAdresseEntity.setLatestVersion(adgangsAdresseVersionEntity);
                 this.adgangsAdresseRepository.save(adgangsAdresseEntity);
             }

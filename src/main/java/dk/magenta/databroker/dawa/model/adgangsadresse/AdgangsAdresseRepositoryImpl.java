@@ -41,8 +41,7 @@ public class AdgangsAdresseRepositoryImpl implements AdgangsAdresseRepositoryCus
 
 
         if (land != null || kommune != null || vej != null || post != null) {
-            join.append("adresse.latestVersion as adresseVersion");
-            join.append("adresseVersion.vejstykke as vejstykke");
+            join.append("adresse.vejstykke as vejstykke");
 
             if (vej != null && vej.length > 0) {
                 conditions.addCondition(RepositoryUtil.whereField(vej, "vejstykke.kode", "vejstykke.latestVersion.vejnavn"));
@@ -61,7 +60,7 @@ public class AdgangsAdresseRepositoryImpl implements AdgangsAdresseRepositoryCus
         }
 
         if (husnr != null && husnr.length > 0) {
-            conditions.addCondition(RepositoryUtil.whereField(husnr, null, "adresse.latestVersion.husnr"));
+            conditions.addCondition(RepositoryUtil.whereField(husnr, null, "adresse.husnr"));
         }
 
         if (globalCondition != null) {
@@ -84,7 +83,7 @@ public class AdgangsAdresseRepositoryImpl implements AdgangsAdresseRepositoryCus
             hql.append(conditions.getWhere());
         }
 
-        hql.append("order by adresse.latestVersion.husnr");
+        hql.append("order by adresse.husnr");
 
         System.out.println(hql.join(" \n"));
         Query q = this.entityManager.createQuery(hql.join(" "));

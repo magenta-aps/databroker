@@ -44,11 +44,11 @@ public class LokalitetRepositoryImpl implements LokalitetRepositoryCustom {
         }
 
         if ((vej != null && vej.length>0) || (kommune != null && kommune.length>0) || (post != null && post.length>0)) {
-            join.append("lokalitet.vejstykkeVersioner vejversion");
-            join.append("vejversion.entity as vej");
+            join.append("lokalitet.vejstykkeVersioner vejVersion");
+            join.append("vejVersion.entity as vej");
 
             if (vej != null) {
-                conditions.addCondition(RepositoryUtil.whereField(vej, "vej.kode", "vejversion.vejnavn"));
+                conditions.addCondition(RepositoryUtil.whereField(vej, "vej.kode", "vejVersion.vejnavn"));
             }
 
             if (post != null) {
@@ -62,9 +62,9 @@ public class LokalitetRepositoryImpl implements LokalitetRepositoryCustom {
             }
         }
 
-        if (globalCondition != null) {
-            conditions.addCondition(globalCondition.whereField("post"));
-        }
+        /*if (globalCondition != null) {
+            conditions.addCondition(globalCondition.whereField("vej"));
+        }*/
 
         // our conditions list should now be complete
 

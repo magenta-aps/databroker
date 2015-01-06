@@ -37,7 +37,6 @@ public class VejstykkeRepositoryImpl implements VejstykkeRepositoryCustom {
         hql.append("select distinct vej from VejstykkeEntity as vej");
 
         join.setPrefix("join ");
-        join.append("vej.latestVersion vejversion");
         if (kommune != null || land != null) {
             join.append("vej.kommune kommune");
             if (land != null) {
@@ -48,7 +47,7 @@ public class VejstykkeRepositoryImpl implements VejstykkeRepositoryCustom {
             }
         }
         if (vej != null) {
-            conditions.addCondition(RepositoryUtil.whereField(vej, "vej.kode", "vejversion.vejnavn"));
+            conditions.addCondition(RepositoryUtil.whereField(vej, "vej.kode", "vej.latestVersion.vejnavn"));
         }
         if (globalCondition != null) {
             conditions.addCondition(globalCondition.whereField("vej"));
@@ -57,6 +56,7 @@ public class VejstykkeRepositoryImpl implements VejstykkeRepositoryCustom {
         // our conditions list should now be complete
 
         if (conditions.hasRequiredJoin()) {
+            System.out.println("conditions.getRequiredJoin(): "+conditions.getRequiredJoin());
             join.append(conditions.getRequiredJoin());
         }
 

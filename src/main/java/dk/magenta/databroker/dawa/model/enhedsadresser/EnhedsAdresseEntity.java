@@ -83,7 +83,7 @@ public class EnhedsAdresseEntity extends DobbeltHistorikBase<EnhedsAdresseEntity
         AdgangsAdresseEntity adgangsAdresseEntity = this.latestVersion.getAdgangsadresse();
         if (adgangsAdresseEntity != null) {
             obj.put("husnr", adgangsAdresseEntity.toJSON());
-            VejstykkeEntity vejstykkeEntity = adgangsAdresseEntity.getLatestVersion().getVejstykke();
+            VejstykkeEntity vejstykkeEntity = adgangsAdresseEntity.getVejstykke();
             if (vejstykkeEntity != null) {
                 obj.put("vej", vejstykkeEntity.toJSON());
                 if (vejstykkeEntity.getKommune() != null) {

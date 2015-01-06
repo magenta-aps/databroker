@@ -42,8 +42,7 @@ public class EnhedsAdresseRepositoryImpl implements EnhedsAdresseRepositoryCusto
         if (land != null || kommune != null || vej != null || post != null || husnr != null) {
             join.append("adresse.latestVersion as adresseVersion");
             join.append("adresseVersion.adgangsadresse as adgang");
-            join.append("adgang.latestVersion as adgangVersion");
-            join.append("adgangVersion.vejstykke as vejstykke");
+            join.append("adgang.vejstykke as vejstykke");
 
             if (vej != null && vej.length > 0) {
                 conditions.addCondition(RepositoryUtil.whereField(vej, "vejstykke.kode", "vejstykke.latestVersion.vejnavn"));
@@ -60,7 +59,7 @@ public class EnhedsAdresseRepositoryImpl implements EnhedsAdresseRepositoryCusto
                 conditions.addCondition(RepositoryUtil.whereField(post, "post.latestVersion.nr", "post.latestVersion.navn"));
             }
             if (husnr != null && husnr.length > 0) {
-                conditions.addCondition(RepositoryUtil.whereField(husnr, null, "adgangVersion.husnr"));
+                conditions.addCondition(RepositoryUtil.whereField(husnr, null, "adgang.husnr"));
             }
         }
 
@@ -84,7 +83,7 @@ public class EnhedsAdresseRepositoryImpl implements EnhedsAdresseRepositoryCusto
         // our join list should now be complete
 
         if (join.size()>0) {
-            hql.append(join.join(" "));
+            hql.append(join.join(" \n"));
         }
         if (conditions.size() > 0) {
             hql.append("where");

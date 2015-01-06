@@ -1,6 +1,7 @@
 package dk.magenta.databroker.dawa.model.vejstykker;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
+import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseEntity;
 import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseVersionEntity;
 import dk.magenta.databroker.dawa.model.lokalitet.LokalitetEntity;
 import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
@@ -12,6 +13,7 @@ import org.json.JSONObject;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * Created by jubk on 18-12-2014.
@@ -32,7 +34,7 @@ public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, Vejsty
 
     public VejstykkeEntity() {
         this.versioner = new ArrayList<VejstykkeVersionEntity>();
-        this.adgangsAdresseVersioner = new ArrayList<AdgangsAdresseVersionEntity>();
+        this.adgangsAdresser = new HashSet<AdgangsAdresseEntity>();
         this.generateNewUUID();
     }
 
@@ -78,8 +80,6 @@ public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, Vejsty
     @ManyToOne
     private KommuneEntity kommune;
 
-    @OneToMany(mappedBy = "vejstykke")
-    private Collection<AdgangsAdresseVersionEntity> adgangsAdresseVersioner;
 
 
     public int getKode() {
@@ -98,14 +98,26 @@ public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, Vejsty
         this.kommune = kommune;
     }
 
+    //----------------------------------------------------
 
-    public Collection<AdgangsAdresseVersionEntity> getAdgangsAdresseVersioner() {
-        return adgangsAdresseVersioner;
+    @OneToMany(mappedBy = "vejstykke")
+    private Collection<AdgangsAdresseEntity> adgangsAdresser;
+
+    public Collection<AdgangsAdresseEntity> getAdgangsAdresser() {
+        return adgangsAdresser;
     }
 
-    public void setAdgangsAdresseVersioner(Collection<AdgangsAdresseVersionEntity> adgangsAdresseVersioner) {
-        this.adgangsAdresseVersioner = adgangsAdresseVersioner;
+    public void setAdgangsAdresser(Collection<AdgangsAdresseEntity> adgangsAdresse) {
+        this.adgangsAdresser = adgangsAdresse;
     }
+    public void addAdgangsAdresse(AdgangsAdresseEntity adgangsAdresse) {
+        this.adgangsAdresser.add(adgangsAdresse);
+    }
+    public void removeAdgangsAdresse(AdgangsAdresseEntity adgangsAdresse) {
+        this.adgangsAdresser.remove(adgangsAdresse);
+    }
+
+    //----------------------------------------------------
 
 
 

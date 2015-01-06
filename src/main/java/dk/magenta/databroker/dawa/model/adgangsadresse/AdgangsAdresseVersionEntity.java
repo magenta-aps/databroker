@@ -34,12 +34,6 @@ public class AdgangsAdresseVersionEntity
         super(entitet);
     }
 
-    @ManyToOne(optional = false)
-    private VejstykkeEntity vejstykke; // TODO: hvorfor er denne versioneret?
-
-    @Column(nullable = false)
-    private String husnr; // TODO: hvorfor er denne versioneret?
-
     @Column
     private String supplerendeByNavn;
 
@@ -87,22 +81,6 @@ public class AdgangsAdresseVersionEntity
 
     @Column
     private String kn10kmdk;
-
-    public VejstykkeEntity getVejstykke() {
-        return vejstykke;
-    }
-
-    public void setVejstykke(VejstykkeEntity vejstykke) {
-        this.vejstykke = vejstykke;
-    }
-
-    public String getHusnr() {
-        return husnr;
-    }
-
-    public void setHusnr(String husnr) {
-        this.husnr = husnr;
-    }
 
     public String getSupplerendeByNavn() {
         return supplerendeByNavn;

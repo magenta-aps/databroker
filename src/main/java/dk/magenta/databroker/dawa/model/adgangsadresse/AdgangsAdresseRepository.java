@@ -17,28 +17,25 @@ public interface AdgangsAdresseRepository extends JpaRepository<AdgangsAdresseEn
 
     @Query("select adgangsadresse from " +
             "VejstykkeEntity vej " +
-            "join vej.adgangsAdresseVersioner adresseversion " +
-            "join adresseversion.entity adgangsadresse " +
+            "join vej.adgangsAdresser adgangsadresse " +
             "where vej.kommune.kode = :kommunekode " +
             "and vej.kode = :vejkode")
     public Collection<AdgangsAdresseEntity> getByKommunekodeAndVejkode(@Param("kommunekode") int kommuneKode, @Param("vejkode") int vejKode);
 
     @Query("select adgangsadresse from " +
             "VejstykkeEntity vej " +
-            "join vej.adgangsAdresseVersioner adresseversion " +
-            "join adresseversion.entity adgangsadresse " +
+            "join vej.adgangsAdresser adgangsadresse " +
             "where vej = :vejstykke " +
-            "and adresseversion.husnr = :husnr")
+            "and adgangsadresse.husnr = :husnr")
     public Collection<AdgangsAdresseEntity> getByVejstykkeAndHusnr(@Param("vejstykke") VejstykkeEntity vejstykke, @Param("husnr") String husnr);
 
 
     @Query("select adgangsadresse from " +
             "VejstykkeEntity vej " +
-            "join vej.adgangsAdresseVersioner adresseversion " +
-            "join adresseversion.entity adgangsadresse " +
+            "join vej.adgangsAdresser adgangsadresse " +
             "where vej.kommune.kode = :kommunekode " +
             "and vej.kode = :vejkode " +
-            "and adresseversion.husnr = :husnr")
+            "and adgangsadresse.husnr = :husnr")
     public Collection<AdgangsAdresseEntity> getByKommunekodeAndVejkodeAndHusnr(@Param("kommunekode") int kommuneKode, @Param("vejkode") int vejKode, @Param("husnr") String husnr);
 
     /*
