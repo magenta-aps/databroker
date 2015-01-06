@@ -1,6 +1,6 @@
 package dk.magenta.databroker.cprvejregister.model.navngivenvej;
 
-import dk.magenta.databroker.cprvejregister.model.GlobalCondition;
+import dk.magenta.databroker.register.conditions.GlobalCondition;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,5 +19,8 @@ public interface NavngivenVejRepository extends JpaRepository<NavngivenVejEntity
             "where del.vejkode = :vej and kom.kommunekode = :kommune")
     public NavngivenVejEntity findByKommunekodeAndVejkode(@Param("kommune") int kommunekode, @Param("vej") int vejkode);
 
-    public Collection<NavngivenVejEntity> search(String kommune, String vej, GlobalCondition globalCondition);
+    public Collection<NavngivenVejEntity> search(String land, String[] kommune, String[] vej, GlobalCondition globalCondition);
+
+    public NavngivenVejEntity findByUuid(String uuid);
+
 }

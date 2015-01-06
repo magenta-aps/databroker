@@ -2,16 +2,14 @@ package dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej;
 
 import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.core.model.oio.UniqueBase;
-import dk.magenta.databroker.cprvejregister.model.lokalitet.LokalitetEntity;
+import dk.magenta.databroker.cprvejregister.model.lokalitet.CprLokalitetEntity;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejVersionEntity;
 import dk.magenta.databroker.cprvejregister.model.reserverethusnummerinterval.ReserveretHusnrIntervalEntity;
-import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
+import dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneEntity;
 import org.hibernate.annotations.Index;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.persistence.*;
-import javax.xml.soap.Node;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPEnvelope;
 import javax.xml.soap.SOAPException;
@@ -52,13 +50,13 @@ public class KommunedelAfNavngivenVejEntity
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "kommune_id", nullable = false)
-    private KommuneEntity kommune;
+    private CprKommuneEntity kommune;
 
     @OneToMany(mappedBy = "kommunedelAfNavngivenVej", fetch = FetchType.LAZY)
     private Collection<ReserveretHusnrIntervalEntity> reserveredeHusnrIntervaller;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    private LokalitetEntity lokalitet;
+    private CprLokalitetEntity lokalitet;
 
 
     public int getVejkode() {
@@ -77,11 +75,11 @@ public class KommunedelAfNavngivenVejEntity
         this.navngivenVejVersion = navngivenVejRegistrering;
     }
 
-    public KommuneEntity getKommune() {
+    public CprKommuneEntity getKommune() {
         return this.kommune;
     }
 
-    public void setKommune(KommuneEntity kommune) {
+    public void setKommune(CprKommuneEntity kommune) {
         this.kommune = kommune;
     }
 
@@ -93,10 +91,10 @@ public class KommunedelAfNavngivenVejEntity
         this.reserveredeHusnrIntervaller = reserveredeHusnrIntervalller;
     }
 
-    public LokalitetEntity getLokalitet() {
+    public CprLokalitetEntity getLokalitet() {
         return this.lokalitet;
     }
-    public void setLokalitet(LokalitetEntity lokalitet) {
+    public void setLokalitet(CprLokalitetEntity lokalitet) {
         this.lokalitet = lokalitet;
     }
 
@@ -105,22 +103,38 @@ public class KommunedelAfNavngivenVejEntity
     //------------------------------------------------------------------------------------------------------------------
 
 
+    public String getTypeName() {
+        return "kommunedelAfNavngivenVej";
+    }
+
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
+        obj.put("id", this.getUuid());
         obj.put("vejKode", this.getVejkode());
-        obj.put("kommuneKode", this.getKommune().getKommunekode());
         return obj;
     }
 
-    public Node toXML(SOAPElement parent, SOAPEnvelope envelope) {
+    public JSONObject toFullJSON() {
+        JSONObject obj = this.toJSON();
+        obj.put("kommune", this.getKommune().toJSON());
+        obj.put("vej", this.getNavngivenVejVersion().getEntity().toJSON());
+        return obj;
+    }
+
+    public SOAPElement toXML(SOAPElement parent, SOAPEnvelope envelope) {
         try {
             SOAPElement node = parent.addChildElement("delvej");
             node.addAttribute(envelope.createName("vejKode"), ""+this.getVejkode());
-            node.addAttribute(envelope.createName("kommuneKode"), ""+this.getKommune().getKommunekode());
             return node;
         } catch (SOAPException e) {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public SOAPElement toFullXML(SOAPElement parent, SOAPEnvelope envelope) {
+        SOAPElement node = this.toXML(parent, envelope);
+        this.getKommune().toXML(node, envelope);
+        return node;
     }
 }

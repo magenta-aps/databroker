@@ -1,26 +1,18 @@
 package dk.magenta.databroker.cprvejregister.dataproviders.registers;
-import dk.magenta.databroker.core.model.oio.RegistreringEntity;
-import dk.magenta.databroker.core.model.oio.RegistreringRepository;
-import dk.magenta.databroker.cprvejregister.dataproviders.RegisterRun;
-import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.*;
+
+import dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneEntity;
+import dk.magenta.databroker.dawa.model.DawaModel;
+import dk.magenta.databroker.dawa.model.RawVej;
+import dk.magenta.databroker.register.RegisterRun;
+import dk.magenta.databroker.register.objectcontainers.*;
 
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.CprRecord;
-import dk.magenta.databroker.cprvejregister.model.adresse.AdresseRepository;
-import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerRepository;
-import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
-import dk.magenta.databroker.cprvejregister.model.kommune.KommuneRepository;
+import dk.magenta.databroker.register.records.Record;
 import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
-import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejRepository;
-import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
-import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejRepository;
-import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejVersionEntity;
-import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
@@ -31,7 +23,7 @@ import java.util.*;
  * Created by lars on 04-11-14.
  */
 @Component
-public class VejRegister extends CprRegister {
+public class VejRegister extends CprSubRegister {
 
 
     /*
@@ -108,6 +100,7 @@ public class VejRegister extends CprRegister {
             this.obtain("vejAdresseringsnavn", 52, 20);
             this.obtain("vejNavn", 72, 40);
             this.connections = new ArrayList<AktivVej>();
+            this.clean();
         }
     }
 
@@ -126,7 +119,7 @@ public class VejRegister extends CprRegister {
             this.obtain("sidedoer", 18, 4);
             this.obtain("startDato", 35, 12);
             this.obtain("lokalitet", 59, 34);
-
+            this.clean();
         }
     }
 
@@ -143,6 +136,7 @@ public class VejRegister extends CprRegister {
         public ByDistrikt(String line) throws ParseException {
             super(line);
             this.put("bynavn", this.get("distriktsTekst"));
+            this.clean();
         }
     }
 
@@ -159,6 +153,7 @@ public class VejRegister extends CprRegister {
         public PostDistrikt(String line) throws ParseException {
             super(line);
             this.obtain("postNr", 33, 4);
+            this.clean();
         }
     }
 
@@ -174,6 +169,7 @@ public class VejRegister extends CprRegister {
             this.obtain("notatNr", 12, 2);
             this.obtain("notatLinie", 14, 40);
             this.obtain("startDato", 66, 12);
+            this.clean();
         }
     }
 
@@ -187,6 +183,7 @@ public class VejRegister extends CprRegister {
         public ByfornyelsesDistrikt(String line) throws ParseException {
             super(line);
             this.obtain("byfornyKode", 33, 6);
+            this.clean();
         }
     }
 
@@ -201,6 +198,7 @@ public class VejRegister extends CprRegister {
             super(line);
             this.obtain("distriktType", 33, 2);
             this.obtain("diverseDistriktsKode", 35, 4);
+            this.clean();
         }
     }
 
@@ -214,6 +212,7 @@ public class VejRegister extends CprRegister {
         public EvakueringsDistrikt(String line) throws ParseException {
             super(line);
             this.obtain("evakueringsKode", 33, 1);
+            this.clean();
         }
     }
 
@@ -224,6 +223,7 @@ public class VejRegister extends CprRegister {
         public KirkeDistrikt(String line) throws ParseException {
             super(line);
             this.obtain("kirkeKode", 33, 2);
+            this.clean();
         }
     }
 
@@ -234,6 +234,7 @@ public class VejRegister extends CprRegister {
         public SkoleDistrikt(String line) throws ParseException {
             super(line);
             this.obtain("skoleKode", 33, 2);
+            this.clean();
         }
     }
 
@@ -247,6 +248,7 @@ public class VejRegister extends CprRegister {
         public BefolkningsDistrikt(String line) throws ParseException {
             super(line);
             this.obtain("befolkningsKode", 33, 4);
+            this.clean();
         }
     }
 
@@ -257,6 +259,7 @@ public class VejRegister extends CprRegister {
         public SocialDistrikt(String line) throws ParseException {
             super(line);
             this.obtain("socialKode", 33, 2);
+            this.clean();
         }
     }
 
@@ -274,6 +277,7 @@ public class VejRegister extends CprRegister {
             super(line);
             this.obtain("myndighedsKode", 33, 4);
             this.put("myndighedsNavn", this.get("distriktsTekst"));
+            this.clean();
         }
     }
 
@@ -284,6 +288,7 @@ public class VejRegister extends CprRegister {
         public ValgDistrikt(String line) throws ParseException {
             super(line);
             this.obtain("valgKode", 33, 2);
+            this.clean();
         }
     }
 
@@ -324,12 +329,14 @@ public class VejRegister extends CprRegister {
     public class VejRegisterRun extends RegisterRun {
 
         private Level2Container<AktivVej> aktiveVeje;
-        EntityModificationCounter delvejCounter;
-        EntityModificationCounter navngivenvejCounter;
-        Level2Container<KommunedelAfNavngivenVejEntity> kommunedelAfNavngivenVejCache = null;
-        Level1Container<KommuneEntity> kommuneCache = null;
+        private EntityModificationCounter delvejCounter;
+        private EntityModificationCounter navngivenvejCounter;
+        private Level2Container<KommunedelAfNavngivenVejEntity> kommunedelAfNavngivenVejCache = null;
+        private Level1Container<CprKommuneEntity> kommuneCache = null;
+        private ArrayList<PostDistrikt> postDistrikter;
 
-        public ArrayList<Bolig> boliger;
+        private ArrayList<Bolig> boliger;
+        private ArrayList<ByDistrikt> byDistrikter;
 
         public VejRegisterRun() {
             super();
@@ -338,9 +345,10 @@ public class VejRegister extends CprRegister {
             this.navngivenvejCounter = new EntityModificationCounter();
 
             this.boliger = new ArrayList<Bolig>();
+            this.byDistrikter = new ArrayList<ByDistrikt>();
         }
 
-        public boolean add(CprRecord record) {
+        public boolean add(Record record) {
             if (record.getRecordType().equals(VejDataRecord.RECORDTYPE_AKTVEJ)) {
                 AktivVej vej = (AktivVej) record;
                 int vejKode = vej.getInt("vejKode");
@@ -354,6 +362,12 @@ public class VejRegister extends CprRegister {
             if (record.getRecordType().equals(VejDataRecord.RECORDTYPE_BOLIG)) {
                 this.boliger.add((Bolig)record);
             }
+
+
+            if (record.getRecordType().equals(VejDataRecord.RECORDTYPE_BYDISTRIKT)) {
+                this.byDistrikter.add((ByDistrikt)record);
+            }
+
             return false;
         }
 
@@ -361,178 +375,17 @@ public class VejRegister extends CprRegister {
             return aktiveVeje;
         }
 
-
-        // Process an AktivVej item, adding relevant database entries
-        public void processAktivVej(AktivVej aktivVej, DataProviderEntity dataProviderEntity) {
-            ArrayList<Long> time = new ArrayList<Long>();
-
-            int kommuneKode = aktivVej.getInt("kommuneKode");
-            int vejKode = aktivVej.getInt("vejKode");
-            String vejNavn = aktivVej.get("vejNavn");
-            String vejAdresseringsnavn = aktivVej.get("vejAdresseringsnavn");
-
-            if (createRegistrering == null || updateRegistrering == null) {
-                createRegistreringEntities(dataProviderEntity);
-            }
-
-            //KommuneEntity kommune = kommuneRepository.getByKommunekode(kommuneKode);
-            KommuneEntity kommune = this.getKommuneCache().get(kommuneKode);
-
-            if (kommune == null) {
-                //System.out.println("Kommune with id "+kommuneKode+" not found for vej "+aktivVej.get("vejNavn"));
-            } else {
-                Level2Container<KommunedelAfNavngivenVejEntity> delveje = this.getKommuneDelAfNavngivenVejCache();
-
-                KommunedelAfNavngivenVejEntity delvejEntity = delveje.get(kommuneKode, vejKode);
-
-                boolean createdDelvej = false;
-                boolean updatedDelvej = false;
-
-                NavngivenVejEntity navngivenVej = null;
-                NavngivenVejVersionEntity navngivenVejVersion;
-
-                // If we don't have a KommunedelAfNavngivenVejEntity for this vejKode and kommune, create one
-                if (delvejEntity == null) {
-                    delvejEntity = KommunedelAfNavngivenVejEntity.create();
-                    delvejEntity.setVejkode(vejKode);
-                    delvejEntity.setKommune(kommune);
-                    this.delvejCounter.countCreatedItem();
-                    updatedDelvej = createdDelvej = true;
-                } else {
-                    // Since we do have a delvej, try to find an existing navngivenvej by looking in it
-                    NavngivenVejVersionEntity delvejRefVersion = delvejEntity.getNavngivenVejVersion();
-                    if (delvejRefVersion != null) {
-                        NavngivenVejEntity navngivenVejEntity = delvejRefVersion.getEntity();
-                        if (navngivenVejEntity != null && vejNavn.equals(navngivenVejEntity.getLatestVersion().getVejnavn())) {
-                            navngivenVej = navngivenVejEntity;
-                        }
-                    }
-                }
-
-                if (navngivenVej == null) {
-                    for (AktivVej otherVej : aktivVej.getConnections()) {
-                        navngivenVej = findNavngivenVejByAktivVej(otherVej, vejNavn);
-                        if (navngivenVej != null) {
-                            break;
-                        }
-                    }
-                }
-
-                // No navngivenvej instances found - create one
-                // Also create a new vejversion to put data in
-                if (navngivenVej == null) {
-                    navngivenVej = NavngivenVejEntity.create();
-                    navngivenVejVersion = navngivenVej.addVersion(createRegistrering);
-                    this.navngivenvejCounter.countCreatedItem();
-                } else {
-                    // Put a version on our existing navngivenvej
-                    NavngivenVejVersionEntity latestVersion = navngivenVej.getLatestVersion();
-                    if (latestVersion.getRegistrering().equals(updateRegistrering) || latestVersion.getRegistrering().equals(createRegistrering)) {
-                        // If we happen to have created a version for an existing vej in this very run, reuse that version
-                        navngivenVejVersion = latestVersion;
-                    } else {
-                        // Otherwise append a new version
-                        navngivenVejVersion = navngivenVej.addVersion(updateRegistrering);
-                    }
-                }
-
-                // Update and save navngivenVejVersion
-                navngivenVejVersion.setAnsvarligKommune(kommune);
-                navngivenVejVersion.setVejnavn(vejNavn);
-                navngivenVejVersion.setVejaddresseringsnavn(vejAdresseringsnavn);
-                navngivenVejVersion.addKommunedelAfNavngivenVej(delvejEntity);
-                navngivenVejRepository.save(navngivenVej);
-
-                // Update and save delvejEntity
-                delvejEntity.setNavngivenVejVersion(navngivenVejVersion);
-                if (!updatedDelvej) {
-                    this.delvejCounter.countUpdatedItem();
-                    updatedDelvej = true;
-                }
-                if (createdDelvej || updatedDelvej) {
-                    this.getKommuneDelAfNavngivenVejCache().put(kommuneKode, vejKode, delvejEntity);
-                    kommunedelAfNavngivenVejRepository.save(delvejEntity);
-                }
-
-                // Process any linked items
-                aktivVej.setVisited();
-                for (AktivVej otherVej : aktivVej.getConnections()) {
-                    if (!otherVej.getVisited()) {
-                        this.processAktivVej(otherVej, dataProviderEntity);
-                    }
-                }
-
-
-                StringBuilder timeStr = new StringBuilder();
-                boolean exceed = false;
-                long total = 0;
-                for (Long t : time) {
-                    timeStr.append(t);
-                    timeStr.append(",");
-                    if (t > 20) {
-                        exceed = true;
-                    }
-                    total += t;
-                }
-                if (exceed) {
-                    System.out.println(vejNavn + " i " + kommune.getLatestVersion().getNavn() + " processed (" + timeStr.toString() + ") = "+total);
-                }
-
-            }
-            this.printInputProcessed();
+        public ArrayList<PostDistrikt> getPostDistrikter() {
+            return postDistrikter;
         }
 
-        private Level2Container<KommunedelAfNavngivenVejEntity> getKommuneDelAfNavngivenVejCache() {
-            if (this.kommunedelAfNavngivenVejCache == null) {
-                this.kommunedelAfNavngivenVejCache = new Level2Container<KommunedelAfNavngivenVejEntity>();
-                Collection<KommunedelAfNavngivenVejEntity> delvejListe = kommunedelAfNavngivenVejRepository.getAllLatest();
-                for (KommunedelAfNavngivenVejEntity delvej : delvejListe) {
-                    kommunedelAfNavngivenVejCache.put(delvej.getKommune().getKommunekode(), delvej.getVejkode(), delvej);
-                }
-                System.out.println("    Cache size: "+kommunedelAfNavngivenVejCache.totalSize());
-            }
-            return this.kommunedelAfNavngivenVejCache;
+        public ArrayList<Bolig> getBoliger() {
+            return boliger;
         }
 
-        private Level1Container<KommuneEntity> getKommuneCache() {
-            if (this.kommuneCache == null) {
-                this.kommuneCache = new Level1Container<KommuneEntity>();
-                Collection<KommuneEntity> kommuneListe = kommuneRepository.findAll();
-                for (KommuneEntity kommune : kommuneListe) {
-                    this.kommuneCache.put(kommune.getKommunekode(), kommune);
-                }
-            }
-            return this.kommuneCache;
+        public ArrayList<ByDistrikt> getByDistrikter() {
+            return this.byDistrikter;
         }
-
-        public void printStatus() {
-            this.printFinalInputsProcessed();
-            System.out.println("Stored KommunedelAfNavngivenVejEntities to database:");
-            this.delvejCounter.printModifications();
-            System.out.println("Stored NavngivenVejEntities to database:");
-            navngivenvejCounter.printModifications();
-        }
-
-        private NavngivenVejEntity findNavngivenVejByAktivVej(AktivVej aktivVej) {
-            return this.findNavngivenVejByAktivVej(aktivVej, null);
-        }
-        private NavngivenVejEntity findNavngivenVejByAktivVej(AktivVej aktivVej, String vejNavn) {
-            if (aktivVej != null) {
-                int kommuneKode = aktivVej.getInt("kommuneKode");
-                int vejKode = aktivVej.getInt("vejKode");
-                try {
-                    //KommunedelAfNavngivenVejEntity andenVejEntity = kommunedelAfNavngivenVejRepository.getByKommunekodeAndVejkode(kommuneKode, vejKode);
-                    KommunedelAfNavngivenVejEntity andenVejEntity = this.getKommuneDelAfNavngivenVejCache().get(kommuneKode, vejKode);
-                    if (andenVejEntity != null && (vejNavn == null || vejNavn.equals(andenVejEntity.getNavngivenVejVersion().getVejnavn()))) {
-                        return andenVejEntity.getNavngivenVejVersion().getEntity();
-                    }
-                } catch (Exception e) {
-                    System.out.println("Failed on "+kommuneKode+":"+vejKode);
-                }
-            }
-            return null;
-        }
-
 
     }
 
@@ -554,7 +407,7 @@ public class VejRegister extends CprRegister {
     * */
 
     public URL getRecordUrl() throws MalformedURLException {
-        return new URL("https://cpr.dk/media/152096/vejregister_hele_landet_pr_141201.zip");
+        return new URL("https://cpr.dk/media/152096/vejregister_hele_landet_pr_150101.zip");
     }
 
 
@@ -578,40 +431,40 @@ public class VejRegister extends CprRegister {
                 return new ByDistrikt(line);
             }
             if (recordType.equals(VejDataRecord.RECORDTYPE_POSTDIST)) {
-                return new PostDistrikt(line);
+                //return new PostDistrikt(line);
             }
             if (recordType.equals(VejDataRecord.RECORDTYPE_NOTATVEJ)) {
-                return new NotatVej(line);
+                //return new NotatVej(line);
             }
             if (recordType.equals(VejDataRecord.RECORDTYPE_BYFORNYDIST)) {
-                return new ByfornyelsesDistrikt(line);
+                //return new ByfornyelsesDistrikt(line);
             }
             if (recordType.equals(VejDataRecord.RECORDTYPE_DIVDIST)) {
-                return new DiverseDistrikt(line);
+                //return new DiverseDistrikt(line);
             }
             if (recordType.equals(VejDataRecord.RECORDTYPE_EVAKUERDIST)) {
-                return new EvakueringsDistrikt(line);
+                //return new EvakueringsDistrikt(line);
             }
             if (recordType.equals(VejDataRecord.RECORDTYPE_KIRKEDIST)) {
-                return new KirkeDistrikt(line);
+                //return new KirkeDistrikt(line);
             }
             if (recordType.equals(VejDataRecord.RECORDTYPE_SKOLEDIST)) {
-                return new SkoleDistrikt(line);
+                //return new SkoleDistrikt(line);
             }
             if (recordType.equals(VejDataRecord.RECORDTYPE_BEFOLKDIST)) {
-                return new BefolkningsDistrikt(line);
+                //return new BefolkningsDistrikt(line);
             }
             if (recordType.equals(VejDataRecord.RECORDTYPE_SOCIALDIST)) {
-                return new SocialDistrikt(line);
+                //return new SocialDistrikt(line);
             }
             if (recordType.equals(VejDataRecord.RECORDTYPE_SOGNEDIST)) {
-                return new SogneDistrikt(line);
+                //return new SogneDistrikt(line);
             }
             if (recordType.equals(VejDataRecord.RECORDTYPE_VALGDIST)) {
-                return new ValgDistrikt(line);
+                //return new ValgDistrikt(line);
             }
             if (recordType.equals(VejDataRecord.RECORDTYPE_VARMEDIST)) {
-                return new VarmeDistrikt(line);
+                //return new VarmeDistrikt(line);
             }
             if (recordType.equals(VejDataRecord.RECORDTYPE_HISTORISKVEJ)) {
                 return new HistoriskVej(line);
@@ -628,39 +481,7 @@ public class VejRegister extends CprRegister {
     * */
 
     @Autowired
-    private KommuneRepository kommuneRepository;
-
-    @Autowired
-    private KommunedelAfNavngivenVejRepository kommunedelAfNavngivenVejRepository;
-
-    @Autowired
-    private NavngivenVejRepository navngivenVejRepository;
-
-    @Autowired
-    private HusnummerRepository husnummerRepository;
-
-    @Autowired
-    private AdresseRepository adresseRepository;
-
-    @Autowired
-    private PostnummerRepository postnummerRepository;
-
-    @Autowired
-    private RegistreringRepository registreringRepository;
-
-
-    /*
-    * Registration
-    * */
-
-    private RegistreringEntity createRegistrering;
-    private RegistreringEntity updateRegistrering;
-
-    private void createRegistreringEntities(DataProviderEntity dataProviderEntity) {
-        this.createRegistrering = registreringRepository.createNew(dataProviderEntity);
-        this.updateRegistrering = registreringRepository.createUpdate(dataProviderEntity);
-    }
-
+    private DawaModel model;
 
     /*
     * Database save
@@ -668,13 +489,7 @@ public class VejRegister extends CprRegister {
 
     protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
         long time;
-        this.createRegistreringEntities(dataProviderEntity);
         VejRegisterRun vrun = (VejRegisterRun) run;
-
-        System.out.println("There are "+vrun.boliger.size()+" boliger");
-        for (Bolig bolig : vrun.boliger) {
-            System.out.println(bolig.toJSON().toString(2));
-        }
 
         System.out.println("Storing NavngivenvejEntities and KommunedelAfNavngivenvejEntries in database");
 
@@ -704,61 +519,93 @@ public class VejRegister extends CprRegister {
         // We do this in the VejRegisterRun instance because there is some state information
         // that we don't want to pollute our VejRegister instance with
 
-        //int counter = 0;
-        vrun.getKommuneCache();
-        System.out.println("    Kommuner loaded into cache");
-        vrun.getKommuneDelAfNavngivenVejCache();
-        System.out.println("    KommunedelAfNavngivenVej entries loaded into cache");
-
-        System.out.println("Preparatory caching took "+this.toc(time)+"ms");
-
         System.out.println("Updating entries");
         time = this.indepTic();
-        for (AktivVej aktivVej : aktiveVeje.getList()) {
-            /*if (counter >= 2000) {
-                break;
-            }
-            counter++;*/
-            if (aktivVej != null) {
-                vrun.processAktivVej(aktivVej, dataProviderEntity);
-            }
+        //VejModel vejModel = new VejModel(this.kommuneRepository, this.kommunedelAfNavngivenVejRepository, this.navngivenVejRepository, this.getCreateRegistrering(), this.getUpdateRegistrering());
+
+        ArrayList<AktivVej> orderedList = new ArrayList<AktivVej>();
+        for (AktivVej vej : aktiveVeje.getList()) {
+            this.recursiveSortRoads(vej, orderedList);
         }
+        //vejModel.createVeje(orderedList);
+        System.out.println("orderedList length: "+orderedList.size());
+
+        ArrayList<AktivVej> unorderedList = new ArrayList<AktivVej>(aktiveVeje.getList());
+        System.out.println("unorderedList length: "+unorderedList.size());
+
+        InputProcessingCounter vejCounter = new InputProcessingCounter();
+        for (AktivVej vej : orderedList) {
+            this.model.setVejstykke(
+                    vej.getInt("kommuneKode"), vej.getInt("vejKode"), vej.get("vejNavn"),
+                    vej.get("vejAddresseringsnavn"),
+                    this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
+            );
+            vejCounter.printInputProcessed();
+        }
+        vejCounter.printFinalInputsProcessed();
+
+        //vejModel.createVeje(new ArrayList<Record>(aktiveVeje.getList()));
+
+
         System.out.println("Entry update took "+this.toc(time)+"ms");
+        //vejModel.cleanNavngivneVeje();
 
-        System.out.println("Cleaning versions");
-        time = this.indepTic();
-        // Clean up redundant versions on NavngivenVej entities
-        for (NavngivenVejEntity navngivenVejEntity : navngivenVejRepository.findAll()) {
-            navngivenVejEntity.cleanLatestVersion(kommunedelAfNavngivenVejRepository);
-            navngivenVejRepository.save(navngivenVejEntity);
+        for (Bolig bolig : vrun.getBoliger()) {
+            this.model.setAdresse(
+                    bolig.getInt("kommuneKode"), bolig.getInt("vejKode"), bolig.get("husNr"),
+                    bolig.get("etage"), bolig.get("sidedoer"),
+                    this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
+            );
         }
-        System.out.println("Version cleaning took "+toc(time)+"ms");
 
-        vrun.printStatus();
 
-        System.out.println("Save complete");
-    }
 
-    @Transactional
-    public void checkNavngivenvejIntegrity() {
-        System.out.println("Integrity check");
-        long time = this.indepTic();
-        for (NavngivenVejEntity navngivenVejEntity : navngivenVejRepository.findAll()) {
-            if (navngivenVejEntity.getLatestVersion().getKommunedeleAfNavngivenVej().size() > 1) {
-                System.out.println("    Navngiven vej "+navngivenVejEntity.getLatestVersion().getVejnavn()+" bruges af følgende delveje:");
-                Collection<KommunedelAfNavngivenVejEntity> delveje2 = navngivenVejEntity.getLatestVersion().getKommunedeleAfNavngivenVej();
-                for (KommunedelAfNavngivenVejEntity del : delveje2) {
-                    KommuneEntity kommune = del.getKommune();
-                    if (kommune == null) {
-                        System.err.println("        Kommune not found for delvej "+del.getId());
-                        System.err.println("        This should not happen");
-                    } else {
-                        System.out.println("        " + del.getKommune().getKommunekode()+":"+del.getVejkode() + ": " + del.getNavngivenVejVersion().getVejnavn() + " i " + kommune.getLatestVersion().getNavn()+" kommune");
-                    }
+        Level2Container<HashSet<RawVej>> lokalitetData = new Level2Container<HashSet<RawVej>>();
+
+
+        for (ByDistrikt byDistrikt : vrun.getByDistrikter()) {
+            int kommuneKode = byDistrikt.getInt("kommuneKode");
+            int vejKode = byDistrikt.getInt("vejKode");
+            String byNavn = byDistrikt.get("bynavn");
+            HashSet<RawVej> veje = lokalitetData.get(kommuneKode, byNavn);
+            if (veje == null) {
+                veje = new HashSet<RawVej>();
+                lokalitetData.put(kommuneKode, byNavn, veje);
+            }
+            RawVej vej = new RawVej(kommuneKode, vejKode);
+
+            boolean contains = false;
+            for (RawVej v : veje) {
+                if (vej.equals(v)) {
+                    contains = true;
                 }
             }
+            if (!contains) {
+                veje.add(vej);
+            }
         }
-        System.out.println("Integrity check complete in "+this.toc(time)+"ms");
+
+        for (int kommuneKode : lokalitetData.intKeySet()) {
+            for (String lokalitetsNavn : lokalitetData.get(kommuneKode).keySet()) {
+                HashSet<RawVej> veje = lokalitetData.get(kommuneKode, lokalitetsNavn);
+                this.model.setLokalitet(
+                        kommuneKode, lokalitetsNavn, veje,
+                        this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
+                );
+            }
+        }
+
+        System.out.println("Save complete");
+
     }
 
+    private void recursiveSortRoads(AktivVej vej, ArrayList<AktivVej> list) {
+        if (!vej.getVisited()) {
+            list.add(vej);
+            vej.setVisited(true);
+            for (AktivVej otherVej : vej.getConnections()) {
+                recursiveSortRoads(otherVej, list);
+            }
+        }
+    }
 }

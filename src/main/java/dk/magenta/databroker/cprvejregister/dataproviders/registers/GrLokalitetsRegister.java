@@ -1,181 +1,131 @@
 package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
-import com.ibm.icu.text.CharsetDetector;
-import com.ibm.icu.text.CharsetMatch;
-import dk.magenta.databroker.core.DataProvider;
-import dk.magenta.databroker.core.DataProviderRegistry;
 import dk.magenta.databroker.core.model.DataProviderEntity;
-import dk.magenta.databroker.core.model.DataProviderStorageEntity;
-import dk.magenta.databroker.core.model.DataProviderStorageRepository;
-import dk.magenta.databroker.core.model.oio.RegistreringEntity;
-import dk.magenta.databroker.core.model.oio.RegistreringRepository;
-import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
-import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejRepository;
-import dk.magenta.databroker.cprvejregister.model.lokalitet.LokalitetEntity;
-import dk.magenta.databroker.cprvejregister.model.lokalitet.LokalitetRepository;
-import dk.magenta.databroker.cprvejregister.model.lokalitet.LokalitetVersionEntity;
-import org.apache.commons.codec.digest.DigestUtils;
+import dk.magenta.databroker.dawa.model.DawaModel;
+import dk.magenta.databroker.dawa.model.RawVej;
+import dk.magenta.databroker.register.Register;
+import dk.magenta.databroker.register.RegisterRun;
+import dk.magenta.databroker.register.objectcontainers.Level2Container;
+import dk.magenta.databroker.register.records.Record;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import java.io.*;
-import java.net.MalformedURLException;
-import java.util.Date;
-import java.util.UUID;
+import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * Created by lars on 12-12-14.
  */
 @Component
-public class GrLokalitetsRegister extends DataProvider {
+public class GrLokalitetsRegister extends Register {
 
-    @Autowired
-    private DataProviderStorageRepository dataProviderStorageRepository;
+    /*
+    * RegisterRun inner class
+    * */
 
-    private DataProviderStorageEntity storageEntity;
+    private class GrLokalitetRecord extends Record {
+    }
 
-    @Autowired
-    private LokalitetRepository lokalitetRepository;
+    private class GrRegisterRun extends RegisterRun {
+    }
 
-    @Autowired
-    private KommunedelAfNavngivenVejRepository kommunedelAfNavngivenVejRepository;
+    @Override
+    protected RegisterRun createRun() {
+        return new GrRegisterRun();
+    }
 
-    @Autowired
-    private RegistreringRepository registreringRepository;
+    //------------------------------------------------------------------------------------------------------------------
 
+    /*
+    * Constructors
+    * */
 
     public GrLokalitetsRegister() {
     }
 
-    @PostConstruct
-    public void PostConstructGrLokalitetsRegister() {
-        if (this.dataProviderStorageRepository != null) {
-            DataProviderStorageEntity storageEntity = this.dataProviderStorageRepository.getByOwningClass(this.getClass().getName());
-            if (storageEntity == null) {
-                storageEntity = new DataProviderStorageEntity();
-                storageEntity.setOwningClass(this.getClass().getName());
-                this.dataProviderStorageRepository.save(storageEntity);
-            }
-            this.storageEntity = storageEntity;
-        }
+    /*
+    * Data source spec
+    * */
+
+    @Override
+    public File getRecordFile() {
+        return new File("src/test/resources/grønlandLokaliteter.csv");
     }
 
-
+    @Override
     protected String getEncoding() {
         return "UTF-8";
     }
 
 
     /*
-    * Registration
+    * Parse definition
     * */
 
-    private RegistreringEntity createRegistrering;
-    private RegistreringEntity updateRegistrering;
-
-    private void createRegistreringEntities(DataProviderEntity dataProviderEntity) {
-        this.createRegistrering = registreringRepository.createNew(dataProviderEntity);
-        this.updateRegistrering = registreringRepository.createUpdate(dataProviderEntity);
+    protected GrLokalitetRecord parseTrimmedLine(String line) {
+        String[] parts = line.split(",");
+        if (parts.length >= 4) {
+            GrLokalitetRecord record = new GrLokalitetRecord();
+            record.put("kommuneKode", parts[0]);
+            record.put("vejKode", parts[1]);
+            record.put("lokalitetsNavn", parts[2]);
+            record.put("lokalitetsKode", parts[3]);
+            return record;
+        }
+        return null;
     }
+
 
     @Transactional
-    public void pull(DataProviderEntity dataProviderEntity) {
-        File inputFile = new File("src/test/resources/grønlandLokaliteter.csv");
-        InputStream input = this.readFile(inputFile);
-
-        try {
-            String checksum = DigestUtils.md5Hex(input);
-            input.close();
-            input = this.readFile(inputFile);
-
-            String encoding = this.getEncoding();
-            if (encoding != null) {
-                System.out.println("Using explicit encoding " + encoding);
-            } else {
-                // Try to guess the encoding based on the stream contents
-                CharsetDetector detector = new CharsetDetector();
-                detector.setText(input);
-                CharsetMatch match = detector.detect();
-                if (match != null) {
-                    encoding = match.getName();
-                    System.out.println("Interpreting data as " + encoding);
-                } else {
-                    encoding = "UTF-8";
-                    System.out.println("Falling back to default encoding " + encoding);
-                }
-            }
-
-
-
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(input, encoding.toUpperCase()));
-
-            System.out.println("Reading data");
-            Date startTime = new Date();
-            int i = 0, j = 0;
-            createRegistreringEntities(dataProviderEntity);
-            for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-                if (line != null) {
-                    line = line.trim();
-                    String[] parts = line.split(",");
-                    if (parts.length >= 4) {
-                        try {
-                            int kommuneKode = Integer.parseInt(parts[0], 10);
-                            int vejKode = Integer.parseInt(parts[1], 10);
-                            String lokalitetsNavn = parts[2];
-                            int lokalitetsKode = Integer.parseInt(parts[3], 10);
-
-                            // Several input entries will share the same LokalitetEntity
-                            LokalitetEntity lokalitetEntity = lokalitetRepository.findByLokalitetsKode(lokalitetsKode);
-                            LokalitetVersionEntity lokalitetVersionEntity = null;
-                            if (lokalitetEntity == null) {
-                                lokalitetEntity = LokalitetEntity.create();
-                                lokalitetEntity.setLokalitetsKode(lokalitetsKode);
-                                lokalitetVersionEntity = lokalitetEntity.addVersion(createRegistrering);
-                            } else if (!lokalitetsNavn.equals(lokalitetEntity.getLatestVersion().getLokalitetsNavn())) {
-                                lokalitetVersionEntity = lokalitetEntity.addVersion(updateRegistrering);
-                            }
-                            // If there's anything to save, do it
-                            if (lokalitetVersionEntity != null) {
-                                lokalitetVersionEntity.setLokalitetsNavn(lokalitetsNavn);
-                                this.lokalitetRepository.save(lokalitetEntity);
-                            }
-
-
-                            // Refer to the new/updated entity
-                            KommunedelAfNavngivenVejEntity kommunedelAfNavngivenVejEntity = kommunedelAfNavngivenVejRepository.getByKommunekodeAndVejkode(kommuneKode, vejKode);
-                            if (kommunedelAfNavngivenVejEntity != null && lokalitetEntity != kommunedelAfNavngivenVejEntity.getLokalitet()) {
-                                kommunedelAfNavngivenVejEntity.setLokalitet(lokalitetEntity);
-                                kommunedelAfNavngivenVejRepository.save(kommunedelAfNavngivenVejEntity);
-                            }
-
-                            // Complain if we can't find any
-                            if (kommunedelAfNavngivenVejEntity == null) {
-                                System.out.println("No kommune for "+lokalitetsNavn+" (KommuneKode: "+kommuneKode+", VejKode: "+vejKode+" not found)");
-                            }
-
-                        } catch (NumberFormatException e) {
-
-                        }
-                    }
-                }
-            }
-
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void pull(boolean forceFetch, boolean forceParse, DataProviderEntity dataProviderEntity) {
+        super.pull(forceFetch, forceParse, dataProviderEntity);
     }
 
 
-    private int getInt(String value) {
-        try {
-            return Integer.parseInt(value, 10);
-        } catch (NumberFormatException e) {
-            return 0;
-        }
+    /*
+    * Database save
+    * */
+
+    @Autowired
+    private DawaModel model;
+
+     protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
+         GrRegisterRun grun = (GrRegisterRun) run;
+         this.model.resetVejstykkeCache();
+         this.model.resetLokalitetCache();
+
+         Level2Container<HashSet<RawVej>> lokalitetData = new Level2Container<HashSet<RawVej>>();
+         for (Record record : grun) {
+             GrLokalitetRecord gRecord = (GrLokalitetRecord) record;
+             int lokalitetsKode = gRecord.getInt("lokalitetsKode");
+             String lokalitetsNavn = gRecord.get("lokalitetsNavn");
+             int kommuneKode = gRecord.getInt("kommuneKode");
+             int vejKode = gRecord.getInt("vejKode");
+             HashSet<RawVej> veje = lokalitetData.get(kommuneKode, lokalitetsNavn);
+             if (veje == null) {
+                 veje = new HashSet<RawVej>();
+                 lokalitetData.put(kommuneKode, lokalitetsNavn, veje);
+             }
+             RawVej vej = new RawVej(kommuneKode, vejKode);
+             boolean contains = false;
+             for (RawVej v : veje) {
+                 if (vej.equals(v)) {
+                     contains = true;
+                 }
+             }
+             if (!contains) {
+                 veje.add(vej);
+             }
+         }
+         for (int kommuneKode : lokalitetData.intKeySet()) {
+             for (String lokalitetsNavn : lokalitetData.get(kommuneKode).keySet()) {
+                 HashSet<RawVej> veje = lokalitetData.get(kommuneKode, lokalitetsNavn);
+                 this.model.setLokalitet(kommuneKode, lokalitetsNavn, veje,
+                         this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
+                 );
+             }
+         }
     }
 }

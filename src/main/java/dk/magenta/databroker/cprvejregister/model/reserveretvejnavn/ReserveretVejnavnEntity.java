@@ -1,7 +1,8 @@
 package dk.magenta.databroker.cprvejregister.model.reserveretvejnavn;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
-import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
+import dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneEntity;
+import org.json.JSONObject;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -82,14 +83,21 @@ public class ReserveretVejnavnEntity
     * */
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    private KommuneEntity reserveretAfKommune;
+    private CprKommuneEntity reserveretAfKommune;
 
-    public KommuneEntity getReserveretAfKommune() {
+    public CprKommuneEntity getReserveretAfKommune() {
         return this.reserveretAfKommune;
     }
 
-    public void setReserveretAfKommune(KommuneEntity reserveretAfKommune) {
+    public void setReserveretAfKommune(CprKommuneEntity reserveretAfKommune) {
         this.reserveretAfKommune = reserveretAfKommune;
+    }
+
+    public String getTypeName() {
+        return "reserveretVejnavn";
+    }
+    public JSONObject toJSON() {
+        return new JSONObject();
     }
 
 }

@@ -4,12 +4,15 @@ import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.core.model.oio.RegistreringRepository;
 import dk.magenta.databroker.core.model.oio.VirkningEntity;
-import dk.magenta.databroker.cprvejregister.dataproviders.RegisterRun;
-import dk.magenta.databroker.cprvejregister.dataproviders.objectcontainers.Level2Container;
+import dk.magenta.databroker.dawa.model.DawaModel;
+import dk.magenta.databroker.register.RegisterRun;
+import dk.magenta.databroker.register.objectcontainers.EntityModificationCounter;
+import dk.magenta.databroker.register.objectcontainers.Level2Container;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
-import dk.magenta.databroker.cprvejregister.model.kommune.KommuneEntity;
-import dk.magenta.databroker.cprvejregister.model.kommune.KommuneRepository;
-import dk.magenta.databroker.cprvejregister.model.kommune.KommuneVersionEntity;
+import dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneEntity;
+import dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneRepository;
+import dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneVersionEntity;
+import dk.magenta.databroker.register.records.Record;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +26,7 @@ import java.util.*;
  * Created by lars on 04-11-14.
  */
 @Component
-public class MyndighedsRegister extends CprRegister {
+public class MyndighedsRegister extends CprSubRegister {
 
     public abstract class MyndighedsDataRecord extends CprRecord {
         public static final String RECORDTYPE_MYNDIGHED = "001";
@@ -89,17 +92,19 @@ public class MyndighedsRegister extends CprRegister {
             super();
             this.myndigheder = new Level2Container<Myndighed>();
         }
-        public boolean add(CprRecord record) {
-            if (record.getRecordType().equals(MyndighedsDataRecord.RECORDTYPE_MYNDIGHED)) {
-                Myndighed myndighed = (Myndighed) record;
-                String myndighedsType = myndighed.get("myndighedsType");
-                String myndighedsKode = myndighed.get("myndighedsKode");
-                if (!myndigheder.put(myndighedsType, myndighedsKode, myndighed, true)) {
-                    System.out.println("Collision on myndighedsType "+myndighedsType+", myndighedsKode "+myndighedsKode+" ("+myndigheder.get(myndighedsType, myndighedsKode).get("myndighedsNavn")+" vs "+myndighed.get("myndighedsNavn")+")");
-                }
-                return super.add(myndighed);
+        public boolean add(Record record) {
+            if (record.getClass() == Myndighed.class) {
+                return this.add((Myndighed) record);
             }
             return false;
+        }
+        public boolean add(Myndighed myndighed) {
+            String myndighedsType = myndighed.get("myndighedsType");
+            String myndighedsKode = myndighed.get("myndighedsKode");
+            if (!this.myndigheder.put(myndighedsType, myndighedsKode, myndighed, true)) {
+                System.err.println("Collision on myndighedsType "+myndighedsType+", myndighedsKode "+myndighedsKode+" ("+myndigheder.get(myndighedsType, myndighedsKode).get("myndighedsNavn")+" vs "+myndighed.get("myndighedsNavn")+")");
+            }
+            return super.add(myndighed);
         }
 
         public Myndighed getMyndighed(String myndighedsType, String myndighedsKode) {
@@ -120,9 +125,6 @@ public class MyndighedsRegister extends CprRegister {
     }
 
     //------------------------------------------------------------------------------------------------------------------
-    //@SuppressWarnings("SpringJavaAutowiringInspection")
-    //@Autowired
-    //private KommuneRepository kommuneRepository;
 
     public MyndighedsRegister() {
     }
@@ -159,67 +161,31 @@ public class MyndighedsRegister extends CprRegister {
     }
 
 
-
-
-    @Autowired
-    private KommuneRepository kommuneRepository;
-
+    //@Autowired
+    //private RegistreringRepository registreringRepository;
 
     @Autowired
-    private RegistreringRepository registreringRepository;
+    private DawaModel model;
 
     protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
-
-        RegistreringEntity createRegistrering = registreringRepository.createNew(dataProviderEntity);
-        RegistreringEntity updateRegistrering = registreringRepository.createUpdate(dataProviderEntity);
-
-
-        if (kommuneRepository == null) {
-            System.err.println("Insufficient repositories");
-            return;
-        }
         System.out.println("Storing KommuneEntities in database");
         MyndighedsRegisterRun mrun = (MyndighedsRegisterRun) run;
+        System.out.println("mrun size: "+mrun.size());
         List<Myndighed> kommuner = mrun.getMyndigheder("5");
         EntityModificationCounter counter = new EntityModificationCounter();
 
         for (Myndighed kommune : kommuner) {
             int kommuneKode = kommune.getInt("myndighedsKode");
             String kommuneNavn = kommune.get("myndighedsNavn");
-            KommuneEntity kommuneEntity = kommuneRepository.getByKommunekode(kommuneKode);
-
-            List<VirkningEntity> virkninger = new ArrayList<VirkningEntity>(); // TODO: Populate this list
-
-            KommuneVersionEntity kommuneVersion = null;
-            if (kommuneEntity == null) {
-                kommuneEntity = KommuneEntity.create();
-                kommuneEntity.setKommunekode(kommuneKode);
-                kommuneVersion = kommuneEntity.addVersion(createRegistrering, virkninger);
-                counter.countCreatedItem();
-            } else if (!kommuneEntity.getLatestVersion().getNavn().equals(kommuneNavn)) {
-                kommuneVersion = kommuneEntity.addVersion(updateRegistrering, virkninger);
-                counter.countUpdatedItem();
-            }
-
-            if (kommuneVersion != null) {
-                kommuneVersion.setNavn(kommuneNavn);
-                kommuneRepository.save(kommuneEntity);
-            }
-
-
+            model.setKommune(
+                    kommuneKode, kommuneNavn,
+                    this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
+            );
             mrun.printInputProcessed();
         }
         mrun.printFinalInputsProcessed();
-        kommuneRepository.flush();
         System.out.println("Stored KommuneEntities in database:");
         counter.printModifications();
-    }
-
-    public static void main(String[] args) {
-        MyndighedsRegister register = new MyndighedsRegister();
-        DataProviderEntity dataProviderEntity = new DataProviderEntity();
-        dataProviderEntity.setUuid(UUID.randomUUID().toString());
-        register.pull(dataProviderEntity);
     }
 
 }

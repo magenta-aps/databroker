@@ -2,6 +2,9 @@ package dk.magenta.databroker.core.model;
 
 import dk.magenta.databroker.core.DataProvider;
 import dk.magenta.databroker.core.DataProviderRegistry;
+import dk.magenta.databroker.core.model.oio.RegistreringEntity;
+import dk.magenta.databroker.core.model.oio.RegistreringRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpRequest;
 
 import javax.persistence.*;

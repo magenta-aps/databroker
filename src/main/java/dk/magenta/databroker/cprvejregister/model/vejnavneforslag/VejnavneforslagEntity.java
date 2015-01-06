@@ -3,6 +3,7 @@ package dk.magenta.databroker.cprvejregister.model.vejnavneforslag;
 import dk.magenta.databroker.core.model.oio.UniqueBase;
 import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
 import org.hibernate.annotations.Index;
+import org.json.JSONObject;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -47,4 +48,11 @@ public class VejnavneforslagEntity extends UniqueBase implements Serializable {
         this.navngivenVej = navngivenVej;
     }
 
+
+    public String getTypeName() {
+        return "vejnavneForslag";
+    }
+    public JSONObject toJSON() {
+        return new JSONObject();
+    }
 }

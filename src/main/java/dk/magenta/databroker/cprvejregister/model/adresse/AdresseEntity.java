@@ -2,12 +2,14 @@ package dk.magenta.databroker.cprvejregister.model.adresse;
 
 import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
+import dk.magenta.databroker.register.objectcontainers.StringList;
 import dk.magenta.databroker.cprvejregister.model.doerpunkt.DoerpunktEntity;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
+import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
+import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerEntity;
 import org.json.JSONObject;
 
 import javax.persistence.*;
-import javax.xml.soap.Node;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPEnvelope;
 import javax.xml.soap.SOAPException;
@@ -102,30 +104,73 @@ public class AdresseEntity
         this.doerPunkt = doerPunkt;
     }
 
+    public NavngivenVejEntity getNavngivenVej() {
+        return this.getHusnummer().getNavngivenVej();
+    }
+
+    public PostnummerEntity getPostnummer() {
+        return this.getHusnummer().getPostNummer();
+    }
+
+
+    public String getAdresseBetegnelse() {
+        StringList stringList = new StringList();
+        stringList.append(this.getNavngivenVej().getLatestVersion().getVejnavn());
+        stringList.append(" "+this.getHusnummer().getHusnummerbetegnelse());
+        String etage = this.getLatestVersion().getEtageBetegnelse();
+        if (etage != null && !etage.isEmpty()) {
+            stringList.append(", "+etage+".");
+        }
+        String doer = this.getLatestVersion().getDoerBetegnelse();
+        if (doer != null && !doer.isEmpty()) {
+            stringList.append(" "+doer);
+        }
+
+        PostnummerEntity postnummerEntity = this.getPostnummer();
+        if (postnummerEntity != null) {
+            stringList.append(", "+postnummerEntity.getNummer()+" ");
+            stringList.append(postnummerEntity.getLatestVersion().getNavn());
+        }
+        return stringList.join().trim();
+    }
+
     //------------------------------------------------------------------------------------------------------------------
+
+
+    public String getTypeName() {
+        return "adresse";
+    }
 
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
-        obj.put("vejnavn", this.getHusnummer().getNavngivenVej().getLatestVersion().getVejnavn());
-        obj.put("husnr", this.getHusnummer().getHusnummerbetegnelse());
+        obj.put("id", this.getUuid());
         obj.put("etage", this.getLatestVersion().getEtageBetegnelse());
         obj.put("doer", this.getLatestVersion().getDoerBetegnelse());
-        /*obj.put("postnr", this.getAdgangspunkt().getLatestVersion().getLiggerIPostnummer().getNummer());*/
+        obj.put("adressebetegnelse", this.getAdresseBetegnelse());
         return obj;
     }
 
-    public Node toXML(SOAPElement parent, SOAPEnvelope envelope) {
+    public JSONObject toFullJSON() {
+        JSONObject obj = this.toJSON();
+        obj.put("husnr", this.getHusnummer().toJSON());
+        return obj;
+    }
+
+    public SOAPElement toXML(SOAPElement parent, SOAPEnvelope envelope) {
         try {
-            SOAPElement node = parent.addChildElement("vej");
-            node.addAttribute(envelope.createName("vejnavn"), this.getHusnummer().getNavngivenVej().getLatestVersion().getVejnavn());
-            node.addAttribute(envelope.createName("husnr"), this.getHusnummer().getHusnummerbetegnelse());
+            SOAPElement node = parent.addChildElement("adresse");
             node.addAttribute(envelope.createName("etage"), this.getLatestVersion().getEtageBetegnelse());
             node.addAttribute(envelope.createName("doer"), this.getLatestVersion().getDoerBetegnelse());
-            /*node.addAttribute(envelope.createName("postnr"), ""+this.getAdgangspunkt().getLatestVersion().getLiggerIPostnummer().getNummer());*/
+            node.addAttribute(envelope.createName("adressebetegnelse"), this.getAdresseBetegnelse());
             return node;
         } catch (SOAPException e) {
             e.printStackTrace();
             return null;
         }
+    }
+    public SOAPElement toFullXML(SOAPElement parent, SOAPEnvelope envelope) {
+        SOAPElement node = this.toXML(parent, envelope);
+        this.getHusnummer().toXML(node, envelope);
+        return node;
     }
 }

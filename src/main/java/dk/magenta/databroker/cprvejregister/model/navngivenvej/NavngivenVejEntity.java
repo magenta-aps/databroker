@@ -163,24 +163,55 @@ public class NavngivenVejEntity
 
     //------------------------------------------------------------------------------------------------------------------
 
+
+    public String getTypeName() {
+        return "navngivenVej";
+    }
+
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
+        obj.put("id", this.getUuid());
         obj.put("navn", this.getLatestVersion().getVejnavn());
+        return obj;
+    }
+
+    public JSONObject toFullJSON() {
+        JSONObject obj = this.toJSON();
         JSONArray delveje = new JSONArray();
         for (KommunedelAfNavngivenVejEntity kommunedelAfNavngivenVejEntity : this.getLatestVersion().getKommunedeleAfNavngivenVej()) {
-            delveje.put(kommunedelAfNavngivenVejEntity.toJSON());
+            JSONObject delvej = kommunedelAfNavngivenVejEntity.toJSON();
+            delvej.put("kommune", kommunedelAfNavngivenVejEntity.getKommune().toJSON());
+            if (kommunedelAfNavngivenVejEntity.getLokalitet() != null) {
+                delvej.put("lokalitet", kommunedelAfNavngivenVejEntity.getLokalitet().toJSON());
+            }
+            delveje.put(delvej);
         }
         obj.put("delveje", delveje);
         return obj;
     }
 
-    public Node toXML(SOAPElement parent, SOAPEnvelope envelope) {
+    public SOAPElement toXML(SOAPElement parent, SOAPEnvelope envelope) {
         try {
             SOAPElement node = parent.addChildElement("vej");
             node.addAttribute(envelope.createName("navn"), this.getLatestVersion().getVejnavn());
+            return node;
+        } catch (SOAPException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public SOAPElement toFullXML(SOAPElement parent, SOAPEnvelope envelope) {
+        try {
+            SOAPElement node = this.toXML(parent, envelope);
             SOAPElement delveje = node.addChildElement("delveje");
             for (KommunedelAfNavngivenVejEntity kommunedelAfNavngivenVejEntity : this.getLatestVersion().getKommunedeleAfNavngivenVej()) {
-                delveje.addChildElement((SOAPElement) kommunedelAfNavngivenVejEntity.toXML(delveje, envelope));
+                SOAPElement delvej = kommunedelAfNavngivenVejEntity.toXML(delveje, envelope);
+                kommunedelAfNavngivenVejEntity.getKommune().toXML(delvej, envelope);
+                if (kommunedelAfNavngivenVejEntity.getLokalitet() != null) {
+                    kommunedelAfNavngivenVejEntity.getLokalitet().toXML(delvej, envelope);
+                }
+                delveje.addChildElement(delvej);
             }
             return node;
         } catch (SOAPException e) {

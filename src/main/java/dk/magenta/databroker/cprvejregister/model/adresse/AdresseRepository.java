@@ -1,6 +1,6 @@
 package dk.magenta.databroker.cprvejregister.model.adresse;
 
-import dk.magenta.databroker.cprvejregister.model.GlobalCondition;
+import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -30,5 +30,7 @@ public interface AdresseRepository extends JpaRepository<AdresseEntity, Long> {
     public Collection<AdresseEntity> findByKommuneNavn(@Param("kommuneNavn") String kommuneNavn);
 
 
-    public Collection<AdresseEntity> search(String kommune, String vej, String postnr, String husnr, String etage, String doer, GlobalCondition globalCondition);
+    public Collection<AdresseEntity> search(String land, String[] kommune, String[] vej, String[] postnr, String[] husnr, String[] etage, String[] doer, GlobalCondition globalCondition);
+
+    public AdresseEntity findByUuid(String UUID);
 }
