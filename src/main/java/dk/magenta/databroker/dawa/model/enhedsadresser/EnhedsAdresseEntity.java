@@ -18,19 +18,17 @@ import java.util.Collection;
 @Entity
 @Table(name = "dawa_enhedsadresse")
 public class EnhedsAdresseEntity extends DobbeltHistorikBase<EnhedsAdresseEntity, EnhedsAdresseVersionEntity> {
-    @OneToMany(mappedBy="entity")
-    private Collection<EnhedsAdresseVersionEntity> versioner;
-
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private EnhedsAdresseVersionEntity latestVersion;
-
-    @OneToOne
-    private EnhedsAdresseVersionEntity preferredVersion;
 
     public EnhedsAdresseEntity() {
         this.versioner = new ArrayList<EnhedsAdresseVersionEntity>();
         this.generateNewUUID();
     }
+
+    //------------------------------------------------------------------------------------------------------------------
+    /* Versioning */
+
+    @OneToMany(mappedBy="entity")
+    private Collection<EnhedsAdresseVersionEntity> versioner;
 
     @Override
     public Collection<EnhedsAdresseVersionEntity> getVersioner() {
@@ -40,6 +38,11 @@ public class EnhedsAdresseEntity extends DobbeltHistorikBase<EnhedsAdresseEntity
     public void setVersioner(Collection<EnhedsAdresseVersionEntity> versioner) {
         this.versioner = versioner;
     }
+
+    //----------------------------------------------------
+
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private EnhedsAdresseVersionEntity latestVersion;
 
     @Override
     public EnhedsAdresseVersionEntity getLatestVersion() {
@@ -51,6 +54,11 @@ public class EnhedsAdresseEntity extends DobbeltHistorikBase<EnhedsAdresseEntity
         this.latestVersion = latestVersion;
     }
 
+    //----------------------------------------------------
+
+    @OneToOne
+    private EnhedsAdresseVersionEntity preferredVersion;
+
     @Override
     public EnhedsAdresseVersionEntity getPreferredVersion() {
         return preferredVersion;
@@ -61,11 +69,14 @@ public class EnhedsAdresseEntity extends DobbeltHistorikBase<EnhedsAdresseEntity
         this.preferredVersion = preferredVersion;
     }
 
+    //----------------------------------------------------
+
     @Override
     protected EnhedsAdresseVersionEntity createVersionEntity() {
         return new EnhedsAdresseVersionEntity(this);
     }
 
+    //------------------------------------------------------------------------------------------------------------------
 
     public String getTypeName() {
         return "enhedsAdresse";

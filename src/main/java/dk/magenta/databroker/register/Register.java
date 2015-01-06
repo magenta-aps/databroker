@@ -8,13 +8,11 @@ import dk.magenta.databroker.core.model.DataProviderStorageEntity;
 import dk.magenta.databroker.core.model.DataProviderStorageRepository;
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.core.model.oio.RegistreringRepository;
-import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.register.records.Record;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
@@ -25,7 +23,6 @@ import java.nio.file.StandardCopyOption;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.UUID;
 
 /**
  * Created by lars on 15-12-14.
@@ -36,6 +33,7 @@ public abstract class Register extends DataProvider {
     private static final File cacheDir = new File("cache/");
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private DataProviderStorageRepository dataProviderStorageRepository;
 
 
@@ -79,6 +77,7 @@ public abstract class Register extends DataProvider {
     * Registration
     * */
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private RegistreringRepository registreringRepository;
 
     private RegistreringEntity createRegistrering;

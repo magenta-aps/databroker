@@ -15,6 +15,16 @@ import javax.persistence.Table;
 @Table(name = "dawa_enhedsadresse_version")
 public class EnhedsAdresseVersionEntity
         extends DobbeltHistorikVersion<EnhedsAdresseEntity, EnhedsAdresseVersionEntity> {
+
+    public EnhedsAdresseVersionEntity() {
+    }
+
+    public EnhedsAdresseVersionEntity(EnhedsAdresseEntity entitet) {
+        super(entitet);
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
     @ManyToOne(optional = false)
     private EnhedsAdresseEntity entity;
 
@@ -28,24 +38,10 @@ public class EnhedsAdresseVersionEntity
         this.entity = entity;
     }
 
-    public EnhedsAdresseVersionEntity() {
-    }
-
-    public EnhedsAdresseVersionEntity(EnhedsAdresseEntity entitet) {
-        super(entitet);
-    }
+    //------------------------------------------------------------------------------------------------------------------
 
     @ManyToOne(optional = false)
     private AdgangsAdresseEntity adgangsadresse;
-
-    // TODO: type?
-    private String objekttype;
-
-    @Column
-    private String etage;
-
-    @Column
-    private String doer;
 
     public AdgangsAdresseEntity getAdgangsadresse() {
         return adgangsadresse;
@@ -55,6 +51,11 @@ public class EnhedsAdresseVersionEntity
         this.adgangsadresse = adgangsAdresse;
     }
 
+    //----------------------------------------------------
+
+    // TODO: type?
+    private String objekttype;
+
     public String getObjekttype() {
         return objekttype;
     }
@@ -63,6 +64,11 @@ public class EnhedsAdresseVersionEntity
         this.objekttype = objekttype;
     }
 
+    //----------------------------------------------------
+
+    @Column
+    private String etage;
+
     public String getEtage() {
         return etage;
     }
@@ -70,6 +76,11 @@ public class EnhedsAdresseVersionEntity
     public void setEtage(String etage) {
         this.etage = etage;
     }
+
+    //----------------------------------------------------
+
+    @Column
+    private String doer;
 
     public String getDoer() {
         return doer;

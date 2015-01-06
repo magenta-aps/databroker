@@ -15,14 +15,9 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "dawa_supplerende_bynavn")
 public class SupplerendeByNavnEntity extends UniqueBase {
+
     @Column
     private String supplerendeByNavn;
-
-    @Column
-    private int kommunekode;
-
-    @OneToOne
-    private PostNummerEntity postnummer;
 
     public String getSupplerendeByNavn() {
         return supplerendeByNavn;
@@ -32,6 +27,11 @@ public class SupplerendeByNavnEntity extends UniqueBase {
         this.supplerendeByNavn = supplerendeByNavn;
     }
 
+    //----------------------------------------------------
+
+    @Column
+    private int kommunekode;
+
     public int getKommunekode() {
         return kommunekode;
     }
@@ -39,6 +39,11 @@ public class SupplerendeByNavnEntity extends UniqueBase {
     public void setKommunekode(int kommunekode) {
         this.kommunekode = kommunekode;
     }
+
+    //----------------------------------------------------
+
+    @OneToOne
+    private PostNummerEntity postnummer;
 
     public PostNummerEntity getPostnummer() {
         return postnummer;
@@ -48,10 +53,12 @@ public class SupplerendeByNavnEntity extends UniqueBase {
         this.postnummer = postnummer;
     }
 
+    //------------------------------------------------------------------------------------------------------------------
 
     public String getTypeName() {
         return "supplerendeBynavn";
     }
+
     public JSONObject toJSON() {
         return new JSONObject();
     }

@@ -13,14 +13,11 @@ import java.util.Collection;
 @Entity
 @Table(name = "dawa_ejerlav")
 public class EjerLavEntity extends DobbeltHistorikBase<EjerLavEntity, EjerLavVersionEntity> {
+
+    //------------------------------------------------------------------------------------------------------------------
+
     @OneToMany(mappedBy="entity")
     private Collection<EjerLavVersionEntity> versioner;
-
-    @OneToOne
-    private EjerLavVersionEntity latestVersion;
-
-    @OneToOne
-    private EjerLavVersionEntity preferredVersion;
 
     public Collection<EjerLavVersionEntity> getVersioner() {
         return versioner;
@@ -30,6 +27,11 @@ public class EjerLavEntity extends DobbeltHistorikBase<EjerLavEntity, EjerLavVer
         this.versioner = versioner;
     }
 
+    //----------------------------------------------------
+
+    @OneToOne
+    private EjerLavVersionEntity latestVersion;
+
     public EjerLavVersionEntity getLatestVersion() {
         return latestVersion;
     }
@@ -37,6 +39,11 @@ public class EjerLavEntity extends DobbeltHistorikBase<EjerLavEntity, EjerLavVer
     public void setLatestVersion(EjerLavVersionEntity latestVersion) {
         this.latestVersion = latestVersion;
     }
+
+    //----------------------------------------------------
+
+    @OneToOne
+    private EjerLavVersionEntity preferredVersion;
 
     public EjerLavVersionEntity getPreferredVersion() {
         return preferredVersion;
@@ -46,12 +53,16 @@ public class EjerLavEntity extends DobbeltHistorikBase<EjerLavEntity, EjerLavVer
         this.preferredVersion = preferredVersion;
     }
 
+    //----------------------------------------------------
+
     @Override
     protected EjerLavVersionEntity createVersionEntity() {
         return new EjerLavVersionEntity(this);
     }
 
+    //------------------------------------------------------------------------------------------------------------------
     /* Domain specific fields */
+
     @OneToMany(mappedBy = "ejerlav")
     private Collection<AdgangsAdresseVersionEntity> adgangsAdresseVersioner;
 
@@ -63,10 +74,12 @@ public class EjerLavEntity extends DobbeltHistorikBase<EjerLavEntity, EjerLavVer
         this.adgangsAdresseVersioner = adgangsAdresseVersioner;
     }
 
+    //------------------------------------------------------------------------------------------------------------------
 
     public String getTypeName() {
         return "ejerlav";
     }
+
     public JSONObject toJSON() {
         return new JSONObject();
     }

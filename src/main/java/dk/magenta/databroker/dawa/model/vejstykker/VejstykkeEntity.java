@@ -7,6 +7,7 @@ import dk.magenta.databroker.dawa.model.lokalitet.LokalitetEntity;
 import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
 import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.service.rest.SearchService;
+import org.hibernate.annotations.Index;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -22,21 +23,16 @@ import java.util.HashSet;
 @Table(name = "dawa_vejstykke")
 public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, VejstykkeVersionEntity> {
 
-    @OneToMany(mappedBy = "entity", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Collection<VejstykkeVersionEntity> versioner;
-
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private VejstykkeVersionEntity latestVersion;
-
-    @OneToOne
-    private VejstykkeVersionEntity preferredVersion;
-
-
     public VejstykkeEntity() {
         this.versioner = new ArrayList<VejstykkeVersionEntity>();
         this.adgangsAdresser = new HashSet<AdgangsAdresseEntity>();
         this.generateNewUUID();
     }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    @OneToMany(mappedBy = "entity", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Collection<VejstykkeVersionEntity> versioner;
 
     @Override
     public Collection<VejstykkeVersionEntity> getVersioner() {
@@ -46,6 +42,11 @@ public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, Vejsty
     public void setVersioner(Collection<VejstykkeVersionEntity> versioner) {
         this.versioner = versioner;
     }
+
+    //----------------------------------------------------
+
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private VejstykkeVersionEntity latestVersion;
 
     @Override
     public VejstykkeVersionEntity getLatestVersion() {
@@ -57,6 +58,11 @@ public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, Vejsty
         this.latestVersion = latestVersion;
     }
 
+    //----------------------------------------------------
+
+    @OneToOne
+    private VejstykkeVersionEntity preferredVersion;
+
     @Override
     public VejstykkeVersionEntity getPreferredVersion() {
         return preferredVersion;
@@ -67,20 +73,19 @@ public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, Vejsty
         this.preferredVersion = preferredVersion;
     }
 
+    //----------------------------------------------------
+
     @Override
     protected VejstykkeVersionEntity createVersionEntity() {
         return new VejstykkeVersionEntity(this);
     }
 
+    //------------------------------------------------------------------------------------------------------------------
     /* Domain specific fields */
 
     @Column
+    @Index(name="kode")
     private int kode;
-
-    @ManyToOne
-    private KommuneEntity kommune;
-
-
 
     public int getKode() {
         return kode;
@@ -89,6 +94,11 @@ public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, Vejsty
     public void setKode(int kode) {
         this.kode = kode;
     }
+
+    //----------------------------------------------------
+
+    @ManyToOne
+    private KommuneEntity kommune;
 
     public KommuneEntity getKommune() {
         return kommune;
@@ -113,13 +123,12 @@ public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, Vejsty
     public void addAdgangsAdresse(AdgangsAdresseEntity adgangsAdresse) {
         this.adgangsAdresser.add(adgangsAdresse);
     }
+
     public void removeAdgangsAdresse(AdgangsAdresseEntity adgangsAdresse) {
         this.adgangsAdresser.remove(adgangsAdresse);
     }
 
-    //----------------------------------------------------
-
-
+    //------------------------------------------------------------------------------------------------------------------
 
     public String getTypeName() {
         return "vejstykke";

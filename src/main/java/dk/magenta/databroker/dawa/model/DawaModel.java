@@ -2,7 +2,6 @@ package dk.magenta.databroker.dawa.model;
 
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.core.model.oio.VirkningEntity;
-import dk.magenta.databroker.cprvejregister.dataproviders.registers.LokalitetsRegister;
 import dk.magenta.databroker.dawa.model.lokalitet.LokalitetEntity;
 import dk.magenta.databroker.dawa.model.lokalitet.LokalitetRepository;
 import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseEntity;
@@ -40,6 +39,7 @@ public class DawaModel {
 
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private KommuneRepository kommuneRepository;
 
     private Level1Container<KommuneEntity> kommuneCache = null;
@@ -103,6 +103,7 @@ public class DawaModel {
 
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private VejstykkeRepository vejstykkeRepository;
 
     private Level2Container<VejstykkeEntity> vejstykkeCache = null;
@@ -217,6 +218,7 @@ public class DawaModel {
 
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private PostNummerRepository postNummerRepository;
 
     private Level1Container<PostNummerEntity> postNummerCache = null;
@@ -290,6 +292,7 @@ public class DawaModel {
                 }
             }
 
+            // TODO: consider putting this logic into the entity class, exposing just setter methods and handling versioning from there
             if (postNummerVersionEntity.getNr() != nummer ||
                     postNummerVersionEntity.getNavn() == null || !postNummerVersionEntity.getNavn().equals(navn) ||
                     !allHaveThisPostnr ||
@@ -370,9 +373,11 @@ public class DawaModel {
     //------------------------------------------------------------------------------------------------------------------
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private AdgangsAdresseRepository adgangsAdresseRepository;
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private EnhedsAdresseRepository enhedsAdresseRepository;
 
 
@@ -496,6 +501,7 @@ public class DawaModel {
 
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private LokalitetRepository lokalitetRepository;
 
     public void setLokalitet(int kommuneKode, String lokalitetsnavn, Set<RawVej> veje,

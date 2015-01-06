@@ -13,6 +13,16 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "dawa_ejerlav_version")
 public class EjerLavVersionEntity extends DobbeltHistorikVersion<EjerLavEntity, EjerLavVersionEntity> {
+
+    public EjerLavVersionEntity() {
+    }
+
+    public EjerLavVersionEntity(EjerLavEntity entitet) {
+        super(entitet);
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
     @ManyToOne(optional = false)
     private EjerLavEntity entity;
 
@@ -26,19 +36,10 @@ public class EjerLavVersionEntity extends DobbeltHistorikVersion<EjerLavEntity, 
         this.entity = entity;
     }
 
-    public EjerLavVersionEntity() {
-
-    }
-
-    public EjerLavVersionEntity(EjerLavEntity entitet) {
-        super(entitet);
-    }
-
+    //------------------------------------------------------------------------------------------------------------------
 
     @Column
     private int kode;
-    @Column
-    private String navn;
 
     public int getKode() {
         return kode;
@@ -48,6 +49,11 @@ public class EjerLavVersionEntity extends DobbeltHistorikVersion<EjerLavEntity, 
         this.kode = kode;
     }
 
+    //----------------------------------------------------
+
+    @Column
+    private String navn;
+
     public String getNavn() {
         return navn;
     }
@@ -55,4 +61,5 @@ public class EjerLavVersionEntity extends DobbeltHistorikVersion<EjerLavEntity, 
     public void setNavn(String navn) {
         this.navn = navn;
     }
+
 }

@@ -20,20 +20,17 @@ import java.util.Collection;
 @Table(name = "dawa_adgangsadresse")
 public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEntity, AdgangsAdresseVersionEntity> {
 
-    @OneToMany(mappedBy="entity")
-    private Collection<AdgangsAdresseVersionEntity> versioner;
-
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private AdgangsAdresseVersionEntity latestVersion;
-
-    @OneToOne
-    private AdgangsAdresseVersionEntity preferredVersion;
-
     public AdgangsAdresseEntity() {
         this.versioner = new ArrayList<AdgangsAdresseVersionEntity>();
         this.enhedsAdresseVersioner = new ArrayList<EnhedsAdresseVersionEntity>();
         this.generateNewUUID();
     }
+
+    //------------------------------------------------------------------------------------------------------------------
+    /* Versioning */
+
+    @OneToMany(mappedBy="entity")
+    private Collection<AdgangsAdresseVersionEntity> versioner;
 
     @Override
     public Collection<AdgangsAdresseVersionEntity> getVersioner() {
@@ -43,6 +40,11 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
     public void setVersioner(Collection<AdgangsAdresseVersionEntity> versioner) {
         this.versioner = versioner;
     }
+
+    //----------------------------------------------------
+
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private AdgangsAdresseVersionEntity latestVersion;
 
     @Override
     public AdgangsAdresseVersionEntity getLatestVersion() {
@@ -54,6 +56,11 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
         this.latestVersion = latestVersion;
     }
 
+    //----------------------------------------------------
+
+    @OneToOne
+    private AdgangsAdresseVersionEntity preferredVersion;
+
     @Override
     public AdgangsAdresseVersionEntity getPreferredVersion() {
         return preferredVersion;
@@ -64,13 +71,15 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
         this.preferredVersion = preferredVersion;
     }
 
+    //----------------------------------------------------
+
     @Override
     protected AdgangsAdresseVersionEntity createVersionEntity() {
         return new AdgangsAdresseVersionEntity(this);
     }
 
+    //------------------------------------------------------------------------------------------------------------------
     /* Domain specific fields */
-
 
     @OneToOne(mappedBy = "adgangsadresse")
     private StormodtagerEntity stormodtager;
@@ -83,7 +92,7 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
         this.stormodtager = stormodtager;
     }
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------
 
     @OneToMany(mappedBy = "adgangsadresse")
     private Collection<EnhedsAdresseVersionEntity> enhedsAdresseVersioner;
@@ -96,7 +105,7 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
         this.enhedsAdresseVersioner = enhedsAdresseVersioner;
     }
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------
 
     @ManyToOne(optional = false)
     private VejstykkeEntity vejstykke;
@@ -109,7 +118,7 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
         this.vejstykke = vejstykke;
     }
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------
 
     @Column(nullable = false)
     private String husnr;

@@ -14,18 +14,23 @@ import org.springframework.transaction.annotation.Transactional;
 public class CprRegister extends Register {
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private VejRegister vejRegister;
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private MyndighedsRegister myndighedsRegister;
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private LokalitetsRegister lokalitetsRegister;
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private PostnummerRegister postnummerRegister;
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private BynavnRegister bynavnRegister;
 
     public CprRegister() {
