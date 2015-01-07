@@ -7,19 +7,9 @@ import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.register.objectcontainers.*;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.CprRecord;
 import dk.magenta.databroker.register.records.Record;
-import dk.magenta.databroker.cprvejregister.model.PostnummerModel;
-import dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktEntity;
-import dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktVersionEntity;
-import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
-import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
-import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
-import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejRepository;
-import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerEntity;
-import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.POST;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
@@ -140,6 +130,7 @@ public class PostnummerRegister extends CprSubRegister {
     * */
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private DawaModel model;
 
     /*
@@ -167,21 +158,6 @@ public class PostnummerRegister extends CprSubRegister {
                     RawVej rawVej = new RawVej(kommuneKode, vejKode);
                     rawVej.setRange(husnrFra, husnrTil);
                     veje.add(rawVej);
-
-                    /*for (String nummer2 : prun.getPostnumre().keySet()) {
-                        if (!nummer.equals(nummer2)) {
-                            ArrayList<PostNummer> postnummerRecords2 = prun.getPostnumre().get(nummer2);
-                            for (PostNummer postNummer2 : postnummerRecords2) {
-                                int kommuneKode2 = postNummer2.getInt("kommuneKode");
-                                int vejKode2 = postNummer2.getInt("vejKode");
-                                if (kommuneKode == kommuneKode2 && vejKode == vejKode2) {
-                                    System.out.println("Collision! Both postnummer "+nummer+"/"+postNummer.getInt("husNrFra")+"-"+postNummer.getInt("husNrTil")+" and "+nummer2+"/"+postNummer2.getInt("husNrFra")+"-"+postNummer2.getInt("husNrTil")+" claim road "+kommuneKode+":"+vejKode+" ("+this.model.getVejstykke(kommuneKode, vejKode).getLatestVersion().getVejnavn()+")");
-                                }
-                            }
-
-                        }
-                    }*/
-
                 }
 
                 model.setPostNummer(

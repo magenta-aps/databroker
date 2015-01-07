@@ -1,10 +1,7 @@
 package dk.magenta.databroker.dawa.model.temaer;
 
-import dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneEntity;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
 

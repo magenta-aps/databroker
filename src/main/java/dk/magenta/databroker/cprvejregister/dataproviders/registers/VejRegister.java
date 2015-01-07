@@ -1,6 +1,5 @@
 package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
-import dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneEntity;
 import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.dawa.model.RawVej;
 import dk.magenta.databroker.register.RegisterRun;
@@ -9,7 +8,6 @@ import dk.magenta.databroker.register.objectcontainers.*;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.CprRecord;
 import dk.magenta.databroker.register.records.Record;
-import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -331,8 +329,6 @@ public class VejRegister extends CprSubRegister {
         private Level2Container<AktivVej> aktiveVeje;
         private EntityModificationCounter delvejCounter;
         private EntityModificationCounter navngivenvejCounter;
-        private Level2Container<KommunedelAfNavngivenVejEntity> kommunedelAfNavngivenVejCache = null;
-        private Level1Container<CprKommuneEntity> kommuneCache = null;
         private ArrayList<PostDistrikt> postDistrikter;
 
         private ArrayList<Bolig> boliger;

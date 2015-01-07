@@ -1,21 +1,9 @@
 package dk.magenta.databroker.service.rest;
 
 import dk.magenta.databroker.core.model.OutputFormattable;
-import dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneEntity;
-import dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneRepository;
 import dk.magenta.databroker.dawa.model.DawaModel;
-import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
 import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
-import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
-import dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity;
-import dk.magenta.databroker.cprvejregister.model.adresse.AdresseRepository;
-import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity;
-import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerRepository;
-import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity;
-import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejRepository;
-import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerEntity;
-import dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerRepository;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +44,7 @@ public class SearchService {
     }
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private DawaModel model;
 
 

@@ -9,9 +9,6 @@ import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.register.objectcontainers.EntityModificationCounter;
 import dk.magenta.databroker.register.objectcontainers.Level2Container;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
-import dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneEntity;
-import dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneRepository;
-import dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneVersionEntity;
 import dk.magenta.databroker.register.records.Record;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -165,6 +162,7 @@ public class MyndighedsRegister extends CprSubRegister {
     //private RegistreringRepository registreringRepository;
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private DawaModel model;
 
     protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {

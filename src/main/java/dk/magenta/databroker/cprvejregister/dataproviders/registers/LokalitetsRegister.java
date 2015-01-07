@@ -4,11 +4,6 @@ import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
-import dk.magenta.databroker.cprvejregister.model.AdresseModel;
-import dk.magenta.databroker.cprvejregister.model.adresse.AdresseRepository;
-import dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerRepository;
-import dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejRepository;
-import dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejRepository;
 import dk.magenta.databroker.register.objectcontainers.EntityModificationCounter;
 import dk.magenta.databroker.register.objectcontainers.InputProcessingCounter;
 import dk.magenta.databroker.register.records.Record;
@@ -18,8 +13,6 @@ import org.springframework.stereotype.Component;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by lars on 04-11-14.
@@ -115,6 +108,7 @@ public class LokalitetsRegister extends CprSubRegister {
 
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private DawaModel model;
 
     protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {

@@ -27,31 +27,6 @@
         <mapping class="dk.magenta.databroker.core.model.UpdateLogEntryEntity"/>
         <mapping class="dk.magenta.databroker.core.model.UpdateTypeEntity"/>
 
-        <!-- adresser -->
-        <mapping class="dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktEntity"/>
-        <mapping class="dk.magenta.databroker.cprvejregister.model.adgangspunkt.AdgangspunktVersionEntity"/>
-        <mapping class="dk.magenta.databroker.cprvejregister.model.adresse.AdresseEntity"/>
-        <mapping class="dk.magenta.databroker.cprvejregister.model.adresse.AdresseVersionEntity"/>
-        <mapping class="dk.magenta.databroker.cprvejregister.model.doerpunkt.DoerpunktEntity"/>
-        <mapping class="dk.magenta.databroker.cprvejregister.model.doerpunkt.DoerpunktVersionEntity"/>
-        <mapping class="dk.magenta.databroker.cprvejregister.model.husnummer.HusnummerEntity"/>
-        <mapping class="dk.magenta.databroker.cprvejregister.model.isopunkt.IsoPunktEntity"/>
-        <mapping class="dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneEntity"/>
-        <mapping class="dk.magenta.databroker.cprvejregister.model.kommune.CprKommuneVersionEntity"/>
-        <mapping class="dk.magenta.databroker.cprvejregister.model.lokalitet.CprLokalitetEntity"/>
-        <mapping class="dk.magenta.databroker.cprvejregister.model.lokalitet.CprLokalitetVersionEntity"/>
-        <mapping class="dk.magenta.databroker.cprvejregister.model.kommunedelafnavngivenvej.KommunedelAfNavngivenVejEntity"/>
-        <mapping class="dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejEntity"/>
-        <mapping class="dk.magenta.databroker.cprvejregister.model.navngivenvej.NavngivenVejVersionEntity"/>
-        <mapping class="dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerEntity"/>
-        <mapping class="dk.magenta.databroker.cprvejregister.model.postnummer.PostnummerVersionEntity"/>
-        <mapping class="dk.magenta.databroker.cprvejregister.model.reserverethusnummerinterval.ReserveretHusnrIntervalEntity"/>
-        <mapping class="dk.magenta.databroker.cprvejregister.model.reserveretvejnavn.ReserveretVejnavnEntity"/>
-        <mapping class="dk.magenta.databroker.cprvejregister.model.reserveretvejnavn.ReserveretVejnavnVersionEntity"/>
-        <mapping class="dk.magenta.databroker.cprvejregister.model.vejnavneforslag.VejnavneforslagEntity"/>
-        <mapping class="dk.magenta.databroker.cprvejregister.model.vejnavneomraade.VejnavneomraadeEntity"/>
-        <mapping class="dk.magenta.databroker.cprvejregister.model.vejnavneomraade.VejnavneomraadeVersionEntity"/>
-
         <!-- dawa-adresser -->
         <mapping class="dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseEntity"/>
         <mapping class="dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseVersionEntity"/>
