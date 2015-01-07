@@ -1,4 +1,4 @@
-package dk.magenta.databroker.cprvejregister.dataproviders.registers;
+package dk.magenta.databroker.grlokalitetregister;
 
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.dawa.model.DawaModel;

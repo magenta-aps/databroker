@@ -5,6 +5,7 @@ import dk.magenta.databroker.Application;
 
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.registers.*;
+import dk.magenta.databroker.grlokalitetregister.GrLokalitetsRegister;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
