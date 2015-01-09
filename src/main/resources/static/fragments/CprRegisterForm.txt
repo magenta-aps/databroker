@@ -1,0 +1,125 @@
+
+<label for="myndighedSource">Myndighedsregister Data source:</label><br/>
+<input type="radio" name="myndighedSourceType" value="url" id="myndighedSource" />
+<label for="myndighedSourceUrl">Url:</label>
+<input type="url" name="myndighedSourceUrl" id="myndighedSourceUrl"/>
+<br/>
+<input type="radio" name="myndighedSourceType" value="upload" />
+<label for="myndighedSourceUpload">Upload:</label>
+<input type="file" name="myndighedSourceUpload" id="myndighedSourceUpload"/>
+<br/>
+
+<label for="vejSource">Vejregister Data source:</label><br/>
+<input type="radio" name="vejSourceType" value="url" id="vejSource" />
+<label for="vejSourceUrl">Url:</label>
+<input type="url" name="vejSourceUrl" id="vejSourceUrl"/>
+<br/>
+<input type="radio" name="vejSourceType" value="upload" />
+<label for="vejSourceUpload">Upload:</label>
+<input type="file" name="vejSourceUpload" id="vejSourceUpload"/>
+<br/>
+
+<label for="lokalitetSource">Lokalitet Data source:</label><br/>
+<input type="radio" name="lokalitetSourceType" value="url" id="lokalitetSource" />
+<label for="lokalitetSourceUrl">Url:</label>
+<input type="url" name="lokalitetSourceUrl" id="lokalitetSourceUrl"/>
+<br/>
+<input type="radio" name="lokalitetSourceType" value="upload" />
+<label for="lokalitetSourceUpload">Upload:</label>
+<input type="file" name="lokalitetSourceUpload" id="lokalitetSourceUpload"/>
+<br/>
+
+<label for="postnummerSource">Postnummer Data source:</label><br/>
+<input type="radio" name="postnummerSourceType" value="url" id="postnummerSource" />
+<label for="postnummerSourceUrl">Url:</label>
+<input type="url" name="postnummerSourceUrl" id="postnummerSourceUrl"/>
+<br/>
+<input type="radio" name="postnummerSourceType" value="upload" />
+<label for="postnummerSourceUpload">Upload:</label>
+<input type="file" name="postnummerSourceUpload" id="postnummerSourceUpload"/>
+<br/>
+
+<label for="bynavnSource">Bynavn Data source:</label><br/>
+<input type="radio" name="bynavnSourceType" value="url" id="bynavnSource" />
+<label for="bynavnSourceUrl">Url:</label>
+<input type="url" name="bynavnSourceUrl" id="bynavnSourceUrl"/>
+<br/>
+<input type="radio" name="bynavnSourceType" value="upload" />
+<label for="bynavnSourceUpload">Upload:</label>
+<input type="file" name="bynavnSourceUpload" id="bynavnSourceUpload"/>
+<br/>
+
+
+
+<script>
+var enables = [
+  {
+    radioName:"myndighedSourceType",
+    typeMap:{
+      "url":$("#myndighedSourceUrl"),
+      "upload":$("#myndighedSourceUpload")
+    }
+  },
+  {
+    radioName:"vejSourceType",
+    typeMap:{
+      "url":$("#vejSourceUrl"),
+      "upload":$("#vejSourceUpload")
+    }
+  },
+  {
+    radioName:"lokalitetSourceType",
+    typeMap:{
+      "url":$("#lokalitetSourceUrl"),
+      "upload":$("#lokalitetSourceUpload")
+    }
+  },
+  {
+    radioName:"postnummerSourceType",
+    typeMap:{
+      "url":$("#postnummerSourceUrl"),
+      "upload":$("#postnummerSourceUpload")
+    }
+  },
+  {
+    radioName:"bynavnSourceType",
+    typeMap:{
+      "url":$("#bynavnSourceUrl"),
+      "upload":$("#bynavnSourceUpload")
+    }
+  }
+ ]
+
+
+for (var i=0; i<enables.length; i++) {
+  var radioName = enables[i].radioName;
+  var typeMap = enables[i].typeMap;
+
+  var updateSourcetype = function(typeMap,el){
+    for (var key in typeMap) {
+      if (key == el.value) {
+        typeMap[key].removeAttr("disabled");
+      } else {
+        typeMap[key].attr("disabled","disabled");
+      }
+    }
+  }
+
+  $("input[name='"+radioName+"']").change(function(typeMap, event){
+    updateSourcetype(typeMap, event.target);
+  }.bind(null, typeMap));
+
+  var checkedRadios = $("input[name='"+radioName+"']:checked");
+  if (checkedRadios.size() == 0) {
+    for (var key in typeMap) {
+      var radio = $("input[name='"+radioName+"'][value='"+key+"']");
+      radio.attr("checked", "checked");
+      checkedRadios = radio;
+      break;
+    }
+  }
+  if (checkedRadios.size() == 1) {
+    updateSourcetype(typeMap, checkedRadios.get(0));
+  }
+}
+</script>

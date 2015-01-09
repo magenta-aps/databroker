@@ -24,6 +24,6 @@ public interface VejstykkeRepository extends JpaRepository<VejstykkeEntity, Long
     /*
     * To be implemented in interface implementation
     * */
-    public Collection<VejstykkeEntity> search(String land, String[] kommune, String[] vej, GlobalCondition globalCondition);
+    public Collection<VejstykkeEntity> search(String land, String[] kommune, String[] vej, String[] lokalitet, GlobalCondition globalCondition);
 
 }

@@ -14,7 +14,6 @@ public class GlobalCondition {
 
     private static final String[] parseFormats = {
             "yyyy-MM-dd'T'HH:mm:ss",
-            "yyyy-MM-dd'T'HH:mm:ss'Z'",
             "yyyy-MM-dd",
             "yyyy.MM.dd",
             "yyyy:MM:dd"

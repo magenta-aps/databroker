@@ -54,7 +54,7 @@ public class AdgangsAdresseRepositoryImpl implements AdgangsAdresseRepositoryCus
                 conditions.addCondition(RepositoryUtil.whereField(kommune, "kommune.kode", "kommune.navn"));
             }
             if (post != null && post.length > 0) {
-                join.append("vejstykke.latestVersion.postnummer as post");
+                join.append("vejstykke.latestVersion.postnumre as post");
                 conditions.addCondition(RepositoryUtil.whereField(post, "post.latestVersion.nr", "post.latestVersion.navn"));
             }
         }

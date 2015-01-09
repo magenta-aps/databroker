@@ -15,7 +15,7 @@ import java.util.Map;
  * Created by lars on 19-12-14.
  */
 interface KommuneRepositoryCustom {
-    public Collection<KommuneEntity> search(String land, String[] kommune, GlobalCondition globalCondition);
+    public Collection<KommuneEntity> search(String land, String[] kommune, String[] lokalitet, GlobalCondition globalCondition);
 }
 
 public class KommuneRepositoryImpl implements KommuneRepositoryCustom {
@@ -31,7 +31,7 @@ public class KommuneRepositoryImpl implements KommuneRepositoryCustom {
     // Run a search where each input field may be a code or a name, and may contain leading and/or trailing wildcards
     // subject to a global condition (e.g. only extract entries with a version newer than a certain date)
     @Override
-    public Collection<KommuneEntity> search(String land, String[] kommune, GlobalCondition globalCondition) {
+    public Collection<KommuneEntity> search(String land, String[] kommune, String[] lokalitet, GlobalCondition globalCondition) {
         StringList hql = new StringList();
         StringList join = new StringList();
         ConditionList conditions = new ConditionList(ConditionList.Operator.AND);
@@ -47,10 +47,14 @@ public class KommuneRepositoryImpl implements KommuneRepositoryCustom {
             // Obtain a Condition representing the search parameter. e.g. "[where] kommune.kommunekode like %kommune%"
             conditions.addCondition(RepositoryUtil.whereField(kommune, "kommune.kode", "kommune.navn"));
         }
-        if (globalCondition != null) {
+        if (lokalitet != null && lokalitet.length > 0) {
+            join.append("kommune.lokaliteter lokalitet");
+            conditions.addCondition(RepositoryUtil.whereField(lokalitet, null, "lokalitet.navn"));
+        }
+        /*if (globalCondition != null) {
             // Add any further restrictions from the global condition
             conditions.addCondition(globalCondition.whereField("kommune"));
-        }
+        }*/
 
         // our conditions list should now be complete
 

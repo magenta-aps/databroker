@@ -1,5 +1,7 @@
 package dk.magenta.databroker.dawa.model.temaer;
 
+import dk.magenta.databroker.cprvejregister.dataproviders.registers.LokalitetsRegister;
+import dk.magenta.databroker.dawa.model.lokalitet.LokalitetEntity;
 import dk.magenta.databroker.dawa.model.postnummer.PostNummerVersionEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.service.rest.SearchService;
@@ -54,6 +56,15 @@ public class KommuneEntity extends TemaBase {
 
     public void setRegion(RegionEntity region) {
         this.region = region;
+    }
+
+    //----------------------------------------------------
+
+    @OneToMany(mappedBy = "kommune")
+    private Collection<LokalitetEntity> lokaliteter;
+
+    public Collection<LokalitetEntity> getLokaliteter() {
+        return lokaliteter;
     }
 
     //----------------------------------------------------

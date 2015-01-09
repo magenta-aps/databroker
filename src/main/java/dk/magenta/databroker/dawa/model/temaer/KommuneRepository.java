@@ -17,7 +17,7 @@ public interface KommuneRepository extends JpaRepository<KommuneEntity, Long> {
     /*
     * To be implemented in interface implementation
     * */
-    public Collection<KommuneEntity> search(String land, String[] kommune, GlobalCondition globalCondition);
+    public Collection<KommuneEntity> search(String land, String[] kommune, String[] lokalitet, GlobalCondition globalCondition);
 
 }
 

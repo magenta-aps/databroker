@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout">
+<head>
+    <title>Postnumre</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <h3>Postnummeropslag</h3>
+    <p>Find postnummer ud fra nummer</p>
+    <pre>GET /service/search/postnr/{nummer}</pre>
+
+    <h4>Parametre</h4>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>Navn</th>
+            <th>Beskrivelse</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        <tr>
+            <td>nummer</td>
+            <td>
+                Postnummer
+            </td>
+        </tr>
+
+        </tbody>
+    </table>
+
+    <h4>Eksempler</h4>
+
+    <p>Hent data på postnummer 3900</p>
+    <a href="/services/search/postnr/3900"><pre>/services/search/postnr/3900</pre></a>
+
+    <div class="page-header"/>
+
+    <h3>Postnummersøgning</h3>
+    <p>Søg efter postnumre, afgrænset af angivne parametre</p>
+    <pre>GET /service/search/postnr</pre>
+    <h4>Parametre</h4>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>Navn</th>
+            <th>Beskrivelse</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        <tr th:replace="doc/fragments/params/kommune"/>
+        <tr th:replace="doc/fragments/params/land"/>
+        <tr th:replace="doc/fragments/params/post"/>
+
+        <tr th:replace="doc/fragments/params/format"/>
+        <tr th:replace="doc/fragments/params/includeBefore"/>
+        <tr th:replace="doc/fragments/params/includeAfter"/>
+
+        </tbody>
+    </table>
+
+    <h4>Eksempler</h4>
+
+    <p>Find alle postnumre i Grønland, og output data i xml-format</p>
+    <a href="/services/search/postnr?land=gl&amp;format=xml"><pre>/services/search/vej?land=gl&amp;format=xml</pre></a>
+
+    <p>Find alle postnumre som begynder med 8</p>
+    <a href="/services/search/postnr?post=8*"><pre>/services/search/postnr?post=8*</pre></a>
+
+    <p>Find alle postnumre i kommunen med kode 955</p>
+    <a href="/services/search/postnr/?kommune=955"><pre>/services/search/postnr/?kommune=955</pre></a>
+
+    <p>Find alle postnumre i alle kommuner som ender på "borg"</p>
+    <a href="/services/search/postnr/?kommune=*borg"><pre>/services/search/postnr/?kommune=*borg</pre></a>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,106 @@
+<html xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+  layout:decorator="layout">
+  <head>
+    <title>DataBroker : Dataproviders</title>
+    <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+    <style>
+      input[type=file] {
+        display: inline-block;
+      }
+    </style>
+
+    <script th:inline="javascript">
+      window.providerData = [[${dataproviderTypes}]];
+      window.values = [[${values}]];
+    </script>
+
+    <script type="text/javascript">
+      // <![CDATA[
+      $(function(){
+
+        var singulate = function(value) {
+          if (value instanceof Array) {
+            return value.length > 0 ? value[0] : null;
+          }
+          return value;
+        }
+
+        var updateForm = function(providerId){
+          var data = window.providerData[providerId];
+          var container = $("#dataproviderConfiguration");
+          if (data) {
+            var template = data.template;
+            $.ajax(template, {success:function(responseText, status, responseObject){
+              var tmp = $(document.createElement("div"));
+              var values = $.extend({}, window.values, data.values);
+              tmp.html(responseText);
+              tmp.find("input[type!=checkbox][type!=radio]").each(function(i, el){
+                if (el.name in values) {
+                  el.value = singulate(values[el.name])
+                }
+              });
+              tmp.find("input[type=checkbox],input[type=radio]").each(function(i, el){
+                if (el.name in values) {
+                  if (el.value == singulate(values[el.name])) {
+                    el.checked = "checked";
+                  }
+                }
+              });
+              tmp.find("select").each(function(i, el){
+                if (el.name in values) {
+                  $(el).find("option[value='"+singulate(values[el.name])+"']").attr("selected","selected");
+                }
+              });
+
+              container.empty();
+              tmp.appendTo(container);
+            }});
+            //$("#dataproviderConfiguration").loadTemplate("/fragments/"+template, window.values);
+          }
+        };
+
+        $("#dataproviderType").change(function(){
+          updateForm(this.value);
+        });
+
+        updateForm($("#dataproviderType").val())
+
+      });
+      // ]]>
+    </script>
+  </head>
+  <body>
+
+    <div layout:fragment="content" style="text-align: left;">
+      <h1 th:if="${action == 'new'}">New data provider</h1>
+      <h1 th:if="${action == 'edit'}">Edit data provider</h1>
+      <form action="" method="post">
+        <input th:if="${action == 'edit'}" type="hidden" name="uuid" th:value="${values.uuid}"/>
+
+        <p th:if="${action == 'new'}">
+          <label for="dataproviderType">Type:</label><br/>
+          <select name="providerType" id="dataproviderType">
+            <option th:each="dataproviderType : ${dataproviderTypes}" th:value="${dataproviderType.key}" th:text="${dataproviderType.key}" th:selected="${dataproviderType.key.equals(values.providerType[0])}"></option>
+          </select>
+        </p>
+
+        <p th:if="${action == 'edit'}">
+          <label>Type:</label> <span th:text="${values.providerType[0]}"/>
+          <input type="hidden" id="dataproviderType" name="providerType" th:value="${values.providerType[0]}"/>
+        </p>
+
+
+        <p id="dataproviderConfiguration">
+
+        </p>
+
+
+        <button type="submit" th:if="${action == 'new'}" name="submit" value="ok">Create</button>
+        <button type="submit" th:if="${action == 'edit'}" name="submit" value="ok">Update</button>
+        <button type="submit" name="submit" value="cancel">Cancel</button>
+      </form>
+    </div>
+
+  </body>
+</html>

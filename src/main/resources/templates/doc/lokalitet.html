@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout">
+<head>
+    <title>Lokaliteter</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <h3>Lokalitetopslag</h3>
+    <p>Find Lokalitet ud fra id</p>
+    <pre>GET /service/search/lokalitet/{id}</pre>
+
+    <h4>Parametre</h4>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>Navn</th>
+            <th>Beskrivelse</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        <tr>
+            <td>id</td>
+            <td>
+                Lokalitetens id. Denne er unik, tildelt af systemet, og modtages i data ved søgning.
+            </td>
+        </tr>
+
+        </tbody>
+    </table>
+
+    <h4>Eksempler</h4>
+
+    <p th:text="'Hent lokalitet ud fra id ' + ${uuid}"></p>
+    <a th:href="@{/services/search/lokalitet/{uuid}(uuid=${uuid})}"><pre th:text="'/services/search/lokalitet/' + ${uuid}"></pre></a>
+
+    <div class="page-header"/>
+
+    <h3>Lokalitetsøgning</h3>
+    <p>Søg efter lokaliteter, afgrænset af angivne parametre</p>
+    <pre>GET /service/search/lokalitet</pre>
+    <h4>Parametre</h4>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>Navn</th>
+            <th>Beskrivelse</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        <tr th:replace="doc/fragments/params/kommune"/>
+        <tr th:replace="doc/fragments/params/land"/>
+        <tr th:replace="doc/fragments/params/vej"/>
+        <tr th:replace="doc/fragments/params/post"/>
+        <tr th:replace="doc/fragments/params/lokalitet"/>
+
+        <tr th:replace="doc/fragments/params/format"/>
+        <tr th:replace="doc/fragments/params/includeBefore"/>
+        <tr th:replace="doc/fragments/params/includeAfter"/>
+
+        </tbody>
+    </table>
+
+    <h4>Eksempler</h4>
+
+    <p>Find alle lokaliteter i Grønland, og output data i xml-format</p>
+    <a href="/services/search/lokalitet?land=gl&amp;format=xml"><pre>/services/search/lokalitet?land=gl&amp;format=xml</pre></a>
+
+    <p>Find alle lokaliteter ved navn "Nuuk"</p>
+    <a href="/services/search/lokalitet?lokalitet=Nuuk"><pre>/services/search/lokalitet?lokalitet=Nuuk</pre></a>
+
+    <p>Find alle lokaliteter i Grønland som slutter på "ut"</p>
+    <a href="/services/search/lokalitet?land=gl&amp;lokalitet=*ut"><pre>/services/search/lokalitet?land=gl&amp;lokalitet=*ut</pre></a>
+
+</div>
+
+</body>
+</html>

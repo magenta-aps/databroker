@@ -39,18 +39,21 @@ public class PostNummerRepositoryImpl implements PostNummerRepositoryCustom {
         join.setPrefix("join ");
 
 
-        if (land != null) {
-            conditions.addCondition(RepositoryUtil.whereFieldLand(land));
+        if (land != null || kommune != null) {
+            join.append("post.latestVersion.kommuner kommune");
+            if (land != null) {
+                conditions.addCondition(RepositoryUtil.whereFieldLand(land));
+            }
+            if (kommune != null) {
+                conditions.addCondition(RepositoryUtil.whereField(kommune, "kommune.kode", "kommune.navn"));
+            }
         }
 
         if (post != null) {
             conditions.addCondition(RepositoryUtil.whereField(post, "post.latestVersion.nr", "post.latestVersion.navn"));
         }
 
-        if (kommune != null) {
-            join.append("post.latestVersion.kommuner kommune");
-            conditions.addCondition(RepositoryUtil.whereField(kommune, "kommune.kode", "kommune.navn"));
-        }
+
 
         if (globalCondition != null) {
             conditions.addCondition(globalCondition.whereField("post"));

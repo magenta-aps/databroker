@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout">
+<head>
+    <title>Veje</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <h3>Vejopslag</h3>
+    <p>Find vej ud fra id</p>
+    <pre>GET /service/search/vej/{id}</pre>
+
+    <h4>Parametre</h4>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>Navn</th>
+            <th>Beskrivelse</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        <tr>
+            <td>id</td>
+            <td>
+                Vejens unikke id
+            </td>
+        </tr>
+
+        </tbody>
+    </table>
+
+    <h4>Eksempler</h4>
+
+    <p th:text="'Hent data på vejen med id ' + ${uuid}"></p>
+    <a th:href="@{/services/search/vej/{uuid}(uuid=${uuid})}"><pre th:text="'/services/search/vej/' + ${uuid}"></pre></a>
+
+    <div class="page-header"/>
+
+    <h3>Vejsøgning</h3>
+    <p>Søg efter veje, afgrænset af angivne parametre</p>
+    <pre>GET /service/search/vej</pre>
+    <h4>Parametre</h4>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>Navn</th>
+            <th>Beskrivelse</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        <tr th:replace="doc/fragments/params/kommune"/>
+        <tr th:replace="doc/fragments/params/land"/>
+        <tr th:replace="doc/fragments/params/vej"/>
+        <tr th:replace="doc/fragments/params/lokalitet"/>
+
+        <tr th:replace="doc/fragments/params/format"/>
+        <tr th:replace="doc/fragments/params/includeBefore"/>
+        <tr th:replace="doc/fragments/params/includeAfter"/>
+
+        </tbody>
+    </table>
+
+    <h4>Eksempler</h4>
+
+    <p>Find alle veje i Grønland, og output data i xml-format</p>
+    <a href="/services/search/vej?land=gl&amp;format=xml"><pre>/services/search/vej?land=gl&amp;format=xml</pre></a>
+
+    <p>Find alle veje i Aarhus kommune som ender med "gade"</p>
+    <a href="/services/search/vej?kommune=aarhus&amp;vej=*gade"><pre>/services/search/vej?kommune=aarhus&amp;vej=*gade</pre></a>
+
+    <p>Find alle veje som hedder "Nørregade"</p>
+    <a href="/services/search/vej?vej=nørregade"><pre>/services/search/vej?vej=nørregade</pre></a>
+
+    <p>Find alle veje associeret med lokaliteter ved navn "Nuuk"</p>
+    <a href="/services/search/vej?lokalitet=nuuk"><pre>/services/search/vej?lokalitet=nuuk</pre></a>
+
+</div>
+
+</body>
+</html>

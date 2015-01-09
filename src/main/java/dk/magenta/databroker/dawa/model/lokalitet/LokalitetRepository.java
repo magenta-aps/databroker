@@ -24,5 +24,5 @@ public interface LokalitetRepository extends JpaRepository<LokalitetEntity, Long
     /*
     * To be implemented in interface implementation
     * */
-    public Collection<LokalitetEntity> search(String land, String[] post, String[] kommune, String[] vej, GlobalCondition globalCondition);
+    public Collection<LokalitetEntity> search(String land, String[] post, String[] kommune, String[] vej, String[] lokalitet, GlobalCondition globalCondition);
 }

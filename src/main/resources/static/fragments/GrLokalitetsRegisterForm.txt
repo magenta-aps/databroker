@@ -1,0 +1,35 @@
+
+<label for="dataproviderSource">Data source:</label><br/>
+
+<input type="radio" name="sourceType" value="url" id="dataproviderSource" />
+<label for="dataproviderSourceUrl">Url:</label>
+<input type="url" name="sourceUrl" id="dataproviderSourceUrl"/>
+<label for="dataproviderSourceCron">Cron expression:</label>
+<input type="text" name="sourceCron" id="dataproviderSourceCron"/>
+<br/>
+
+<input type="radio" name="sourceType" value="upload" />
+<label for="dataproviderSourceUpload">Upload:</label>
+<input type="file" name="sourceUpload" id="dataproviderSourceUpload"/>
+<br/>
+
+<script>
+var typeMap = {
+  "url":$("#dataproviderSourceUrl, #dataproviderSourceCron"),
+  "upload":$("#dataproviderSourceUpload")
+};
+var updateSourcetype = function(){
+  for (var key in typeMap) {
+    if (key == this.value) {
+      typeMap[key].removeAttr("disabled");
+    } else {
+      typeMap[key].attr("disabled","disabled");
+    }
+  }
+};
+$("input[name='sourceType']").change(updateSourcetype);
+var checkedRadios = $("input[name='sourceType']:checked");
+if (checkedRadios.size() == 1) {
+  updateSourcetype.call(checkedRadios.get(0));
+}
+</script>

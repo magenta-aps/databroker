@@ -84,8 +84,8 @@ public class DawaModel {
         return this.kommuneRepository.getByKode(kode);
     }
 
-    public Collection<KommuneEntity> getKommune(String land, String[] kommune, GlobalCondition globalCondition) {
-        return this.kommuneRepository.search(land, kommune, globalCondition);
+    public Collection<KommuneEntity> getKommune(String land, String[] kommune, String[] lokalitet, GlobalCondition globalCondition) {
+        return this.kommuneRepository.search(land, kommune, lokalitet, globalCondition);
     }
 
     private Level1Container<KommuneEntity> getKommuneCache() {
@@ -190,8 +190,8 @@ public class DawaModel {
         return this.vejstykkeRepository.getByKommunekodeAndVejkode(kommuneKode, vejKode);
     }
 
-    public Collection<VejstykkeEntity> getVejstykke(String land, String[] kommune, String[] vej, GlobalCondition globalCondition) {
-        return this.vejstykkeRepository.search(land, kommune, vej, globalCondition);
+    public Collection<VejstykkeEntity> getVejstykke(String land, String[] kommune, String[] vej, String[] lokalitet, GlobalCondition globalCondition) {
+        return this.vejstykkeRepository.search(land, kommune, vej, lokalitet, globalCondition);
     }
 
     public VejstykkeEntity getVejstykke(String uuid) {
@@ -591,8 +591,8 @@ public class DawaModel {
     }
 
 
-    public Collection<LokalitetEntity> getLokalitet(String land, String[] post, String[] kommune, String[] vej, GlobalCondition globalCondition) {
-        return this.lokalitetRepository.search(land, post, kommune, vej, globalCondition);
+    public Collection<LokalitetEntity> getLokalitet(String land, String[] post, String[] kommune, String[] vej, String[] lokalitet, GlobalCondition globalCondition) {
+        return this.lokalitetRepository.search(land, post, kommune, vej, lokalitet, globalCondition);
     }
 
 

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout">
+<head>
+    <title>Kommuner</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <h3>Kommuneopslag</h3>
+    <p>Find kommune ud fra kommunekode</p>
+    <pre>GET /service/search/kommune/{kommunekode}</pre>
+
+    <h4>Parametre</h4>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>Navn</th>
+            <th>Beskrivelse</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        <tr>
+            <td>kode</td>
+            <td>
+                Kommunens unikke kode
+            </td>
+        </tr>
+
+        </tbody>
+    </table>
+
+    <h4>Eksempler</h4>
+
+    <p>Hent data på kommunen med kode 751 (Århus)</p>
+    <a href="/services/search/kommune/751"><pre>/services/search/kommune/751</pre></a>
+
+    <hr/>
+
+    <h3>Kommunesøgning</h3>
+    <p>Søg efter kommuner, afgrænset af angivne parametre</p>
+    <pre>GET /service/search/kommune</pre>
+    <h4>Parametre</h4>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>Navn</th>
+            <th>Beskrivelse</th>
+        </tr>
+        </thead>
+        <tbody>
+
+            <tr th:replace="doc/fragments/params/kommune"/>
+            <tr th:replace="doc/fragments/params/land"/>
+
+            <tr th:replace="doc/fragments/params/format"/>
+            <tr th:replace="doc/fragments/params/includeBefore"/>
+            <tr th:replace="doc/fragments/params/includeAfter"/>
+
+        </tbody>
+    </table>
+
+    <h4>Eksempler</h4>
+
+    <p>Find alle kommuner i Grønland, og output data i xml-format</p>
+    <a href="/services/search/kommune?land=gl&amp;format=xml"><pre>/services/search/kommune?land=gl&amp;format=xml</pre></a>
+
+    <p>Find alle kommuner hvis kommunekode begynder med tallet 5</p>
+    <a href="/services/search/kommune?kommune=5*"><pre>/services/search/kommune?kommune=5*</pre></a>
+
+    <p>Find alle kommuner i Danmark hvis navn ender på "borg"</p>
+    <a href="/services/search/kommune?land=dk&amp;kommune=*borg"><pre>/services/search/kommune?land=dk&amp;kommune=*borg</pre></a>
+
+</div>
+
+</body>
+</html>

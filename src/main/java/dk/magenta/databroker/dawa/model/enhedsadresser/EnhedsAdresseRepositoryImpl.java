@@ -55,7 +55,7 @@ public class EnhedsAdresseRepositoryImpl implements EnhedsAdresseRepositoryCusto
                 conditions.addCondition(RepositoryUtil.whereField(kommune, "kommune.kode", "kommune.navn"));
             }
             if (post != null && post.length > 0) {
-                join.append("vejstykke.latestVersion.postnummer as post");
+                join.append("adgang.latestVersion.postnummer as post");
                 conditions.addCondition(RepositoryUtil.whereField(post, "post.latestVersion.nr", "post.latestVersion.navn"));
             }
             if (husnr != null && husnr.length > 0) {
@@ -67,7 +67,7 @@ public class EnhedsAdresseRepositoryImpl implements EnhedsAdresseRepositoryCusto
             conditions.addCondition(RepositoryUtil.whereField(etage, null, "adresseVersion.etage"));
         }
         if (sidedoer != null && sidedoer.length > 0) {
-            conditions.addCondition(RepositoryUtil.whereField(sidedoer, null, "adresseVersion.sidedoer"));
+            conditions.addCondition(RepositoryUtil.whereField(sidedoer, null, "adresseVersion.doer"));
         }
 
         if (globalCondition != null) {

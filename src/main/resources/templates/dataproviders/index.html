@@ -3,14 +3,22 @@
   layout:decorator="layout">
   <head>
     <title>DataBroker : Dataproviders</title>
+    <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
   </head>
   <body>
 
     <div layout:fragment="content" style="text-align: left;">
-      <h1 th:text="${test}"></h1>
-      <ul>
-        <li th:each="dptype : ${dataprovidertypes}" th:text="${dptype}">Data provider type</li>
-      </ul>
+      <h1>Data providers</h1>
+      <table border="1">
+        <tr th:each="dataproviderEntity : ${dataproviderEntities}">
+          <td th:text="${dataproviderEntity.getUuid()}">Data provider name</td>
+          <td th:text="${dataproviderEntity.getType()}">Data provider type</td>
+          <td><a th:href="${'edit?uuid='+dataproviderEntity.getUuid()}">Edit</a></td>
+        </tr>
+      </table>
+      <form action="new/" method="get">
+        <button type="submit">Add</button>
+      </form>
     </div>
 
   </body>

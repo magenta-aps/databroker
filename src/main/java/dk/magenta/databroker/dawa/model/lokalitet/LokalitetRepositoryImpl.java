@@ -16,7 +16,7 @@ import java.util.Map;
  */
 
 interface LokalitetRepositoryCustom {
-    public Collection<LokalitetEntity> search(String land, String[] post, String[] kommune, String[] vej, GlobalCondition globalCondition);
+    public Collection<LokalitetEntity> search(String land, String[] post, String[] kommune, String[] vej, String[] lokalitet, GlobalCondition globalCondition);
 }
 
 public class LokalitetRepositoryImpl implements LokalitetRepositoryCustom {
@@ -29,7 +29,7 @@ public class LokalitetRepositoryImpl implements LokalitetRepositoryCustom {
     }
 
     @Override
-    public Collection<LokalitetEntity> search(String land, String[] post, String[] kommune, String[] vej, GlobalCondition globalCondition) {
+    public Collection<LokalitetEntity> search(String land, String[] post, String[] kommune, String[] vej, String[] lokalitet, GlobalCondition globalCondition) {
 
         StringList hql = new StringList();
         StringList join = new StringList();
@@ -60,6 +60,10 @@ public class LokalitetRepositoryImpl implements LokalitetRepositoryCustom {
                 join.append("vej.kommune kommune");
                 conditions.addCondition(RepositoryUtil.whereField(kommune, "kommune.kode", "kommune.navn"));
             }
+        }
+
+        if (lokalitet != null && lokalitet.length > 0) {
+            conditions.addCondition(RepositoryUtil.whereField(lokalitet, null, "lokalitet.navn"));
         }
 
         /*if (globalCondition != null) {
