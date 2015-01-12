@@ -10,7 +10,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.zip.ZipInputStream;
 
 
@@ -20,13 +22,24 @@ import java.util.zip.ZipInputStream;
 public abstract class DataProvider {
 
     public DataProvider() {
-
+        this.uuid = UUID.randomUUID().toString();
     }
 
     @PostConstruct
     protected void RegisterDataProviderInstance() {
         DataProviderRegistry.registerDataProvider(this);
     }
+
+
+    private String uuid;
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public abstract String getTemplatePath();
+
+    public abstract DataProviderConfiguration getDefaultConfiguration();
 
     public abstract void pull(DataProviderEntity dataProviderEntity);
 
