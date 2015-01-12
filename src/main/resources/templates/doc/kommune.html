@@ -8,6 +8,48 @@
 <body>
 <div layout:fragment="content">
 
+    <h3>Interaktiv Kommunesøgning</h3>
+    <p>Søg efter kommuner ved at udfylde et eller flere af de nedenstående felter</p>
+
+    <p class="search">
+        <label for="land">Land:</label>
+        <select name="land" id="land">
+            <option value="">-</option>
+            <option value="dk">Danmark</option>
+            <option value="gl">Grønland</option>
+        </select><br/>
+
+        <label for="kommune">Kommune:</label>
+        <input type="text" name="kommune" id="kommune"/><br/>
+
+        <label for="lokalitet">Lokalitet:</label>
+        <input type="text" name="lokalitet" id="lokalitet"/><br/>
+
+        <label for="format">Format:</label>
+        <select name="format" id="format">
+            <option value="json">JSON</option>
+            <option value="xml">XML</option>
+        </select><br/>
+
+        <button type="submit" id="search" onclick="">Søg</button><img id="loading" src="/img/loading.gif" style="display:none"/><br/>
+        <textarea id="results" style="width:100%; height:200px; display: none"/>
+    </p>
+    <script type="text/javascript">
+        //<![CDATA[
+        var fields = $('#land,#kommune,#lokalitet,#format');
+        var run = doSearch.bind(null,'/services/search/kommune',fields,$('#results'),$("#loading"));
+        $("#search").select(run);
+        $("#search").click(run);
+        fields.keyup(function(ev){
+            if (ev.keyCode == 13) {
+                run();
+            }
+        })
+        //]]>
+    </script>
+
+    <hr/>
+
     <h3>Kommuneopslag</h3>
     <p>Find kommune ud fra kommunekode</p>
     <pre>GET /service/search/kommune/{kommunekode}</pre>

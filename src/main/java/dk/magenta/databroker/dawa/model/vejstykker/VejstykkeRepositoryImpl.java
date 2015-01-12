@@ -77,6 +77,7 @@ public class VejstykkeRepositoryImpl implements VejstykkeRepositoryCustom {
 
         System.out.println(hql.join(" \n"));
         Query q = this.entityManager.createQuery(hql.join(" "));
+        q.setMaxResults(1000);
         Map<String, Object> parameters = conditions.getParameters();
         for (String key : parameters.keySet()) {
             System.out.println(key+" = "+parameters.get(key));

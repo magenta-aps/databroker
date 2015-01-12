@@ -38,12 +38,7 @@ public class LokalitetRepositoryImpl implements LokalitetRepositoryCustom {
         hql.append("select distinct lokalitet from LokalitetEntity as lokalitet");
         join.setPrefix("join ");
 
-
-        if (land != null) {
-            conditions.addCondition(RepositoryUtil.whereFieldLand(land));
-        }
-
-        if ((vej != null && vej.length>0) || (kommune != null && kommune.length>0) || (post != null && post.length>0)) {
+        if (land != null || vej != null || kommune != null || post != null) {
             join.append("lokalitet.vejstykkeVersioner vejVersion");
             join.append("vejVersion.entity as vej");
 
@@ -56,9 +51,14 @@ public class LokalitetRepositoryImpl implements LokalitetRepositoryCustom {
                 conditions.addCondition(RepositoryUtil.whereField(post, "post.latestVersion.nr", "post.latestVersion.navn"));
             }
 
-            if (kommune != null) {
+            if (kommune != null || land != null) {
                 join.append("vej.kommune kommune");
-                conditions.addCondition(RepositoryUtil.whereField(kommune, "kommune.kode", "kommune.navn"));
+                if (kommune != null) {
+                    conditions.addCondition(RepositoryUtil.whereField(kommune, "kommune.kode", "kommune.navn"));
+                }
+                if (land != null) {
+                    conditions.addCondition(RepositoryUtil.whereFieldLand(land));
+                }
             }
         }
 
@@ -90,6 +90,7 @@ public class LokalitetRepositoryImpl implements LokalitetRepositoryCustom {
 
         System.out.println(hql.join(" \n"));
         Query q = this.entityManager.createQuery(hql.join(" "));
+        q.setMaxResults(1000);
         Map<String, Object> parameters = conditions.getParameters();
         for (String key : parameters.keySet()) {
             System.out.println(key+" = "+parameters.get(key));

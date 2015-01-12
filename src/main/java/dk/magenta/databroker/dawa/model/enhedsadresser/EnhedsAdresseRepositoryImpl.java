@@ -47,12 +47,14 @@ public class EnhedsAdresseRepositoryImpl implements EnhedsAdresseRepositoryCusto
             if (vej != null && vej.length > 0) {
                 conditions.addCondition(RepositoryUtil.whereField(vej, "vejstykke.kode", "vejstykke.latestVersion.vejnavn"));
             }
-            if (land != null || kommune != null && kommune.length > 0) {
+            if (land != null || kommune != null) {
+                join.append("vejstykke.kommune as kommune");
                 if (land != null) {
                     conditions.addCondition(RepositoryUtil.whereFieldLand(land));
                 }
-                join.append("vejstykke.kommune as kommune");
-                conditions.addCondition(RepositoryUtil.whereField(kommune, "kommune.kode", "kommune.navn"));
+                if (kommune != null) {
+                    conditions.addCondition(RepositoryUtil.whereField(kommune, "kommune.kode", "kommune.navn"));
+                }
             }
             if (post != null && post.length > 0) {
                 join.append("adgang.latestVersion.postnummer as post");
@@ -92,6 +94,7 @@ public class EnhedsAdresseRepositoryImpl implements EnhedsAdresseRepositoryCusto
 
         System.out.println(hql.join(" \n"));
         Query q = this.entityManager.createQuery(hql.join(" "));
+        q.setMaxResults(1000);
         Map<String, Object> parameters = conditions.getParameters();
         for (String key : parameters.keySet()) {
             System.out.println(key+" = "+parameters.get(key));

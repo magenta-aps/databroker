@@ -8,6 +8,61 @@
 <body>
 <div layout:fragment="content">
 
+
+    <h3>Interaktiv Adressesøgning</h3>
+    <p>Søg efter adresser ved at udfylde et eller flere af de nedenstående felter</p>
+
+    <p class="search">
+        <label for="land">Land:</label>
+        <select name="land" id="land">
+            <option value="">-</option>
+            <option value="dk">Danmark</option>
+            <option value="gl">Grønland</option>
+        </select><br/>
+
+        <label for="kommune">Kommune:</label>
+        <input type="text" name="kommune" id="kommune"/><br/>
+
+        <label for="post">Post:</label>
+        <input type="text" name="post" id="post"/><br/>
+
+        <label for="vej">Vej:</label>
+        <input type="text" name="vej" id="vej"/><br/>
+
+        <label for="husnr">Husnr:</label>
+        <input type="text" name="husnr" id="husnr"/><br/>
+
+        <label for="etage">Etage:</label>
+        <input type="text" name="etage" id="etage"/><br/>
+
+        <label for="doer">Dør:</label>
+        <input type="text" name="doer" id="doer"/><br/>
+
+        <label for="format">Format:</label>
+        <select name="format" id="format">
+            <option value="json">JSON</option>
+            <option value="xml">XML</option>
+        </select><br/>
+
+        <button type="submit" id="search" onclick="">Søg</button><img id="loading" src="/img/loading.gif" style="display:none"/><br/>
+        <textarea id="results" style="width:100%; height:200px; display: none"/>
+    </p>
+    <script type="text/javascript">
+        //<![CDATA[
+        var fields = $('#land,#kommune,#post,#vej,#husnr,#etage,#doer,#format');
+        var run = doSearch.bind(null,'/services/search/adresse',fields,$('#results'),$("#loading"));
+        $("#search").select(run);
+        $("#search").click(run);
+        fields.keyup(function(ev){
+            if (ev.keyCode == 13) {
+                run();
+            }
+        })
+        //]]>
+    </script>
+
+    <hr/>
+
     <h3>Adresseopslag</h3>
     <p>Find adresse ud fra id</p>
     <pre>GET /service/search/adresse/{id}</pre>

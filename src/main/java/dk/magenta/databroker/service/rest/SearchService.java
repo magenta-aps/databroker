@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.xml.soap.*;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -223,7 +225,12 @@ public class SearchService {
         GlobalCondition globalCondition = new GlobalCondition(includeBefore, includeAfter);
 
         ArrayList<OutputFormattable> adresser = new ArrayList<OutputFormattable>(
-                this.model.getAdgangsAdresse(land, postnr, kommune, vej, husnr, globalCondition)
+                this.model.getAdgangsAdresse(this.cleanInput(land),
+                        this.cleanInput(postnr),
+                        this.cleanInput(kommune),
+                        this.cleanInput(vej),
+                        this.cleanInput(husnr),
+                        globalCondition)
         );
 
         return this.format("adgangsadresser", adresser, fmt);
@@ -258,7 +265,14 @@ public class SearchService {
         GlobalCondition globalCondition = new GlobalCondition(includeBefore, includeAfter);
 
         ArrayList<OutputFormattable> adresser = new ArrayList<OutputFormattable>(
-                this.model.getEnhedsAdresse(land, postnr, kommune, vej, husnr, etage, doer, globalCondition)
+                this.model.getEnhedsAdresse(land,
+                        this.cleanInput(postnr),
+                        this.cleanInput(kommune),
+                        this.cleanInput(vej),
+                        this.cleanInput(husnr),
+                        this.cleanInput(etage),
+                        this.cleanInput(doer),
+                        globalCondition)
         );
 
         return this.format("adresser", adresser, fmt);
@@ -294,7 +308,12 @@ public class SearchService {
         GlobalCondition globalCondition = new GlobalCondition(includeBefore, includeAfter);
 
         ArrayList<OutputFormattable> adresser = new ArrayList<OutputFormattable>(
-                this.model.getLokalitet(land, postnr, kommune, vej, lokalitet, globalCondition)
+                this.model.getLokalitet(land,
+                        this.cleanInput(postnr),
+                        this.cleanInput(kommune),
+                        this.cleanInput(vej),
+                        this.cleanInput(lokalitet),
+                        globalCondition)
         );
 
         return this.format("lokaliteter", adresser, fmt);
@@ -316,6 +335,8 @@ public class SearchService {
     }
 
     //------------------------------------------------------------------------------------------------------------------
+
+    private static int indent = 4;
 
     private String format(OutputFormattable output, Format format) {
         switch (format) {
@@ -359,7 +380,7 @@ public class SearchService {
         }
 
         // Export JSON structure as string
-        return object.toString(4);
+        return object.toString(indent);
     }
 
     private String formatXML(OutputFormattable output) {
@@ -408,9 +429,10 @@ public class SearchService {
             // Export XML structure as string
             final StringWriter sw = new StringWriter();
             try {
-                TransformerFactory.newInstance().newTransformer().transform(
-                        new DOMSource(soapMessage.getSOAPPart()),
-                        new StreamResult(sw));
+                Transformer transformer = TransformerFactory.newInstance().newTransformer();
+                transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "" + indent);
+                transformer.transform(new DOMSource(soapMessage.getSOAPPart()), new StreamResult(sw));
                 return sw.toString();
             } catch (TransformerException e) {
                 throw new RuntimeException(e);
@@ -424,7 +446,7 @@ public class SearchService {
     //------------------------------------------------------------------------------------------------------------------
 
     private String cleanInput(String s) {
-        if ("*".equals(s)) {
+        if (s == null || s.equals("*") || s.isEmpty()) {
             return null;
         }
         return s;

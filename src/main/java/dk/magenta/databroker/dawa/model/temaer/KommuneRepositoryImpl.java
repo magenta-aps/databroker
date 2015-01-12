@@ -77,6 +77,7 @@ public class KommuneRepositoryImpl implements KommuneRepositoryCustom {
 
         System.out.println(hql.join(" \n"));
         Query q = this.entityManager.createQuery(hql.join(" "));
+        q.setMaxResults(1000);
         // Put all conditions' parameters into the query
         Map<String, Object> parameters = conditions.getParameters();
         for (String key : parameters.keySet()) {
