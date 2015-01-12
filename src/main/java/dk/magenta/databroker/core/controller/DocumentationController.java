@@ -46,7 +46,7 @@ public class DocumentationController {
     @RequestMapping("/doc/postnr")
     public ModelAndView postnr() {
         Map<String, Object> model = new HashMap<String, Object>();
-        model.put("nav","postnummer");
+        model.put("nav","postnr");
 
         return new ModelAndView("doc/postnummer", model);
     }

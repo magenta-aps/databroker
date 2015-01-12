@@ -145,7 +145,7 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
         return "adgangsAdresse";
     }
     public JSONObject toJSON() {
-        JSONObject obj = new JSONObject();
+        JSONObject obj = super.toJSON();
         obj.put("id", this.getUuid());
         obj.put("husnr", this.getHusnr());
         obj.put("href", SearchService.getAdgangsAdresseBaseUrl()+"/"+this.getUuid());

@@ -77,7 +77,7 @@ public class LokalitetEntity extends UniqueBase implements OutputFormattable {
     }
 
     public JSONObject toJSON() {
-        JSONObject obj = new JSONObject();
+        JSONObject obj = super.toJSON();
         obj.put("navn", this.getNavn());
         obj.put("id", this.getUuid());
         obj.put("href", SearchService.getLokalitetBaseUrl() + "/" + this.getUuid());

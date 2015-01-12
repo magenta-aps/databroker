@@ -82,7 +82,7 @@ public class EnhedsAdresseEntity extends DobbeltHistorikBase<EnhedsAdresseEntity
         return "enhedsAdresse";
     }
     public JSONObject toJSON() {
-        JSONObject obj = new JSONObject();
+        JSONObject obj = super.toJSON();
         obj.put("id", this.getUuid());
         obj.put("etage", this.latestVersion.getEtage());
         obj.put("sidedoer", this.latestVersion.getDoer());

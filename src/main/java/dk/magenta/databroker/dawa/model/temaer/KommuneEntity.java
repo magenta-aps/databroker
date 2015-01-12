@@ -103,7 +103,7 @@ public class KommuneEntity extends TemaBase {
     }
 
     public JSONObject toJSON() {
-        JSONObject obj = new JSONObject();
+        JSONObject obj = super.toJSON();
         obj.put("navn", this.getNavn());
         obj.put("kode", this.getKode());
         obj.put("href", SearchService.getKommuneBaseUrl() + "/" + this.getKode());

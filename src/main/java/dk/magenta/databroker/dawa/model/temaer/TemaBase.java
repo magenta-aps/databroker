@@ -81,7 +81,11 @@ public abstract class TemaBase implements OutputFormattable {
 
     public abstract String getTypeName();
 
-    public abstract JSONObject toJSON();
+    public JSONObject toJSON() {
+        JSONObject obj = new JSONObject();
+        obj.put("__type__", this.getTypeName());
+        return obj;
+    };
 
     public JSONObject toFullJSON() {
         return this.toJSON();

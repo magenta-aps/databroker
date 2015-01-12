@@ -365,7 +365,36 @@ public class SearchService {
     }
 
     private String formatJSON(OutputFormattable output) {
-        return output.toFullJSON().toString(4);
+        return this.postProcessJSON(output.toFullJSON()).toString(4);
+    }
+
+    private JSONObject postProcessJSON(JSONObject obj) {
+        if (obj.keySet().contains("__type__")) {
+            obj.remove("__type__");
+        }
+        for (Object key : obj.keySet()) {
+            String sKey = (String) key;
+            Object value = obj.get(sKey);
+            if (value instanceof JSONObject) {
+                obj.put(sKey, this.postProcessJSON((JSONObject)value));
+            }
+            if (value instanceof JSONArray) {
+                obj.put(sKey, this.postProcessJSON((JSONArray) value));
+            }
+        }
+        return obj;
+    }
+    private JSONArray postProcessJSON(JSONArray arr) {
+        for (int i=0; i<arr.length(); i++) {
+            Object value = arr.get(i);
+            if (value instanceof JSONObject) {
+                arr.put(i, this.postProcessJSON((JSONObject) value));
+            }
+            if (value instanceof JSONArray) {
+                arr.put(i, this.postProcessJSON((JSONArray) value));
+            }
+        }
+        return arr;
     }
 
     private String formatJSON(String key, List<OutputFormattable> output) {
@@ -376,7 +405,7 @@ public class SearchService {
 
         // Insert items in JSON structure
         for (OutputFormattable item : output) {
-            list.put(item.toFullJSON());
+            list.put(this.postProcessJSON(item.toFullJSON()));
         }
 
         // Export JSON structure as string

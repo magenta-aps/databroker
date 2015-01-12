@@ -135,7 +135,7 @@ public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, Vejsty
     }
 
     public JSONObject toJSON() {
-        JSONObject obj = new JSONObject();
+        JSONObject obj = super.toJSON();
         obj.put("vejnavn", this.getLatestVersion().getVejnavn());
         obj.put("vejaddresseringsnavn", this.getLatestVersion().getVejadresseringsnavn());
         obj.put("vejkode", this.getKode());

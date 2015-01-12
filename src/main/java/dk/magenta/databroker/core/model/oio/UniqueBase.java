@@ -60,7 +60,11 @@ public abstract class UniqueBase implements OutputFormattable {
 
     public abstract String getTypeName();
 
-    public abstract JSONObject toJSON();
+    public JSONObject toJSON() {
+        JSONObject obj = new JSONObject();
+        obj.put("__type__", this.getTypeName());
+        return obj;
+    };
 
     public JSONObject toFullJSON() {
         return this.toJSON();
@@ -82,10 +86,12 @@ public abstract class UniqueBase implements OutputFormattable {
             } else if (value instanceof JSONObject) {
                 JSONObject obj = (JSONObject) value;
                 if (obj.length() > 0) {
-                    SOAPElement node = parent.addChildElement(envelope.createName(name));
+                    SOAPElement node = parent.addChildElement(envelope.createName(obj.has("__type__") ? (String)obj.get("__type__") : name));
                     for (Object oKey : obj.keySet()) {
                         String key = (String) oKey;
-                        toXML(key, obj.get(key), node, envelope);
+                        if (!key.equals("__type__")) {
+                            toXML(key, obj.get(key), node, envelope);
+                        }
                     }
                     return node;
                 }
