@@ -2,6 +2,7 @@ package dk.magenta.databroker.register;
 
 import dk.magenta.databroker.register.conditions.Condition;
 import dk.magenta.databroker.register.conditions.ConditionList;
+import dk.magenta.databroker.register.conditions.LatestCondition;
 import dk.magenta.databroker.register.conditions.SingleCondition;
 
 import java.util.regex.Pattern;
@@ -74,6 +75,10 @@ public abstract class RepositoryUtil {
             }
         }
         return null;
+    }
+
+    public static Condition whereVersionLatest(String versionField) {
+        return new LatestCondition(versionField);
     }
 
 }

@@ -16,7 +16,7 @@ import java.util.Map;
  */
 
 interface PostNummerRepositoryCustom {
-    public Collection<PostNummerEntity> search(String land, String[] post, String[] kommune, GlobalCondition globalCondition);
+    public Collection<PostNummerEntity> search(String land, String[] post, String[] kommune, String[] vej, GlobalCondition globalCondition);
 }
 
 public class PostNummerRepositoryImpl implements PostNummerRepositoryCustom {
@@ -29,7 +29,7 @@ public class PostNummerRepositoryImpl implements PostNummerRepositoryCustom {
     }
 
     @Override
-    public Collection<PostNummerEntity> search(String land, String[] post, String[] kommune, GlobalCondition globalCondition) {
+    public Collection<PostNummerEntity> search(String land, String[] post, String[] kommune, String[] vej, GlobalCondition globalCondition) {
 
         StringList hql = new StringList();
         StringList join = new StringList();
@@ -51,6 +51,13 @@ public class PostNummerRepositoryImpl implements PostNummerRepositoryCustom {
 
         if (post != null) {
             conditions.addCondition(RepositoryUtil.whereField(post, "post.latestVersion.nr", "post.latestVersion.navn"));
+        }
+
+        if (vej != null) {
+            join.append("post.vejstykkeVersioner vejVersion");
+            join.append("vejVersion.entity vej");
+            conditions.addCondition(RepositoryUtil.whereVersionLatest("vejVersion"));
+            conditions.addCondition(RepositoryUtil.whereField(vej, "vej.kode", "vejVersion.vejnavn"));
         }
 
 

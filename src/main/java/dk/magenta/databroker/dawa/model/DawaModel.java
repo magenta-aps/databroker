@@ -394,8 +394,8 @@ public class DawaModel {
         return this.postNummerRepository.getByNr(postnr);
     }
 
-    public Collection<PostNummerEntity> getPostnummer(String land, String[] post, String[] kommune, GlobalCondition globalCondition) {
-        return this.postNummerRepository.search(land, post, kommune, globalCondition);
+    public Collection<PostNummerEntity> getPostnummer(String land, String[] post, String[] kommune, String[] vej, GlobalCondition globalCondition) {
+        return this.postNummerRepository.search(land, post, kommune, vej, globalCondition);
     }
 
     //------------------------------------------------------------------------------------------------------------------

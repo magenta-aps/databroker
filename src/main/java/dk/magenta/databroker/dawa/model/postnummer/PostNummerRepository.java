@@ -22,5 +22,5 @@ public interface PostNummerRepository extends JpaRepository<PostNummerEntity, Lo
     /*
     * To be implemented in interface implementation
     * */
-    public Collection<PostNummerEntity> search(String land, String[] post, String[] kommune, GlobalCondition globalCondition);
+    public Collection<PostNummerEntity> search(String land, String[] post, String[] kommune, String[] vej, GlobalCondition globalCondition);
 }

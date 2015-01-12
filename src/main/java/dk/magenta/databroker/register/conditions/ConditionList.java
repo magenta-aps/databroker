@@ -88,7 +88,10 @@ public class ConditionList extends ArrayList<Condition> implements Condition {
     public Map<String, Object> getParameters() {
         HashMap<String, Object> parameters = new HashMap<String, Object>();
         for (Condition condition : this) {
-            parameters.putAll(condition.getParameters());
+            Map<String, Object> p = condition.getParameters();
+            if (p != null) {
+                parameters.putAll(p);
+            }
         }
         return parameters;
     }
