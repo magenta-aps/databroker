@@ -9,7 +9,7 @@
 <div layout:fragment="content">
 
     <h3>Interaktiv Kommunesøgning</h3>
-    <p>Søg efter kommuner ved at udfylde et eller flere af de nedenstående felter</p>
+    <p>Søg efter kommuner ved at udfylde et eller flere af de nedenstående felter. Se beskrivelsen af parametrene <a href="#parameters">længere nede på siden.</a></p>
 
     <p class="search">
         <label for="land">Land:</label>
@@ -88,8 +88,9 @@
     <hr/>
 
     <h3>Kommunesøgning</h3>
-    <p>Søg efter kommuner, afgrænset af angivne parametre</p>
+    <p>Søg efter kommuner, afgrænset af angivne parametre.</p>
     <pre>GET /service/search/kommune</pre>
+    <a name="parameters"></a>
     <h4>Parametre</h4>
     <table class="table table-hover">
         <thead>
@@ -107,8 +108,8 @@
             <tr th:replace="doc/fragments/params/vej"/>
 
             <tr th:replace="doc/fragments/params/format"/>
-            <tr th:replace="doc/fragments/params/includeBefore"/>
-            <tr th:replace="doc/fragments/params/includeAfter"/>
+            <!--tr th:replace="doc/fragments/params/includeBefore"/>
+            <tr th:replace="doc/fragments/params/includeAfter"/-->
 
         </tbody>
     </table>

@@ -9,7 +9,7 @@
 <div layout:fragment="content">
 
     <h3>Interaktiv Vejsøgning</h3>
-    <p>Søg efter veje ved at udfylde et eller flere af de nedenstående felter</p>
+    <p>Søg efter veje ved at udfylde et eller flere af de nedenstående felter. Se beskrivelsen af parametrene <a href="#parameters">længere nede på siden.</a></p>
 
     <p class="search">
         <label for="land">Land:</label>
@@ -31,19 +31,25 @@
         <label for="vej">Vej:</label>
         <input type="text" name="vej" id="vej"/><br/>
 
-
         <label for="format">Format:</label>
         <select name="format" id="format">
             <option value="json">JSON</option>
             <option value="xml">XML</option>
         </select><br/>
 
+
+        <label for="includeBefore">IncludeBefore:</label>
+        <input type="date" name="includeBefore" id="includeBefore"/><br/>
+
+        <label for="IncludeAfter">IncludeAfter:</label>
+        <input type="date" name="IncludeAfter" id="IncludeAfter"/><br/>
+
         <button type="submit" id="search" onclick="">Søg</button><img id="loading" src="/img/loading.gif" style="display:none"/><br/>
         <textarea id="results" style="width:100%; height:200px; display: none"/>
     </p>
     <script type="text/javascript">
         //<![CDATA[
-        var fields = $('#land,#kommune,#vej,#lokalitet,#post,#format');
+        var fields = $('#land,#kommune,#vej,#lokalitet,#post,#format,#includeBefore,#includeAfter');
         var run = doSearch.bind(null,'/services/search/vej',fields,$('#results'),$("#loading"));
         $("#search").select(run);
         $("#search").click(run);
@@ -91,6 +97,7 @@
     <h3>Vejsøgning</h3>
     <p>Søg efter veje, afgrænset af angivne parametre</p>
     <pre>GET /service/search/vej</pre>
+    <a name="parameters"></a>
     <h4>Parametre</h4>
     <table class="table table-hover">
         <thead>

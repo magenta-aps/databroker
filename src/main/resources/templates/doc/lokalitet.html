@@ -10,7 +10,7 @@
 
 
     <h3>Interaktiv Lokalitetssøgning</h3>
-    <p>Søg efter lokaliteter ved at udfylde et eller flere af de nedenstående felter</p>
+    <p>Søg efter lokaliteter ved at udfylde et eller flere af de nedenstående felter. Se beskrivelsen af parametrene <a href="#parameters">længere nede på siden.</a></p>
 
     <p class="search">
         <label for="land">Land:</label>
@@ -91,6 +91,7 @@
     <h3>Lokalitetsøgning</h3>
     <p>Søg efter lokaliteter, afgrænset af angivne parametre</p>
     <pre>GET /service/search/lokalitet</pre>
+    <a name="parameters"></a>
     <h4>Parametre</h4>
     <table class="table table-hover">
         <thead>
@@ -108,8 +109,8 @@
         <tr th:replace="doc/fragments/params/lokalitet"/>
 
         <tr th:replace="doc/fragments/params/format"/>
-        <tr th:replace="doc/fragments/params/includeBefore"/>
-        <tr th:replace="doc/fragments/params/includeAfter"/>
+        <!--tr th:replace="doc/fragments/params/includeBefore"/>
+        <tr th:replace="doc/fragments/params/includeAfter"/-->
 
         </tbody>
     </table>
