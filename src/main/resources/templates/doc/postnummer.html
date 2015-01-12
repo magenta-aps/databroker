@@ -26,6 +26,9 @@
         <label for="post">Post:</label>
         <input type="text" name="post" id="post"/><br/>
 
+        <label for="post">Vej:</label>
+        <input type="text" name="vej" id="vej"/><br/>
+
         <label for="format">Format:</label>
         <select name="format" id="format">
             <option value="json">JSON</option>
@@ -37,7 +40,7 @@
     </p>
     <script type="text/javascript">
         //<![CDATA[
-        var fields = $('#land,#kommune,#post,#format');
+        var fields = $('#land,#kommune,#post,#vej,#format');
         var run = doSearch.bind(null,'/services/search/postnr',fields,$('#results'),$("#loading"));
         $("#search").select(run);
         $("#search").click(run);
@@ -98,6 +101,7 @@
         <tr th:replace="doc/fragments/params/kommune"/>
         <tr th:replace="doc/fragments/params/land"/>
         <tr th:replace="doc/fragments/params/post"/>
+        <tr th:replace="doc/fragments/params/vej"/>
 
         <tr th:replace="doc/fragments/params/format"/>
         <tr th:replace="doc/fragments/params/includeBefore"/>
