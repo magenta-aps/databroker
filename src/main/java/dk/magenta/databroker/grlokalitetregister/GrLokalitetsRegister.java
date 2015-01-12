@@ -1,5 +1,6 @@
 package dk.magenta.databroker.grlokalitetregister;
 
+import dk.magenta.databroker.core.DataProviderConfiguration;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.dawa.model.RawVej;
@@ -127,5 +128,17 @@ public class GrLokalitetsRegister extends Register {
                  );
              }
          }
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    @Override
+    public String getTemplatePath() {
+        return "/fragments/GrLokalitetsRegisterForm.txt";
+    }
+
+    @Override
+    public DataProviderConfiguration getDefaultConfiguration() {
+        return new DataProviderConfiguration("{\"sourceType\":\"upload\"}");
     }
 }

@@ -1,11 +1,14 @@
 package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
+import dk.magenta.databroker.core.DataProviderConfiguration;
+import dk.magenta.databroker.core.DataProviderRegistry;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.register.Register;
 import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.text.ParseException;
 
 /**
@@ -16,6 +19,12 @@ import java.text.ParseException;
 public abstract class CprSubRegister extends Register {
 
     public CprSubRegister() {
+    }
+
+    @PostConstruct
+    @Override
+    protected void RegisterDataProviderInstance() {
+        // Do nothing
     }
 
     protected RegisterRun createRun() {
@@ -37,5 +46,13 @@ public abstract class CprSubRegister extends Register {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public String getTemplatePath() {
+        return null;
+    }
+
+    public DataProviderConfiguration getDefaultConfiguration() {
+        return new DataProviderConfiguration();
     }
 }

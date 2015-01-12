@@ -21,10 +21,11 @@ public class DataProviderEntity {
     private String type;
     private Boolean active;
     private Integer priority;
-    private String cronSchedule;
+    private String configuration;
     private Collection<UpdateLogEntryEntity> updateLogEntries;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "DataProviderId", nullable = false, insertable = true, updatable = true)
     public Integer getId() {
         return id;
@@ -79,13 +80,13 @@ public class DataProviderEntity {
     }
 
     @Basic
-    @Column(name = "cronSchedule", nullable = true, insertable = true, updatable = true, length = 255)
-    public String getCronSchedule() {
-        return cronSchedule;
+    @Column(name = "configuration", nullable = true, insertable = true, updatable = true, length = 10000)
+    public String getConfiguration() {
+        return configuration;
     }
 
-    public void setCronSchedule(String cronSchedule) {
-        this.cronSchedule = cronSchedule;
+    public void setConfiguration(String configuration) {
+        this.configuration = configuration;
     }
 
     @Override
@@ -96,7 +97,7 @@ public class DataProviderEntity {
         DataProviderEntity that = (DataProviderEntity) o;
 
         if (active != null ? !active.equals(that.active) : that.active != null) return false;
-        if (cronSchedule != null ? !cronSchedule.equals(that.cronSchedule) : that.cronSchedule != null) return false;
+        if (configuration != null ? !configuration.equals(that.configuration) : that.configuration != null) return false;
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
         if (priority != null ? !priority.equals(that.priority) : that.priority != null) return false;
         if (type != null ? !type.equals(that.type) : that.type != null) return false;
@@ -112,7 +113,7 @@ public class DataProviderEntity {
         result = 31 * result + (type != null ? type.hashCode() : 0);
         result = 31 * result + (active != null ? active.hashCode() : 0);
         result = 31 * result + (priority != null ? priority.hashCode() : 0);
-        result = 31 * result + (cronSchedule != null ? cronSchedule.hashCode() : 0);
+        result = 31 * result + (configuration != null ? configuration.hashCode() : 0);
         return result;
     }
 
