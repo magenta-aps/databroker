@@ -190,8 +190,8 @@ public class DawaModel {
         return this.vejstykkeRepository.getByKommunekodeAndVejkode(kommuneKode, vejKode);
     }
 
-    public Collection<VejstykkeEntity> getVejstykke(String land, String[] kommune, String[] vej, String[] lokalitet, GlobalCondition globalCondition) {
-        return this.vejstykkeRepository.search(land, kommune, vej, lokalitet, globalCondition);
+    public Collection<VejstykkeEntity> getVejstykke(String land, String[] kommune, String[] vej, String[] lokalitet, String[] post, GlobalCondition globalCondition) {
+        return this.vejstykkeRepository.search(land, kommune, vej, lokalitet, post, globalCondition);
     }
 
     public VejstykkeEntity getVejstykke(String uuid) {

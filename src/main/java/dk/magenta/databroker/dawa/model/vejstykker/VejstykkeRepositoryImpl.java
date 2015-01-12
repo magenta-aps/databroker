@@ -15,7 +15,7 @@ import java.util.Map;
  * Created by lars on 19-12-14.
  */
 interface VejstykkeRepositoryCustom {
-    public Collection<VejstykkeEntity> search(String land, String[] kommune, String[] vej, String[] lokalitet, GlobalCondition globalCondition);
+    public Collection<VejstykkeEntity> search(String land, String[] kommune, String[] vej, String[] lokalitet, String[] post, GlobalCondition globalCondition);
 }
 
 public class VejstykkeRepositoryImpl implements VejstykkeRepositoryCustom {
@@ -28,7 +28,7 @@ public class VejstykkeRepositoryImpl implements VejstykkeRepositoryCustom {
     }
 
     @Override
-    public Collection<VejstykkeEntity> search(String land, String[] kommune, String[] vej, String[] lokalitet, GlobalCondition globalCondition) {
+    public Collection<VejstykkeEntity> search(String land, String[] kommune, String[] vej, String[] lokalitet, String[] post, GlobalCondition globalCondition) {
 
         StringList hql = new StringList();
         StringList join = new StringList();
@@ -52,6 +52,10 @@ public class VejstykkeRepositoryImpl implements VejstykkeRepositoryCustom {
         if (lokalitet != null && lokalitet.length > 0) {
             join.append("vej.latestVersion.lokaliteter lokalitet");
             conditions.addCondition(RepositoryUtil.whereField(lokalitet, null, "lokalitet.navn"));
+        }
+        if (post != null) {
+            join.append("vej.latestVersion.postnumre post");
+            conditions.addCondition(RepositoryUtil.whereField(post, "post.latestVersion.nr", "post.latestVersion.navn"));
         }
         if (globalCondition != null) {
             conditions.addCondition(globalCondition.whereField("vej"));

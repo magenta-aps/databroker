@@ -129,7 +129,7 @@ public class SearchService {
     @GET
     @Path("vej")
     @Transactional
-    public String vej(@QueryParam("land") String land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej, @QueryParam("lokalitet") String[] lokalitet,
+    public String vej(@QueryParam("land") String land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej, @QueryParam("lokalitet") String[] lokalitet, @QueryParam("post") String[] post,
                       @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
         Format fmt = this.getFormat(formatStr);
         GlobalCondition globalCondition = new GlobalCondition(includeBefore, includeAfter);
@@ -140,6 +140,7 @@ public class SearchService {
                     this.cleanInput(kommune),
                     this.cleanInput(vej),
                     this.cleanInput(lokalitet),
+                    this.cleanInput(post),
                     globalCondition
             )
         );
