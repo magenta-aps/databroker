@@ -25,6 +25,9 @@
         <label for="lokalitet">Lokalitet:</label>
         <input type="text" name="lokalitet" id="lokalitet"/><br/>
 
+        <label for="post">Post:</label>
+        <input type="text" name="post" id="post"/><br/>
+
         <label for="vej">Vej:</label>
         <input type="text" name="vej" id="vej"/><br/>
 
@@ -40,7 +43,7 @@
     </p>
     <script type="text/javascript">
         //<![CDATA[
-        var fields = $('#land,#kommune,#vej,#lokalitet,#format');
+        var fields = $('#land,#kommune,#vej,#lokalitet,#post,#format');
         var run = doSearch.bind(null,'/services/search/vej',fields,$('#results'),$("#loading"));
         $("#search").select(run);
         $("#search").click(run);
@@ -102,6 +105,7 @@
         <tr th:replace="doc/fragments/params/land"/>
         <tr th:replace="doc/fragments/params/vej"/>
         <tr th:replace="doc/fragments/params/lokalitet"/>
+        <tr th:replace="doc/fragments/params/post"/>
 
         <tr th:replace="doc/fragments/params/format"/>
         <tr th:replace="doc/fragments/params/includeBefore"/>
