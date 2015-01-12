@@ -26,7 +26,10 @@ public class DocumentationController {
 
     @RequestMapping("/doc/kommune")
     public ModelAndView kommune() {
-        return new ModelAndView("doc/kommune");
+        Map<String, Object> model = new HashMap<String, Object>();
+        model.put("nav","kommune");
+
+        return new ModelAndView("doc/kommune", model);
     }
 
     @RequestMapping("/doc/vej")
@@ -35,13 +38,17 @@ public class DocumentationController {
 
         Map<String, Object> model = new HashMap<String, Object>();
         model.put("uuid", vejstykkeEntity != null ? vejstykkeEntity.getUuid() : "e9032c69-98bf-4e18-bc94-1a5e5f8901e4");
+        model.put("nav","vej");
 
         return new ModelAndView("doc/vej", model);
     }
 
     @RequestMapping("/doc/postnr")
     public ModelAndView postnr() {
-        return new ModelAndView("doc/postnummer");
+        Map<String, Object> model = new HashMap<String, Object>();
+        model.put("nav","postnummer");
+
+        return new ModelAndView("doc/postnummer", model);
     }
 
 
@@ -52,6 +59,7 @@ public class DocumentationController {
 
         Map<String, Object> model = new HashMap<String, Object>();
         model.put("uuid", adgangsAdresseEntity != null ? adgangsAdresseEntity.getUuid() : "hephey");
+        model.put("nav","adgangsadresse");
 
         return new ModelAndView("doc/adgangsadresse", model);
     }
@@ -64,6 +72,7 @@ public class DocumentationController {
 
         Map<String, Object> model = new HashMap<String, Object>();
         model.put("uuid", enhedsAdresseEntity != null ? enhedsAdresseEntity.getUuid() : "hephey");
+        model.put("nav","adresse");
 
         return new ModelAndView("doc/adresse", model);
     }
@@ -76,6 +85,7 @@ public class DocumentationController {
 
         Map<String, Object> model = new HashMap<String, Object>();
         model.put("uuid", lokalitetEntity != null ? lokalitetEntity.getUuid() : "hephey");
+        model.put("nav","lokalitet");
 
         return new ModelAndView("doc/lokalitet", model);
     }
