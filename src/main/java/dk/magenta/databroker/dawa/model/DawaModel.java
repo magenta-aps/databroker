@@ -84,8 +84,8 @@ public class DawaModel {
         return this.kommuneRepository.getByKode(kode);
     }
 
-    public Collection<KommuneEntity> getKommune(String land, String[] kommune, String[] lokalitet, GlobalCondition globalCondition) {
-        return this.kommuneRepository.search(land, kommune, lokalitet, globalCondition);
+    public Collection<KommuneEntity> getKommune(String land, String[] kommune, String[] post, String[] lokalitet, String[] vej, GlobalCondition globalCondition) {
+        return this.kommuneRepository.search(land, kommune, post, lokalitet, vej, globalCondition);
     }
 
     private Level1Container<KommuneEntity> getKommuneCache() {

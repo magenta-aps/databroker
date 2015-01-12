@@ -82,7 +82,7 @@ public class KommuneEntity extends TemaBase {
 
     //----------------------------------------------------
 
-    @ManyToMany
+    @ManyToMany(mappedBy = "kommuner")
     private Collection<PostNummerVersionEntity> postnumre;
 
     public Collection<PostNummerVersionEntity> getPostnumre() {

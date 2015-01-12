@@ -78,7 +78,7 @@ public class SearchService {
     @GET
     @Path("kommune")
     @Transactional
-    public String kommune(@QueryParam("land") String land, @QueryParam("kommune") String[] kommune, @QueryParam("lokalitet") String[] lokalitet,
+    public String kommune(@QueryParam("land") String land, @QueryParam("kommune") String[] kommune, @QueryParam("post") String[] post, @QueryParam("lokalitet") String[] lokalitet, @QueryParam("vej") String[] vej,
                           @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
         Format fmt = this.getFormat(formatStr);
 
@@ -88,7 +88,9 @@ public class SearchService {
                 this.model.getKommune(
                         this.cleanInput(land),
                         this.cleanInput(kommune),
+                        this.cleanInput(post),
                         this.cleanInput(lokalitet),
+                        this.cleanInput(vej),
                         globalCondition
                 )
         );

@@ -57,6 +57,7 @@ public class PostNummerVersionEntity extends DobbeltHistorikVersion<PostNummerEn
     //----------------------------------------------------
 
     @Column(nullable = false)
+    @Index(name = "navn")
     private String navn;
 
     public String getNavn() {
