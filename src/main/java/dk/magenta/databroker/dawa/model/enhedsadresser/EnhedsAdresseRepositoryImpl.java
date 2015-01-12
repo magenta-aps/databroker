@@ -42,18 +42,20 @@ public class EnhedsAdresseRepositoryImpl implements EnhedsAdresseRepositoryCusto
         if (land != null || kommune != null || vej != null || post != null || husnr != null) {
             join.append("adresse.latestVersion as adresseVersion");
             join.append("adresseVersion.adgangsadresse as adgang");
-            join.append("adgang.vejstykke as vejstykke");
 
-            if (vej != null && vej.length > 0) {
-                conditions.addCondition(RepositoryUtil.whereField(vej, "vejstykke.kode", "vejstykke.latestVersion.vejnavn"));
-            }
-            if (land != null || kommune != null) {
-                join.append("vejstykke.kommune as kommune");
-                if (land != null) {
-                    conditions.addCondition(RepositoryUtil.whereFieldLand(land));
+            if (vej != null || land != null || kommune != null) {
+                join.append("adgang.vejstykke as vejstykke");
+                if (vej != null && vej.length > 0) {
+                    conditions.addCondition(RepositoryUtil.whereField(vej, "vejstykke.kode", "vejstykke.latestVersion.vejnavn"));
                 }
-                if (kommune != null) {
-                    conditions.addCondition(RepositoryUtil.whereField(kommune, "kommune.kode", "kommune.navn"));
+                if (land != null || kommune != null) {
+                    join.append("vejstykke.kommune as kommune");
+                    if (land != null) {
+                        conditions.addCondition(RepositoryUtil.whereFieldLand(land));
+                    }
+                    if (kommune != null) {
+                        conditions.addCondition(RepositoryUtil.whereField(kommune, "kommune.kode", "kommune.navn"));
+                    }
                 }
             }
             if (post != null && post.length > 0) {
