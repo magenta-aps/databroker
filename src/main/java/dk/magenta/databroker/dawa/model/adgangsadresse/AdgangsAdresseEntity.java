@@ -141,7 +141,7 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
 
     //------------------------------------------------------------------------------------------------------------------
 
-    @Column(nullable = true)
+    @Column(nullable = true, length = 6)
     private String bnr;
 
     public String getBnr() {

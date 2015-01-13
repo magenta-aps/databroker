@@ -99,6 +99,11 @@ public class DawaModel {
     }
 
 
+    public void resetKommuneCache() {
+        this.kommuneCache = null;
+    }
+
+
     //------------------------------------------------------------------------------------------------------------------
 
 
@@ -398,6 +403,11 @@ public class DawaModel {
         return this.postNummerRepository.search(parameters);
     }
 
+
+    public void resetPostNummerCache() {
+        this.postNummerCache = null;
+    }
+
     //------------------------------------------------------------------------------------------------------------------
 
     @Autowired
@@ -614,6 +624,15 @@ public class DawaModel {
 
     public void resetLokalitetCache() {
         this.lokalitetCache = null;
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    public void resetAllCaches() {
+        this.resetKommuneCache();
+        this.resetVejstykkeCache();
+        this.resetLokalitetCache();
+        this.resetPostNummerCache();
     }
 
 }

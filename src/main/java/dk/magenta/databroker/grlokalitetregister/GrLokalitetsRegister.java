@@ -95,8 +95,7 @@ public class GrLokalitetsRegister extends Register {
 
      protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
          GrRegisterRun grun = (GrRegisterRun) run;
-         this.model.resetVejstykkeCache();
-         this.model.resetLokalitetCache();
+         this.model.resetAllCaches();
 
          Level2Container<HashSet<RawVej>> lokalitetData = new Level2Container<HashSet<RawVej>>();
          for (Record record : grun) {
