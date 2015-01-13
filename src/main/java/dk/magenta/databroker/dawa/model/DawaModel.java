@@ -409,12 +409,12 @@ public class DawaModel {
     private EnhedsAdresseRepository enhedsAdresseRepository;
 
 
-    public AdgangsAdresseEntity setAdresse(int kommuneKode, int vejKode, String husNr, String etage, String doer,
+    public AdgangsAdresseEntity setAdresse(int kommuneKode, int vejKode, String husNr, String bnr, String etage, String doer,
                                            RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering) {
-        return this.setAdresse(kommuneKode, vejKode, husNr, etage, doer, createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>());
+        return this.setAdresse(kommuneKode, vejKode, husNr, bnr, etage, doer, createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>());
     }
 
-    public AdgangsAdresseEntity setAdresse(int kommuneKode, int vejKode, String husNr, String etage, String doer,
+    public AdgangsAdresseEntity setAdresse(int kommuneKode, int vejKode, String husNr, String bnr, String etage, String doer,
                                            RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering, List<VirkningEntity> virkninger) {
 
         VejstykkeEntity vejstykkeEntity = this.getVejstykkeCache().get(kommuneKode, vejKode);
@@ -427,7 +427,7 @@ public class DawaModel {
             Collection<AdgangsAdresseEntity> adgangsAdresseEntities = vejstykkeEntity.getAdgangsAdresser();
             if (adgangsAdresseEntities != null) {
                 for (AdgangsAdresseEntity a : adgangsAdresseEntities) {
-                    if (husNr.equals(a.getHusnr())) {
+                    if (husNr != null && husNr.equals(a.getHusnr()) && (bnr==null || bnr.equals(a.getBnr()))) {
                         adgangsAdresseEntity = a;
                     }
                 }
@@ -437,6 +437,7 @@ public class DawaModel {
                 adgangsAdresseEntity = new AdgangsAdresseEntity();
                 adgangsAdresseEntity.setVejstykke(vejstykkeEntity);
                 adgangsAdresseEntity.setHusnr(husNr);
+                adgangsAdresseEntity.setBnr(bnr);
                 if (printProcessing) {
                     System.out.println("    creating new AdgangsAdresseEntity");
                 }

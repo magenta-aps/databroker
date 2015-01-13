@@ -90,6 +90,7 @@ public class GrLokalitetsRegister extends Register {
     * */
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private DawaModel model;
 
      protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
