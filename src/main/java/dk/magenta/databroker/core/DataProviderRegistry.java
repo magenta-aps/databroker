@@ -42,7 +42,6 @@ public class DataProviderRegistry {
         return dataProviderTypes.get(type);
     }
 
-
     public static Collection<DataProvider> getRegisteredDataProviders() {
         // TODO: return list of dataprovider dataProviderTypes
         return dataProviderTypes.values();
@@ -52,8 +51,11 @@ public class DataProviderRegistry {
         return dataProviderTypes.get(dataproviderEntity.getType());
     }
 
+    public static void pull(DataProviderEntity dataProviderEntity) {
+        DataProviderRegistry.getDataProviderForEntity(dataProviderEntity).pull(dataProviderEntity);
+    }
+
     public Collection<DataProviderEntity> getDataProviderEntities() {
-        System.out.println(dataProviderRepository);
         return dataProviderRepository.findAll();
     }
 
