@@ -92,10 +92,10 @@ public class NukissiorfiitRegister extends Register {
                         husnr = "0";
                     }
                     String bnr = record.get("bnr");
-                    String etage = null;
+                    String etage = "";
                     String doer = record.get("lejlighedsnr");
-                    if (doer != null && doer.isEmpty()) {
-                        doer = null;
+                    if (doer == null || doer.isEmpty()) {
+                        doer = "";
                     }
                     this.model.setAdresse(kommuneKode, vejKode, husnr, bnr, etage, doer,
                             this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
