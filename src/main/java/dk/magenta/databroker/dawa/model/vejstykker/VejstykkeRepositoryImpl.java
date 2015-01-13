@@ -1,5 +1,7 @@
 package dk.magenta.databroker.dawa.model.vejstykker;
 
+import dk.magenta.databroker.dawa.model.SearchParameters;
+import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
@@ -15,7 +17,7 @@ import java.util.Map;
  * Created by lars on 19-12-14.
  */
 interface VejstykkeRepositoryCustom {
-    public Collection<VejstykkeEntity> search(String land, String[] kommune, String[] vej, String[] lokalitet, String[] post, GlobalCondition globalCondition);
+    public Collection<VejstykkeEntity> search(SearchParameters parameters, boolean quiet);
 }
 
 public class VejstykkeRepositoryImpl implements VejstykkeRepositoryCustom {
@@ -28,7 +30,7 @@ public class VejstykkeRepositoryImpl implements VejstykkeRepositoryCustom {
     }
 
     @Override
-    public Collection<VejstykkeEntity> search(String land, String[] kommune, String[] vej, String[] lokalitet, String[] post, GlobalCondition globalCondition) {
+    public Collection<VejstykkeEntity> search(SearchParameters parameters, boolean printQuery) {
 
         StringList hql = new StringList();
         StringList join = new StringList();
@@ -37,28 +39,28 @@ public class VejstykkeRepositoryImpl implements VejstykkeRepositoryCustom {
         hql.append("select distinct vej from VejstykkeEntity as vej");
 
         join.setPrefix("join ");
-        if (kommune != null || land != null) {
+        if (parameters.hasAny(Key.LAND, Key.KOMMUNE)) {
             join.append("vej.kommune kommune");
-            if (land != null) {
-                conditions.addCondition(RepositoryUtil.whereFieldLand(land));
+            if (parameters.has(Key.LAND)) {
+                conditions.addCondition(RepositoryUtil.whereFieldLand(parameters.get(Key.LAND)));
             }
-            if (kommune != null) {
-                conditions.addCondition(RepositoryUtil.whereField(kommune, "kommune.kode", "kommune.navn"));
+            if (parameters.has(Key.KOMMUNE)) {
+                conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.KOMMUNE), "kommune.kode", "kommune.navn"));
             }
         }
-        if (vej != null) {
-            conditions.addCondition(RepositoryUtil.whereField(vej, "vej.kode", "vej.latestVersion.vejnavn"));
+        if (parameters.has(Key.VEJ)) {
+            conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.VEJ), "vej.kode", "vej.latestVersion.vejnavn"));
         }
-        if (lokalitet != null && lokalitet.length > 0) {
+        if (parameters.has(Key.LOKALITET)) {
             join.append("vej.latestVersion.lokaliteter lokalitet");
-            conditions.addCondition(RepositoryUtil.whereField(lokalitet, null, "lokalitet.navn"));
+            conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.LOKALITET), null, "lokalitet.navn"));
         }
-        if (post != null) {
+        if (parameters.has(Key.POST)) {
             join.append("vej.latestVersion.postnumre post");
-            conditions.addCondition(RepositoryUtil.whereField(post, "post.latestVersion.nr", "post.latestVersion.navn"));
+            conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.POST), "post.latestVersion.nr", "post.latestVersion.navn"));
         }
-        if (globalCondition != null) {
-            conditions.addCondition(globalCondition.whereField("vej"));
+        if (parameters.hasGlobalCondition()) {
+            conditions.addCondition(parameters.getGlobalCondition().whereField("vej"));
         }
 
         // our conditions list should now be complete
@@ -79,13 +81,17 @@ public class VejstykkeRepositoryImpl implements VejstykkeRepositoryCustom {
         }
         hql.append("order by vej.kode");
 
-        System.out.println(hql.join(" \n"));
+        if (printQuery) {
+            System.out.println(hql.join(" \n"));
+        }
         Query q = this.entityManager.createQuery(hql.join(" "));
         q.setMaxResults(1000);
-        Map<String, Object> parameters = conditions.getParameters();
-        for (String key : parameters.keySet()) {
-            System.out.println(key+" = "+parameters.get(key));
-            q.setParameter(key, parameters.get(key));
+        Map<String, Object> queryParameters = conditions.getParameters();
+        for (String key : queryParameters.keySet()) {
+            if (printQuery) {
+                System.out.println(key + " = " + queryParameters.get(key));
+            }
+            q.setParameter(key, queryParameters.get(key));
         }
         return q.getResultList();
     }

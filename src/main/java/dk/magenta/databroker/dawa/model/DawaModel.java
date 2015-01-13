@@ -18,7 +18,6 @@ import dk.magenta.databroker.dawa.model.temaer.KommuneRepository;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeRepository;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeVersionEntity;
-import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.register.objectcontainers.Level1Container;
 import dk.magenta.databroker.register.objectcontainers.Level2Container;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,8 +83,11 @@ public class DawaModel {
         return this.kommuneRepository.getByKode(kode);
     }
 
-    public Collection<KommuneEntity> getKommune(String land, String[] kommune, String[] post, String[] lokalitet, String[] vej, GlobalCondition globalCondition) {
-        return this.kommuneRepository.search(land, kommune, post, lokalitet, vej, globalCondition);
+    public Collection<KommuneEntity> getKommune(SearchParameters parameters) {
+        return this.getKommune(parameters, true);
+    }
+    public Collection<KommuneEntity> getKommune(SearchParameters parameters, boolean printQuery) {
+        return this.kommuneRepository.search(parameters, printQuery);
     }
 
     private Level1Container<KommuneEntity> getKommuneCache() {
@@ -96,6 +98,11 @@ public class DawaModel {
             }
         }
         return this.kommuneCache;
+    }
+
+
+    public void resetKommuneCache() {
+        this.kommuneCache = null;
     }
 
 
@@ -190,8 +197,11 @@ public class DawaModel {
         return this.vejstykkeRepository.getByKommunekodeAndVejkode(kommuneKode, vejKode);
     }
 
-    public Collection<VejstykkeEntity> getVejstykke(String land, String[] kommune, String[] vej, String[] lokalitet, String[] post, GlobalCondition globalCondition) {
-        return this.vejstykkeRepository.search(land, kommune, vej, lokalitet, post, globalCondition);
+    public Collection<VejstykkeEntity> getVejstykke(SearchParameters parameters) {
+        return this.getVejstykke(parameters, true);
+    }
+    public Collection<VejstykkeEntity> getVejstykke(SearchParameters parameters, boolean printQuery) {
+        return this.vejstykkeRepository.search(parameters, printQuery);
     }
 
     public VejstykkeEntity getVejstykke(String uuid) {
@@ -394,8 +404,16 @@ public class DawaModel {
         return this.postNummerRepository.getByNr(postnr);
     }
 
-    public Collection<PostNummerEntity> getPostnummer(String land, String[] post, String[] kommune, String[] vej, GlobalCondition globalCondition) {
-        return this.postNummerRepository.search(land, post, kommune, vej, globalCondition);
+    public Collection<PostNummerEntity> getPostnummer(SearchParameters parameters) {
+        return this.getPostnummer(parameters, true);
+    }
+    public Collection<PostNummerEntity> getPostnummer(SearchParameters parameters, boolean printQuery) {
+        return this.postNummerRepository.search(parameters, printQuery);
+    }
+
+
+    public void resetPostNummerCache() {
+        this.postNummerCache = null;
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -409,12 +427,12 @@ public class DawaModel {
     private EnhedsAdresseRepository enhedsAdresseRepository;
 
 
-    public AdgangsAdresseEntity setAdresse(int kommuneKode, int vejKode, String husNr, String etage, String doer,
+    public AdgangsAdresseEntity setAdresse(int kommuneKode, int vejKode, String husNr, String bnr, String etage, String doer,
                                            RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering) {
-        return this.setAdresse(kommuneKode, vejKode, husNr, etage, doer, createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>());
+        return this.setAdresse(kommuneKode, vejKode, husNr, bnr, etage, doer, createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>());
     }
 
-    public AdgangsAdresseEntity setAdresse(int kommuneKode, int vejKode, String husNr, String etage, String doer,
+    public AdgangsAdresseEntity setAdresse(int kommuneKode, int vejKode, String husNr, String bnr, String etage, String doer,
                                            RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering, List<VirkningEntity> virkninger) {
 
         VejstykkeEntity vejstykkeEntity = this.getVejstykkeCache().get(kommuneKode, vejKode);
@@ -427,7 +445,7 @@ public class DawaModel {
             Collection<AdgangsAdresseEntity> adgangsAdresseEntities = vejstykkeEntity.getAdgangsAdresser();
             if (adgangsAdresseEntities != null) {
                 for (AdgangsAdresseEntity a : adgangsAdresseEntities) {
-                    if (husNr.equals(a.getHusnr())) {
+                    if (husNr != null && husNr.equals(a.getHusnr()) && (bnr==null || bnr.equals(a.getBnr()))) {
                         adgangsAdresseEntity = a;
                     }
                 }
@@ -437,6 +455,7 @@ public class DawaModel {
                 adgangsAdresseEntity = new AdgangsAdresseEntity();
                 adgangsAdresseEntity.setVejstykke(vejstykkeEntity);
                 adgangsAdresseEntity.setHusnr(husNr);
+                adgangsAdresseEntity.setBnr(bnr);
                 if (printProcessing) {
                     System.out.println("    creating new AdgangsAdresseEntity");
                 }
@@ -513,16 +532,22 @@ public class DawaModel {
         return this.adgangsAdresseRepository.getByUuid(uuid);
     }
 
-    public Collection<AdgangsAdresseEntity> getAdgangsAdresse(String land, String[] post, String[] kommune, String[] vej, String[] husnr, GlobalCondition globalCondition) {
-        return this.adgangsAdresseRepository.search(land, kommune, post, vej, husnr, globalCondition);
+    public Collection<AdgangsAdresseEntity> getAdgangsAdresse(SearchParameters parameters) {
+        return this.getAdgangsAdresse(parameters, true);
+    }
+    public Collection<AdgangsAdresseEntity> getAdgangsAdresse(SearchParameters parameters, boolean printQuery) {
+        return this.adgangsAdresseRepository.search(parameters, printQuery);
     }
 
     public EnhedsAdresseEntity getEnhedsAdresse(String uuid) {
         return this.enhedsAdresseRepository.getByUuid(uuid);
     }
 
-    public Collection<EnhedsAdresseEntity> getEnhedsAdresse(String land, String[] post, String[] kommune, String[] vej, String[] husnr, String[] etage, String[] doer, GlobalCondition globalCondition) {
-        return this.enhedsAdresseRepository.search(land, post, kommune, vej, husnr, etage, doer, globalCondition);
+    public Collection<EnhedsAdresseEntity> getEnhedsAdresse(SearchParameters parameters) {
+        return this.getEnhedsAdresse(parameters, true);
+    }
+    public Collection<EnhedsAdresseEntity> getEnhedsAdresse(SearchParameters parameters, boolean printQuery) {
+        return this.enhedsAdresseRepository.search(parameters, printQuery);
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -591,8 +616,11 @@ public class DawaModel {
     }
 
 
-    public Collection<LokalitetEntity> getLokalitet(String land, String[] post, String[] kommune, String[] vej, String[] lokalitet, GlobalCondition globalCondition) {
-        return this.lokalitetRepository.search(land, post, kommune, vej, lokalitet, globalCondition);
+    public Collection<LokalitetEntity> getLokalitet(SearchParameters parameters) {
+        return this.getLokalitet(parameters, true);
+    }
+    public Collection<LokalitetEntity> getLokalitet(SearchParameters parameters, boolean printQuery) {
+        return this.lokalitetRepository.search(parameters, printQuery);
     }
 
 
@@ -613,6 +641,15 @@ public class DawaModel {
 
     public void resetLokalitetCache() {
         this.lokalitetCache = null;
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    public void resetAllCaches() {
+        this.resetKommuneCache();
+        this.resetVejstykkeCache();
+        this.resetLokalitetCache();
+        this.resetPostNummerCache();
     }
 
 }

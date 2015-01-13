@@ -1,6 +1,8 @@
 package dk.magenta.databroker.core.controller;
 
 import dk.magenta.databroker.dawa.model.DawaModel;
+import dk.magenta.databroker.dawa.model.SearchParameters;
+import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseEntity;
 import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseEntity;
 import dk.magenta.databroker.dawa.model.lokalitet.LokalitetEntity;
@@ -22,6 +24,7 @@ import java.util.Map;
 public class DocumentationController {
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private DawaModel model;
 
     @RequestMapping("/doc/kommune")
@@ -54,11 +57,16 @@ public class DocumentationController {
 
     @RequestMapping("/doc/adgangsadresse")
     public ModelAndView adgangsadresse() {
-        Collection<AdgangsAdresseEntity> adgangsAdresseEntities = this.model.getAdgangsAdresse("gl", null, new String[]{"958"}, new String[]{"18"}, new String[]{"2"}, null);
+        SearchParameters parameters = new SearchParameters();
+        parameters.put(Key.LAND, "gl");
+        parameters.put(Key.KOMMUNE, 958);
+        parameters.put(Key.VEJ, 18);
+        parameters.put(Key.HUSNR, 2);
+        Collection<AdgangsAdresseEntity> adgangsAdresseEntities = this.model.getAdgangsAdresse(parameters);
         AdgangsAdresseEntity adgangsAdresseEntity = adgangsAdresseEntities.size() > 0 ? adgangsAdresseEntities.iterator().next() : null;
 
         Map<String, Object> model = new HashMap<String, Object>();
-        model.put("uuid", adgangsAdresseEntity != null ? adgangsAdresseEntity.getUuid() : "hephey");
+        model.put("uuid", adgangsAdresseEntity != null ? adgangsAdresseEntity.getUuid() : "bf37eed9-5f28-4c45-acf6-41c932794a6b");
         model.put("nav","adgangsadresse");
 
         return new ModelAndView("doc/adgangsadresse", model);
@@ -67,11 +75,17 @@ public class DocumentationController {
 
     @RequestMapping("/doc/adresse")
     public ModelAndView adresse() {
-        Collection<EnhedsAdresseEntity> enhedsAdresseEntities = this.model.getEnhedsAdresse(null, null, new String[]{"330"}, new String[]{"779"}, new String[]{"35"}, new String[]{"2"}, null, null);
+        SearchParameters parameters = new SearchParameters();
+        parameters.put(Key.KOMMUNE, 330);
+        parameters.put(Key.VEJ, 779);
+        parameters.put(Key.HUSNR, 35);
+        parameters.put(Key.ETAGE, 2);
+
+        Collection<EnhedsAdresseEntity> enhedsAdresseEntities = this.model.getEnhedsAdresse(parameters);
         EnhedsAdresseEntity enhedsAdresseEntity = enhedsAdresseEntities.size() > 0 ? enhedsAdresseEntities.iterator().next() : null;
 
         Map<String, Object> model = new HashMap<String, Object>();
-        model.put("uuid", enhedsAdresseEntity != null ? enhedsAdresseEntity.getUuid() : "hephey");
+        model.put("uuid", enhedsAdresseEntity != null ? enhedsAdresseEntity.getUuid() : "dd308d33-a60f-4506-b410-4397b038d20c");
         model.put("nav","adresse");
 
         return new ModelAndView("doc/adresse", model);
@@ -80,11 +94,11 @@ public class DocumentationController {
 
     @RequestMapping("/doc/lokalitet")
     public ModelAndView lokalitet() {
-        Collection<LokalitetEntity> lokalitetEntities = this.model.getLokalitet(null, null, null, null, new String[]{"Nuuk"}, null);
+        Collection<LokalitetEntity> lokalitetEntities = this.model.getLokalitet(new SearchParameters(null, null, null, new String[]{"Nuuk"}, null, null, null, null, null));
         LokalitetEntity lokalitetEntity = lokalitetEntities.size() > 0 ? lokalitetEntities.iterator().next() : null;
 
         Map<String, Object> model = new HashMap<String, Object>();
-        model.put("uuid", lokalitetEntity != null ? lokalitetEntity.getUuid() : "hephey");
+        model.put("uuid", lokalitetEntity != null ? lokalitetEntity.getUuid() : "d718816e-d054-4cd4-85ec-85f50e5a6779");
         model.put("nav","lokalitet");
 
         return new ModelAndView("doc/lokalitet", model);

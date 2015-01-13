@@ -1,5 +1,7 @@
 package dk.magenta.databroker.dawa.model.lokalitet;
 
+import dk.magenta.databroker.dawa.model.SearchParameters;
+import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
@@ -16,7 +18,7 @@ import java.util.Map;
  */
 
 interface LokalitetRepositoryCustom {
-    public Collection<LokalitetEntity> search(String land, String[] post, String[] kommune, String[] vej, String[] lokalitet, GlobalCondition globalCondition);
+    public Collection<LokalitetEntity> search(SearchParameters parameters, boolean printQuery);
 }
 
 public class LokalitetRepositoryImpl implements LokalitetRepositoryCustom {
@@ -29,7 +31,7 @@ public class LokalitetRepositoryImpl implements LokalitetRepositoryCustom {
     }
 
     @Override
-    public Collection<LokalitetEntity> search(String land, String[] post, String[] kommune, String[] vej, String[] lokalitet, GlobalCondition globalCondition) {
+    public Collection<LokalitetEntity> search(SearchParameters parameters, boolean printQuery) {
 
         StringList hql = new StringList();
         StringList join = new StringList();
@@ -38,36 +40,36 @@ public class LokalitetRepositoryImpl implements LokalitetRepositoryCustom {
         hql.append("select distinct lokalitet from LokalitetEntity as lokalitet");
         join.setPrefix("join ");
 
-        if (land != null || vej != null || kommune != null || post != null) {
+        if (parameters.hasAny(Key.LAND, Key.KOMMUNE, Key.POST, Key.VEJ)) {
             join.append("lokalitet.vejstykkeVersioner vejVersion");
             join.append("vejVersion.entity as vej");
 
-            if (vej != null) {
-                conditions.addCondition(RepositoryUtil.whereField(vej, "vej.kode", "vejVersion.vejnavn"));
+            if (parameters.has(Key.VEJ)) {
+                conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.VEJ), "vej.kode", "vejVersion.vejnavn"));
             }
 
-            if (post != null) {
+            if (parameters.has(Key.POST)) {
                 join.append("vejversion.postnumre post");
-                conditions.addCondition(RepositoryUtil.whereField(post, "post.latestVersion.nr", "post.latestVersion.navn"));
+                conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.POST), "post.latestVersion.nr", "post.latestVersion.navn"));
             }
 
-            if (kommune != null || land != null) {
+            if (parameters.hasAny(Key.LAND, Key.KOMMUNE)) {
                 join.append("vej.kommune kommune");
-                if (kommune != null) {
-                    conditions.addCondition(RepositoryUtil.whereField(kommune, "kommune.kode", "kommune.navn"));
+                if (parameters.has(Key.KOMMUNE)) {
+                    conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.KOMMUNE), "kommune.kode", "kommune.navn"));
                 }
-                if (land != null) {
-                    conditions.addCondition(RepositoryUtil.whereFieldLand(land));
+                if (parameters.has(Key.LAND)) {
+                    conditions.addCondition(RepositoryUtil.whereFieldLand(parameters.get(Key.LAND)));
                 }
             }
         }
 
-        if (lokalitet != null && lokalitet.length > 0) {
-            conditions.addCondition(RepositoryUtil.whereField(lokalitet, null, "lokalitet.navn"));
+        if (parameters.has(Key.LOKALITET)) {
+            conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.LOKALITET), null, "lokalitet.navn"));
         }
 
-        /*if (globalCondition != null) {
-            conditions.addCondition(globalCondition.whereField("vej"));
+        /*if (parameters.hasGlobalCondition()) {
+            conditions.addCondition(parameters.getGlobalCondition().whereField("vej"));
         }*/
 
         // our conditions list should now be complete
@@ -88,13 +90,17 @@ public class LokalitetRepositoryImpl implements LokalitetRepositoryCustom {
 
         hql.append("order by lokalitet.navn");
 
-        System.out.println(hql.join(" \n"));
+        if (printQuery) {
+            System.out.println(hql.join(" \n"));
+        }
         Query q = this.entityManager.createQuery(hql.join(" "));
         q.setMaxResults(1000);
-        Map<String, Object> parameters = conditions.getParameters();
-        for (String key : parameters.keySet()) {
-            System.out.println(key+" = "+parameters.get(key));
-            q.setParameter(key, parameters.get(key));
+        Map<String, Object> queryParameters = conditions.getParameters();
+        for (String key : queryParameters.keySet()) {
+            if (printQuery) {
+                System.out.println(key + " = " + queryParameters.get(key));
+            }
+            q.setParameter(key, queryParameters.get(key));
         }
         return q.getResultList();
     }

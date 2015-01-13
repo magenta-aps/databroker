@@ -1,5 +1,6 @@
 package dk.magenta.databroker.dawa.model.enhedsadresser;
 
+import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
@@ -19,5 +20,5 @@ public interface EnhedsAdresseRepository extends JpaRepository<EnhedsAdresseEnti
     /*
     * To be implemented in interface implementation
     * */
-    public Collection<EnhedsAdresseEntity> search(String land, String[] post, String[] kommune, String[] vej, String[] husnr, String[] etage, String[] sidedoer, GlobalCondition globalCondition);
+    public Collection<EnhedsAdresseEntity> search(SearchParameters parameters, boolean printQuery);
 }

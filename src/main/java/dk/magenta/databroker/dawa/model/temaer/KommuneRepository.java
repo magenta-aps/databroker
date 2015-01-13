@@ -1,5 +1,6 @@
 package dk.magenta.databroker.dawa.model.temaer;
 
+import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -17,7 +18,7 @@ public interface KommuneRepository extends JpaRepository<KommuneEntity, Long> {
     /*
     * To be implemented in interface implementation
     * */
-    public Collection<KommuneEntity> search(String land, String[] kommune, String[] postnr, String[] lokalitet, String[] vej, GlobalCondition globalCondition);
+    public Collection<KommuneEntity> search(SearchParameters parameters, boolean printQuery);
 
 }
 

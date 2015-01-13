@@ -1,9 +1,9 @@
 package dk.magenta.databroker.dawa.model.enhedsadresser;
 
-import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseEntity;
+import dk.magenta.databroker.dawa.model.SearchParameters;
+import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.ConditionList;
-import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.register.objectcontainers.StringList;
 
 import javax.persistence.EntityManager;
@@ -17,7 +17,7 @@ import java.util.Map;
  */
 
 interface EnhedsAdresseRepositoryCustom {
-    public Collection<EnhedsAdresseEntity> search(String land, String[] post, String[] kommune, String[] vej, String[] husnr, String[] etage, String[] sidedoer, GlobalCondition globalCondition);
+    public Collection<EnhedsAdresseEntity> search(SearchParameters parameters, boolean printQuery);
 }
 
 public class EnhedsAdresseRepositoryImpl implements EnhedsAdresseRepositoryCustom {
@@ -30,7 +30,7 @@ public class EnhedsAdresseRepositoryImpl implements EnhedsAdresseRepositoryCusto
     }
 
     @Override
-    public Collection<EnhedsAdresseEntity> search(String land, String[] post, String[] kommune, String[] vej, String[] husnr, String[] etage, String[] sidedoer, GlobalCondition globalCondition) {
+    public Collection<EnhedsAdresseEntity> search(SearchParameters parameters, boolean printQuery) {
 
         StringList hql = new StringList();
         StringList join = new StringList();
@@ -39,43 +39,47 @@ public class EnhedsAdresseRepositoryImpl implements EnhedsAdresseRepositoryCusto
         hql.append("select distinct adresse from EnhedsAdresseEntity as adresse");
         join.setPrefix("join ");
 
-        if (land != null || kommune != null || vej != null || post != null || husnr != null) {
+        if (parameters.hasAny(Key.LAND, Key.KOMMUNE, Key.VEJ, Key.POST, Key.HUSNR, Key.BNR)) {
+
             join.append("adresse.latestVersion as adresseVersion");
             join.append("adresseVersion.adgangsadresse as adgang");
 
-            if (vej != null || land != null || kommune != null) {
+            if (parameters.hasAny(Key.LAND, Key.KOMMUNE, Key.VEJ)) {
                 join.append("adgang.vejstykke as vejstykke");
-                if (vej != null && vej.length > 0) {
-                    conditions.addCondition(RepositoryUtil.whereField(vej, "vejstykke.kode", "vejstykke.latestVersion.vejnavn"));
+                if (parameters.has(Key.VEJ)) {
+                    conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.VEJ), "vejstykke.kode", "vejstykke.latestVersion.vejnavn"));
                 }
-                if (land != null || kommune != null) {
+                if (parameters.hasAny(Key.LAND, Key.KOMMUNE)) {
                     join.append("vejstykke.kommune as kommune");
-                    if (land != null) {
-                        conditions.addCondition(RepositoryUtil.whereFieldLand(land));
+                    if (parameters.has(Key.LAND)) {
+                        conditions.addCondition(RepositoryUtil.whereFieldLand(parameters.get(Key.LAND)));
                     }
-                    if (kommune != null) {
-                        conditions.addCondition(RepositoryUtil.whereField(kommune, "kommune.kode", "kommune.navn"));
+                    if (parameters.has(Key.KOMMUNE)) {
+                        conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.KOMMUNE), "kommune.kode", "kommune.navn"));
                     }
                 }
             }
-            if (post != null && post.length > 0) {
+            if (parameters.has(Key.POST)) {
                 join.append("adgang.latestVersion.postnummer as post");
-                conditions.addCondition(RepositoryUtil.whereField(post, "post.latestVersion.nr", "post.latestVersion.navn"));
+                conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.POST), "post.latestVersion.nr", "post.latestVersion.navn"));
             }
-            if (husnr != null && husnr.length > 0) {
-                conditions.addCondition(RepositoryUtil.whereField(husnr, null, "adgang.husnr"));
+            if (parameters.has(Key.HUSNR)) {
+                conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.HUSNR), null, "adgang.husnr"));
+            }
+            if (parameters.has(Key.BNR)) {
+                conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.BNR), null, "adgang.bnr"));
             }
         }
 
-        if (etage != null && etage.length > 0) {
-            conditions.addCondition(RepositoryUtil.whereField(etage, null, "adresseVersion.etage"));
+        if (parameters.has(Key.ETAGE)) {
+            conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.ETAGE), null, "adresseVersion.etage"));
         }
-        if (sidedoer != null && sidedoer.length > 0) {
-            conditions.addCondition(RepositoryUtil.whereField(sidedoer, null, "adresseVersion.doer"));
+        if (parameters.has(Key.DOER)) {
+            conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.DOER), null, "adresseVersion.doer"));
         }
 
-        if (globalCondition != null) {
-            conditions.addCondition(globalCondition.whereField("adresse"));
+        if (parameters.hasGlobalCondition()) {
+            conditions.addCondition(parameters.getGlobalCondition().whereField("adresse"));
         }
 
         // our conditions list should now be complete
@@ -94,13 +98,17 @@ public class EnhedsAdresseRepositoryImpl implements EnhedsAdresseRepositoryCusto
             hql.append(conditions.getWhere());
         }
 
-        System.out.println(hql.join(" \n"));
+        if (printQuery) {
+            System.out.println(hql.join(" \n"));
+        }
         Query q = this.entityManager.createQuery(hql.join(" "));
         q.setMaxResults(1000);
-        Map<String, Object> parameters = conditions.getParameters();
-        for (String key : parameters.keySet()) {
-            System.out.println(key+" = "+parameters.get(key));
-            q.setParameter(key, parameters.get(key));
+        Map<String, Object> queryParameters = conditions.getParameters();
+        for (String key : queryParameters.keySet()) {
+            if (printQuery) {
+                System.out.println(key + " = " + queryParameters.get(key));
+            }
+            q.setParameter(key, queryParameters.get(key));
         }
         return q.getResultList();
 

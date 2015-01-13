@@ -2,6 +2,7 @@ package dk.magenta.databroker.service.rest;
 
 import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.dawa.model.DawaModel;
+import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
 import org.json.JSONArray;
@@ -78,21 +79,14 @@ public class SearchService {
     @GET
     @Path("kommune")
     @Transactional
-    public String kommune(@QueryParam("land") String land, @QueryParam("kommune") String[] kommune, @QueryParam("post") String[] post, @QueryParam("lokalitet") String[] lokalitet, @QueryParam("vej") String[] vej,
+    public String kommune(@QueryParam("land") String[] land, @QueryParam("kommune") String[] kommune, @QueryParam("post") String[] post, @QueryParam("lokalitet") String[] lokalitet, @QueryParam("vej") String[] vej,
                           @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
         Format fmt = this.getFormat(formatStr);
 
-        GlobalCondition globalCondition = new GlobalCondition(includeBefore, includeAfter);
+        SearchParameters parameters = new SearchParameters(land, kommune, post, lokalitet, vej, new GlobalCondition(includeBefore, includeAfter));
 
         List<OutputFormattable> kommuner = new ArrayList<OutputFormattable>(
-                this.model.getKommune(
-                        this.cleanInput(land),
-                        this.cleanInput(kommune),
-                        this.cleanInput(post),
-                        this.cleanInput(lokalitet),
-                        this.cleanInput(vej),
-                        globalCondition
-                )
+                this.model.getKommune(parameters)
         );
 
         return this.format("kommuner", kommuner, fmt);
@@ -131,20 +125,14 @@ public class SearchService {
     @GET
     @Path("vej")
     @Transactional
-    public String vej(@QueryParam("land") String land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej, @QueryParam("lokalitet") String[] lokalitet, @QueryParam("post") String[] post,
+    public String vej(@QueryParam("land") String[] land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej, @QueryParam("lokalitet") String[] lokalitet, @QueryParam("post") String[] post,
                       @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
         Format fmt = this.getFormat(formatStr);
-        GlobalCondition globalCondition = new GlobalCondition(includeBefore, includeAfter);
+
+        SearchParameters parameters = new SearchParameters(land, kommune, post, lokalitet, vej, new GlobalCondition(includeBefore, includeAfter));
 
         List<OutputFormattable> veje = new ArrayList<OutputFormattable>(
-            this.model.getVejstykke(
-                    this.cleanInput(land),
-                    this.cleanInput(kommune),
-                    this.cleanInput(vej),
-                    this.cleanInput(lokalitet),
-                    this.cleanInput(post),
-                    globalCondition
-            )
+            this.model.getVejstykke(parameters)
         );
 
         return this.format("veje", veje, fmt);
@@ -173,19 +161,14 @@ public class SearchService {
     @GET
     @Path("postnr")
     @Transactional
-    public String postnummer(@QueryParam("land") String land, @QueryParam("post") String[] post, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej,
+    public String postnummer(@QueryParam("land") String[] land, @QueryParam("post") String[] post, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej,
                              @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
         Format fmt = this.getFormat(formatStr);
-        GlobalCondition globalCondition = new GlobalCondition(includeBefore, includeAfter);
+
+        SearchParameters parameters = new SearchParameters(land, kommune, post, null, vej, new GlobalCondition(includeBefore, includeAfter));
 
         ArrayList<OutputFormattable> postnumre = new ArrayList<OutputFormattable>(
-            this.model.getPostnummer(
-                    this.cleanInput(land),
-                    this.cleanInput(post),
-                    this.cleanInput(kommune),
-                    this.cleanInput(vej),
-                    globalCondition
-            )
+            this.model.getPostnummer(parameters)
         );
 
         return this.format("postnumre", postnumre, fmt);
@@ -223,18 +206,14 @@ public class SearchService {
     @GET
     @Path("adgangsadresse")
     @Transactional
-    public String adgangsadresse(@QueryParam("land") String land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej, @QueryParam("post") String[] postnr, @QueryParam("husnr") String[] husnr,
+    public String adgangsadresse(@QueryParam("land") String[] land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej, @QueryParam("post") String[] post, @QueryParam("husnr") String[] husnr, @QueryParam("bnr") String[] bnr,
                           @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
         Format fmt = this.getFormat(formatStr);
-        GlobalCondition globalCondition = new GlobalCondition(includeBefore, includeAfter);
+
+        SearchParameters parameters = new SearchParameters(land, kommune, post, null, vej, husnr, bnr, new GlobalCondition(includeBefore, includeAfter));
 
         ArrayList<OutputFormattable> adresser = new ArrayList<OutputFormattable>(
-                this.model.getAdgangsAdresse(this.cleanInput(land),
-                        this.cleanInput(postnr),
-                        this.cleanInput(kommune),
-                        this.cleanInput(vej),
-                        this.cleanInput(husnr),
-                        globalCondition)
+                this.model.getAdgangsAdresse(parameters)
         );
 
         return this.format("adgangsadresser", adresser, fmt);
@@ -263,20 +242,14 @@ public class SearchService {
     @GET
     @Path("adresse")
     @Transactional
-    public String adresse(@QueryParam("land") String land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej, @QueryParam("post") String[] postnr, @QueryParam("husnr") String[] husnr, @QueryParam("etage") String[] etage, @QueryParam("doer") String[] doer,
+    public String adresse(@QueryParam("land") String[] land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej, @QueryParam("post") String[] post, @QueryParam("husnr") String[] husnr, @QueryParam("bnr") String[] bnr, @QueryParam("etage") String[] etage, @QueryParam("doer") String[] doer,
                           @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
         Format fmt = this.getFormat(formatStr);
-        GlobalCondition globalCondition = new GlobalCondition(includeBefore, includeAfter);
+
+        SearchParameters parameters = new SearchParameters(land, kommune, post, null, vej, husnr, bnr, etage, doer, new GlobalCondition(includeBefore, includeAfter));
 
         ArrayList<OutputFormattable> adresser = new ArrayList<OutputFormattable>(
-                this.model.getEnhedsAdresse(land,
-                        this.cleanInput(postnr),
-                        this.cleanInput(kommune),
-                        this.cleanInput(vej),
-                        this.cleanInput(husnr),
-                        this.cleanInput(etage),
-                        this.cleanInput(doer),
-                        globalCondition)
+                this.model.getEnhedsAdresse(parameters)
         );
 
         return this.format("adresser", adresser, fmt);
@@ -306,18 +279,14 @@ public class SearchService {
     @GET
     @Path("lokalitet")
     @Transactional
-    public String lokalitet(@QueryParam("land") String land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej, @QueryParam("post") String[] postnr, @QueryParam("lokalitet") String[] lokalitet,
+    public String lokalitet(@QueryParam("land") String[] land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej, @QueryParam("post") String[] post, @QueryParam("lokalitet") String[] lokalitet,
                           @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
         Format fmt = this.getFormat(formatStr);
-        GlobalCondition globalCondition = new GlobalCondition(includeBefore, includeAfter);
+
+        SearchParameters parameters = new SearchParameters(land, kommune, post, lokalitet, vej, new GlobalCondition(includeBefore, includeAfter));
 
         ArrayList<OutputFormattable> adresser = new ArrayList<OutputFormattable>(
-                this.model.getLokalitet(land,
-                        this.cleanInput(postnr),
-                        this.cleanInput(kommune),
-                        this.cleanInput(vej),
-                        this.cleanInput(lokalitet),
-                        globalCondition)
+                this.model.getLokalitet(parameters)
         );
 
         return this.format("lokaliteter", adresser, fmt);

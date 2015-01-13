@@ -1,6 +1,6 @@
 package dk.magenta.databroker.dawa.model.lokalitet;
 
-import dk.magenta.databroker.register.conditions.GlobalCondition;
+import dk.magenta.databroker.dawa.model.SearchParameters;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,5 +24,5 @@ public interface LokalitetRepository extends JpaRepository<LokalitetEntity, Long
     /*
     * To be implemented in interface implementation
     * */
-    public Collection<LokalitetEntity> search(String land, String[] post, String[] kommune, String[] vej, String[] lokalitet, GlobalCondition globalCondition);
+    public Collection<LokalitetEntity> search(SearchParameters parameters, boolean printQuery);
 }

@@ -65,6 +65,9 @@ public abstract class RepositoryUtil {
         }
     }
 
+    public static Condition whereFieldLand(String[] land) {
+        return (land != null && land.length > 0) ? whereFieldLand(land[0]) : null;
+    }
     public static Condition whereFieldLand(String land) {
         if (land != null) {
             land = land.toLowerCase();

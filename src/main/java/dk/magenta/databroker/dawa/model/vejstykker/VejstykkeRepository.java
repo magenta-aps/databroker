@@ -1,5 +1,6 @@
 package dk.magenta.databroker.dawa.model.vejstykker;
 
+import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -24,6 +25,6 @@ public interface VejstykkeRepository extends JpaRepository<VejstykkeEntity, Long
     /*
     * To be implemented in interface implementation
     * */
-    public Collection<VejstykkeEntity> search(String land, String[] kommune, String[] vej, String[] lokalitet, String[] post, GlobalCondition globalCondition);
+    public Collection<VejstykkeEntity> search(SearchParameters parameters, boolean printQuery);
 
 }

@@ -6,6 +6,7 @@ import dk.magenta.databroker.Application;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.registers.*;
 import dk.magenta.databroker.grlokalitetregister.GrLokalitetsRegister;
+import dk.magenta.databroker.nukissiorfiit.NukissiorfiitRegister;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,10 @@ public class VejregisterTest {
     @SuppressWarnings("SpringJavaAutowiringInspection")
     private GrLokalitetsRegister grLokalitetsRegister;
 
+    @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
+    private NukissiorfiitRegister nukissiorfiitRegister;
+
     @Test
     //@Transactional
     public void testVejregister() {
@@ -57,6 +62,12 @@ public class VejregisterTest {
         tmpDataProviderEntity.setUuid(UUID.randomUUID().toString());
         tmpDataProviderEntity.setType(GrLokalitetsRegister.class);
         grLokalitetsRegister.pull(false, true, tmpDataProviderEntity);
+
+        tmpDataProviderEntity = new DataProviderEntity();
+        tmpDataProviderEntity.setUuid(UUID.randomUUID().toString());
+        tmpDataProviderEntity.setType(NukissiorfiitRegister.class);
+        nukissiorfiitRegister.pull(false, true, tmpDataProviderEntity);
+
     }
 
 
