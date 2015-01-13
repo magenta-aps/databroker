@@ -223,7 +223,7 @@ public class SearchService {
     @GET
     @Path("adgangsadresse")
     @Transactional
-    public String adgangsadresse(@QueryParam("land") String land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej, @QueryParam("post") String[] postnr, @QueryParam("husnr") String[] husnr,
+    public String adgangsadresse(@QueryParam("land") String land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej, @QueryParam("post") String[] postnr, @QueryParam("husnr") String[] husnr, @QueryParam("bnr") String[] bnr,
                           @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
         Format fmt = this.getFormat(formatStr);
         GlobalCondition globalCondition = new GlobalCondition(includeBefore, includeAfter);
@@ -234,6 +234,7 @@ public class SearchService {
                         this.cleanInput(kommune),
                         this.cleanInput(vej),
                         this.cleanInput(husnr),
+                        this.cleanInput(bnr),
                         globalCondition)
         );
 
@@ -263,7 +264,7 @@ public class SearchService {
     @GET
     @Path("adresse")
     @Transactional
-    public String adresse(@QueryParam("land") String land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej, @QueryParam("post") String[] postnr, @QueryParam("husnr") String[] husnr, @QueryParam("etage") String[] etage, @QueryParam("doer") String[] doer,
+    public String adresse(@QueryParam("land") String land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej, @QueryParam("post") String[] postnr, @QueryParam("husnr") String[] husnr, @QueryParam("bnr") String[] bnr, @QueryParam("etage") String[] etage, @QueryParam("doer") String[] doer,
                           @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
         Format fmt = this.getFormat(formatStr);
         GlobalCondition globalCondition = new GlobalCondition(includeBefore, includeAfter);
@@ -274,6 +275,7 @@ public class SearchService {
                         this.cleanInput(kommune),
                         this.cleanInput(vej),
                         this.cleanInput(husnr),
+                        this.cleanInput(bnr),
                         this.cleanInput(etage),
                         this.cleanInput(doer),
                         globalCondition)

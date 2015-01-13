@@ -41,5 +41,5 @@ public interface AdgangsAdresseRepository extends JpaRepository<AdgangsAdresseEn
     /*
     * To be implemented in interface implementation
     * */
-    public Collection<AdgangsAdresseEntity> search(String land, String[] kommune, String[] post, String[] vej, String[] husnr, GlobalCondition globalCondition);
+    public Collection<AdgangsAdresseEntity> search(String land, String[] kommune, String[] post, String[] vej, String[] husnr, String[] bnr, GlobalCondition globalCondition);
 }

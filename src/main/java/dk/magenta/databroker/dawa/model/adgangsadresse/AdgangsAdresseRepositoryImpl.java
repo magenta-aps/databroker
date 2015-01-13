@@ -16,7 +16,7 @@ import java.util.Map;
  */
 
 interface AdgangsAdresseRepositoryCustom {
-    public Collection<AdgangsAdresseEntity> search(String land, String[] kommune, String[] post, String[] vej, String[] husnr, GlobalCondition globalCondition);
+    public Collection<AdgangsAdresseEntity> search(String land, String[] kommune, String[] post, String[] vej, String[] husnr, String[] bnr, GlobalCondition globalCondition);
 }
 
 public class AdgangsAdresseRepositoryImpl implements AdgangsAdresseRepositoryCustom {
@@ -29,7 +29,7 @@ public class AdgangsAdresseRepositoryImpl implements AdgangsAdresseRepositoryCus
     }
 
     @Override
-    public Collection<AdgangsAdresseEntity> search(String land, String[] kommune, String[] post, String[] vej, String[] husnr, GlobalCondition globalCondition) {
+    public Collection<AdgangsAdresseEntity> search(String land, String[] kommune, String[] post, String[] vej, String[] husnr, String[] bnr, GlobalCondition globalCondition) {
 
         StringList hql = new StringList();
         StringList join = new StringList();
@@ -63,6 +63,10 @@ public class AdgangsAdresseRepositoryImpl implements AdgangsAdresseRepositoryCus
 
         if (husnr != null && husnr.length > 0) {
             conditions.addCondition(RepositoryUtil.whereField(husnr, null, "adresse.husnr"));
+        }
+
+        if (bnr != null && bnr.length > 0) {
+            conditions.addCondition(RepositoryUtil.whereField(bnr, null, "adresse.bnr"));
         }
 
         if (globalCondition != null) {

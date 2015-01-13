@@ -513,16 +513,16 @@ public class DawaModel {
         return this.adgangsAdresseRepository.getByUuid(uuid);
     }
 
-    public Collection<AdgangsAdresseEntity> getAdgangsAdresse(String land, String[] post, String[] kommune, String[] vej, String[] husnr, GlobalCondition globalCondition) {
-        return this.adgangsAdresseRepository.search(land, kommune, post, vej, husnr, globalCondition);
+    public Collection<AdgangsAdresseEntity> getAdgangsAdresse(String land, String[] post, String[] kommune, String[] vej, String[] husnr, String[] bnr, GlobalCondition globalCondition) {
+        return this.adgangsAdresseRepository.search(land, kommune, post, vej, husnr, bnr, globalCondition);
     }
 
     public EnhedsAdresseEntity getEnhedsAdresse(String uuid) {
         return this.enhedsAdresseRepository.getByUuid(uuid);
     }
 
-    public Collection<EnhedsAdresseEntity> getEnhedsAdresse(String land, String[] post, String[] kommune, String[] vej, String[] husnr, String[] etage, String[] doer, GlobalCondition globalCondition) {
-        return this.enhedsAdresseRepository.search(land, post, kommune, vej, husnr, etage, doer, globalCondition);
+    public Collection<EnhedsAdresseEntity> getEnhedsAdresse(String land, String[] post, String[] kommune, String[] vej, String[] husnr, String[] bnr, String[] etage, String[] doer, GlobalCondition globalCondition) {
+        return this.enhedsAdresseRepository.search(land, post, kommune, vej, husnr, bnr, etage, doer, globalCondition);
     }
 
     //------------------------------------------------------------------------------------------------------------------

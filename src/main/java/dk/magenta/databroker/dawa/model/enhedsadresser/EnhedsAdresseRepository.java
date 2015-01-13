@@ -19,5 +19,5 @@ public interface EnhedsAdresseRepository extends JpaRepository<EnhedsAdresseEnti
     /*
     * To be implemented in interface implementation
     * */
-    public Collection<EnhedsAdresseEntity> search(String land, String[] post, String[] kommune, String[] vej, String[] husnr, String[] etage, String[] sidedoer, GlobalCondition globalCondition);
+    public Collection<EnhedsAdresseEntity> search(String land, String[] post, String[] kommune, String[] vej, String[] husnr, String[] bnr, String[] etage, String[] sidedoer, GlobalCondition globalCondition);
 }

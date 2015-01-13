@@ -54,7 +54,7 @@ public class DocumentationController {
 
     @RequestMapping("/doc/adgangsadresse")
     public ModelAndView adgangsadresse() {
-        Collection<AdgangsAdresseEntity> adgangsAdresseEntities = this.model.getAdgangsAdresse("gl", null, new String[]{"958"}, new String[]{"18"}, new String[]{"2"}, null);
+        Collection<AdgangsAdresseEntity> adgangsAdresseEntities = this.model.getAdgangsAdresse("gl", null, new String[]{"958"}, new String[]{"18"}, new String[]{"2"},null, null);
         AdgangsAdresseEntity adgangsAdresseEntity = adgangsAdresseEntities.size() > 0 ? adgangsAdresseEntities.iterator().next() : null;
 
         Map<String, Object> model = new HashMap<String, Object>();
@@ -67,7 +67,7 @@ public class DocumentationController {
 
     @RequestMapping("/doc/adresse")
     public ModelAndView adresse() {
-        Collection<EnhedsAdresseEntity> enhedsAdresseEntities = this.model.getEnhedsAdresse(null, null, new String[]{"330"}, new String[]{"779"}, new String[]{"35"}, new String[]{"2"}, null, null);
+        Collection<EnhedsAdresseEntity> enhedsAdresseEntities = this.model.getEnhedsAdresse(null, null, new String[]{"330"}, new String[]{"779"}, new String[]{"35"}, new String[]{"2"}, null, null, null);
         EnhedsAdresseEntity enhedsAdresseEntity = enhedsAdresseEntities.size() > 0 ? enhedsAdresseEntities.iterator().next() : null;
 
         Map<String, Object> model = new HashMap<String, Object>();

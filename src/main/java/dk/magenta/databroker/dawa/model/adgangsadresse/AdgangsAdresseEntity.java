@@ -141,14 +141,30 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
 
     //------------------------------------------------------------------------------------------------------------------
 
+    @Column(nullable = true)
+    private String bnr;
+
+    public String getBnr() {
+        return bnr;
+    }
+
+    public void setBnr(String bnr) {
+        this.bnr = bnr;
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
     public String getTypeName() {
         return "adgangsAdresse";
     }
     public JSONObject toJSON() {
         JSONObject obj = super.toJSON();
         obj.put("id", this.getUuid());
-        obj.put("husnr", this.getHusnr());
+        obj.put("husnummer", this.getHusnr());
         obj.put("href", SearchService.getAdgangsAdresseBaseUrl()+"/"+this.getUuid());
+        if (this.bnr != null) {
+            obj.put("b-nummer", this.bnr);
+        }
         return obj;
     }
 

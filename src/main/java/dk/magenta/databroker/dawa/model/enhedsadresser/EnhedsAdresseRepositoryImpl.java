@@ -17,7 +17,7 @@ import java.util.Map;
  */
 
 interface EnhedsAdresseRepositoryCustom {
-    public Collection<EnhedsAdresseEntity> search(String land, String[] post, String[] kommune, String[] vej, String[] husnr, String[] etage, String[] sidedoer, GlobalCondition globalCondition);
+    public Collection<EnhedsAdresseEntity> search(String land, String[] post, String[] kommune, String[] vej, String[] husnr, String[] bnr, String[] etage, String[] sidedoer, GlobalCondition globalCondition);
 }
 
 public class EnhedsAdresseRepositoryImpl implements EnhedsAdresseRepositoryCustom {
@@ -30,7 +30,7 @@ public class EnhedsAdresseRepositoryImpl implements EnhedsAdresseRepositoryCusto
     }
 
     @Override
-    public Collection<EnhedsAdresseEntity> search(String land, String[] post, String[] kommune, String[] vej, String[] husnr, String[] etage, String[] sidedoer, GlobalCondition globalCondition) {
+    public Collection<EnhedsAdresseEntity> search(String land, String[] post, String[] kommune, String[] vej, String[] husnr, String[] bnr, String[] etage, String[] sidedoer, GlobalCondition globalCondition) {
 
         StringList hql = new StringList();
         StringList join = new StringList();
@@ -39,7 +39,7 @@ public class EnhedsAdresseRepositoryImpl implements EnhedsAdresseRepositoryCusto
         hql.append("select distinct adresse from EnhedsAdresseEntity as adresse");
         join.setPrefix("join ");
 
-        if (land != null || kommune != null || vej != null || post != null || husnr != null) {
+        if (land != null || kommune != null || vej != null || post != null || husnr != null || bnr != null) {
             join.append("adresse.latestVersion as adresseVersion");
             join.append("adresseVersion.adgangsadresse as adgang");
 
@@ -64,6 +64,9 @@ public class EnhedsAdresseRepositoryImpl implements EnhedsAdresseRepositoryCusto
             }
             if (husnr != null && husnr.length > 0) {
                 conditions.addCondition(RepositoryUtil.whereField(husnr, null, "adgang.husnr"));
+            }
+            if (bnr != null) {
+                conditions.addCondition(RepositoryUtil.whereField(bnr, null, "adgang.bnr"));
             }
         }
 
