@@ -485,7 +485,7 @@ public class DawaModel {
 
             EnhedsAdresseEntity enhedsAdresseEntity = null;
             for (EnhedsAdresseVersionEntity e : adgangsAdresseEntity.getEnhedsAdresseVersioner()) {
-                if (e.getEntity().getLatestVersion() == e && e.getEtage().equals(etage) && e.getDoer().equals(doer)) {
+                if (e.getEntity().getLatestVersion() == e && ((e.getEtage() == null && etage == null) || e.getEtage().equals(etage)) && ((e.getDoer()==null && doer == null) || e.getDoer().equals(doer))) {
                     enhedsAdresseEntity = e.getEntity();
                 }
             }
