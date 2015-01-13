@@ -1,8 +1,9 @@
 package dk.magenta.databroker.dawa.model.adgangsadresse;
 
+import dk.magenta.databroker.dawa.model.SearchParameters;
+import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.ConditionList;
-import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.register.objectcontainers.StringList;
 
 import javax.persistence.EntityManager;
@@ -16,7 +17,7 @@ import java.util.Map;
  */
 
 interface AdgangsAdresseRepositoryCustom {
-    public Collection<AdgangsAdresseEntity> search(String land, String[] kommune, String[] post, String[] vej, String[] husnr, String[] bnr, GlobalCondition globalCondition);
+    public Collection<AdgangsAdresseEntity> search(SearchParameters parameters);
 }
 
 public class AdgangsAdresseRepositoryImpl implements AdgangsAdresseRepositoryCustom {
@@ -29,7 +30,7 @@ public class AdgangsAdresseRepositoryImpl implements AdgangsAdresseRepositoryCus
     }
 
     @Override
-    public Collection<AdgangsAdresseEntity> search(String land, String[] kommune, String[] post, String[] vej, String[] husnr, String[] bnr, GlobalCondition globalCondition) {
+    public Collection<AdgangsAdresseEntity> search(SearchParameters parameters) {
 
         StringList hql = new StringList();
         StringList join = new StringList();
@@ -38,39 +39,38 @@ public class AdgangsAdresseRepositoryImpl implements AdgangsAdresseRepositoryCus
         hql.append("select distinct adresse from AdgangsAdresseEntity as adresse");
         join.setPrefix("join ");
 
+        if (parameters.hasAny(Key.LAND, Key.KOMMUNE, Key.POST, Key.VEJ)) {
 
-
-        if (land != null || kommune != null || vej != null || post != null) {
             join.append("adresse.vejstykke as vejstykke");
 
-            if (vej != null && vej.length > 0) {
-                conditions.addCondition(RepositoryUtil.whereField(vej, "vejstykke.kode", "vejstykke.latestVersion.vejnavn"));
+            if (parameters.has(Key.VEJ)) {
+                conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.VEJ), "vejstykke.kode", "vejstykke.latestVersion.vejnavn"));
             }
-            if (land != null || kommune != null && kommune.length > 0) {
+            if (parameters.hasAny(Key.LAND, Key.KOMMUNE)) {
                 join.append("vejstykke.kommune as kommune");
-                if (land != null) {
-                    conditions.addCondition(RepositoryUtil.whereFieldLand(land));
+                if (parameters.has(Key.LAND)) {
+                    conditions.addCondition(RepositoryUtil.whereFieldLand(parameters.get(Key.LAND)));
                 }
-                if (kommune != null) {
-                    conditions.addCondition(RepositoryUtil.whereField(kommune, "kommune.kode", "kommune.navn"));
+                if (parameters.has(Key.KOMMUNE)) {
+                    conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.KOMMUNE), "kommune.kode", "kommune.navn"));
                 }
             }
-            if (post != null && post.length > 0) {
+            if (parameters.has(Key.POST)) {
                 join.append("vejstykke.latestVersion.postnumre as post");
-                conditions.addCondition(RepositoryUtil.whereField(post, "post.latestVersion.nr", "post.latestVersion.navn"));
+                conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.POST), "post.latestVersion.nr", "post.latestVersion.navn"));
             }
         }
 
-        if (husnr != null && husnr.length > 0) {
-            conditions.addCondition(RepositoryUtil.whereField(husnr, null, "adresse.husnr"));
+        if (parameters.has(Key.HUSNR)) {
+            conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.HUSNR), null, "adresse.husnr"));
         }
 
-        if (bnr != null && bnr.length > 0) {
-            conditions.addCondition(RepositoryUtil.whereField(bnr, null, "adresse.bnr"));
+        if (parameters.has(Key.BNR)) {
+            conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.BNR), null, "adresse.bnr"));
         }
 
-        if (globalCondition != null) {
-            conditions.addCondition(globalCondition.whereField("adresse"));
+        if (parameters.hasGlobalCondition()) {
+            conditions.addCondition(parameters.getGlobalCondition().whereField("adresse"));
         }
 
         // our conditions list should now be complete
@@ -94,10 +94,10 @@ public class AdgangsAdresseRepositoryImpl implements AdgangsAdresseRepositoryCus
         System.out.println(hql.join(" \n"));
         Query q = this.entityManager.createQuery(hql.join(" "));
         q.setMaxResults(1000);
-        Map<String, Object> parameters = conditions.getParameters();
-        for (String key : parameters.keySet()) {
-            System.out.println(key+" = "+parameters.get(key));
-            q.setParameter(key, parameters.get(key));
+        Map<String, Object> queryParameters = conditions.getParameters();
+        for (String key : queryParameters.keySet()) {
+            System.out.println(key+" = "+queryParameters.get(key));
+            q.setParameter(key, queryParameters.get(key));
         }
         return q.getResultList();
 

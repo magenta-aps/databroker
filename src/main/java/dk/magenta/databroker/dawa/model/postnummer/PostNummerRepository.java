@@ -1,5 +1,6 @@
 package dk.magenta.databroker.dawa.model.postnummer;
 
+import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -22,5 +23,5 @@ public interface PostNummerRepository extends JpaRepository<PostNummerEntity, Lo
     /*
     * To be implemented in interface implementation
     * */
-    public Collection<PostNummerEntity> search(String land, String[] post, String[] kommune, String[] vej, GlobalCondition globalCondition);
+    public Collection<PostNummerEntity> search(SearchParameters parameters);
 }

@@ -1,7 +1,7 @@
 package dk.magenta.databroker.dawa.model.adgangsadresse;
 
+import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
-import dk.magenta.databroker.register.conditions.GlobalCondition;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -41,5 +41,5 @@ public interface AdgangsAdresseRepository extends JpaRepository<AdgangsAdresseEn
     /*
     * To be implemented in interface implementation
     * */
-    public Collection<AdgangsAdresseEntity> search(String land, String[] kommune, String[] post, String[] vej, String[] husnr, String[] bnr, GlobalCondition globalCondition);
+    public Collection<AdgangsAdresseEntity> search(SearchParameters parameters);
 }

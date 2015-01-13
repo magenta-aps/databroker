@@ -158,11 +158,11 @@
 
     </dependencies>
 
-<distributionManagement>
-  <snapshotRepository>
-    <id>magenta-public</id>
-    <url>http://nexus.magenta-aps.dk/nexus/content/repositories/magenta-snapshots</url>
-  </snapshotRepository>
-</distributionManagement>
+    <distributionManagement>
+        <snapshotRepository>
+            <id>magenta-public</id>
+            <url>http://nexus.magenta-aps.dk/nexus/content/repositories/magenta-snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
 
 </project>
