@@ -18,7 +18,6 @@ import dk.magenta.databroker.dawa.model.temaer.KommuneRepository;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeRepository;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeVersionEntity;
-import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.register.objectcontainers.Level1Container;
 import dk.magenta.databroker.register.objectcontainers.Level2Container;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,7 +84,10 @@ public class DawaModel {
     }
 
     public Collection<KommuneEntity> getKommune(SearchParameters parameters) {
-        return this.kommuneRepository.search(parameters);
+        return this.getKommune(parameters, true);
+    }
+    public Collection<KommuneEntity> getKommune(SearchParameters parameters, boolean printQuery) {
+        return this.kommuneRepository.search(parameters, printQuery);
     }
 
     private Level1Container<KommuneEntity> getKommuneCache() {
@@ -196,7 +198,10 @@ public class DawaModel {
     }
 
     public Collection<VejstykkeEntity> getVejstykke(SearchParameters parameters) {
-        return this.vejstykkeRepository.search(parameters);
+        return this.getVejstykke(parameters, true);
+    }
+    public Collection<VejstykkeEntity> getVejstykke(SearchParameters parameters, boolean printQuery) {
+        return this.vejstykkeRepository.search(parameters, printQuery);
     }
 
     public VejstykkeEntity getVejstykke(String uuid) {
@@ -400,7 +405,10 @@ public class DawaModel {
     }
 
     public Collection<PostNummerEntity> getPostnummer(SearchParameters parameters) {
-        return this.postNummerRepository.search(parameters);
+        return this.getPostnummer(parameters, true);
+    }
+    public Collection<PostNummerEntity> getPostnummer(SearchParameters parameters, boolean printQuery) {
+        return this.postNummerRepository.search(parameters, printQuery);
     }
 
 
@@ -525,7 +533,10 @@ public class DawaModel {
     }
 
     public Collection<AdgangsAdresseEntity> getAdgangsAdresse(SearchParameters parameters) {
-        return this.adgangsAdresseRepository.search(parameters);
+        return this.getAdgangsAdresse(parameters, true);
+    }
+    public Collection<AdgangsAdresseEntity> getAdgangsAdresse(SearchParameters parameters, boolean printQuery) {
+        return this.adgangsAdresseRepository.search(parameters, printQuery);
     }
 
     public EnhedsAdresseEntity getEnhedsAdresse(String uuid) {
@@ -533,7 +544,10 @@ public class DawaModel {
     }
 
     public Collection<EnhedsAdresseEntity> getEnhedsAdresse(SearchParameters parameters) {
-        return this.enhedsAdresseRepository.search(parameters);
+        return this.getEnhedsAdresse(parameters, true);
+    }
+    public Collection<EnhedsAdresseEntity> getEnhedsAdresse(SearchParameters parameters, boolean printQuery) {
+        return this.enhedsAdresseRepository.search(parameters, printQuery);
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -603,7 +617,10 @@ public class DawaModel {
 
 
     public Collection<LokalitetEntity> getLokalitet(SearchParameters parameters) {
-        return this.lokalitetRepository.search(parameters);
+        return this.getLokalitet(parameters, true);
+    }
+    public Collection<LokalitetEntity> getLokalitet(SearchParameters parameters, boolean printQuery) {
+        return this.lokalitetRepository.search(parameters, printQuery);
     }
 
 

@@ -17,7 +17,7 @@ import java.util.Map;
  * Created by lars on 19-12-14.
  */
 interface KommuneRepositoryCustom {
-    public Collection<KommuneEntity> search(SearchParameters parameters);
+    public Collection<KommuneEntity> search(SearchParameters parameters, boolean printQuery);
 }
 
 public class KommuneRepositoryImpl implements KommuneRepositoryCustom {
@@ -34,7 +34,7 @@ public class KommuneRepositoryImpl implements KommuneRepositoryCustom {
     // subject to a global condition (e.g. only extract entries with a version newer than a certain date)
     @Override
     // String land, String[] kommune, String[] postnr, String[] lokalitet, String[] vej
-    public Collection<KommuneEntity> search(SearchParameters parameters) {
+    public Collection<KommuneEntity> search(SearchParameters parameters, boolean printQuery) {
         StringList hql = new StringList();
         StringList join = new StringList();
         ConditionList conditions = new ConditionList(ConditionList.Operator.AND);
@@ -80,20 +80,23 @@ public class KommuneRepositoryImpl implements KommuneRepositoryCustom {
             hql.append(join.join(" "));
         }
         if (conditions.size() > 0) {
-            System.out.println(conditions.size());
             hql.append("where");
             hql.append(conditions.getWhere());
         }
         // Append order clause
         hql.append("order by kommune.kode");
 
-        System.out.println(hql.join(" \n"));
+        if (printQuery) {
+            System.out.println(hql.join(" \n"));
+        }
         Query q = this.entityManager.createQuery(hql.join(" "));
         q.setMaxResults(1000);
         // Put all conditions' parameters into the query
         Map<String, Object> queryParameters = conditions.getParameters();
         for (String key : queryParameters.keySet()) {
-            System.out.println(key+" = "+queryParameters.get(key));
+            if (printQuery) {
+                System.out.println(key + " = " + queryParameters.get(key));
+            }
             q.setParameter(key, queryParameters.get(key));
         }
         // Run the query and return the results

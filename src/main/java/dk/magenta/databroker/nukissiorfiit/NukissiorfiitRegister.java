@@ -38,6 +38,7 @@ public class NukissiorfiitRegister extends Register {
 
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private DawaModel model;
 
     protected Record parseTrimmedLine(String line) {
@@ -76,7 +77,7 @@ public class NukissiorfiitRegister extends Register {
                 vejSearch.put(Key.POST, record.get("postnummer"));
                 vejSearch.put(Key.VEJ, record.get("gadenavn"));
 
-                Collection<VejstykkeEntity> vejstykker = model.getVejstykke(vejSearch);
+                Collection<VejstykkeEntity> vejstykker = model.getVejstykke(vejSearch, false);
                 int count = vejstykker.size();
                 if (count == 0) {
                     System.err.println("No road found for record "+record.toJSON());

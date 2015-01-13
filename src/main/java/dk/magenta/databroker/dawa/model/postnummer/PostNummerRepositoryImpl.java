@@ -18,7 +18,7 @@ import java.util.Map;
  */
 
 interface PostNummerRepositoryCustom {
-    public Collection<PostNummerEntity> search(SearchParameters parameters);
+    public Collection<PostNummerEntity> search(SearchParameters parameters, boolean printQuery);
 }
 
 public class PostNummerRepositoryImpl implements PostNummerRepositoryCustom {
@@ -31,7 +31,7 @@ public class PostNummerRepositoryImpl implements PostNummerRepositoryCustom {
     }
 
     @Override
-    public Collection<PostNummerEntity> search(SearchParameters parameters) {
+    public Collection<PostNummerEntity> search(SearchParameters parameters, boolean printQuery) {
 
         StringList hql = new StringList();
         StringList join = new StringList();
@@ -86,12 +86,16 @@ public class PostNummerRepositoryImpl implements PostNummerRepositoryCustom {
 
         hql.append("order by post.latestVersion.nr");
 
-        System.out.println(hql.join(" \n"));
+        if (printQuery) {
+            System.out.println(hql.join(" \n"));
+        }
         Query q = this.entityManager.createQuery(hql.join(" "));
         q.setMaxResults(1000);
         Map<String, Object> queryParameters = conditions.getParameters();
         for (String key : queryParameters.keySet()) {
-            System.out.println(key+" = "+queryParameters.get(key));
+            if (printQuery) {
+                System.out.println(key + " = " + queryParameters.get(key));
+            }
             q.setParameter(key, queryParameters.get(key));
         }
         return q.getResultList();

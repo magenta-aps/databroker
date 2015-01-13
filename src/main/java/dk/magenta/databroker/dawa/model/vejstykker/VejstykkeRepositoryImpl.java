@@ -17,7 +17,7 @@ import java.util.Map;
  * Created by lars on 19-12-14.
  */
 interface VejstykkeRepositoryCustom {
-    public Collection<VejstykkeEntity> search(SearchParameters parameters);
+    public Collection<VejstykkeEntity> search(SearchParameters parameters, boolean quiet);
 }
 
 public class VejstykkeRepositoryImpl implements VejstykkeRepositoryCustom {
@@ -30,7 +30,7 @@ public class VejstykkeRepositoryImpl implements VejstykkeRepositoryCustom {
     }
 
     @Override
-    public Collection<VejstykkeEntity> search(SearchParameters parameters) {
+    public Collection<VejstykkeEntity> search(SearchParameters parameters, boolean printQuery) {
 
         StringList hql = new StringList();
         StringList join = new StringList();
@@ -81,12 +81,16 @@ public class VejstykkeRepositoryImpl implements VejstykkeRepositoryCustom {
         }
         hql.append("order by vej.kode");
 
-        System.out.println(hql.join(" \n"));
+        if (printQuery) {
+            System.out.println(hql.join(" \n"));
+        }
         Query q = this.entityManager.createQuery(hql.join(" "));
         q.setMaxResults(1000);
         Map<String, Object> queryParameters = conditions.getParameters();
         for (String key : queryParameters.keySet()) {
-            System.out.println(key+" = "+queryParameters.get(key));
+            if (printQuery) {
+                System.out.println(key + " = " + queryParameters.get(key));
+            }
             q.setParameter(key, queryParameters.get(key));
         }
         return q.getResultList();

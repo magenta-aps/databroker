@@ -18,7 +18,7 @@ import java.util.Map;
  */
 
 interface LokalitetRepositoryCustom {
-    public Collection<LokalitetEntity> search(SearchParameters parameters);
+    public Collection<LokalitetEntity> search(SearchParameters parameters, boolean printQuery);
 }
 
 public class LokalitetRepositoryImpl implements LokalitetRepositoryCustom {
@@ -31,7 +31,7 @@ public class LokalitetRepositoryImpl implements LokalitetRepositoryCustom {
     }
 
     @Override
-    public Collection<LokalitetEntity> search(SearchParameters parameters) {
+    public Collection<LokalitetEntity> search(SearchParameters parameters, boolean printQuery) {
 
         StringList hql = new StringList();
         StringList join = new StringList();
@@ -90,12 +90,16 @@ public class LokalitetRepositoryImpl implements LokalitetRepositoryCustom {
 
         hql.append("order by lokalitet.navn");
 
-        System.out.println(hql.join(" \n"));
+        if (printQuery) {
+            System.out.println(hql.join(" \n"));
+        }
         Query q = this.entityManager.createQuery(hql.join(" "));
         q.setMaxResults(1000);
         Map<String, Object> queryParameters = conditions.getParameters();
         for (String key : queryParameters.keySet()) {
-            System.out.println(key+" = "+queryParameters.get(key));
+            if (printQuery) {
+                System.out.println(key + " = " + queryParameters.get(key));
+            }
             q.setParameter(key, queryParameters.get(key));
         }
         return q.getResultList();

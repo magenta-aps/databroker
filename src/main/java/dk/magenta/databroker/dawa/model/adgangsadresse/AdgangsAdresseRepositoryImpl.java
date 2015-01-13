@@ -17,7 +17,7 @@ import java.util.Map;
  */
 
 interface AdgangsAdresseRepositoryCustom {
-    public Collection<AdgangsAdresseEntity> search(SearchParameters parameters);
+    public Collection<AdgangsAdresseEntity> search(SearchParameters parameters, boolean printQuery);
 }
 
 public class AdgangsAdresseRepositoryImpl implements AdgangsAdresseRepositoryCustom {
@@ -30,7 +30,7 @@ public class AdgangsAdresseRepositoryImpl implements AdgangsAdresseRepositoryCus
     }
 
     @Override
-    public Collection<AdgangsAdresseEntity> search(SearchParameters parameters) {
+    public Collection<AdgangsAdresseEntity> search(SearchParameters parameters, boolean printQuery) {
 
         StringList hql = new StringList();
         StringList join = new StringList();
@@ -91,12 +91,16 @@ public class AdgangsAdresseRepositoryImpl implements AdgangsAdresseRepositoryCus
 
         hql.append("order by adresse.husnr");
 
-        System.out.println(hql.join(" \n"));
+        if (printQuery) {
+            System.out.println(hql.join(" \n"));
+        }
         Query q = this.entityManager.createQuery(hql.join(" "));
         q.setMaxResults(1000);
         Map<String, Object> queryParameters = conditions.getParameters();
         for (String key : queryParameters.keySet()) {
-            System.out.println(key+" = "+queryParameters.get(key));
+            if (printQuery) {
+                System.out.println(key + " = " + queryParameters.get(key));
+            }
             q.setParameter(key, queryParameters.get(key));
         }
         return q.getResultList();

@@ -41,5 +41,5 @@ public interface AdgangsAdresseRepository extends JpaRepository<AdgangsAdresseEn
     /*
     * To be implemented in interface implementation
     * */
-    public Collection<AdgangsAdresseEntity> search(SearchParameters parameters);
+    public Collection<AdgangsAdresseEntity> search(SearchParameters parameters, boolean printQuery);
 }
