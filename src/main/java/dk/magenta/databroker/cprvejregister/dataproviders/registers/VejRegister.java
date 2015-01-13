@@ -477,6 +477,7 @@ public class VejRegister extends CprSubRegister {
     * */
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private DawaModel model;
 
     /*
@@ -548,7 +549,7 @@ public class VejRegister extends CprSubRegister {
 
         for (Bolig bolig : vrun.getBoliger()) {
             this.model.setAdresse(
-                    bolig.getInt("kommuneKode"), bolig.getInt("vejKode"), bolig.get("husNr"),
+                    bolig.getInt("kommuneKode"), bolig.getInt("vejKode"), bolig.get("husNr"), null,
                     bolig.get("etage"), bolig.get("sidedoer"),
                     this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
             );

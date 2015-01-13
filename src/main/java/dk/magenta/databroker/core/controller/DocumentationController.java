@@ -24,6 +24,7 @@ import java.util.Map;
 public class DocumentationController {
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private DawaModel model;
 
     @RequestMapping("/doc/kommune")
