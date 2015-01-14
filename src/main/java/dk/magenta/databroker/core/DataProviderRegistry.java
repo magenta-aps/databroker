@@ -7,6 +7,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -23,7 +25,6 @@ public class DataProviderRegistry {
 
     public static void registerDataProvider(DataProvider dataProviderType) {
         String className = dataProviderType.getClass().getCanonicalName();
-        System.out.println("Registered data provider type " + className);
         if (dataProviderTypes.containsKey(className)) {
             // TODO: Add some kind of warning? Throw an error?
             return;
@@ -49,10 +50,6 @@ public class DataProviderRegistry {
 
     public static DataProvider getDataProviderForEntity(DataProviderEntity dataproviderEntity) {
         return dataProviderTypes.get(dataproviderEntity.getType());
-    }
-
-    public static void pull(DataProviderEntity dataProviderEntity) {
-        DataProviderRegistry.getDataProviderForEntity(dataProviderEntity).pull(dataProviderEntity);
     }
 
     public Collection<DataProviderEntity> getDataProviderEntities() {

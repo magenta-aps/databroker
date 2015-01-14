@@ -5,12 +5,23 @@ import dk.magenta.databroker.core.model.DataProviderEntity;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.hibernate.SessionFactory;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.InputStream;
 import java.util.*;
 
 /**
@@ -25,12 +36,33 @@ public class CommandLineHandler implements CommandLineRunner {
     @Autowired
     private DataProviderRegistry dataProviderRegistry;
 
+    @Autowired
+    private PlatformTransactionManager txManager;
+
     @Override
-    @Transactional
     public void run(String[] strings) throws Exception {
         if(strings.length == 0)
             return;
 
+        DefaultTransactionDefinition def = new DefaultTransactionDefinition();
+        def.setName("CommandLineTransactionDefinition");
+        def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+
+        TransactionStatus status = txManager.getTransaction(def);
+        try {
+            this.runTransactional(strings);
+        }
+        catch (Exception ex) {
+            txManager.rollback(status);
+            throw ex;
+        }
+        txManager.commit(status);
+
+        SpringApplication.exit(configurableApplicationContext);
+    }
+
+    @Transactional
+    private void runTransactional(String[] strings) throws Exception {
         System.out.println();
         System.out.println();
         System.out.println();
@@ -63,10 +95,13 @@ public class CommandLineHandler implements CommandLineRunner {
                 if(dataProviderEntity == null) {
                     System.out.println("Failed to create data provider");
                 } else {
-                    System.out.println("Data provider created successfully");
+                    System.out.println(
+                            "Data provider with UUID " + dataProviderEntity.getUuid() +
+                            " created successfully"
+                    );
                 }
             }
-        } else if("pulldataprovider".equals(strings[0].toLowerCase())) {
+        } else if("pull".equals(strings[0].toLowerCase())) {
             if(strings.length < 2 || strings[1].equals("")) {
                 System.out.println("You must specify the UUID for the dataprovider to pull with");
             } else {
@@ -74,13 +109,14 @@ public class CommandLineHandler implements CommandLineRunner {
                 if(dataProviderEntity == null) {
                     System.out.println("Could not find dataprovider with UUID " + strings[1]);
                 } else {
-                    DataProviderRegistry.pull(dataProviderEntity);
+                    DataProviderRegistry.getDataProviderForEntity(dataProviderEntity).pull(dataProviderEntity);
+                    System.out.println();
+                    System.out.println("Successfully pulled for the data provider with UUID " + strings[1]);
                 }
             }
         } else {
             System.out.println("Could not parse command line arguments");
         }
         System.out.println();
-        configurableApplicationContext.close();
     }
 }
