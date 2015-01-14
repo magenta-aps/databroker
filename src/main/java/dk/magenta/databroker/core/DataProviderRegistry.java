@@ -98,4 +98,8 @@ public class DataProviderRegistry {
     public DataProviderEntity getDataProviderEntity(String uuid) {
         return this.dataProviderRepository.getByUuid(uuid);
     }
+
+    public void deleteDataProviderEntity(DataProviderEntity entity) {
+        this.dataProviderRepository.delete(entity);
+    }
 }

@@ -11,7 +11,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.Part;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,21 +39,16 @@ public class DataProviderController {
 
     @RequestMapping("/dataproviders/new")
     public ModelAndView newEntity(HttpServletRequest request) {
-        return foobar(request);
+        return edit(request);
     }
 
 
     @RequestMapping("/dataproviders/edit")
     public ModelAndView editEntity(HttpServletRequest request) {
-        return foobar(request);
+        return edit(request);
     }
 
-
-
-
-
-
-    private ModelAndView foobar(HttpServletRequest request) {
+    private ModelAndView edit(HttpServletRequest request) {
 
         Map<String, String[]> params = request.getParameterMap();
         String uuid = request.getParameter("uuid");
@@ -128,5 +122,29 @@ public class DataProviderController {
         }
         return providerData;
     }
+
+
+    @RequestMapping("/dataproviders/delete")
+    public ModelAndView deleteEntity(HttpServletRequest request) {
+        String uuid = request.getParameter("uuid");
+        if (uuid != null) {
+            DataProviderEntity dataProviderEntity = this.dataProviderRegistry.getDataProviderEntity(uuid);
+            if (dataProviderEntity != null) {
+                String submit = request.getParameter("submit");
+                if (submit != null) {
+                    if (submit.equals("ok")) {
+                        this.dataProviderRegistry.deleteDataProviderEntity(dataProviderEntity);
+                    }
+                    return this.redirectToIndex();
+                }
+                Map<String, Object> model = new HashMap<String, Object>();
+                model.put("uuid", uuid);
+                return new ModelAndView("dataproviders/delete", model);
+            }
+        }
+        return this.redirectToIndex();
+    }
+
+
 
 }
