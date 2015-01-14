@@ -11,7 +11,7 @@
     </style>
 
     <script th:inline="javascript">
-      window.providerData = [[${dataproviderTypes}]];
+      window.providerData = [[${dataproviders}]];
       window.values = [[${values}]];
     </script>
 
@@ -35,7 +35,7 @@
               var tmp = $(document.createElement("div"));
               var values = $.extend({}, window.values, data.values);
               tmp.html(responseText);
-              tmp.find("input[type!=checkbox][type!=radio]").each(function(i, el){
+              tmp.find("input[type!=checkbox][type!=radio][type!=file]").each(function(i, el){
                 if (el.name in values) {
                   el.value = singulate(values[el.name])
                 }
@@ -60,11 +60,11 @@
           }
         };
 
-        $("#dataproviderType").change(function(){
+        $("#dataprovider").change(function(){
           updateForm(this.value);
         });
 
-        updateForm($("#dataproviderType").val())
+        updateForm($("#dataprovider").val())
 
       });
       // ]]>
@@ -75,25 +75,23 @@
     <div layout:fragment="content" style="text-align: left;">
       <h1 th:if="${action == 'new'}">New data provider</h1>
       <h1 th:if="${action == 'edit'}">Edit data provider</h1>
-      <form action="" method="post">
-        <input th:if="${action == 'edit'}" type="hidden" name="uuid" th:value="${values.uuid}"/>
+      <form action="" method="post" enctype="multipart/form-data">
+        <input th:if="${action == 'edit'}" type="hidden" name="uuid" th:value="${values.uuid[0]}"/>
 
         <p th:if="${action == 'new'}">
-          <label for="dataproviderType">Type:</label><br/>
-          <select name="providerType" id="dataproviderType">
-            <option th:each="dataproviderType : ${dataproviderTypes}" th:value="${dataproviderType.key}" th:text="${dataproviderType.key}" th:selected="${dataproviderType.key.equals(values.providerType[0])}"></option>
+          <label for="dataprovider">Type:</label><br/>
+          <select name="dataprovider" id="dataprovider">
+            <option th:each="dataprovider : ${dataproviders}" th:value="${dataprovider.key}" th:text="${dataprovider.key}" th:selected="${values['dataprovider'] != null and dataprovider.key.equals(values.dataprovider[0])}"></option>
           </select>
         </p>
 
         <p th:if="${action == 'edit'}">
-          <label>Type:</label> <span th:text="${values.providerType[0]}"/>
-          <input type="hidden" id="dataproviderType" name="providerType" th:value="${values.providerType[0]}"/>
+          <label>Type:</label> <span th:text="${values.dataprovider[0]}"/>
+          <input type="hidden" id="dataprovider" name="dataprovider" th:value="${values.dataprovider[0]}"/>
         </p>
 
 
-        <p id="dataproviderConfiguration">
-
-        </p>
+        <p id="dataproviderConfiguration"></p>
 
 
         <button type="submit" th:if="${action == 'new'}" name="submit" value="ok">Create</button>

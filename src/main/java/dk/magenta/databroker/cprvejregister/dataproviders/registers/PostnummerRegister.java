@@ -169,4 +169,11 @@ public class PostnummerRegister extends CprSubRegister {
         }
         postCounter.printFinalInputsProcessed();
     }
+
+
+
+    @Override
+    protected String getUploadPartName() {
+        return "postnummerSourceUpload";
+    }
 }

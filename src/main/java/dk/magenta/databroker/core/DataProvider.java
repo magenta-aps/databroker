@@ -5,11 +5,13 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
@@ -43,7 +45,7 @@ public abstract class DataProvider {
 
     public abstract void pull(DataProviderEntity dataProviderEntity);
 
-    public void handlePush(DataProviderEntity dataProviderEntity, HttpRequest request) {
+    public void handlePush(DataProviderEntity dataProviderEntity, HttpServletRequest request) {
         throw new NotImplementedException();
     }
 
@@ -87,6 +89,17 @@ public abstract class DataProvider {
         ZipInputStream zinput = new ZipInputStream(input);
         zinput.getNextEntry(); // Load the first entry in the zip archive
         return zinput;
+    }
+
+    public List<String> getUploadFields() {
+        return null;
+    }
+
+    public boolean wantUpload(DataProviderConfiguration configuration) {
+        return false;
+    }
+    public boolean wantUpload(String configuration) {
+        return this.wantUpload(new DataProviderConfiguration(configuration));
     }
 
 }

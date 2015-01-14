@@ -9,12 +9,18 @@ import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.register.objectcontainers.Level2Container;
 import dk.magenta.databroker.register.records.Record;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.Part;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 /**
  * Created by lars on 12-12-14.
@@ -94,6 +100,7 @@ public class GrLokalitetsRegister extends Register {
     private DawaModel model;
 
      protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
+         System.out.println("Saving to database...");
          GrRegisterRun grun = (GrRegisterRun) run;
          this.model.resetAllCaches();
 
@@ -128,17 +135,29 @@ public class GrLokalitetsRegister extends Register {
                  );
              }
          }
+         System.out.println("Save complete");
     }
 
     //------------------------------------------------------------------------------------------------------------------
 
-    @Override
     public String getTemplatePath() {
         return "/fragments/GrLokalitetsRegisterForm.txt";
     }
 
-    @Override
     public DataProviderConfiguration getDefaultConfiguration() {
         return new DataProviderConfiguration("{\"sourceType\":\"upload\"}");
     }
+
+    @Override
+    public List<String> getUploadFields() {
+        ArrayList<String> list = new ArrayList<String>();
+        list.add("sourceUpload");
+        return list;
+    }
+
+    public boolean wantUpload(DataProviderConfiguration configuration) {
+        List<String> sourceType = configuration.get("sourceType");
+        return sourceType != null && sourceType.contains("upload");
+    }
+
 }

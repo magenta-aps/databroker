@@ -9,6 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.Part;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+
 /**
  * Created by lars on 18-12-14.
  */
@@ -52,6 +59,17 @@ public class CprRegister extends Register {
         this.bynavnRegister.pull(forceFetch, forceParse, dataProviderEntity);
     }
 
+
+    @Transactional
+    @Override
+    public void handlePush(DataProviderEntity dataProviderEntity, HttpServletRequest request) {
+        this.myndighedsRegister.handlePush(dataProviderEntity, request);
+        this.vejRegister.handlePush(dataProviderEntity, request);
+        this.lokalitetsRegister.handlePush(dataProviderEntity, request);
+        this.postnummerRegister.handlePush(dataProviderEntity, request);
+        this.bynavnRegister.handlePush(dataProviderEntity, request);
+    }
+
     //------------------------------------------------------------------------------------------------------------------
 
     public String getTemplatePath() {
@@ -72,5 +90,17 @@ public class CprRegister extends Register {
         config.put("bynavnSourceType","url");
         config.put("bynavnSourceUrl","https://cpr.dk/media/152120/a370713.txt");
         return new DataProviderConfiguration(config);
+    }
+
+
+    public boolean wantUpload(DataProviderConfiguration configuration) {
+        String[] typeFields = new String[]{ "myndighedSourceType", "lokalitetSourceType", "vejSourceType", "postnummerSourceType", "bynavnSourceType" };
+        for (String s : typeFields) {
+            List<String> sourceType = configuration.get(s);
+            if (sourceType != null && sourceType.contains("upload")) {
+                return true;
+            };
+        }
+        return false;
     }
 }

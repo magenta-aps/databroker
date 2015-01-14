@@ -12,8 +12,14 @@ import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
 import dk.magenta.databroker.register.records.Record;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.Part;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
@@ -184,6 +190,16 @@ public class MyndighedsRegister extends CprSubRegister {
         mrun.printFinalInputsProcessed();
         System.out.println("Stored KommuneEntities in database:");
         counter.printModifications();
+    }
+
+
+
+
+
+
+    @Override
+    protected String getUploadPartName() {
+        return "myndighedSourceUpload";
     }
 
 }

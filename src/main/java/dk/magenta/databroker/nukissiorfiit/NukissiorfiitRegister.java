@@ -13,8 +13,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.Part;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Created by lars on 13-01-15.
@@ -66,6 +72,23 @@ public class NukissiorfiitRegister extends Register {
     }
 
 
+    @Transactional
+    @Override
+    public void handlePush(DataProviderEntity dataProviderEntity, HttpServletRequest request) {
+        InputStream input = null;
+        try {
+            Part uploadPart = request.getPart("sourceUpload");
+            if (uploadPart != null) {
+                input = uploadPart.getInputStream();
+            }
+        } catch (IOException e) {
+        } catch (ServletException e) {
+        }
+        if (input != null) {
+            this.handlePush(true, dataProviderEntity, input);
+        }
+    }
+
     @Override
     protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
         this.model.resetAllCaches();
@@ -112,6 +135,11 @@ public class NukissiorfiitRegister extends Register {
 
     @Override
     public DataProviderConfiguration getDefaultConfiguration() {
-        return null;
+        return new DataProviderConfiguration("{\"sourceType\":\"upload\"}");
+    }
+
+    public boolean wantUpload(DataProviderConfiguration configuration) {
+        List<String> sourceType = configuration.get("sourceType");
+        return sourceType != null && sourceType.contains("upload");
     }
 }

@@ -119,4 +119,12 @@ public class BynavnRegister extends CprSubRegister {
         System.out.println("Save complete");
 
     }
+
+
+
+
+    @Override
+    protected String getUploadPartName() {
+        return "bynavnSourceUpload";
+    }
 }

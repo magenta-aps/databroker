@@ -580,20 +580,21 @@ public class DawaModel {
                 this.getLokalitetCache().put(kommuneKode, lokalitetsnavn, lokalitetEntity);
             }
         }
-        //System.out.println("lokalitet(" + lokalitetsnavn + ") {");
+        System.out.println("lokalitet(" + lokalitetsnavn + ") {");
         for (RawVej vej : veje) {
             int vejKommuneKode = vej.getKommuneKode();
             int vejKode = vej.getVejKode();
             VejstykkeEntity vejstykkeEntity = this.getVejstykkeCache().get(vejKommuneKode, vejKode);
-            //KommuneEntity kommuneEntity = this.getKommuneCache().get(vejKommuneKode);
 
-            //System.out.println(vejKommuneKode + ":" + vejKode + " (" + (vejstykkeEntity != null ? vejstykkeEntity.getLatestVersion().getVejnavn() : "null") + ", " + (kommuneEntity != null ? kommuneEntity.getNavn() : "null") + ")");
+            KommuneEntity kommuneEntity = this.getKommuneCache().get(vejKommuneKode);
+            System.out.println(vejKommuneKode + ":" + vejKode + " (" + (vejstykkeEntity != null ? vejstykkeEntity.getLatestVersion().getVejnavn() : "null") + ", " + (kommuneEntity != null ? kommuneEntity.getNavn() : "null") + ")");
+
             if (vejstykkeEntity != null) {
                 VejstykkeVersionEntity vejstykkeVersionEntity = vejstykkeEntity.getLatestVersion();
                 if (vejstykkeVersionEntity != null) {
                     if (!vejstykkeVersionEntity.hasLokalitet(lokalitetEntity) && vejstykkeVersionEntity.getRegistrering() != createRegistrering && vejstykkeVersionEntity.getRegistrering() != updateRegistrering) {
                         this.vejstykkeRepository.save(vejstykkeEntity);
-                        //System.out.println("Creating new version");
+                        System.out.println("Creating new version");
                         VejstykkeVersionEntity oldVersionEntity = vejstykkeVersionEntity;
                         vejstykkeVersionEntity = vejstykkeEntity.addVersion(updateRegistrering);
                         vejstykkeVersionEntity.copyFrom(oldVersionEntity);
@@ -604,7 +605,7 @@ public class DawaModel {
                 //lokalitetEntity.addVejstykkeVersion(vejstykkeEntity.getLatestVersion());
             }
         }
-        //System.out.println("}");
+        System.out.println("}");
     }
 
     public LokalitetEntity getLokalitet(String uuid) {

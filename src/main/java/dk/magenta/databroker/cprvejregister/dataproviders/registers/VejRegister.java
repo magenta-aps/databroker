@@ -605,4 +605,11 @@ public class VejRegister extends CprSubRegister {
             }
         }
     }
+
+
+
+    @Override
+    protected String getUploadPartName() {
+        return "vejSourceUpload";
+    }
 }

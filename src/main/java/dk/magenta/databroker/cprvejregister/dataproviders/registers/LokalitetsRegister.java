@@ -142,4 +142,8 @@ public class LokalitetsRegister extends CprSubRegister {
 
 
 
+    @Override
+    protected String getUploadPartName() {
+        return "lokalitetSourceUpload";
+    }
 }

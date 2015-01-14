@@ -2,4 +2,3 @@
 <label for="dataproviderSourceUpload">Upload:</label>
 <input type="file" name="sourceUpload" id="dataproviderSourceUpload"/>
 <br/>
-
