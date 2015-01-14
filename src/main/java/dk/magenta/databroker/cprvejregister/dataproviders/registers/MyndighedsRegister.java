@@ -177,9 +177,7 @@ public class MyndighedsRegister extends CprSubRegister {
     protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
         System.out.println("Storing KommuneEntities in database");
         MyndighedsRegisterRun mrun = (MyndighedsRegisterRun) run;
-        System.out.println("mrun size: "+mrun.size());
         List<Myndighed> kommuner = mrun.getMyndigheder("5");
-        EntityModificationCounter counter = new EntityModificationCounter();
 
         for (Myndighed kommune : kommuner) {
             int kommuneKode = kommune.getInt("myndighedsKode");
@@ -191,8 +189,6 @@ public class MyndighedsRegister extends CprSubRegister {
             mrun.printInputProcessed();
         }
         mrun.printFinalInputsProcessed();
-        System.out.println("Stored KommuneEntities in database:");
-        counter.printModifications();
     }
 
 

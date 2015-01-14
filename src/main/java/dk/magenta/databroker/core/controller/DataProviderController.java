@@ -72,8 +72,10 @@ public class DataProviderController {
                 this.dataProviderRegistry.updateDataProviderEntity(dataProviderEntity, params);
                 DataProvider dataProvider = dataProviderEntity.getDataProvider();
                 if (dataProvider.wantUpload(dataProviderEntity.getConfiguration())) {
-                    System.out.println("DO upload");
-                    dataProvider.handlePush(dataProviderEntity, request);
+                    System.out.println("pushing");
+                    dataProvider.asyncPush(dataProviderEntity, request);
+                    System.out.println("still pushing");
+                    return this.processEntity(request);
                 }
                 return this.redirectToIndex();
             }
@@ -87,8 +89,7 @@ public class DataProviderController {
                 dataProviderEntity = this.dataProviderRegistry.createDataProviderEntity(providerType, params);
                 DataProvider dataProvider = dataProviderEntity.getDataProvider();
                 if (dataProvider.wantUpload(dataProviderEntity.getConfiguration())) {
-                    System.out.println("DO upload");
-
+                    dataProvider.handlePush(dataProviderEntity, request);
                 }
                 return this.redirectToIndex();
             }
@@ -146,6 +147,9 @@ public class DataProviderController {
         return this.redirectToIndex();
     }
 
-
+    @RequestMapping("/dataproviders/processing")
+    public ModelAndView processEntity(HttpServletRequest request) {
+        return new ModelAndView("dataproviders/processing");
+    }
 
 }

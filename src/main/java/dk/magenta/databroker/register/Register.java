@@ -241,10 +241,7 @@ public abstract class Register extends DataProvider {
 
 
 
-
-    @Transactional
-    @Override
-    public void handlePush(DataProviderEntity dataProviderEntity, HttpServletRequest request) {
+    public InputStream getUploadStream(HttpServletRequest request) {
         InputStream input = null;
         try {
             Part uploadPart = request.getPart(this.getUploadPartName());
@@ -255,6 +252,14 @@ public abstract class Register extends DataProvider {
         } catch (IOException e) {
         } catch (ServletException e) {
         }
+        return input;
+    }
+
+
+    @Transactional
+    @Override
+    public void handlePush(DataProviderEntity dataProviderEntity, HttpServletRequest request) {
+        InputStream input = this.getUploadStream(request);
         if (input != null) {
             this.handlePush(true, dataProviderEntity, input);
         }
