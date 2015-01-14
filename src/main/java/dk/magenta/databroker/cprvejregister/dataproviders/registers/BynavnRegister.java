@@ -133,13 +133,16 @@ public class BynavnRegister extends CprSubRegister {
     public String getSourceTypeFieldName() {
         return "bynavnSourceType";
     }
+    public String getSourceUrlFieldName() {
+        return "bynavnSourceUrl";
+    }
 
 
     @Override
     public DataProviderConfiguration getDefaultConfiguration() {
         JSONObject config = new JSONObject();
-        config.put("bynavnSourceType","url");
-        config.put("bynavnSourceUrl","https://cpr.dk/media/152120/a370713.txt");
+        config.put(this.getSourceTypeFieldName(),"url");
+        config.put(this.getSourceUrlFieldName(),"https://cpr.dk/media/152120/a370713.txt");
         return new DataProviderConfiguration(config);
     }
 }

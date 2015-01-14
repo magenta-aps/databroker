@@ -102,4 +102,8 @@ public abstract class DataProvider {
         return this.wantUpload(new DataProviderConfiguration(configuration));
     }
 
+    public boolean canPull(DataProviderConfiguration configuration) {
+        return false;
+    }
+
 }

@@ -23,6 +23,7 @@ import java.util.Map;
 public class DataProviderController {
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private DataProviderRegistry dataProviderRegistry;
 
     @RequestMapping("/dataproviders/")

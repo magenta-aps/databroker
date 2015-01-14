@@ -123,4 +123,21 @@ public class CprRegister extends Register {
         }
         return obj;
     }
+
+
+    public boolean canPull(DataProviderConfiguration configuration) {
+        if (this.myndighedsRegister.canPull(configuration)) {
+            return true;
+        } else if (this.lokalitetsRegister.canPull(configuration)) {
+            return true;
+        } else if (this.vejRegister.canPull(configuration)) {
+            return true;
+        } else if (this.postnummerRegister.canPull(configuration)) {
+            return true;
+        } else if (this.bynavnRegister.canPull(configuration)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

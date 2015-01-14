@@ -152,13 +152,16 @@ public class LokalitetsRegister extends CprSubRegister {
     public String getSourceTypeFieldName() {
         return "lokalitetSourceType";
     }
+    public String getSourceUrlFieldName() {
+        return "lokalitetSourceUrl";
+    }
 
 
     @Override
     public DataProviderConfiguration getDefaultConfiguration() {
         JSONObject config = new JSONObject();
-        config.put("lokalitetSourceType","url");
-        config.put("lokalitetSourceUrl","https://cpr.dk/media/152108/a370714.txt");
+        config.put(this.getSourceTypeFieldName(),"url");
+        config.put(this.getSourceUrlFieldName(),"https://cpr.dk/media/152108/a370714.txt");
         return new DataProviderConfiguration(config);
     }
 }

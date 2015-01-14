@@ -156,4 +156,8 @@ public class DataProviderEntity {
         this.getDataProvider().pull(this);
     }
 
+    public boolean canPull() {
+        return this.getDataProvider().canPull(new DataProviderConfiguration(this.getConfiguration()));
+    }
+
 }

@@ -618,13 +618,16 @@ public class VejRegister extends CprSubRegister {
     public String getSourceTypeFieldName() {
         return "vejSourceType";
     }
+    public String getSourceUrlFieldName() {
+        return "vejSourceUrl";
+    }
 
 
     @Override
     public DataProviderConfiguration getDefaultConfiguration() {
         JSONObject config = new JSONObject();
-        config.put("vejSourceType","url");
-        config.put("vejSourceUrl","https://cpr.dk/media/152096/vejregister_hele_landet_pr_150101.zip");
+        config.put(this.getSourceTypeFieldName(),"url");
+        config.put(this.getSourceUrlFieldName(),"https://cpr.dk/media/152096/vejregister_hele_landet_pr_150101.zip");
         return new DataProviderConfiguration(config);
     }
 }
