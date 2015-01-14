@@ -1,5 +1,6 @@
 package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
+import dk.magenta.databroker.core.DataProviderConfiguration;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.CprRecord;
 import dk.magenta.databroker.dawa.model.DawaModel;
@@ -8,6 +9,7 @@ import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.register.objectcontainers.InputProcessingCounter;
 import dk.magenta.databroker.register.objectcontainers.Level2Container;
 import dk.magenta.databroker.register.records.Record;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -126,5 +128,18 @@ public class BynavnRegister extends CprSubRegister {
     @Override
     protected String getUploadPartName() {
         return "bynavnSourceUpload";
+    }
+
+    public String getSourceTypeFieldName() {
+        return "bynavnSourceType";
+    }
+
+
+    @Override
+    public DataProviderConfiguration getDefaultConfiguration() {
+        JSONObject config = new JSONObject();
+        config.put("bynavnSourceType","url");
+        config.put("bynavnSourceUrl","https://cpr.dk/media/152120/a370713.txt");
+        return new DataProviderConfiguration(config);
     }
 }

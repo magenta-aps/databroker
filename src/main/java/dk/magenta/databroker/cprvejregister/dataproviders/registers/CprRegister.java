@@ -79,22 +79,28 @@ public class CprRegister extends Register {
     @Override
     public DataProviderConfiguration getDefaultConfiguration() {
         JSONObject config = new JSONObject();
-        config.put("myndighedSourceType","url");
-        config.put("myndighedSourceUrl","https://cpr.dk/media/219468/a370716.txt");
-        config.put("lokalitetSourceType","url");
-        config.put("lokalitetSourceUrl","https://cpr.dk/media/152108/a370714.txt");
-        config.put("vejSourceType","url");
-        config.put("vejSourceUrl","https://cpr.dk/media/152096/vejregister_hele_landet_pr_150101.zip");
-        config.put("postnummerSourceType","url");
-        config.put("postnummerSourceUrl","https://cpr.dk/media/152114/a370712.txt");
-        config.put("bynavnSourceType","url");
-        config.put("bynavnSourceUrl","https://cpr.dk/media/152120/a370713.txt");
+        JSONObject myndighedConfig = this.myndighedsRegister.getDefaultConfiguration().toJSON();
+        config = mergeJSONObjects(config, myndighedConfig);
+        JSONObject lokalitetConfig = this.lokalitetsRegister.getDefaultConfiguration().toJSON();
+        config = mergeJSONObjects(config, lokalitetConfig);
+        JSONObject vejConfig = this.vejRegister.getDefaultConfiguration().toJSON();
+        config = mergeJSONObjects(config, vejConfig);
+        JSONObject postnummerConfig = this.postnummerRegister.getDefaultConfiguration().toJSON();
+        config = mergeJSONObjects(config, postnummerConfig);
+        JSONObject bynavnConfig = this.bynavnRegister.getDefaultConfiguration().toJSON();
+        config = mergeJSONObjects(config, bynavnConfig);
         return new DataProviderConfiguration(config);
     }
 
 
     public boolean wantUpload(DataProviderConfiguration configuration) {
-        String[] typeFields = new String[]{ "myndighedSourceType", "lokalitetSourceType", "vejSourceType", "postnummerSourceType", "bynavnSourceType" };
+        String[] typeFields = new String[]{
+                this.myndighedsRegister.getSourceTypeFieldName(),
+                this.lokalitetsRegister.getSourceTypeFieldName(),
+                this.vejRegister.getSourceTypeFieldName(),
+                this.postnummerRegister.getSourceTypeFieldName(),
+                this.bynavnRegister.getSourceTypeFieldName()
+        };
         for (String s : typeFields) {
             List<String> sourceType = configuration.get(s);
             if (sourceType != null && sourceType.contains("upload")) {
@@ -102,5 +108,19 @@ public class CprRegister extends Register {
             };
         }
         return false;
+    }
+
+
+    private static JSONObject mergeJSONObjects(JSONObject obj1, JSONObject obj2) {
+        JSONObject obj = new JSONObject();
+        for (Object okey : obj1.keySet()) {
+            String key = (String) okey;
+            obj.put(key, obj1.get(key));
+        }
+        for (Object okey : obj2.keySet()) {
+            String key = (String) okey;
+            obj.put(key, obj2.get(key));
+        }
+        return obj;
     }
 }

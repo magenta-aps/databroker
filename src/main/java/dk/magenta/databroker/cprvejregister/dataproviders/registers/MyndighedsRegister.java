@@ -1,5 +1,7 @@
 package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
+import dk.magenta.databroker.core.DataProvider;
+import dk.magenta.databroker.core.DataProviderConfiguration;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.core.model.oio.RegistreringRepository;
@@ -10,6 +12,7 @@ import dk.magenta.databroker.register.objectcontainers.EntityModificationCounter
 import dk.magenta.databroker.register.objectcontainers.Level2Container;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
 import dk.magenta.databroker.register.records.Record;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -193,13 +196,21 @@ public class MyndighedsRegister extends CprSubRegister {
     }
 
 
-
-
-
-
     @Override
     protected String getUploadPartName() {
         return "myndighedSourceUpload";
+    }
+
+    public String getSourceTypeFieldName() {
+        return "myndighedSourceType";
+    }
+
+    @Override
+    public DataProviderConfiguration getDefaultConfiguration() {
+        JSONObject config = new JSONObject();
+        config.put("myndighedSourceType","url");
+        config.put("myndighedSourceUrl","https://cpr.dk/media/219468/a370716.txt");
+        return new DataProviderConfiguration(config);
     }
 
 }
