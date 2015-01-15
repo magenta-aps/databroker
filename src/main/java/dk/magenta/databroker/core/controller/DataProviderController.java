@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
@@ -21,6 +22,12 @@ import java.util.Map;
 
 @Controller
 public class DataProviderController {
+
+    private HashMap<Long, Thread> threads;
+
+    public DataProviderController() {
+        this.threads = new HashMap<Long, Thread>();
+    }
 
     @Autowired
     @SuppressWarnings("SpringJavaAutowiringInspection")
@@ -72,10 +79,10 @@ public class DataProviderController {
                 this.dataProviderRegistry.updateDataProviderEntity(dataProviderEntity, params);
                 DataProvider dataProvider = dataProviderEntity.getDataProvider();
                 if (dataProvider.wantUpload(dataProviderEntity.getConfiguration())) {
-                    System.out.println("pushing");
-                    dataProvider.asyncPush(dataProviderEntity, request);
-                    System.out.println("still pushing");
-                    return this.processEntity(request);
+                    Thread thread = dataProvider.asyncPush(dataProviderEntity, request);
+                    long threadId = thread.getId();
+                    this.threads.put(threadId, thread);
+                    return this.processEntity(request, threadId);
                 }
                 return this.redirectToIndex();
             }
@@ -89,7 +96,10 @@ public class DataProviderController {
                 dataProviderEntity = this.dataProviderRegistry.createDataProviderEntity(providerType, params);
                 DataProvider dataProvider = dataProviderEntity.getDataProvider();
                 if (dataProvider.wantUpload(dataProviderEntity.getConfiguration())) {
-                    dataProvider.handlePush(dataProviderEntity, request);
+                    Thread thread = dataProvider.asyncPush(dataProviderEntity, request);
+                    long threadId = thread.getId();
+                    this.threads.put(threadId, thread);
+                    return this.processEntity(request, threadId);
                 }
                 return this.redirectToIndex();
             }
@@ -147,9 +157,45 @@ public class DataProviderController {
         return this.redirectToIndex();
     }
 
-    @RequestMapping("/dataproviders/processing")
-    public ModelAndView processEntity(HttpServletRequest request) {
-        return new ModelAndView("dataproviders/processing");
+    @RequestMapping("/dataproviders/pull")
+    public ModelAndView pullEntity(HttpServletRequest request) {
+        // Do something
+        return this.processEntity(request);
     }
 
+
+    @RequestMapping("/dataproviders/processing")
+    public ModelAndView processEntity(HttpServletRequest request) {
+        long id = 0;
+        try {
+            id = Long.parseLong(request.getParameter("id"));
+        } catch (NumberFormatException e) {
+        }
+        return this.processEntity(request, id);
+    }
+
+    public ModelAndView processEntity(HttpServletRequest request, long id) {
+        HashMap<String, Object> model = new HashMap<String, Object>();
+        HashMap<String, Object> data = new HashMap<String, Object>();
+        data.put("id", id);
+        data.put("onDone", "/dataproviders/");
+        model.put("data", data);
+        return new ModelAndView("dataproviders/processing", model);
+    }
+
+    @RequestMapping("/dataproviders/processingStatus")
+    public ModelAndView processStatus(HttpServletRequest request) {
+        HashMap<String, Object> model = new HashMap<String, Object>();
+        try {
+            long id = Long.parseLong(request.getParameter("id"));
+            Thread thread = this.threads.get(id);
+            if (thread != null) {
+                Thread.State state = thread.getState();
+                model.put("state", state.toString());
+            }
+
+        } catch (NumberFormatException e) {
+        }
+        return new ModelAndView(new MappingJackson2JsonView(), model);
+    }
 }

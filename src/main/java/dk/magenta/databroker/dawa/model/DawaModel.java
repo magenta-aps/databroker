@@ -219,7 +219,6 @@ public class DawaModel {
         return this.vejstykkeCache;
     }
 
-
     public void resetVejstykkeCache() {
         this.vejstykkeCache = null;
     }

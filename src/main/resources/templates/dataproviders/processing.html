@@ -3,12 +3,45 @@
       layout:decorator="layout">
 <head>
     <title>DataBroker : Dataproviders</title>
+
+    <script th:inline="javascript">
+        window.data = [[${data}]];
+    </script>
+
 </head>
 <body>
 
 <div layout:fragment="content" style="text-align: left;">
     <h1>Processing</h1>
     <p>Data is being processed - please wait</p>
+    <p th:text="'Process id: ' + ${data.id}"></p>
+
+
+    <script type="text/javascript">
+        var statusTimer = setInterval(function(){
+            $.ajax({
+                type: "GET",
+                url: "/dataproviders/processingStatus",
+                data: {
+                    id: window.data.id
+                },
+                dataType: "json",
+                success: function(responseJSON, status, response) {
+                    console.log(arguments);
+                    if (responseJSON != null) {
+                        if (responseJSON.state == "TERMINATED") {
+                            clearInterval(statusTimer);
+                            statusTimer = null;
+                            window.location.href = window.data.onDone;
+                        }
+                    }
+                }
+            });
+        }, 4000);
+
+
+    </script>
+
 </div>
 
 </body>

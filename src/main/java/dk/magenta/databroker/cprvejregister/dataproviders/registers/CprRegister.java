@@ -106,14 +106,16 @@ public class CprRegister extends Register {
     }
 
 
-    public void asyncPush(DataProviderEntity dataProviderEntity, HttpServletRequest request) {
+    public Thread asyncPush(DataProviderEntity dataProviderEntity, HttpServletRequest request) {
         List<Pair<CprSubRegister, File>> list = new ArrayList<Pair<CprSubRegister, File>>();
         list.add(new Pair<CprSubRegister, File>(this.myndighedsRegister, this.getTempUploadFile(this.myndighedsRegister, request)));
         list.add(new Pair<CprSubRegister, File>(this.vejRegister, this.getTempUploadFile(this.vejRegister, request)));
         list.add(new Pair<CprSubRegister, File>(this.lokalitetsRegister, this.getTempUploadFile(this.lokalitetsRegister, request)));
         list.add(new Pair<CprSubRegister, File>(this.postnummerRegister, this.getTempUploadFile(this.postnummerRegister, request)));
         list.add(new Pair<CprSubRegister, File>(this.bynavnRegister, this.getTempUploadFile(this.bynavnRegister, request)));
-        new CprPusher(dataProviderEntity, list, true).start();
+        Thread thread = new CprPusher(dataProviderEntity, list, true);
+        thread.start();
+        return thread;
     }
 
     private File getTempUploadFile(CprSubRegister subRegister, HttpServletRequest request) {

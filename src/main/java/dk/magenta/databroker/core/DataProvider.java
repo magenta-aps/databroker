@@ -63,8 +63,10 @@ public abstract class DataProvider {
         throw new NotImplementedException();
     }
 
-    public void asyncPush(DataProviderEntity dataProviderEntity, HttpServletRequest request) {
-        new DataProviderPusher(dataProviderEntity, request).start();
+    public Thread asyncPush(DataProviderEntity dataProviderEntity, HttpServletRequest request) {
+        Thread thread = new DataProviderPusher(dataProviderEntity, request);
+        thread.start();
+        return thread;
     }
 
     //public abstract Properties getConfigSpecification(DataProviderEntity dataProviderEntity);
