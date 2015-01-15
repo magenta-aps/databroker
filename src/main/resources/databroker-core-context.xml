@@ -18,7 +18,6 @@
 
     <bean id="jsonProvider" class="org.codehaus.jackson.jaxrs.JacksonJsonProvider"/>
 
-
     <jaxws:endpoint id="helloWorld" implementor="dk.magenta.databroker.web.service.soap.HelloService" address="/HelloWorld"/>
 
     <jaxrs:server address="/" basePackages="dk.magenta.databroker.service.rest">

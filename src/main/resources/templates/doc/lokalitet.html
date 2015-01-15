@@ -38,13 +38,17 @@
             <option value="xml">XML</option>
         </select><br/>
 
-        <button type="submit" id="search" onclick="">Søg</button><img id="loading" src="/img/loading.gif" style="display:none"/><br/>
+        <button type="submit" id="search" onclick="">Søg</button><img id="loading" th:src="@{/img/loading.gif}" style="display:none"/><br/>
         <textarea id="results" style="width:100%; height:200px; display: none"/>
     </p>
     <script type="text/javascript">
         //<![CDATA[
         var fields = $('#land,#kommune,#post,#vej,#lokalitet,#format');
-        var run = doSearch.bind(null,'/services/search/lokalitet',fields,$('#results'),$("#loading"));
+        var run = doSearch.bind(
+                null,
+                /*[[@{/services/search/lokalitet}]]*/ '/services/search/lokalitet',
+                fields,$('#results'),$("#loading")
+        );
         $("#search").select(run);
         $("#search").click(run);
         fields.keyup(function(ev){
@@ -59,7 +63,7 @@
 
     <h3>Lokalitetopslag</h3>
     <p>Find Lokalitet ud fra id</p>
-    <pre>GET /service/search/lokalitet/{id}</pre>
+    <pre th:text="|GET | + @{/service/search/lokalitet/{id}}"></pre>
 
     <h4>Parametre</h4>
     <table class="table table-hover">
@@ -90,7 +94,7 @@
 
     <h3>Lokalitetsøgning</h3>
     <p>Søg efter lokaliteter, afgrænset af angivne parametre</p>
-    <pre>GET /service/search/lokalitet</pre>
+    <pre th:text="|GET | + @{/service/search/lokalitet}"></pre>
     <a name="parameters"></a>
     <h4>Parametre</h4>
     <table class="table table-hover">
@@ -118,13 +122,13 @@
     <h4>Eksempler</h4>
 
     <p>Find alle lokaliteter i Grønland, og output data i xml-format</p>
-    <a href="/services/search/lokalitet?land=gl&amp;format=xml"><pre>/services/search/lokalitet?land=gl&amp;format=xml</pre></a>
+    <a th:href="@{/services/search/lokalitet?land=gl&amp;format=xml}"><pre th:text="@{/services/search/lokalitet?land=gl&amp;format=xml}"></pre></a>
 
     <p>Find alle lokaliteter ved navn "Nuuk"</p>
-    <a href="/services/search/lokalitet?lokalitet=Nuuk"><pre>/services/search/lokalitet?lokalitet=Nuuk</pre></a>
+    <a th:href="@{/services/search/lokalitet?lokalitet=Nuuk}"><pre th:text="@{/services/search/lokalitet?lokalitet=Nuuk}"></pre></a>
 
     <p>Find alle lokaliteter i Grønland som slutter på "ut"</p>
-    <a href="/services/search/lokalitet?land=gl&amp;lokalitet=*ut"><pre>/services/search/lokalitet?land=gl&amp;lokalitet=*ut</pre></a>
+    <a th:href="@{/services/search/lokalitet?land=gl&amp;lokalitet=*ut}"><pre th:text="@{/services/search/lokalitet?land=gl&amp;lokalitet=*ut}"></pre></a>
 
 </div>
 

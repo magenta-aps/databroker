@@ -21,7 +21,6 @@ public class DataProviderRegistry {
 
     public static void registerDataProvider(DataProvider dataProvider) {
         String className = dataProvider.getClass().getCanonicalName();
-        System.out.println("Registered data provider type " + className);
         if (dataProviders.containsKey(className)) {
             // TODO: Add some kind of warning? Throw an error?
             return;
