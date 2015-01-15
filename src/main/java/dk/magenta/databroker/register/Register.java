@@ -13,8 +13,12 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.Part;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -148,27 +152,79 @@ public abstract class Register extends DataProvider {
                         input = Files.newInputStream(cacheFile.toPath());
                     }
                 }
-                if (checksum != null) {
-                    JSONObject storageData = new JSONObject();
-                    String dataString = this.storageEntity.getData();
-                    if (dataString != null) {
-                        try {
-                            storageData = new JSONObject(dataString);
-                        } catch (JSONException e) {
-                        }
-                    }
 
-                    if (forceParse || !checksum.equals(storageData.optString("checksum"))) {
-                        System.out.println("Checksum mismatch; parsing new data into database");
-                        RegisterRun run = this.parse(input);
-                        this.saveRunToDatabase(run, dataProviderEntity);
+                boolean checksumMatch = compareChecksum(checksum);
+
+                if (forceParse || checksum == null || checksumMatch) {
+                    System.out.println("Checksum mismatch; parsing new data into database");
+                    RegisterRun run = this.parse(input);
+                    this.saveRunToDatabase(run, dataProviderEntity);
+
+                } else {
+                    System.out.println("Checksum match; no need to update database");
+                }
+
+            } else {
+                System.out.println("No input data");
+            }
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println(this.getClass().getSimpleName() + " done!");
+        System.gc();
+    }
+
+
+    private boolean compareChecksum(String checksum) {
+        boolean checksumMatch = false;
+        if (checksum != null) {
+            String dataString = this.storageEntity.getData();
+            if (dataString != null) {
+                try {
+                    JSONObject storageData = new JSONObject(dataString);
+                    if (checksum.equals(storageData.optString("checksum"))) {
+                        checksumMatch = true;
+                    } else {
                         storageData.put("checksum", checksum);
                         this.storageEntity.setData(storageData.toString());
                         this.dataProviderStorageRepository.saveAndFlush(this.storageEntity);
-                    } else {
-                        System.out.println("Checksum match; no need to update database");
                     }
+                } catch (JSONException e) {
                 }
+            }
+        }
+        return checksumMatch;
+    }
+
+
+    public void handlePush(boolean forceParse, DataProviderEntity dataProviderEntity, InputStream input) {
+        this.clearRegistreringEntities();
+        System.out.println("-----------------------------");
+        System.out.println(this.getClass().getSimpleName() + " receiving push...");
+        try {
+            String checksum = null;
+
+            if (input != null) {
+                File cacheFile = this.getCacheFile(true);
+                if (cacheFile != null && cacheFile.canWrite() && cacheFile.canRead()) {
+                    Files.copy(input, cacheFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    input.close();
+                    checksum = DigestUtils.md5Hex(Files.newInputStream(cacheFile.toPath()));
+                    input = Files.newInputStream(cacheFile.toPath());
+                }
+
+                boolean checksumMatch = compareChecksum(checksum);
+
+                if (forceParse || checksum == null || !checksumMatch) {
+                    System.out.println("Checksum mismatch; parsing new data into database");
+                    RegisterRun run = this.parse(input);
+                    this.saveRunToDatabase(run, dataProviderEntity);
+                } else {
+                    System.out.println("Checksum match; no need to update database");
+                }
+
 
 
             } else {
@@ -181,6 +237,36 @@ public abstract class Register extends DataProvider {
         }
         System.out.println(this.getClass().getSimpleName() + " done!");
         System.gc();
+    }
+
+
+
+    public InputStream getUploadStream(HttpServletRequest request) {
+        InputStream input = null;
+        try {
+            Part uploadPart = request.getPart(this.getUploadPartName());
+            if (uploadPart != null && uploadPart.getSize() > 0) {
+                System.out.println("receiving "+uploadPart.getSize()+" byte upload from "+this.getUploadPartName());
+                input = uploadPart.getInputStream();
+            }
+        } catch (IOException e) {
+        } catch (ServletException e) {
+        }
+        return input;
+    }
+
+
+    @Transactional
+    @Override
+    public void handlePush(DataProviderEntity dataProviderEntity, HttpServletRequest request) {
+        InputStream input = this.getUploadStream(request);
+        if (input != null) {
+            this.handlePush(true, dataProviderEntity, input);
+        }
+    }
+
+    protected String getUploadPartName() {
+        return "sourceUpload";
     }
 
 
@@ -248,7 +334,7 @@ public abstract class Register extends DataProvider {
             System.out.println("    parsed " + (j * 100000 + i) + " entries in " + String.format("%.3f", 0.001 * (new Date().getTime() - startTime.getTime())) + " seconds");
 
             //System.out.println(run.toFullJSON().toString(2));
-            System.out.println("Pull complete ("+run.size()+" entries)");
+            System.out.println("Parse complete ("+run.size()+" entries)");
             return run;
 
 
@@ -257,7 +343,7 @@ public abstract class Register extends DataProvider {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("Pull failed");
+        System.out.println("Parse failed");
         return null;
     }
 

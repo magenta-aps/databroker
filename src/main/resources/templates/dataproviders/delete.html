@@ -1,0 +1,20 @@
+<html xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+  layout:decorator="layout">
+  <head>
+    <title>DataBroker : Dataproviders</title>
+  </head>
+  <body>
+
+    <div layout:fragment="content" style="text-align: left;">
+      <h1>Delete data provider</h1>
+      <form action="" method="post">
+        <p th:text="'Are you sure you want to delete the data provider ' + ${uuid} + '?'"></p>
+
+        <button type="submit" name="submit" value="ok">Delete</button>
+        <button type="submit" name="submit" value="cancel">Cancel</button>
+      </form>
+    </div>
+
+  </body>
+</html>

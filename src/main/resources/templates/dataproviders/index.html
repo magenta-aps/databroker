@@ -14,6 +14,8 @@
           <td th:text="${dataproviderEntity.getUuid()}">Data provider name</td>
           <td th:text="${dataproviderEntity.getType()}">Data provider type</td>
           <td><a th:href="${'edit?uuid='+dataproviderEntity.getUuid()}">Edit</a></td>
+          <td><a th:href="${'delete?uuid='+dataproviderEntity.getUuid()}">Delete</a></td>
+          <td><a th:if="${dataproviderEntity.canPull()}" th:href="${'pull?uuid='+dataproviderEntity.getUuid()}">Pull</a></td>
         </tr>
       </table>
       <form action="new/" method="get">

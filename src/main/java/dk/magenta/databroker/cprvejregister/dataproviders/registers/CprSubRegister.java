@@ -6,9 +6,12 @@ import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.register.Register;
 import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
+import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.ParseException;
 
 /**
@@ -54,5 +57,28 @@ public abstract class CprSubRegister extends Register {
 
     public DataProviderConfiguration getDefaultConfiguration() {
         return new DataProviderConfiguration();
+    }
+
+
+
+    public String getSourceTypeFieldName() {
+        return "sourceType";
+    }
+    public String getSourceUrlFieldName() {
+        return "sourceUrl";
+    }
+
+    public boolean canPull(DataProviderConfiguration configuration) {
+        JSONObject obj = configuration.toJSON();
+        String sourceType = obj.optString(this.getSourceTypeFieldName());
+        String sourceUrl = obj.optString(this.getSourceUrlFieldName());
+        if (sourceType != null && sourceType.equals("url") && sourceUrl != null && !sourceUrl.isEmpty()) {
+            try {
+                URL url = new URL(sourceUrl);
+                return true;
+            } catch (MalformedURLException e) {
+            }
+        }
+        return false;
     }
 }

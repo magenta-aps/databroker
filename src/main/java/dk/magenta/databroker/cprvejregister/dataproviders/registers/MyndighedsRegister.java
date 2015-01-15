@@ -1,5 +1,7 @@
 package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
+import dk.magenta.databroker.core.DataProvider;
+import dk.magenta.databroker.core.DataProviderConfiguration;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.core.model.oio.RegistreringRepository;
@@ -10,10 +12,17 @@ import dk.magenta.databroker.register.objectcontainers.EntityModificationCounter
 import dk.magenta.databroker.register.objectcontainers.Level2Container;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
 import dk.magenta.databroker.register.records.Record;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.Part;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
@@ -168,9 +177,7 @@ public class MyndighedsRegister extends CprSubRegister {
     protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
         System.out.println("Storing KommuneEntities in database");
         MyndighedsRegisterRun mrun = (MyndighedsRegisterRun) run;
-        System.out.println("mrun size: "+mrun.size());
         List<Myndighed> kommuner = mrun.getMyndigheder("5");
-        EntityModificationCounter counter = new EntityModificationCounter();
 
         for (Myndighed kommune : kommuner) {
             int kommuneKode = kommune.getInt("myndighedsKode");
@@ -182,8 +189,28 @@ public class MyndighedsRegister extends CprSubRegister {
             mrun.printInputProcessed();
         }
         mrun.printFinalInputsProcessed();
-        System.out.println("Stored KommuneEntities in database:");
-        counter.printModifications();
     }
+
+
+    @Override
+    protected String getUploadPartName() {
+        return "myndighedSourceUpload";
+    }
+
+    public String getSourceTypeFieldName() {
+        return "myndighedSourceType";
+    }
+    public String getSourceUrlFieldName() {
+        return "myndighedSourceUrl";
+    }
+
+    @Override
+    public DataProviderConfiguration getDefaultConfiguration() {
+        JSONObject config = new JSONObject();
+        config.put(this.getSourceTypeFieldName(),"url");
+        config.put(this.getSourceUrlFieldName(),"https://cpr.dk/media/219468/a370716.txt");
+        return new DataProviderConfiguration(config);
+    }
+
 
 }

@@ -1,6 +1,7 @@
 package dk.magenta.databroker.core.model;
 
 import dk.magenta.databroker.core.DataProvider;
+import dk.magenta.databroker.core.DataProviderConfiguration;
 import dk.magenta.databroker.core.DataProviderRegistry;
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.core.model.oio.RegistreringRepository;
@@ -155,8 +156,8 @@ public class DataProviderEntity {
         this.getDataProvider().pull(this);
     }
 
-    public void handlePush(HttpRequest request) {
-        this.getDataProvider().handlePush(this, request);
+    public boolean canPull() {
+        return this.getDataProvider().canPull(new DataProviderConfiguration(this.getConfiguration()));
     }
 
 }

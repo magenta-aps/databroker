@@ -2,13 +2,9 @@ package dk.magenta.databroker.core;
 
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.core.model.DataProviderRepository;
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -18,38 +14,40 @@ import java.util.*;
 
 @Component
 public class DataProviderRegistry {
-    private static HashMap<String, DataProvider> dataProviderTypes = new HashMap<String, DataProvider>();
+    private static HashMap<String, DataProvider> dataProviders = new HashMap<String, DataProvider>();
 
     @Autowired
     private DataProviderRepository dataProviderRepository;
 
-    public static void registerDataProvider(DataProvider dataProviderType) {
-        String className = dataProviderType.getClass().getCanonicalName();
-        if (dataProviderTypes.containsKey(className)) {
+    public static void registerDataProvider(DataProvider dataProvider) {
+        String className = dataProvider.getClass().getCanonicalName();
+        System.out.println("Registered data provider type " + className);
+        if (dataProviders.containsKey(className)) {
             // TODO: Add some kind of warning? Throw an error?
             return;
         }
-        dataProviderTypes.put(className, dataProviderType);
+        dataProviders.put(className, dataProvider);
     }
 
     public static Collection<String> getRegisteredDataProviderTypes() {
         ArrayList<String> result = new ArrayList<String>();
-        result.addAll(dataProviderTypes.keySet());
+        result.addAll(dataProviders.keySet());
         Collections.sort(result);
         return result;
     }
 
-    public static DataProvider getDataProviderType(String type) {
-        return dataProviderTypes.get(type);
+    public static DataProvider getDataProvider(String type) {
+        return dataProviders.get(type);
     }
 
+
     public static Collection<DataProvider> getRegisteredDataProviders() {
-        // TODO: return list of dataprovider dataProviderTypes
-        return dataProviderTypes.values();
+        // TODO: return list of dataprovider dataProviders
+        return dataProviders.values();
     }
 
     public static DataProvider getDataProviderForEntity(DataProviderEntity dataproviderEntity) {
-        return dataProviderTypes.get(dataproviderEntity.getType());
+        return dataProviders.get(dataproviderEntity.getType());
     }
 
     public Collection<DataProviderEntity> getDataProviderEntities() {
@@ -58,9 +56,9 @@ public class DataProviderRegistry {
 
     public DataProviderEntity createDataProviderEntity(String type, Map<String, String[]> parameters) {
         DataProviderEntity entity = null;
-        if (type != null && dataProviderTypes.keySet().contains(type)) {
+        if (type != null && dataProviders.keySet().contains(type)) {
             entity = new DataProviderEntity();
-            entity.setType(dataProviderTypes.get(type).getClass());
+            entity.setType(dataProviders.get(type).getClass());
             entity.setUuid(UUID.randomUUID().toString());
             entity.setActive(true);
             entity.setPriority(1);
@@ -99,5 +97,9 @@ public class DataProviderRegistry {
 
     public DataProviderEntity getDataProviderEntity(String uuid) {
         return this.dataProviderRepository.getByUuid(uuid);
+    }
+
+    public void deleteDataProviderEntity(DataProviderEntity entity) {
+        this.dataProviderRepository.delete(entity);
     }
 }

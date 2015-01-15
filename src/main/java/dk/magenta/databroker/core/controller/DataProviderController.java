@@ -1,10 +1,9 @@
 package dk.magenta.databroker.core.controller;
 
 import dk.magenta.databroker.core.DataProvider;
+import dk.magenta.databroker.core.DataProviderConfiguration;
 import dk.magenta.databroker.core.DataProviderRegistry;
 import dk.magenta.databroker.core.model.DataProviderEntity;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,12 +11,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.UriInfo;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +23,7 @@ import java.util.Map;
 public class DataProviderController {
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private DataProviderRegistry dataProviderRegistry;
 
     @RequestMapping("/dataproviders/")
@@ -46,125 +40,116 @@ public class DataProviderController {
 
     @RequestMapping("/dataproviders/new")
     public ModelAndView newEntity(HttpServletRequest request) {
-
-        Map<String, String[]> params = request.getParameterMap();
-        String submit = request.getParameter("submit");
-
-        if (submit == null || submit.equals("ok")) {
-
-            Map<String, Object> model = new HashMap<String, Object>();
-            Map<String, String[]> values = new HashMap<String, String[]>();
-            Map<String, String> errors = new HashMap<String, String>();
-
-            String providerType = request.getParameter("providerType");
-            values.put("providerType", new String[]{providerType});
-
-            if (providerType != null) {
-                DataProviderEntity dataProviderEntity = null;
-
-                try {
-                    dataProviderEntity = this.dataProviderRegistry.createDataProviderEntity(providerType, params);
-
-                //} catch (MalformedURLException e) {
-                //    errors.put("sourceUrl", "Invalid url");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    //errors.put("sourceUrl", "Invalid url");
-                }
-
-
-                if (dataProviderEntity != null) {
-                    // item is created, show list
-
-                    return this.redirectToIndex();
-                }
-
-                values.putAll(params);
-            } else {
-                //values.putAll();
-            }
-
-            HashMap<String, Object> providerData = new HashMap<String, Object>();
-
-
-            model.put("errors", errors);
-            model.put("values", values);
-            model.put("action", "new");
-
-            Collection<DataProvider> dataProviderTypes = DataProviderRegistry.getRegisteredDataProviders();
-            for (DataProvider dataProviderType : dataProviderTypes) {
-                HashMap<String, Object> data = new HashMap<String, Object>();
-                data.put("template", dataProviderType.getTemplatePath());
-                data.put("values", dataProviderType.getDefaultConfiguration().toArrayMap());
-                providerData.put(dataProviderType.getClass().getCanonicalName(), data);
-            }
-
-            model.put("dataproviderTypes", providerData/*dataProviderRegistry.getRegisteredDataProviderTypes()*/);
-            return new ModelAndView("dataproviders/edit", model);
-        }
-        return this.redirectToIndex();
+        return edit(request);
     }
 
 
     @RequestMapping("/dataproviders/edit")
     public ModelAndView editEntity(HttpServletRequest request) {
+        return edit(request);
+    }
+
+    private ModelAndView edit(HttpServletRequest request) {
 
         Map<String, String[]> params = request.getParameterMap();
         String uuid = request.getParameter("uuid");
         String submit = request.getParameter("submit");
+        String action;
 
+        if (submit != null && !submit.equals("ok")) {
+            // User canceled
+            return this.redirectToIndex();
+        }
+        boolean processSubmit = submit != null && submit.equals("ok");
+
+        Map<String, String[]> values = new HashMap<String, String[]>();
+
+        DataProviderEntity dataProviderEntity = null;
+
+        if (uuid != null) { // We are editing an existing entity
+            dataProviderEntity = this.dataProviderRegistry.getDataProviderEntity(uuid);
+            if (processSubmit) {
+                this.dataProviderRegistry.updateDataProviderEntity(dataProviderEntity, params);
+                DataProvider dataProvider = dataProviderEntity.getDataProvider();
+                if (dataProvider.wantUpload(dataProviderEntity.getConfiguration())) {
+                    System.out.println("pushing");
+                    dataProvider.asyncPush(dataProviderEntity, request);
+                    System.out.println("still pushing");
+                    return this.processEntity(request);
+                }
+                return this.redirectToIndex();
+            }
+            values.put("uuid", new String[]{uuid});
+            action = "edit";
+        } else {
+            if (processSubmit) {
+                // Processing a "new" submit, create a new DataProviderEntity
+                String providerType = request.getParameter("dataprovider");
+                values.put("dataprovider", new String[]{providerType});
+                dataProviderEntity = this.dataProviderRegistry.createDataProviderEntity(providerType, params);
+                DataProvider dataProvider = dataProviderEntity.getDataProvider();
+                if (dataProvider.wantUpload(dataProviderEntity.getConfiguration())) {
+                    dataProvider.handlePush(dataProviderEntity, request);
+                }
+                return this.redirectToIndex();
+            }
+            action = "new";
+        }
+
+        values.putAll(params);
+
+        if (dataProviderEntity != null) {
+            values.putAll(this.dataProviderRegistry.getDataProviderEntityValues(dataProviderEntity));
+            values.put("dataprovider", new String[]{dataProviderEntity.getType()});
+        }
+
+        Map<String, Object> model = new HashMap<String, Object>();
+        model.put("values", values);
+        model.put("action", action);
+
+        model.put("dataproviders", this.getDataProviderData());
+        return new ModelAndView("dataproviders/edit", model);
+    }
+
+
+    private Map<String, Object> getDataProviderData() {
+        HashMap<String, Object> providerData = new HashMap<String, Object>();
+        Collection<DataProvider> dataProviders = DataProviderRegistry.getRegisteredDataProviders();
+        for (DataProvider dataProvider : dataProviders) {
+            HashMap<String, Object> data = new HashMap<String, Object>();
+            data.put("template", dataProvider.getTemplatePath());
+            DataProviderConfiguration configuration = dataProvider.getDefaultConfiguration();
+            data.put("values", configuration != null ? configuration.toArrayMap() : new DataProviderConfiguration());
+            providerData.put(dataProvider.getClass().getCanonicalName(), data);
+        }
+        return providerData;
+    }
+
+
+    @RequestMapping("/dataproviders/delete")
+    public ModelAndView deleteEntity(HttpServletRequest request) {
+        String uuid = request.getParameter("uuid");
         if (uuid != null) {
-            Map<String, Object> model = new HashMap<String, Object>();
-            Map<String, String[]> values = new HashMap<String, String[]>();
-            Map<String, String> errors = new HashMap<String, String>();
-
             DataProviderEntity dataProviderEntity = this.dataProviderRegistry.getDataProviderEntity(uuid);
             if (dataProviderEntity != null) {
-
+                String submit = request.getParameter("submit");
                 if (submit != null) {
-                   if (submit.equals("ok")) {
-                       // User pressed "update"
-                       try {
-                           System.out.println("saving...");
-                           this.dataProviderRegistry.updateDataProviderEntity(dataProviderEntity, params);
-                           return this.redirectToIndex(); // Item was updated, show list
-                       } catch (Exception e) {
-                           e.printStackTrace();
-                           // got an exception, re-show form
-                           values.putAll(params);
-                       }
-                   } else {
-                       // User pressed "cancel"
-                       return this.redirectToIndex();
-                   }
-                } else {
-                    // Displaying the page
-                    values.putAll(this.dataProviderRegistry.getDataProviderEntityValues(dataProviderEntity));
+                    if (submit.equals("ok")) {
+                        this.dataProviderRegistry.deleteDataProviderEntity(dataProviderEntity);
+                    }
+                    return this.redirectToIndex();
                 }
-
-
-                HashMap<String, HashMap<String, String>> providerData = new HashMap<String, HashMap<String, String>>();
-
-                values.put("uuid", new String[]{uuid});
-                values.put("providerType", new String[]{dataProviderEntity.getType()});
-
-                model.put("errors", errors);
-                model.put("values", values);
-                model.put("action", "edit");
-
-                Collection<DataProvider> dataProviderTypes = DataProviderRegistry.getRegisteredDataProviders();
-                for (DataProvider dataProviderType : dataProviderTypes) {
-                    HashMap<String, String> data = new HashMap<String, String>();
-                    data.put("template", dataProviderType.getTemplatePath());
-                    providerData.put(dataProviderType.getClass().getCanonicalName(), data);
-                }
-
-                //model.put("dataproviderTypes", dataProviderRegistry.getRegisteredDataProviderTypes());
-                model.put("dataproviderTypes", providerData/*dataProviderRegistry.getRegisteredDataProviderTypes()*/);
-                return new ModelAndView("dataproviders/edit", model);
+                Map<String, Object> model = new HashMap<String, Object>();
+                model.put("uuid", uuid);
+                return new ModelAndView("dataproviders/delete", model);
             }
         }
         return this.redirectToIndex();
+    }
+
+    @RequestMapping("/dataproviders/processing")
+    public ModelAndView processEntity(HttpServletRequest request) {
+        return new ModelAndView("dataproviders/processing");
     }
 
 }
