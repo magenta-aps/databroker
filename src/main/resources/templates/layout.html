@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <title>Databroker</title>
-    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/layout.css}" />
     <script type="text/javascript" src="//code.jquery.com/jquery-1.11.2.min.js"/>
-    <script type="text/javascript" src="/js/search.js"/>
+    <script type="text/javascript" th:src="@{/js/search.js}"/>
   </head>
 
 <body>
@@ -24,12 +24,12 @@
         <div class="collapse navbar-collapse">
             <a class="navbar-brand" href="/">Databroker</a>
             <ul class="nav navbar-nav">
-                <li th:class="${nav=='kommune'} ? 'active'"><a href="/doc/kommune">Kommune</a></li>
-                <li th:class="${nav=='vej'} ? 'active'"><a href="/doc/vej">Vej</a></li>
-                <li th:class="${nav=='postnr'} ? 'active'"><a href="/doc/postnr">Postnummer</a></li>
-                <li th:class="${nav=='adresse'} ? 'active'"><a href="/doc/adresse">Adresse</a></li>
-                <li th:class="${nav=='adgangsadresse'} ? 'active'"><a href="/doc/adgangsadresse">Adgangsadresse</a></li>
-                <li th:class="${nav=='lokalitet'} ? 'active'"><a href="/doc/lokalitet">Lokalitet</a></li>
+                <li th:class="${nav=='kommune'} ? 'active'"><a th:href="@{/doc/kommune}">Kommune</a></li>
+                <li th:class="${nav=='vej'} ? 'active'"><a th:href="@{/doc/vej}">Vej</a></li>
+                <li th:class="${nav=='postnr'} ? 'active'"><a th:href="@{/doc/postnr}">Postnummer</a></li>
+                <li th:class="${nav=='adresse'} ? 'active'"><a th:href="@{/doc/adresse}">Adresse</a></li>
+                <li th:class="${nav=='adgangsadresse'} ? 'active'"><a th:href="@{/doc/adgangsadresse}">Adgangsadresse</a></li>
+                <li th:class="${nav=='lokalitet'} ? 'active'"><a th:href="@{/doc/lokalitet}">Lokalitet</a></li>
             </ul>
         </div>
     </div>
@@ -46,7 +46,7 @@
 <!-- Bootstrap core JavaScript
 ================================================== -->
 <!-- Placed at the end of the document so the pages load faster -->
-<script src="/bootstrap/js/bootstrap.min.js"></script>
+<script th:src="@{/bootstrap/js/bootstrap.min.js}"></script>
 
 </body>
 </html>

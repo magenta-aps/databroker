@@ -42,13 +42,17 @@
         <input type="date" name="IncludeAfter" id="IncludeAfter"/><br/>
 
 
-        <button type="submit" id="search" onclick="">Søg</button><img id="loading" src="/img/loading.gif" style="display:none"/><br/>
+        <button type="submit" id="search" onclick="">Søg</button><img id="loading" th:src="@{/img/loading.gif}" style="display:none"/><br/>
         <textarea id="results" style="width:100%; height:200px; display: none"/>
     </p>
     <script type="text/javascript">
         //<![CDATA[
         var fields = $('#land,#kommune,#post,#vej,#format,#includeBefore,#includeAfter');
-        var run = doSearch.bind(null,'/services/search/postnr',fields,$('#results'),$("#loading"));
+        var run = doSearch.bind(
+                null,
+                /*[[@{/services/search/postnr}]]*/ '/services/search/postnr',
+                fields,$('#results'),$("#loading")
+        );
         $("#search").select(run);
         $("#search").click(run);
         fields.keyup(function(ev){
@@ -63,7 +67,7 @@
 
     <h3>Postnummeropslag</h3>
     <p>Find postnummer ud fra nummer</p>
-    <pre>GET /service/search/postnr/{nummer}</pre>
+    <pre th:text="|GET | + @{/service/search/postnr/{nummer}}"></pre>
 
     <h4>Parametre</h4>
     <table class="table table-hover">
@@ -88,13 +92,13 @@
     <h4>Eksempler</h4>
 
     <p>Hent data på postnummer 3900</p>
-    <a href="/services/search/postnr/3900"><pre>/services/search/postnr/3900</pre></a>
+    <a th:href="@{/services/search/postnr/3900}"><pre th:text="@{/services/search/postnr/3900}"></pre></a>
 
     <div class="page-header"/>
 
     <h3>Postnummersøgning</h3>
     <p>Søg efter postnumre, afgrænset af angivne parametre</p>
-    <pre>GET /service/search/postnr</pre>
+    <pre th:text="|GET | + @{/service/search/postnr}"></pre>
     <a name="parameters"></a>
     <h4>Parametre</h4>
     <table class="table table-hover">
@@ -121,16 +125,16 @@
     <h4>Eksempler</h4>
 
     <p>Find alle postnumre i Grønland, og output data i xml-format</p>
-    <a href="/services/search/postnr?land=gl&amp;format=xml"><pre>/services/search/vej?land=gl&amp;format=xml</pre></a>
+    <a th:href="@{/services/search/postnr?land=gl&amp;format=xml}"><pre th:text="@{/services/search/vej?land=gl&amp;format=xml}"></pre></a>
 
     <p>Find alle postnumre som begynder med 8</p>
-    <a href="/services/search/postnr?post=8*"><pre>/services/search/postnr?post=8*</pre></a>
+    <a th:href="@{/services/search/postnr?post=8*}"><pre th:text="@{/services/search/postnr?post=8*}"></pre></a>
 
     <p>Find alle postnumre i kommunen med kode 955</p>
-    <a href="/services/search/postnr/?kommune=955"><pre>/services/search/postnr/?kommune=955</pre></a>
+    <a th:href="@{/services/search/postnr/?kommune=955}"><pre th:text="@{/services/search/postnr/?kommune=955}"></pre></a>
 
     <p>Find alle postnumre i alle kommuner som ender på "borg"</p>
-    <a href="/services/search/postnr/?kommune=*borg"><pre>/services/search/postnr/?kommune=*borg</pre></a>
+    <a th:href="@{/services/search/postnr/?kommune=*borg}"><pre th:text="@{/services/search/postnr/?kommune=*borg}"></pre></a>
 
 </div>
 

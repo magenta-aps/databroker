@@ -4,6 +4,9 @@ import dk.magenta.databroker.core.DataProviderRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.context.embedded.ServletRegistrationBean;
+import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +18,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-@ImportResource("/*-context.xml")
 @Configuration
 @EnableScheduling
 @EnableAutoConfiguration
@@ -23,7 +25,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableJpaRepositories
 @EnableAsync
 @EnableTransactionManagement
-public class Application {
+@ImportResource("classpath:databroker-core-context.xml")
+public class Application extends SpringBootServletInitializer {
 
     @Autowired
     private DataProviderRegistry dataProviderRegistry;
@@ -42,6 +45,19 @@ public class Application {
         ThreadPoolTaskScheduler threadPoolTaskScheduler = new ThreadPoolTaskScheduler();
         threadPoolTaskScheduler.setPoolSize(10);
         return threadPoolTaskScheduler;
+    }
+
+    @Bean
+    public ServletRegistrationBean cxfServlet() {
+        org.apache.cxf.transport.servlet.CXFServlet cxfServlet = new org.apache.cxf.transport.servlet.CXFServlet();
+        ServletRegistrationBean servletDef = new ServletRegistrationBean(cxfServlet, "/services/*");
+        servletDef.setLoadOnStartup(1);
+        return servletDef;
+    }
+
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+        return application.sources(Application.class);
     }
 
 }

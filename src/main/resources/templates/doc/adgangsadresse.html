@@ -48,13 +48,17 @@
         <input type="date" name="IncludeAfter" id="IncludeAfter"/><br/>
 
 
-        <button type="submit" id="search" onclick="">Søg</button><img id="loading" src="/img/loading.gif" style="display:none"/><br/>
+        <button type="submit" id="search" onclick="">Søg</button><img id="loading" th:src="@{/img/loading.gif}" style="display:none"/><br/>
         <textarea id="results" style="width:100%; height:200px; display: none"/>
     </p>
-    <script type="text/javascript">
+    <script type="text/javascript" th:inline="javascript">
         //<![CDATA[
         var fields = $('#land,#kommune,#post,#vej,#husnr,#bnr,#format,#includeBefore,#includeAfter');
-        var run = doSearch.bind(null,'/services/search/adgangsadresse',fields,$('#results'),$("#loading"));
+        var run = doSearch.bind(
+                null,
+                /*[[@{/services/search/adgangsadresse}]]*/ '/services/search/adgangsadresse',
+                fields,$('#results'),$("#loading")
+        );
         $("#search").select(run);
         $("#search").click(run);
         fields.keyup(function(ev){
@@ -69,7 +73,7 @@
 
     <h3>Adgangsadresseopslag</h3>
     <p>Find adgangsadresse ud fra id</p>
-    <pre>GET /service/search/adgangsadresse/{id}</pre>
+    <pre th:text="|GET | + @{/service/search/adgangsadresse/{id}}"></pre>
 
     <h4>Parametre</h4>
     <table class="table table-hover">
@@ -100,7 +104,7 @@
 
     <h3>Adgangsadressesøgning</h3>
     <p>Søg efter adgangsadresser, afgrænset af angivne parametre</p>
-    <pre>GET /service/search/adgangsadresse</pre>
+    <pre th:text="|GET | + @{/service/search/adgangsadresse}"></pre>
     <a name="parameters"></a>
     <h4>Parametre</h4>
     <table class="table table-hover">
@@ -129,10 +133,10 @@
     <h4>Eksempler</h4>
 
     <p>Find alle adgangsadresser i Grønland, og output data i xml-format</p>
-    <a href="/services/search/adgangsadresse?land=gl&amp;format=xml"><pre>/services/search/adgangsadresse?land=gl&amp;format=xml</pre></a>
+    <a th:href="@{/services/search/adgangsadresse?land=gl&amp;format=xml}"><pre th:text="@{/services/search/adgangsadresse?land=gl&amp;format=xml}"></pre></a>
 
     <p>Find alle adgangsadresser i kommuner som begynder med "a", på vejkoder som ender på 4, i postnumre som begynder med 6</p>
-    <a href="/services/search/adgangsadresse?kommune=a*&amp;vej=*4&amp;post=6*"><pre>/services/search/adgangsadresse?kommune=a*&amp;vej=*4&amp;post=6*</pre></a>
+    <a th:href="@{/services/search/adgangsadresse?kommune=a*&amp;vej=*4&amp;post=6*}"><pre th:text="@{/services/search/adgangsadresse?kommune=a*&amp;vej=*4&amp;post=6*}"></pre></a>
 
 </div>
 
