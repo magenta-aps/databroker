@@ -1,6 +1,5 @@
 package dk.magenta.databroker;
 
-import dk.magenta.databroker.core.DataProviderRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -27,9 +26,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 @ImportResource("classpath:databroker-core-context.xml")
 public class Application extends SpringBootServletInitializer {
-
-    @Autowired
-    private DataProviderRegistry dataProviderRegistry;
 
     public static void main(String[] args) {
         SpringApplication app = new SpringApplication(Application.class);
