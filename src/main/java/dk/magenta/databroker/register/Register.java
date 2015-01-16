@@ -156,7 +156,7 @@ public abstract class Register extends DataProvider {
 
                 boolean checksumMatch = compareChecksum(checksum);
 
-                if (forceParse || checksum == null || checksumMatch) {
+                if (forceParse || checksum == null || !checksumMatch) {
                     System.out.println("Checksum mismatch; parsing new data into database");
                     RegisterRun run = this.parse(input);
                     this.saveRunToDatabase(run, dataProviderEntity);
