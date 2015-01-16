@@ -45,7 +45,7 @@
         <button type="submit" id="search" onclick="">Søg</button><img id="loading" th:src="@{/img/loading.gif}" style="display:none"/><br/>
         <textarea id="results" style="width:100%; height:200px; display: none"/>
     </p>
-    <script type="text/javascript">
+    <script type="text/javascript" th:inline="javascript">
         //<![CDATA[
         var fields = $('#land,#kommune,#post,#vej,#format,#includeBefore,#includeAfter');
         var run = doSearch.bind(
