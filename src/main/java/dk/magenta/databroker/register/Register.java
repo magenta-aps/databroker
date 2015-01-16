@@ -12,6 +12,7 @@ import dk.magenta.databroker.register.records.Record;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.core.io.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,7 +65,7 @@ public abstract class Register extends DataProvider {
         return null;
     }
 
-    public File getRecordFile() {
+    public Resource getRecordResource() {
         return null;
     }
 
@@ -137,9 +138,9 @@ public abstract class Register extends DataProvider {
                 input = this.readUrl(this.getRecordUrl());
             }
 
-            if (input == null && this.getRecordFile() != null) {
-                System.out.println("Loading data from " + this.getRecordFile().toString());
-                input = this.readFile(this.getRecordFile());
+            if (input == null && this.getRecordResource() != null) {
+                System.out.println("Loading data from " + this.getRecordResource().toString());
+                input = this.readResource(this.getRecordResource());
             }
 
             if (input != null) {

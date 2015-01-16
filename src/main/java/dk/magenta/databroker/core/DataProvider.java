@@ -1,5 +1,6 @@
 package dk.magenta.databroker.core;
 
+import org.springframework.core.io.Resource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
@@ -101,6 +102,20 @@ public abstract class DataProvider {
                 e.printStackTrace();
             }
         }
+        return null;
+    }
+
+    protected InputStream readResource(Resource resource) {
+            try {
+                InputStream input = resource.getInputStream();
+                if (resource.getFilename().endsWith(".zip")) {
+                    System.out.println("Passing data through ZIP filter");
+                    input = this.unzip(input);
+                }
+                return input;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         return null;
     }
 

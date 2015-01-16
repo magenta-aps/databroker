@@ -15,6 +15,8 @@ import dk.magenta.databroker.register.objectcontainers.Level2Container;
 import dk.magenta.databroker.register.objectcontainers.Pair;
 import dk.magenta.databroker.register.records.Record;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,10 +38,12 @@ public class NukissiorfiitRegister extends Register {
     private class NukissiorfiitRecord extends Record {
     }
 
+    @Autowired
+    private ConfigurableApplicationContext ctx;
 
     @Override
-    public File getRecordFile() {
-        return new File("src/main/resources/data/nukissiorfiit.csv");
+    public Resource getRecordResource() {
+        return this.ctx.getResource("classpath:/data/nukissiorfiit.csv");
     }
 
     @Override

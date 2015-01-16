@@ -9,10 +9,12 @@ import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.register.objectcontainers.Level2Container;
 import dk.magenta.databroker.register.records.Record;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.core.io.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
@@ -56,9 +58,12 @@ public class GrLokalitetsRegister extends Register {
     * Data source spec
     * */
 
+    @Autowired
+    private ConfigurableApplicationContext ctx;
+
     @Override
-    public File getRecordFile() {
-        return new File("src/test/resources/grønlandLokaliteter.csv");
+    public Resource getRecordResource() {
+        return this.ctx.getResource("classpath:/data/grønlandLokaliteter.csv");
     }
 
     @Override
