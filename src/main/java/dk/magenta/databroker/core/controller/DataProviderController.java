@@ -6,6 +6,7 @@ import dk.magenta.databroker.core.DataProviderRegistry;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
@@ -28,6 +29,9 @@ public class DataProviderController {
     public DataProviderController() {
         this.threads = new HashMap<Long, Thread>();
     }
+
+    @Autowired
+    private PlatformTransactionManager transactionManager;
 
     @Autowired
     @SuppressWarnings("SpringJavaAutowiringInspection")
@@ -73,13 +77,33 @@ public class DataProviderController {
 
         DataProviderEntity dataProviderEntity = null;
 
+        HashMap<String, String[]> valueMap = new HashMap<String, String[]>();
+        String[] reservedFields = new String[] {
+                "submit"
+        };
+        for (String key : params.keySet()) {
+            if (key != null) {
+                boolean found = false;
+                for (String reserved : reservedFields) {
+                    if (key.equals(reserved)) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    valueMap.put(key, params.get(key));
+                }
+            }
+        }
+
+
         if (uuid != null) { // We are editing an existing entity
             dataProviderEntity = this.dataProviderRegistry.getDataProviderEntity(uuid);
             if (processSubmit) {
-                this.dataProviderRegistry.updateDataProviderEntity(dataProviderEntity, params);
+                this.dataProviderRegistry.updateDataProviderEntity(dataProviderEntity, valueMap);
                 DataProvider dataProvider = dataProviderEntity.getDataProvider();
                 if (dataProvider.wantUpload(dataProviderEntity.getConfiguration())) {
-                    Thread thread = dataProvider.asyncPush(dataProviderEntity, request);
+                    Thread thread = dataProvider.asyncPush(dataProviderEntity, request, this.transactionManager);
                     long threadId = thread.getId();
                     this.threads.put(threadId, thread);
                     return this.processEntity(request, threadId);
@@ -93,10 +117,10 @@ public class DataProviderController {
                 // Processing a "new" submit, create a new DataProviderEntity
                 String providerType = request.getParameter("dataprovider");
                 values.put("dataprovider", new String[]{providerType});
-                dataProviderEntity = this.dataProviderRegistry.createDataProviderEntity(providerType, params);
+                dataProviderEntity = this.dataProviderRegistry.createDataProviderEntity(providerType, valueMap);
                 DataProvider dataProvider = dataProviderEntity.getDataProvider();
                 if (dataProvider.wantUpload(dataProviderEntity.getConfiguration())) {
-                    Thread thread = dataProvider.asyncPush(dataProviderEntity, request);
+                    Thread thread = dataProvider.asyncPush(dataProviderEntity, request, this.transactionManager);
                     long threadId = thread.getId();
                     this.threads.put(threadId, thread);
                     return this.processEntity(request, threadId);
@@ -160,6 +184,18 @@ public class DataProviderController {
     @RequestMapping("/dataproviders/pull")
     public ModelAndView pullEntity(HttpServletRequest request) {
         // Do something
+        String uuid = request.getParameter("uuid");
+
+        if (uuid != null) { // We are editing an existing entity
+            DataProviderEntity dataProviderEntity = this.dataProviderRegistry.getDataProviderEntity(uuid);
+            if (dataProviderEntity != null) {
+                DataProvider dataProvider = dataProviderEntity.getDataProvider();
+                Thread thread = dataProvider.asyncPull(dataProviderEntity, this.transactionManager);
+                long threadId = thread.getId();
+                this.threads.put(threadId, thread);
+                return this.processEntity(request, threadId);
+            }
+        }
         return this.processEntity(request);
     }
 

@@ -593,7 +593,6 @@ public class DawaModel {
                 if (vejstykkeVersionEntity != null) {
                     if (!vejstykkeVersionEntity.hasLokalitet(lokalitetEntity) && vejstykkeVersionEntity.getRegistrering() != createRegistrering && vejstykkeVersionEntity.getRegistrering() != updateRegistrering) {
                         this.vejstykkeRepository.save(vejstykkeEntity);
-                        System.out.println("Creating new version");
                         VejstykkeVersionEntity oldVersionEntity = vejstykkeVersionEntity;
                         vejstykkeVersionEntity = vejstykkeEntity.addVersion(updateRegistrering);
                         vejstykkeVersionEntity.copyFrom(oldVersionEntity);

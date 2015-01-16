@@ -3,6 +3,11 @@ package dk.magenta.databroker.core;
 import org.springframework.core.io.Resource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 
@@ -28,12 +33,50 @@ public abstract class DataProvider {
     private class DataProviderPusher extends Thread {
         private DataProviderEntity dataProviderEntity;
         private HttpServletRequest request;
-        public DataProviderPusher(DataProviderEntity dataProviderEntity, HttpServletRequest request) {
+
+        private TransactionTemplate transactionTemplate;
+
+
+        public DataProviderPusher(DataProviderEntity dataProviderEntity, HttpServletRequest request, PlatformTransactionManager transactionManager) {
             this.dataProviderEntity = dataProviderEntity;
             this.request = request;
+            this.transactionTemplate = new TransactionTemplate(transactionManager);
         }
+        @Override
         public void run() {
-            DataProvider.this.handlePush(this.dataProviderEntity, this.request);
+            final DataProviderEntity dataProviderEntity = this.dataProviderEntity;
+            final HttpServletRequest request = this.request;
+
+            this.transactionTemplate.execute(new TransactionCallback() {
+                // the code in this method executes in a transactional context
+                public Object doInTransaction(TransactionStatus status) {
+                    DataProvider.this.handlePush(dataProviderEntity, request);
+                    return null;
+                }
+            });
+        }
+    }
+
+    private class DataProviderPuller extends Thread {
+        private DataProviderEntity dataProviderEntity;
+
+        private TransactionTemplate transactionTemplate;
+
+
+        public DataProviderPuller(DataProviderEntity dataProviderEntity, PlatformTransactionManager transactionManager) {
+            this.dataProviderEntity = dataProviderEntity;
+            this.transactionTemplate = new TransactionTemplate(transactionManager);
+        }
+        @Override
+        public void run() {
+            final DataProviderEntity dataProviderEntity = this.dataProviderEntity;
+            this.transactionTemplate.execute(new TransactionCallback() {
+                // the code in this method executes in a transactional context
+                public Object doInTransaction(TransactionStatus status) {
+                    DataProvider.this.pull(dataProviderEntity);
+                    return null;
+                }
+            });
         }
     }
 
@@ -64,8 +107,14 @@ public abstract class DataProvider {
         throw new NotImplementedException();
     }
 
-    public Thread asyncPush(DataProviderEntity dataProviderEntity, HttpServletRequest request) {
-        Thread thread = new DataProviderPusher(dataProviderEntity, request);
+    public Thread asyncPush(DataProviderEntity dataProviderEntity, HttpServletRequest request, PlatformTransactionManager transactionManager) {
+        Thread thread = new DataProviderPusher(dataProviderEntity, request, transactionManager);
+        thread.start();
+        return thread;
+    }
+
+    public Thread asyncPull(DataProviderEntity dataProviderEntity, PlatformTransactionManager transactionManager) {
+        Thread thread = new DataProviderPuller(dataProviderEntity, transactionManager);
         thread.start();
         return thread;
     }

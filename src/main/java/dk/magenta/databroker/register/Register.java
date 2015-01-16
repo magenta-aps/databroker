@@ -245,6 +245,7 @@ public abstract class Register extends DataProvider {
     public InputStream getUploadStream(HttpServletRequest request) {
         InputStream input = null;
         try {
+
             Part uploadPart = request.getPart(this.getUploadPartName());
             if (uploadPart != null && uploadPart.getSize() > 0) {
                 System.out.println("receiving "+uploadPart.getSize()+" byte upload from "+this.getUploadPartName());

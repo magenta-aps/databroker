@@ -8,8 +8,13 @@ import dk.magenta.databroker.register.objectcontainers.Pair;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.nio.file.Files;
@@ -28,34 +33,82 @@ public class CprRegister extends Register {
         private DataProviderEntity dataProviderEntity;
         private List<Pair<CprSubRegister, File>> input;
         boolean deleteFiles;
-        public CprPusher(DataProviderEntity dataProviderEntity, List<Pair<CprSubRegister, File>> input, boolean deleteFiles) {
+
+        private TransactionTemplate transactionTemplate;
+
+        public CprPusher(DataProviderEntity dataProviderEntity, List<Pair<CprSubRegister, File>> input, boolean deleteFiles, PlatformTransactionManager transactionManager) {
             this.dataProviderEntity = dataProviderEntity;
             this.input = input;
             this.deleteFiles = deleteFiles;
+            this.transactionTemplate = new TransactionTemplate(transactionManager);;
         }
 
         public void run() {
-            for (Pair<CprSubRegister, File> p : this.input) {
-                CprSubRegister cprSubRegister = p.getLeft();
-                File file = p.getRight();
-                if (cprSubRegister != null && file != null) {
-                    try {
-                        InputStream inputStream = new FileInputStream(file);
-                        cprSubRegister.handlePush(true, this.dataProviderEntity, inputStream);
-                        inputStream.close();
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } finally {
-                        if (this.deleteFiles) {
-                            file.delete();
+
+            final DataProviderEntity dataProviderEntity = this.dataProviderEntity;
+            final List<Pair<CprSubRegister, File>> input = this.input;
+            final boolean deleteFiles = this.deleteFiles;
+
+            this.transactionTemplate.execute(new TransactionCallback() {
+                // the code in this method executes in a transactional context
+                public Object doInTransaction(TransactionStatus status) {
+                    for (Pair<CprSubRegister, File> p : input) {
+                        CprSubRegister cprSubRegister = p.getLeft();
+                        File file = p.getRight();
+                        if (cprSubRegister != null && file != null) {
+                            try {
+                                InputStream inputStream = new FileInputStream(file);
+                                cprSubRegister.handlePush(true, dataProviderEntity, inputStream);
+                                inputStream.close();
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            } finally {
+                                if (deleteFiles) {
+                                    file.delete();
+                                }
+                            }
                         }
                     }
+                    return null;
                 }
-            }
+            });
         }
     }
+
+
+    private class CprPuller extends Thread {
+        private DataProviderEntity dataProviderEntity;
+        private List<CprSubRegister> registers;
+
+        private TransactionTemplate transactionTemplate;
+
+        public CprPuller(DataProviderEntity dataProviderEntity, List<CprSubRegister> registers, PlatformTransactionManager transactionManager) {
+            this.dataProviderEntity = dataProviderEntity;
+            this.registers = registers;
+            this.transactionTemplate = new TransactionTemplate(transactionManager);;
+        }
+
+        public void run() {
+
+            final DataProviderEntity dataProviderEntity = this.dataProviderEntity;
+            final List<CprSubRegister> registers = this.registers;
+
+            this.transactionTemplate.execute(new TransactionCallback() {
+                // the code in this method executes in a transactional context
+                public Object doInTransaction(TransactionStatus status) {
+                    for (CprSubRegister subRegister : registers) {
+                        System.out.println("subRegister: "+subRegister);
+                        System.out.println("dataProviderEntity: "+dataProviderEntity);
+                        subRegister.pull(true, true, dataProviderEntity);
+                    }
+                    return null;
+                }
+            });
+        }
+    }
+
 
     @Autowired
     @SuppressWarnings("SpringJavaAutowiringInspection")
@@ -77,7 +130,20 @@ public class CprRegister extends Register {
     @SuppressWarnings("SpringJavaAutowiringInspection")
     private BynavnRegister bynavnRegister;
 
+
+    private List<CprSubRegister> subRegisters;
+
     public CprRegister() {
+    }
+
+    @PostConstruct
+    private void postConstruct() {
+        this.subRegisters = new ArrayList<CprSubRegister>();
+        this.subRegisters.add(this.myndighedsRegister);
+        this.subRegisters.add(this.vejRegister);
+        this.subRegisters.add(this.lokalitetsRegister);
+        this.subRegisters.add(this.postnummerRegister);
+        this.subRegisters.add(this.bynavnRegister);
     }
 
     @Override
@@ -87,33 +153,33 @@ public class CprRegister extends Register {
 
     @Transactional
     public void pull(boolean forceFetch, boolean forceParse, DataProviderEntity dataProviderEntity) {
-        this.myndighedsRegister.pull(forceFetch, forceParse, dataProviderEntity);
-        this.vejRegister.pull(forceFetch, forceParse, dataProviderEntity);
-        this.lokalitetsRegister.pull(forceFetch, forceParse, dataProviderEntity);
-        this.postnummerRegister.pull(forceFetch, forceParse, dataProviderEntity);
-        this.bynavnRegister.pull(forceFetch, forceParse, dataProviderEntity);
+        for (CprSubRegister cprSubRegister : this.subRegisters) {
+            cprSubRegister.pull(forceFetch, forceParse, dataProviderEntity);
+        }
     }
 
 
     @Transactional
     @Override
     public void handlePush(DataProviderEntity dataProviderEntity, HttpServletRequest request) {
-        this.myndighedsRegister.handlePush(dataProviderEntity, request);
-        this.vejRegister.handlePush(dataProviderEntity, request);
-        this.lokalitetsRegister.handlePush(dataProviderEntity, request);
-        this.postnummerRegister.handlePush(dataProviderEntity, request);
-        this.bynavnRegister.handlePush(dataProviderEntity, request);
+        for (CprSubRegister cprSubRegister : this.subRegisters) {
+            cprSubRegister.handlePush(dataProviderEntity, request);
+        }
     }
 
 
-    public Thread asyncPush(DataProviderEntity dataProviderEntity, HttpServletRequest request) {
+    public Thread asyncPush(DataProviderEntity dataProviderEntity, HttpServletRequest request, PlatformTransactionManager transactionManager) {
         List<Pair<CprSubRegister, File>> list = new ArrayList<Pair<CprSubRegister, File>>();
-        list.add(new Pair<CprSubRegister, File>(this.myndighedsRegister, this.getTempUploadFile(this.myndighedsRegister, request)));
-        list.add(new Pair<CprSubRegister, File>(this.vejRegister, this.getTempUploadFile(this.vejRegister, request)));
-        list.add(new Pair<CprSubRegister, File>(this.lokalitetsRegister, this.getTempUploadFile(this.lokalitetsRegister, request)));
-        list.add(new Pair<CprSubRegister, File>(this.postnummerRegister, this.getTempUploadFile(this.postnummerRegister, request)));
-        list.add(new Pair<CprSubRegister, File>(this.bynavnRegister, this.getTempUploadFile(this.bynavnRegister, request)));
-        Thread thread = new CprPusher(dataProviderEntity, list, true);
+        for (CprSubRegister cprSubRegister : this.subRegisters) {
+            list.add(new Pair<CprSubRegister, File>(cprSubRegister, this.getTempUploadFile(cprSubRegister, request)));
+        }
+        Thread thread = new CprPusher(dataProviderEntity, list, true, transactionManager);
+        thread.start();
+        return thread;
+    }
+
+    public Thread asyncPull(DataProviderEntity dataProviderEntity, PlatformTransactionManager transactionManager) {
+        Thread thread = new CprPuller(dataProviderEntity, this.subRegisters, transactionManager);
         thread.start();
         return thread;
     }
@@ -144,30 +210,17 @@ public class CprRegister extends Register {
     @Override
     public DataProviderConfiguration getDefaultConfiguration() {
         JSONObject config = new JSONObject();
-        JSONObject myndighedConfig = this.myndighedsRegister.getDefaultConfiguration().toJSON();
-        config = mergeJSONObjects(config, myndighedConfig);
-        JSONObject lokalitetConfig = this.lokalitetsRegister.getDefaultConfiguration().toJSON();
-        config = mergeJSONObjects(config, lokalitetConfig);
-        JSONObject vejConfig = this.vejRegister.getDefaultConfiguration().toJSON();
-        config = mergeJSONObjects(config, vejConfig);
-        JSONObject postnummerConfig = this.postnummerRegister.getDefaultConfiguration().toJSON();
-        config = mergeJSONObjects(config, postnummerConfig);
-        JSONObject bynavnConfig = this.bynavnRegister.getDefaultConfiguration().toJSON();
-        config = mergeJSONObjects(config, bynavnConfig);
+        for (CprSubRegister subRegister : this.subRegisters) {
+            config = mergeJSONObjects(config, subRegister.getDefaultConfiguration().toJSON());
+        }
         return new DataProviderConfiguration(config);
     }
 
 
     public boolean wantUpload(DataProviderConfiguration configuration) {
-        String[] typeFields = new String[]{
-                this.myndighedsRegister.getSourceTypeFieldName(),
-                this.lokalitetsRegister.getSourceTypeFieldName(),
-                this.vejRegister.getSourceTypeFieldName(),
-                this.postnummerRegister.getSourceTypeFieldName(),
-                this.bynavnRegister.getSourceTypeFieldName()
-        };
-        for (String s : typeFields) {
-            List<String> sourceType = configuration.get(s);
+        for (CprSubRegister subRegister : this.subRegisters) {
+            String typeField = subRegister.getSourceTypeFieldName();
+            List<String> sourceType = configuration.get(typeField);
             if (sourceType != null && sourceType.contains("upload")) {
                 return true;
             };
@@ -191,18 +244,11 @@ public class CprRegister extends Register {
 
 
     public boolean canPull(DataProviderConfiguration configuration) {
-        if (this.myndighedsRegister.canPull(configuration)) {
-            return true;
-        } else if (this.lokalitetsRegister.canPull(configuration)) {
-            return true;
-        } else if (this.vejRegister.canPull(configuration)) {
-            return true;
-        } else if (this.postnummerRegister.canPull(configuration)) {
-            return true;
-        } else if (this.bynavnRegister.canPull(configuration)) {
-            return true;
-        } else {
-            return false;
+        for (CprSubRegister subRegister : this.subRegisters) {
+            if (subRegister.canPull(configuration)) {
+                return true;
+            }
         }
+        return false;
     }
 }
