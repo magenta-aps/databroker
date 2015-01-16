@@ -1,5 +1,13 @@
 package dk.magenta.databroker.core;
 
+import dk.magenta.databroker.register.objectcontainers.Pair;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.core.io.Resource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
@@ -13,15 +21,14 @@ import dk.magenta.databroker.core.model.DataProviderEntity;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Timer;
 import java.util.UUID;
 import java.util.concurrent.Future;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 
@@ -122,15 +129,19 @@ public abstract class DataProvider {
     //public abstract Properties getConfigSpecification(DataProviderEntity dataProviderEntity);
 
 
+    public class NamedInputStream extends Pair<String, InputStream> {
+        public NamedInputStream(String name, InputStream input) {
+            super(name, input);
+        }
+        public String getFileExtension() {
+            return this.getLeft().substring(this.getLeft().lastIndexOf('.') + 1);
+        }
+    }
+
     protected InputStream readUrl(URL url) {
         if (url != null) {
             try {
-                InputStream input = url.openStream();
-                if (url.getFile().endsWith(".zip")) {
-                    System.out.println("Passing data through ZIP filter");
-                    input = this.unzip(input);
-                }
-                return input;
+                return this.read(url.getFile(), url.openStream()).getRight();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -141,12 +152,7 @@ public abstract class DataProvider {
     protected InputStream readFile(File file) {
         if (file.canRead()) {
             try {
-                InputStream input = new FileInputStream(file);
-                if (file.getAbsolutePath().endsWith(".zip")) {
-                    System.out.println("Passing data through ZIP filter");
-                    input = this.unzip(input);
-                }
-                return input;
+                return this.read(file.getAbsolutePath(), new FileInputStream(file)).getRight();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -155,23 +161,79 @@ public abstract class DataProvider {
     }
 
     protected InputStream readResource(Resource resource) {
-            try {
-                InputStream input = resource.getInputStream();
-                if (resource.getFilename().endsWith(".zip")) {
-                    System.out.println("Passing data through ZIP filter");
-                    input = this.unzip(input);
-                }
-                return input;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        try {
+            return this.read(resource.getFilename(), resource.getInputStream()).getRight();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
-    private InputStream unzip(InputStream input) throws IOException {
-        ZipInputStream zinput = new ZipInputStream(input);
-        zinput.getNextEntry(); // Load the first entry in the zip archive
-        return zinput;
+    private NamedInputStream read(String filename, InputStream input) throws IOException {
+        return this.read(new NamedInputStream(filename, input));
+    }
+    private NamedInputStream read(NamedInputStream input) throws IOException {
+        System.out.println("input.getFileExtension(): "+input.getFileExtension());
+        if (input.getFileExtension().equals("zip")) {
+            System.out.println("Passing data through ZIP filter");
+            input = this.unzip(input);
+        }
+        if (input.getFileExtension().equals("xls") || input.getFileExtension().equals("xlsx")) {
+            System.out.println("Passing data through XLS filter");
+            input = this.convertExcelSpreadsheet(input);
+        }
+        return input;
+    }
+
+
+
+    private NamedInputStream unzip(NamedInputStream input) throws IOException {
+        ZipInputStream zinput = new ZipInputStream(input.getRight());
+        ZipEntry entry = zinput.getNextEntry(); // Load the first entry in the zip archive
+        return new NamedInputStream(entry.getName(), zinput);
+    }
+
+    private NamedInputStream convertExcelSpreadsheet(NamedInputStream input) throws IOException {
+        final Workbook wb = input.getFileExtension().equals("xlsx") ? new XSSFWorkbook(input.getRight()) : new HSSFWorkbook(input.getRight());
+        PipedInputStream returnStream = new PipedInputStream();
+        final OutputStream outputStream = new PipedOutputStream(returnStream);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i=0; i<wb.getNumberOfSheets(); i++) {
+                    Sheet sheet = wb.getSheetAt(i);
+                    for (Row row : sheet) {
+                        try {
+                            for (Cell cell : row) {
+                                String cellText;
+                                if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+                                    double d = cell.getNumericCellValue();
+                                    if (Math.abs(Math.rint(d) - d) < 0.001) {
+                                        cellText = "" + (int) Math.rint(d);
+                                    } else {
+                                        cellText = "" + d;
+                                    }
+                                } else {
+                                    cellText = cell.getStringCellValue();
+                                }
+                                outputStream.write(cellText.getBytes());
+                                outputStream.write(",".getBytes());
+                            }
+                            outputStream.write("\n".getBytes());
+                            outputStream.flush();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+        return new NamedInputStream(input.getLeft().replaceAll("\\.xlsx?",".csv"), returnStream);
     }
 
     public List<String> getUploadFields() {
