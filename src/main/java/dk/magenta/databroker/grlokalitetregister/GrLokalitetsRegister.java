@@ -63,7 +63,7 @@ public class GrLokalitetsRegister extends Register {
 
     @Override
     public Resource getRecordResource() {
-        return this.ctx.getResource("classpath:/data/grønlandLokaliteter.csv");
+        return this.ctx.getResource("classpath:/data/groenlandLokaliteter.csv");
     }
 
     @Override
