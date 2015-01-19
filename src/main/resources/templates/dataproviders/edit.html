@@ -77,6 +77,8 @@
       <form action="" id="editform" method="post" enctype="multipart/form-data">
         <input th:if="${action == 'edit'}" type="hidden" name="uuid" th:value="${values.uuid[0]}"/>
 
+        <label th:if="${action == 'edit'}" for="name">Name:</label> <input th:if="${action == 'edit'}" type="text" name="name" id="name" th:value="${values.name[0]}"/>
+
         <p th:if="${action == 'new'}">
           <label for="dataprovider">Type:</label><br/>
           <select name="dataprovider" id="dataprovider">

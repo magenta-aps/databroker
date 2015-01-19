@@ -19,6 +19,7 @@ import java.util.Collection;
 public class DataProviderEntity {
     private Integer id;
     private String uuid;
+    private String name;
     private String type;
     private Boolean active;
     private Integer priority;
@@ -44,6 +45,16 @@ public class DataProviderEntity {
 
     public void setUuid(String uuid) {
         this.uuid = uuid;
+    }
+
+    @Basic
+    @Column(name = "name", nullable = false, insertable = true, updatable = true, length = 36, unique = true)
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Basic
@@ -160,4 +171,11 @@ public class DataProviderEntity {
         return this.getDataProvider().canPull(new DataProviderConfiguration(this.getConfiguration()));
     }
 
+    /**************************************************************************************
+     * Shorthand methods for display                                                      *
+     **************************************************************************************/
+
+    public String fetchShortType() {
+        return this.type.substring(this.type.lastIndexOf('.')+1);
+    }
 }

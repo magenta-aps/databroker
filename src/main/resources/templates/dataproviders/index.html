@@ -9,13 +9,21 @@
 
     <div layout:fragment="content" style="text-align: left;">
       <h1>Data providers</h1>
-      <table border="1">
+      <table border="1" style="border-color: #333" cellpadding="2">
+        <tr>
+          <th>Data provider name</th>
+          <th>Data provider type</th>
+          <th>Actions</th>
+        </tr>
+
         <tr th:each="dataproviderEntity : ${dataproviderEntities}">
-          <td th:text="${dataproviderEntity.getUuid()}">Data provider name</td>
-          <td th:text="${dataproviderEntity.getType()}">Data provider type</td>
-          <td><a th:href="${'edit?uuid='+dataproviderEntity.getUuid()}">Edit</a></td>
-          <td><a th:href="${'delete?uuid='+dataproviderEntity.getUuid()}">Delete</a></td>
-          <td><a th:if="${dataproviderEntity.canPull()}" th:href="${'pull?uuid='+dataproviderEntity.getUuid()}">Pull</a></td>
+          <td th:text="${dataproviderEntity.getName()}">Data provider name</td>
+          <td th:text="${dataproviderEntity.fetchShortType()}" th:title="${dataproviderEntity.getType()}">Data provider type</td>
+          <td>
+            <a th:href="${'edit?uuid='+dataproviderEntity.getUuid()}">Edit</a>
+            <a th:href="${'delete?uuid='+dataproviderEntity.getUuid()}">Delete</a>
+            <a th:if="${dataproviderEntity.canPull()}" th:href="${'pull?uuid='+dataproviderEntity.getUuid()}">Pull</a>
+          </td>
         </tr>
       </table>
       <form action="new/" method="get">

@@ -64,6 +64,7 @@ public class DataProviderController {
 
         Map<String, String[]> params = request.getParameterMap();
         String uuid = request.getParameter("uuid");
+        String name = request.getParameter("name");
         String submit = request.getParameter("submit");
         String action;
 
@@ -79,7 +80,9 @@ public class DataProviderController {
 
         HashMap<String, String[]> valueMap = new HashMap<String, String[]>();
         String[] reservedFields = new String[] {
-                "submit"
+                "submit",
+                "name",
+                "uuid"
         };
         for (String key : params.keySet()) {
             if (key != null) {
@@ -100,7 +103,7 @@ public class DataProviderController {
         if (uuid != null) { // We are editing an existing entity
             dataProviderEntity = this.dataProviderRegistry.getDataProviderEntity(uuid);
             if (processSubmit) {
-                this.dataProviderRegistry.updateDataProviderEntity(dataProviderEntity, valueMap);
+                this.dataProviderRegistry.updateDataProviderEntity(dataProviderEntity, valueMap, name);
                 DataProvider dataProvider = dataProviderEntity.getDataProvider();
                 if (dataProvider.wantUpload(dataProviderEntity.getConfiguration())) {
                     Thread thread = dataProvider.asyncPush(dataProviderEntity, request, this.transactionManager);
@@ -109,6 +112,9 @@ public class DataProviderController {
                     return this.processEntity(request, threadId);
                 }
                 return this.redirectToIndex();
+            }
+            if (name == null) {
+                name = dataProviderEntity.getName();
             }
             values.put("uuid", new String[]{uuid});
             action = "edit";
@@ -129,6 +135,7 @@ public class DataProviderController {
             }
             action = "new";
         }
+        values.put("name", new String[]{name});
 
         values.putAll(params);
 

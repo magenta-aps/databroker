@@ -14,8 +14,10 @@ public interface DataProviderRepository extends JpaRepository<DataProviderEntity
 
     public DataProviderEntity getFirstByType(String name);
 
-    public Collection<DataProviderEntity> getByType(String name);
+    public Collection<DataProviderEntity> getByType(String type);
 
     public DataProviderEntity getByUuid(String uuid);
+
+    public DataProviderEntity getByName(String name);
 
 }

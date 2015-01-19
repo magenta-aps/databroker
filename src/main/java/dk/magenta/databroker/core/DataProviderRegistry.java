@@ -59,6 +59,13 @@ public class DataProviderRegistry {
             entity = new DataProviderEntity();
             entity.setType(dataProviders.get(type).getClass());
             entity.setUuid(UUID.randomUUID().toString());
+
+            String name = this.getIdleNumberedName(type);
+            if (name == null) {
+                name = entity.getUuid();
+            }
+            entity.setName(name);
+
             entity.setActive(true);
             entity.setPriority(1);
 
@@ -70,7 +77,18 @@ public class DataProviderRegistry {
         return entity;
     }
 
-    public void updateDataProviderEntity(DataProviderEntity entity, Map<String, String[]> parameters) {
+    public String getIdleNumberedName(String type) {
+        String className = dataProviders.get(type).getClass().getSimpleName();
+        for (int i=0; i<10000; i++) {
+            String nameCandidate = className+" #"+i;
+            if (dataProviderRepository.getByName(nameCandidate) == null) {
+                return nameCandidate;
+            }
+        }
+        return null;
+    }
+
+    public void updateDataProviderEntity(DataProviderEntity entity, Map<String, String[]> parameters, String name) {
         if (entity != null) {
             try {
                 DataProviderConfiguration configuration = new DataProviderConfiguration(entity.getConfiguration());
@@ -79,6 +97,10 @@ public class DataProviderRegistry {
                     if (configuration.update(key, parameters.get(key))) {
                         updated = true;
                     }
+                }
+                if (name != null && !name.equals(entity.getName())) {
+                    entity.setName(name);
+                    updated = true;
                 }
                 if (updated) {
                     entity.setConfiguration(configuration.toString());
