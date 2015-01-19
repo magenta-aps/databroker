@@ -155,6 +155,9 @@ public class LokalitetsRegister extends CprSubRegister {
     public String getSourceUrlFieldName() {
         return "lokalitetSourceUrl";
     }
+    public String getSourceCronFieldName() {
+        return "lokalitetCron";
+    }
 
 
     @Override
@@ -162,6 +165,7 @@ public class LokalitetsRegister extends CprSubRegister {
         JSONObject config = new JSONObject();
         config.put(this.getSourceTypeFieldName(),"url");
         config.put(this.getSourceUrlFieldName(),"https://cpr.dk/media/152108/a370714.txt");
+        config.put(this.getSourceCronFieldName(),"* * 1 * *");
         return new DataProviderConfiguration(config);
     }
 }

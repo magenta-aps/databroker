@@ -1,53 +1,98 @@
 
+<p>
 <label for="myndighedSource">Myndighedsregister Data source:</label><br/>
 <input type="radio" name="myndighedSourceType" value="url" id="myndighedSource" />
 <label for="myndighedSourceUrl">Url:</label>
 <input type="url" name="myndighedSourceUrl" id="myndighedSourceUrl"/>
+<span>
+<input type="text" id="myndighedCronMinute" pattern="\*|([1-5]?[0-9])" size="2" title="Cron expression: minute field. Set to either * or a number between 0 and 59" value="*" required/>
+<input type="text" id="myndighedCronHour" pattern="\*|((1?[0-9])|(2[0-3]))" size="2" title="Cron expression: hour field. Set to either * or a number between 0 and 23" value="*" required/>
+<input type="text" id="myndighedCronDate" pattern="\*|(([1-2]?[0-9])|(3[0-1]))" size="2" title="Cron expression: date of month field. Set to either * or a number between 1 and 31" value="*" required/>
+<input type="text" id="myndighedCronMonth" pattern="\*|([0-9]|(1[1-2]))" size="2" title="Cron expression: month field. Set to either * or a number between 1 and 12" value="*" required/>
+<input type="text" id="myndighedCronDay" pattern="\*|[0-6]" size="2" title="Cron expression: day of week field. Set to either * or a number between 0 and 6" value="*" required/>
+<input type="hidden" name="myndighedCron" id="myndighedCron"/>
+</span>
 <br/>
 <input type="radio" name="myndighedSourceType" value="upload" />
 <label for="myndighedSourceUpload">Upload:</label>
 <input type="file" name="myndighedSourceUpload" id="myndighedSourceUpload"/>
-<br/>
+</p>
 
+<p>
 <label for="vejSource">Vejregister Data source:</label><br/>
 <input type="radio" name="vejSourceType" value="url" id="vejSource" />
 <label for="vejSourceUrl">Url:</label>
 <input type="url" name="vejSourceUrl" id="vejSourceUrl"/>
+<span>
+<input type="text" id="vejCronMinute" pattern="\*|([1-5]?[0-9])" size="2" title="Cron expression: minute field. Set to either * or a number between 0 and 59" value="*" required/>
+<input type="text" id="vejCronHour" pattern="\*|((1?[0-9])|(2[0-3]))" size="2" title="Cron expression: hour field. Set to either * or a number between 0 and 23" value="*" required/>
+<input type="text" id="vejCronDate" pattern="\*|(([1-2]?[0-9])|(3[0-1]))" size="2" title="Cron expression: date of month field. Set to either * or a number between 1 and 31" value="*" required/>
+<input type="text" id="vejCronMonth" pattern="\*|([0-9]|(1[1-2]))" size="2" title="Cron expression: month field. Set to either * or a number between 1 and 12" value="*" required/>
+<input type="text" id="vejCronDay" pattern="\*|[0-6]" size="2" title="Cron expression: day of week field. Set to either * or a number between 0 and 6" value="*" required/>
+<input type="hidden" name="vejCron" id="vejCron"/>
+</span>
 <br/>
 <input type="radio" name="vejSourceType" value="upload" />
 <label for="vejSourceUpload">Upload:</label>
 <input type="file" name="vejSourceUpload" id="vejSourceUpload"/>
-<br/>
+</p>
 
-<label for="lokalitetSource">Lokalitet Data source:</label><br/>
+<p>
+<label for="lokalitetSource">Lokalitetsregister Data source:</label><br/>
 <input type="radio" name="lokalitetSourceType" value="url" id="lokalitetSource" />
 <label for="lokalitetSourceUrl">Url:</label>
 <input type="url" name="lokalitetSourceUrl" id="lokalitetSourceUrl"/>
+<span>
+<input type="text" id="lokalitetCronMinute" pattern="\*|([1-5]?[0-9])" size="2" title="Cron expression: minute field. Set to either * or a number between 0 and 59" value="*" required/>
+<input type="text" id="lokalitetCronHour" pattern="\*|((1?[0-9])|(2[0-3]))" size="2" title="Cron expression: hour field. Set to either * or a number between 0 and 23" value="*" required/>
+<input type="text" id="lokalitetCronDate" pattern="\*|(([1-2]?[0-9])|(3[0-1]))" size="2" title="Cron expression: date of month field. Set to either * or a number between 1 and 31" value="*" required/>
+<input type="text" id="lokalitetCronMonth" pattern="\*|([0-9]|(1[1-2]))" size="2" title="Cron expression: month field. Set to either * or a number between 1 and 12" value="*" required/>
+<input type="text" id="lokalitetCronDay" pattern="\*|[0-6]" size="2" title="Cron expression: day of week field. Set to either * or a number between 0 and 6" value="*" required/>
+<input type="hidden" name="lokalitetCron" id="lokalitetCron"/>
+</span>
 <br/>
 <input type="radio" name="lokalitetSourceType" value="upload" />
 <label for="lokalitetSourceUpload">Upload:</label>
 <input type="file" name="lokalitetSourceUpload" id="lokalitetSourceUpload"/>
-<br/>
+</p>
 
-<label for="postnummerSource">Postnummer Data source:</label><br/>
+<p>
+<label for="postnummerSource">Postnummerregister Data source:</label><br/>
 <input type="radio" name="postnummerSourceType" value="url" id="postnummerSource" />
 <label for="postnummerSourceUrl">Url:</label>
 <input type="url" name="postnummerSourceUrl" id="postnummerSourceUrl"/>
+<span>
+<input type="text" id="postnummerCronMinute" pattern="\*|([1-5]?[0-9])" size="2" title="Cron expression: minute field. Set to either * or a number between 0 and 59" value="*" required/>
+<input type="text" id="postnummerCronHour" pattern="\*|((1?[0-9])|(2[0-3]))" size="2" title="Cron expression: hour field. Set to either * or a number between 0 and 23" value="*" required/>
+<input type="text" id="postnummerCronDate" pattern="\*|(([1-2]?[0-9])|(3[0-1]))" size="2" title="Cron expression: date of month field. Set to either * or a number between 1 and 31" value="*" required/>
+<input type="text" id="postnummerCronMonth" pattern="\*|([0-9]|(1[1-2]))" size="2" title="Cron expression: month field. Set to either * or a number between 1 and 12" value="*" required/>
+<input type="text" id="postnummerCronDay" pattern="\*|[0-6]" size="2" title="Cron expression: day of week field. Set to either * or a number between 0 and 6" value="*" required/>
+<input type="hidden" name="postnummerCron" id="postnummerCron"/>
+</span>
 <br/>
 <input type="radio" name="postnummerSourceType" value="upload" />
 <label for="postnummerSourceUpload">Upload:</label>
 <input type="file" name="postnummerSourceUpload" id="postnummerSourceUpload"/>
-<br/>
+</p>
 
-<label for="bynavnSource">Bynavn Data source:</label><br/>
+<p>
+<label for="bynavnSource">Bynavnregister Data source:</label><br/>
 <input type="radio" name="bynavnSourceType" value="url" id="bynavnSource" />
 <label for="bynavnSourceUrl">Url:</label>
 <input type="url" name="bynavnSourceUrl" id="bynavnSourceUrl"/>
+<span>
+<input type="text" id="bynavnCronMinute" pattern="\*|([1-5]?[0-9])" size="2" title="Cron expression: minute field. Set to either * or a number between 0 and 59" value="*" required/>
+<input type="text" id="bynavnCronHour" pattern="\*|((1?[0-9])|(2[0-3]))" size="2" title="Cron expression: hour field. Set to either * or a number between 0 and 23" value="*" required/>
+<input type="text" id="bynavnCronDate" pattern="\*|(([1-2]?[0-9])|(3[0-1]))" size="2" title="Cron expression: date of month field. Set to either * or a number between 1 and 31" value="*" required/>
+<input type="text" id="bynavnCronMonth" pattern="\*|([0-9]|(1[1-2]))" size="2" title="Cron expression: month field. Set to either * or a number between 1 and 12" value="*" required/>
+<input type="text" id="bynavnCronDay" pattern="\*|[0-6]" size="2" title="Cron expression: day of week field. Set to either * or a number between 0 and 6" value="*" required/>
+<input type="hidden" name="bynavnCron" id="bynavnCron"/>
+</span>
 <br/>
 <input type="radio" name="bynavnSourceType" value="upload" />
 <label for="bynavnSourceUpload">Upload:</label>
 <input type="file" name="bynavnSourceUpload" id="bynavnSourceUpload"/>
-<br/>
+</p>
 
 
 
@@ -89,8 +134,6 @@ var enables = [
     }
   }
  ]
-
-
 for (var i=0; i<enables.length; i++) {
   var radioName = enables[i].radioName;
   var typeMap = enables[i].typeMap;
@@ -122,4 +165,33 @@ for (var i=0; i<enables.length; i++) {
     updateSourcetype(typeMap, checkedRadios.get(0));
   }
 }
+</script>
+
+
+
+<script>
+var keys = ["myndighed","vej","lokalitet","postnummer","bynavn"];
+var fields = ["CronMinute","CronHour","CronDate","CronMonth","CronDay"];
+
+for (var i=0; i<keys.length; i++) {
+  var cronValue = $("#"+keys[i]+"Cron").val().split(/\s+/);
+  for (var j=0; j<fields.length; j++) {
+    var value = cronValue[j] || "*";
+    $("#"+keys[i]+fields[j]).val(value);
+  }
+}
+
+
+var form = $("#editform");
+form.submit(function() {
+  for (var i=0; i<keys.length; i++) {
+    var cronValue = [];
+    for (var j=0; j<fields.length; j++) {
+      var value = $("#"+keys[i]+fields[j]).val();
+      cronValue.push(value);
+    }
+    $("#"+keys[i]+"Cron").val(cronValue.join(" "));
+  }
+});
+
 </script>

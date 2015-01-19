@@ -203,12 +203,16 @@ public class MyndighedsRegister extends CprSubRegister {
     public String getSourceUrlFieldName() {
         return "myndighedSourceUrl";
     }
+    public String getSourceCronFieldName() {
+        return "myndighedCron";
+    }
 
     @Override
     public DataProviderConfiguration getDefaultConfiguration() {
         JSONObject config = new JSONObject();
         config.put(this.getSourceTypeFieldName(),"url");
         config.put(this.getSourceUrlFieldName(),"https://cpr.dk/media/219468/a370716.txt");
+        config.put(this.getSourceCronFieldName(),"* * 1 * *");
         return new DataProviderConfiguration(config);
     }
 

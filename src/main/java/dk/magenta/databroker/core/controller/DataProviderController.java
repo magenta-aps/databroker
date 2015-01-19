@@ -234,4 +234,6 @@ public class DataProviderController {
         }
         return new ModelAndView(new MappingJackson2JsonView(), model);
     }
+
+
 }

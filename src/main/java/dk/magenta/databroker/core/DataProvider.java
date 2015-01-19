@@ -133,7 +133,6 @@ public abstract class DataProvider {
     public class NamedInputStream extends Pair<String, InputStream> {
         public NamedInputStream(String name, InputStream input) {
             super(name.substring(name.lastIndexOf('.')+1), input);
-            System.out.println(this.getLeft());
         }
         public String getFileExtension() {
             return this.getLeft();
