@@ -63,7 +63,7 @@ public class GrLokalitetsRegister extends Register {
 
     @Override
     public Resource getRecordResource() {
-        return this.ctx.getResource("classpath:/data/grønlandLokaliteter.csv");
+        return this.ctx.getResource("classpath:/data/grønlandLokaliteter.ods");
     }
 
     @Override
@@ -77,6 +77,7 @@ public class GrLokalitetsRegister extends Register {
     * */
 
     protected GrLokalitetRecord parseTrimmedLine(String line) {
+        System.out.println(line);
         String[] parts = line.split(",");
         if (parts.length >= 4) {
             GrLokalitetRecord record = new GrLokalitetRecord();

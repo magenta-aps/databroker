@@ -155,12 +155,25 @@
             <artifactId>poi</artifactId>
             <version>3.11</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
             <version>3.11</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.odftoolkit</groupId>
+            <artifactId>odfdom-java</artifactId>
+            <version>0.8.8-incubating</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.odftoolkit</groupId>
+            <artifactId>simple-odf</artifactId>
+            <version>0.7-incubating</version>
+        </dependency>
+
 
     </dependencies>
 

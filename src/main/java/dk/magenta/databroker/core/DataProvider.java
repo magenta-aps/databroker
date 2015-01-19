@@ -4,10 +4,14 @@ import dk.magenta.databroker.register.objectcontainers.Pair;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.odftoolkit.simple.SpreadsheetDocument;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.odftoolkit.odfdom.doc.OdfDocument;
+import org.odftoolkit.odfdom.doc.table.OdfTable;
+import org.odftoolkit.simple.table.Table;
 import org.springframework.core.io.Resource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
@@ -23,10 +27,7 @@ import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.net.URL;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Timer;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.Future;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -131,10 +132,11 @@ public abstract class DataProvider {
 
     public class NamedInputStream extends Pair<String, InputStream> {
         public NamedInputStream(String name, InputStream input) {
-            super(name, input);
+            super(name.substring(name.lastIndexOf('.')+1), input);
+            System.out.println(this.getLeft());
         }
         public String getFileExtension() {
-            return this.getLeft().substring(this.getLeft().lastIndexOf('.') + 1);
+            return this.getLeft();
         }
     }
 
@@ -182,6 +184,10 @@ public abstract class DataProvider {
             System.out.println("Passing data through XLS filter");
             input = this.convertExcelSpreadsheet(input);
         }
+        if (input.getFileExtension().equals("ods")) {
+            System.out.println("Passing data through ODS filter");
+            input = this.convertOdfSpreadsheet(input);
+        }
         return input;
     }
 
@@ -204,6 +210,7 @@ public abstract class DataProvider {
                     Sheet sheet = wb.getSheetAt(i);
                     for (Row row : sheet) {
                         try {
+                            boolean first = true;
                             for (Cell cell : row) {
                                 String cellText;
                                 if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
@@ -216,8 +223,11 @@ public abstract class DataProvider {
                                 } else {
                                     cellText = cell.getStringCellValue();
                                 }
+                                if (first) {
+                                    outputStream.write(",".getBytes());
+                                    first = false;
+                                }
                                 outputStream.write(cellText.getBytes());
-                                outputStream.write(",".getBytes());
                             }
                             outputStream.write("\n".getBytes());
                             outputStream.flush();
@@ -233,7 +243,48 @@ public abstract class DataProvider {
                 }
             }
         }).start();
-        return new NamedInputStream(input.getLeft().replaceAll("\\.xlsx?",".csv"), returnStream);
+        return new NamedInputStream("csv", returnStream);
+    }
+    private NamedInputStream convertOdfSpreadsheet(NamedInputStream input) throws IOException {
+        try {
+            final SpreadsheetDocument document = SpreadsheetDocument.loadDocument(input.getRight());
+            PipedInputStream returnStream = new PipedInputStream();
+            final OutputStream outputStream = new PipedOutputStream(returnStream);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    for (Table table : document.getTableList()) {
+                        int columns = table.getColumnCount();
+                        for (Iterator<org.odftoolkit.simple.table.Row> rIter = table.getRowIterator(); rIter.hasNext(); ) {
+                            org.odftoolkit.simple.table.Row row = rIter.next();
+                            try {
+                                for (int i = 0; i < columns; i++) {
+                                    org.odftoolkit.simple.table.Cell cell = row.getCellByIndex(i);
+                                    String cellText = cell.getStringValue();
+                                    if (i > 0) {
+                                        outputStream.write(",".getBytes());
+                                    }
+                                    outputStream.write(cellText.getBytes());
+                                }
+                                outputStream.write("\n".getBytes());
+                                outputStream.flush();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                    try {
+                        outputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+            return new NamedInputStream("csv", returnStream);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return input;
     }
 
     public List<String> getUploadFields() {
