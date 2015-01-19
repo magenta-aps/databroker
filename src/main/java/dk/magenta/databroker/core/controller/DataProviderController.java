@@ -67,7 +67,6 @@ public class DataProviderController {
 
         Map<String, String[]> params = request.getParameterMap();
         String uuid = request.getParameter("uuid");
-        String name = request.getParameter("name");
         String submit = request.getParameter("submit");
         String action;
 
@@ -85,7 +84,8 @@ public class DataProviderController {
         String[] reservedFields = new String[] {
                 "submit",
                 "name",
-                "uuid"
+                "uuid",
+                "active"
         };
         for (String key : params.keySet()) {
             if (key != null) {
@@ -106,7 +106,9 @@ public class DataProviderController {
         if (uuid != null) { // We are editing an existing entity
             dataProviderEntity = this.dataProviderRegistry.getDataProviderEntity(uuid);
             if (processSubmit) {
-                this.dataProviderRegistry.updateDataProviderEntity(dataProviderEntity, valueMap, name);
+                boolean active = "active".equals(request.getParameter("active"));
+                String name = request.getParameter("name");
+                this.dataProviderRegistry.updateDataProviderEntity(dataProviderEntity, valueMap, name, active);
                 DataProvider dataProvider = dataProviderEntity.getDataProvider();
                 if (dataProvider.wantUpload(dataProviderEntity.getConfiguration()) && this.requestHasDataInFields(request, dataProvider.getUploadFields())) {
                     Thread thread = dataProvider.asyncPush(dataProviderEntity, request, this.transactionManager);
@@ -116,9 +118,6 @@ public class DataProviderController {
                 }
                 return this.redirectToIndex();
             }
-            if (name == null) {
-                name = dataProviderEntity.getName();
-            }
             values.put("uuid", new String[]{uuid});
             action = "edit";
         } else {
@@ -126,7 +125,8 @@ public class DataProviderController {
                 // Processing a "new" submit, create a new DataProviderEntity
                 String providerType = request.getParameter("dataprovider");
                 values.put("dataprovider", new String[]{providerType});
-                dataProviderEntity = this.dataProviderRegistry.createDataProviderEntity(providerType, valueMap);
+                boolean active = "active".equals(request.getParameter("active"));
+                dataProviderEntity = this.dataProviderRegistry.createDataProviderEntity(providerType, valueMap, active);
                 DataProvider dataProvider = dataProviderEntity.getDataProvider();
                 if (dataProvider.wantUpload(dataProviderEntity.getConfiguration()) && this.requestHasDataInFields(request, dataProvider.getUploadFields())) {
                     Thread thread = dataProvider.asyncPush(dataProviderEntity, request, this.transactionManager);
@@ -138,13 +138,14 @@ public class DataProviderController {
             }
             action = "new";
         }
-        values.put("name", new String[]{name});
 
         values.putAll(params);
 
         if (dataProviderEntity != null) {
             values.putAll(this.dataProviderRegistry.getDataProviderEntityValues(dataProviderEntity));
             values.put("dataprovider", new String[]{dataProviderEntity.getType()});
+            values.put("name", new String[]{dataProviderEntity.getName()});
+            values.put("active", dataProviderEntity.getActive() ? new String[]{"active"} : null);
         }
 
         Map<String, Object> model = new HashMap<String, Object>();

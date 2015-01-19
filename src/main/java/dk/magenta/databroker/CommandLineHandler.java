@@ -90,7 +90,8 @@ public class CommandLineHandler implements CommandLineRunner {
             } else {
                 DataProviderEntity dataProviderEntity = dataProviderRegistry.createDataProviderEntity(
                         strings[1],
-                        new HashMap<String, String[]>()
+                        new HashMap<String, String[]>(),
+                        true
                 );
                 if(dataProviderEntity == null) {
                     System.out.println("Failed to create data provider");
