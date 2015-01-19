@@ -12,9 +12,12 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -105,7 +108,7 @@ public class DataProviderController {
             if (processSubmit) {
                 this.dataProviderRegistry.updateDataProviderEntity(dataProviderEntity, valueMap, name);
                 DataProvider dataProvider = dataProviderEntity.getDataProvider();
-                if (dataProvider.wantUpload(dataProviderEntity.getConfiguration())) {
+                if (dataProvider.wantUpload(dataProviderEntity.getConfiguration()) && this.requestHasDataInFields(request, dataProvider.getUploadFields())) {
                     Thread thread = dataProvider.asyncPush(dataProviderEntity, request, this.transactionManager);
                     long threadId = thread.getId();
                     this.threads.put(threadId, thread);
@@ -125,7 +128,7 @@ public class DataProviderController {
                 values.put("dataprovider", new String[]{providerType});
                 dataProviderEntity = this.dataProviderRegistry.createDataProviderEntity(providerType, valueMap);
                 DataProvider dataProvider = dataProviderEntity.getDataProvider();
-                if (dataProvider.wantUpload(dataProviderEntity.getConfiguration())) {
+                if (dataProvider.wantUpload(dataProviderEntity.getConfiguration()) && this.requestHasDataInFields(request, dataProvider.getUploadFields())) {
                     Thread thread = dataProvider.asyncPush(dataProviderEntity, request, this.transactionManager);
                     long threadId = thread.getId();
                     this.threads.put(threadId, thread);
@@ -150,6 +153,19 @@ public class DataProviderController {
 
         model.put("dataproviders", this.getDataProviderData());
         return new ModelAndView("dataproviders/edit", model);
+    }
+
+    private boolean requestHasDataInFields(HttpServletRequest request, List<String> fields) {
+        for (String uploadField : fields) {
+            try {
+                if (request.getPart(uploadField).getSize() > 0) {
+                    return true;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
     }
 
 

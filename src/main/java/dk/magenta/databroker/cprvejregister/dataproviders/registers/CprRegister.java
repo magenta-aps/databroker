@@ -99,8 +99,6 @@ public class CprRegister extends Register {
                 // the code in this method executes in a transactional context
                 public Object doInTransaction(TransactionStatus status) {
                     for (CprSubRegister subRegister : registers) {
-                        System.out.println("subRegister: "+subRegister);
-                        System.out.println("dataProviderEntity: "+dataProviderEntity);
                         subRegister.pull(true, true, dataProviderEntity);
                     }
                     return null;
