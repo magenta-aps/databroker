@@ -10,17 +10,11 @@ import dk.magenta.databroker.register.objectcontainers.Level2Container;
 import dk.magenta.databroker.register.records.Record;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.core.io.Resource;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.Part;
-import java.io.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -63,7 +57,7 @@ public class GrLokalitetsRegister extends Register {
 
     @Override
     public Resource getRecordResource() {
-        return this.ctx.getResource("classpath:/data/grønlandLokaliteter.ods");
+        return this.ctx.getResource("classpath:/data/groenlandLokaliteter.csv");
     }
 
     @Override
@@ -77,7 +71,6 @@ public class GrLokalitetsRegister extends Register {
     * */
 
     protected GrLokalitetRecord parseTrimmedLine(String line) {
-        System.out.println(line);
         String[] parts = line.split(",");
         if (parts.length >= 4) {
             GrLokalitetRecord record = new GrLokalitetRecord();
