@@ -297,6 +297,15 @@ public abstract class DataProvider {
         return this.wantUpload(new DataProviderConfiguration(configuration));
     }
 
+    public boolean wantCronUpdate(DataProviderConfiguration oldConfiguration, DataProviderConfiguration newConfiguration) {
+        System.out.println("Fall through to superclass");
+        return false;
+    }
+    public boolean wantCronUpdate(String oldConfiguration, String newConfiguration) {
+        System.out.println("wantCronUpdate "+oldConfiguration+" / "+newConfiguration);
+        return this.wantCronUpdate(new DataProviderConfiguration(oldConfiguration), new DataProviderConfiguration(newConfiguration));
+    }
+
     public boolean canPull(DataProviderConfiguration configuration) {
         return false;
     }

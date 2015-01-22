@@ -67,6 +67,7 @@ public abstract class CprSubRegister extends Register {
     public String getSourceUrlFieldName() {
         return "sourceUrl";
     }
+    public String getSourceCronFieldName() { return "sourceCron"; }
 
     public boolean canPull(DataProviderConfiguration configuration) {
         JSONObject obj = configuration.toJSON();

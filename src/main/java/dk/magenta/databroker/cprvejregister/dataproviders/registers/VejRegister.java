@@ -631,7 +631,7 @@ public class VejRegister extends CprSubRegister {
         JSONObject config = new JSONObject();
         config.put(this.getSourceTypeFieldName(),"url");
         config.put(this.getSourceUrlFieldName(),"https://cpr.dk/media/152096/vejregister_hele_landet_pr_150101.zip");
-        config.put(this.getSourceCronFieldName(),"* * 1 * *");
+        config.put(this.getSourceCronFieldName(),"0 0 1 * *");
         return new DataProviderConfiguration(config);
     }
 }

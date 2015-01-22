@@ -5,6 +5,7 @@ import dk.magenta.databroker.core.DataProviderConfiguration;
 import dk.magenta.databroker.core.DataProviderRegistry;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -108,8 +109,17 @@ public class DataProviderController {
             if (processSubmit) {
                 boolean active = "active".equals(request.getParameter("active"));
                 String name = request.getParameter("name");
-                this.dataProviderRegistry.updateDataProviderEntity(dataProviderEntity, valueMap, name, active);
+
                 DataProvider dataProvider = dataProviderEntity.getDataProvider();
+                String oldConfiguration = dataProviderEntity.getConfiguration();
+                boolean wasActive = dataProviderEntity.getActive();
+                boolean updated = this.dataProviderRegistry.updateDataProviderEntity(dataProviderEntity, valueMap, name, active);
+                if (updated) {
+                    if (wasActive != active || (active && dataProvider.wantCronUpdate(oldConfiguration, dataProviderEntity.getConfiguration()))) {
+                        System.out.println("We want to refresh the cron schedule");
+                    }
+                }
+
                 if (dataProvider.wantUpload(dataProviderEntity.getConfiguration()) && this.requestHasDataInFields(request, dataProvider.getUploadFields())) {
                     Thread thread = dataProvider.asyncPush(dataProviderEntity, request, this.transactionManager);
                     long threadId = thread.getId();
@@ -128,6 +138,9 @@ public class DataProviderController {
                 boolean active = "active".equals(request.getParameter("active"));
                 dataProviderEntity = this.dataProviderRegistry.createDataProviderEntity(providerType, valueMap, active);
                 DataProvider dataProvider = dataProviderEntity.getDataProvider();
+                if (active && dataProvider.wantCronUpdate(null, dataProviderEntity.getConfiguration())) {
+                    System.out.println("We want to refresh the cron schedule");
+                }
                 if (dataProvider.wantUpload(dataProviderEntity.getConfiguration()) && this.requestHasDataInFields(request, dataProvider.getUploadFields())) {
                     Thread thread = dataProvider.asyncPush(dataProviderEntity, request, this.transactionManager);
                     long threadId = thread.getId();
@@ -146,6 +159,8 @@ public class DataProviderController {
             values.put("dataprovider", new String[]{dataProviderEntity.getType()});
             values.put("name", new String[]{dataProviderEntity.getName()});
             values.put("active", dataProviderEntity.getActive() ? new String[]{"active"} : null);
+        } else {
+            values.put("active", new String[]{"active"});
         }
 
         Map<String, Object> model = new HashMap<String, Object>();
@@ -257,6 +272,15 @@ public class DataProviderController {
         } catch (NumberFormatException e) {
         }
         return new ModelAndView(new MappingJackson2JsonView(), model);
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    @Autowired
+    TaskScheduler scheduler;
+
+    public void updateCronScheduling(DataProviderEntity entity) {
+
     }
 
 

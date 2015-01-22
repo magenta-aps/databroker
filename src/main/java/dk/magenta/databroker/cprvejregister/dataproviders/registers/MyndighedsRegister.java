@@ -212,7 +212,7 @@ public class MyndighedsRegister extends CprSubRegister {
         JSONObject config = new JSONObject();
         config.put(this.getSourceTypeFieldName(),"url");
         config.put(this.getSourceUrlFieldName(),"https://cpr.dk/media/219468/a370716.txt");
-        config.put(this.getSourceCronFieldName(),"* * 1 * *");
+        config.put(this.getSourceCronFieldName(),"0 0 1 * *");
         return new DataProviderConfiguration(config);
     }
 

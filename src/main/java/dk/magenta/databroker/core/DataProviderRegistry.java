@@ -89,11 +89,11 @@ public class DataProviderRegistry {
         return null;
     }
 
-    public void updateDataProviderEntity(DataProviderEntity entity, Map<String, String[]> parameters, String name, boolean active) {
+    public boolean updateDataProviderEntity(DataProviderEntity entity, Map<String, String[]> parameters, String name, boolean active) {
+        boolean updated = false;
         if (entity != null) {
             try {
                 DataProviderConfiguration configuration = new DataProviderConfiguration(entity.getConfiguration());
-                boolean updated = false;
                 for (String key : parameters.keySet()) {
                     if (configuration.update(key, parameters.get(key))) {
                         updated = true;
@@ -114,6 +114,7 @@ public class DataProviderRegistry {
             } catch (JSONException e) {
             }
         }
+        return updated;
     }
 
     public Map<String, String[]> getDataProviderEntityValues(DataProviderEntity dataProviderEntity) {

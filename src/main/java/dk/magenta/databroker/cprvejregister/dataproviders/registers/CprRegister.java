@@ -214,7 +214,7 @@ public class CprRegister extends Register {
         return new DataProviderConfiguration(config);
     }
 
-
+    @Override
     public boolean wantUpload(DataProviderConfiguration configuration) {
         for (CprSubRegister subRegister : this.subRegisters) {
             String typeField = subRegister.getSourceTypeFieldName();
@@ -222,6 +222,22 @@ public class CprRegister extends Register {
             if (sourceType != null && sourceType.contains("upload")) {
                 return true;
             };
+        }
+        return false;
+    }
+
+    @Override
+    public boolean wantCronUpdate(DataProviderConfiguration oldConfiguration, DataProviderConfiguration newConfiguration) {
+        for (CprSubRegister subRegister : this.subRegisters) {
+            String cronField = subRegister.getSourceCronFieldName();
+            List<String> oldCronValue = oldConfiguration.get(cronField);
+            List<String> newCronValue = newConfiguration.get(cronField);
+            if (oldCronValue == null && newCronValue != null) {
+                return true;
+            }
+            if (oldCronValue != null && oldCronValue.equals(newCronValue)) {
+                return true;
+            }
         }
         return false;
     }
@@ -240,7 +256,7 @@ public class CprRegister extends Register {
         return obj;
     }
 
-
+    @Override
     public boolean canPull(DataProviderConfiguration configuration) {
         for (CprSubRegister subRegister : this.subRegisters) {
             if (subRegister.canPull(configuration)) {
