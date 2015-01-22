@@ -6,6 +6,7 @@ import dk.magenta.databroker.core.DataProviderRegistry;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -20,6 +22,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ScheduledFuture;
 
 /**
  * Created by jubk on 15-12-2014.
@@ -33,6 +36,13 @@ public class DataProviderController {
     public DataProviderController() {
         this.threads = new HashMap<Long, Thread>();
     }
+
+    /*@PostConstruct
+    public void postConstruct() {
+        for (DataProviderEntity dataProviderEntity : this.dataProviderRegistry.getDataProviderEntities()) {
+            this.updateCronScheduling(dataProviderEntity);
+        }
+    }*/
 
     @Autowired
     private PlatformTransactionManager transactionManager;
@@ -116,7 +126,7 @@ public class DataProviderController {
                 boolean updated = this.dataProviderRegistry.updateDataProviderEntity(dataProviderEntity, valueMap, name, active);
                 if (updated) {
                     if (wasActive != active || (active && dataProvider.wantCronUpdate(oldConfiguration, dataProviderEntity.getConfiguration()))) {
-                        System.out.println("We want to refresh the cron schedule");
+                        this.updateCronScheduling(dataProviderEntity);
                     }
                 }
 
@@ -139,7 +149,7 @@ public class DataProviderController {
                 dataProviderEntity = this.dataProviderRegistry.createDataProviderEntity(providerType, valueMap, active);
                 DataProvider dataProvider = dataProviderEntity.getDataProvider();
                 if (active && dataProvider.wantCronUpdate(null, dataProviderEntity.getConfiguration())) {
-                    System.out.println("We want to refresh the cron schedule");
+                    this.updateCronScheduling(dataProviderEntity);
                 }
                 if (dataProvider.wantUpload(dataProviderEntity.getConfiguration()) && this.requestHasDataInFields(request, dataProvider.getUploadFields())) {
                     Thread thread = dataProvider.asyncPush(dataProviderEntity, request, this.transactionManager);
@@ -279,8 +289,24 @@ public class DataProviderController {
     @Autowired
     TaskScheduler scheduler;
 
-    public void updateCronScheduling(DataProviderEntity entity) {
+    private HashMap<DataProviderEntity, ScheduledFuture> sheduledTasks;
 
+    public void updateCronScheduling(DataProviderEntity entity) {
+        System.out.println("We want to refresh the cron schedule");
+        System.out.println(this.scheduler);
+        if (this.sheduledTasks == null) {
+            this.sheduledTasks = new HashMap<DataProviderEntity, ScheduledFuture>();
+        } else {
+            ScheduledFuture scheduledTask = this.sheduledTasks.get(entity);
+            if (scheduledTask != null && !scheduledTask.isCancelled()) {
+                scheduledTask.cancel(false); // Cancel the scheduled task, but don't interrupt if it's currently running
+            }
+        }
+        if (entity.getActive()) {
+            Thread task = entity.getDataProvider().asyncPull(entity, this.transactionManager, false);
+            ScheduledFuture scheduledTask = this.scheduler.schedule(task, new CronTrigger("0 54 * * * *"));
+            this.sheduledTasks.put(entity, scheduledTask);
+        }
     }
 
 

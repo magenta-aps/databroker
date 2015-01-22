@@ -176,9 +176,11 @@ public class CprRegister extends Register {
         return thread;
     }
 
-    public Thread asyncPull(DataProviderEntity dataProviderEntity, PlatformTransactionManager transactionManager) {
+    public Thread asyncPull(DataProviderEntity dataProviderEntity, PlatformTransactionManager transactionManager, boolean runNow) {
         Thread thread = new CprPuller(dataProviderEntity, this.subRegisters, transactionManager);
-        thread.start();
+        if (runNow) {
+            thread.start();
+        }
         return thread;
     }
 
@@ -241,7 +243,6 @@ public class CprRegister extends Register {
         }
         return false;
     }
-
 
     private static JSONObject mergeJSONObjects(JSONObject obj1, JSONObject obj2) {
         JSONObject obj = new JSONObject();

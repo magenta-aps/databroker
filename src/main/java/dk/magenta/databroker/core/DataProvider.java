@@ -1,5 +1,6 @@
 package dk.magenta.databroker.core;
 
+import dk.magenta.databroker.core.controller.DataProviderController;
 import dk.magenta.databroker.register.objectcontainers.Pair;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -12,6 +13,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.odftoolkit.odfdom.doc.OdfDocument;
 import org.odftoolkit.odfdom.doc.table.OdfTable;
 import org.odftoolkit.simple.table.Table;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
@@ -99,6 +101,7 @@ public abstract class DataProvider {
     }
 
 
+
     private String uuid;
 
     public String getUuid() {
@@ -122,8 +125,13 @@ public abstract class DataProvider {
     }
 
     public Thread asyncPull(DataProviderEntity dataProviderEntity, PlatformTransactionManager transactionManager) {
+        return this.asyncPull(dataProviderEntity, transactionManager, true);
+    }
+    public Thread asyncPull(DataProviderEntity dataProviderEntity, PlatformTransactionManager transactionManager, boolean runNow) {
         Thread thread = new DataProviderPuller(dataProviderEntity, transactionManager);
-        thread.start();
+        if (runNow) {
+            thread.start();
+        }
         return thread;
     }
 
@@ -298,12 +306,13 @@ public abstract class DataProvider {
     }
 
     public boolean wantCronUpdate(DataProviderConfiguration oldConfiguration, DataProviderConfiguration newConfiguration) {
-        System.out.println("Fall through to superclass");
         return false;
     }
     public boolean wantCronUpdate(String oldConfiguration, String newConfiguration) {
-        System.out.println("wantCronUpdate "+oldConfiguration+" / "+newConfiguration);
         return this.wantCronUpdate(new DataProviderConfiguration(oldConfiguration), new DataProviderConfiguration(newConfiguration));
+    }
+    public String getCronExpression() {
+        return null;
     }
 
     public boolean canPull(DataProviderConfiguration configuration) {
