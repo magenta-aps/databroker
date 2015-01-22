@@ -287,13 +287,12 @@ public class DataProviderController {
     //------------------------------------------------------------------------------------------------------------------
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     TaskScheduler scheduler;
 
     private HashMap<DataProviderEntity, ScheduledFuture> sheduledTasks;
 
     public void updateCronScheduling(DataProviderEntity entity) {
-        System.out.println("We want to refresh the cron schedule");
-        System.out.println(this.scheduler);
         if (this.sheduledTasks == null) {
             this.sheduledTasks = new HashMap<DataProviderEntity, ScheduledFuture>();
         } else {
@@ -303,11 +302,20 @@ public class DataProviderController {
             }
         }
         if (entity.getActive()) {
-            Thread task = entity.getDataProvider().asyncPull(entity, this.transactionManager, false);
-            ScheduledFuture scheduledTask = this.scheduler.schedule(task, new CronTrigger("0 54 * * * *"));
-            this.sheduledTasks.put(entity, scheduledTask);
+            DataProvider dataProvider = entity.getDataProvider();
+            DataProviderConfiguration dataProviderConfiguration = new DataProviderConfiguration(entity.getConfiguration());
+            String cronExpression = dataProvider.getCronExpression(dataProviderConfiguration);
+            if (cronExpression != null) {
+                Thread task = entity.getDataProvider().asyncPull(entity, this.transactionManager, false);
+                ScheduledFuture scheduledTask = this.scheduler.schedule(task, new CronTrigger(cronExpression));
+                this.sheduledTasks.put(entity, scheduledTask);
+            }
         }
     }
 
-
+    public void updateCronScheduling(DataProvider dataProvider) {
+        for (DataProviderEntity dataProviderEntity : this.dataProviderRegistry.getDataProviderEntities(dataProvider)) {
+            this.updateCronScheduling(dataProviderEntity);
+        }
+    }
 }

@@ -26,7 +26,7 @@ public abstract class CprSubRegister extends Register {
 
     @PostConstruct
     @Override
-    protected void RegisterDataProviderInstance() {
+    protected void postConstruct() {
         // Do nothing
     }
 

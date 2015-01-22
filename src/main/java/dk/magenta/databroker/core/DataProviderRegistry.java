@@ -17,6 +17,7 @@ public class DataProviderRegistry {
     private static HashMap<String, DataProvider> dataProviders = new HashMap<String, DataProvider>();
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private DataProviderRepository dataProviderRepository;
 
     public static void registerDataProvider(DataProvider dataProvider) {
@@ -51,6 +52,11 @@ public class DataProviderRegistry {
 
     public Collection<DataProviderEntity> getDataProviderEntities() {
         return dataProviderRepository.findAll();
+    }
+
+
+    public Collection<DataProviderEntity> getDataProviderEntities(DataProvider dataProvider) {
+        return dataProviderRepository.getByType(dataProvider.getClass().getName());
     }
 
     public DataProviderEntity createDataProviderEntity(String type, Map<String, String[]> parameters, boolean active) {

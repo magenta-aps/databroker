@@ -90,15 +90,21 @@ public abstract class DataProvider {
         }
     }
 
+    @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
+    private DataProviderController dataProviderController;
 
     public DataProvider() {
         this.uuid = UUID.randomUUID().toString();
     }
 
     @PostConstruct
-    protected void RegisterDataProviderInstance() {
+    protected void postConstruct() {
         DataProviderRegistry.registerDataProvider(this);
+        this.dataProviderController.updateCronScheduling(this); // This MUST be called after registerDataProvider, or we get a NPE
     }
+
+
 
 
 
@@ -311,7 +317,8 @@ public abstract class DataProvider {
     public boolean wantCronUpdate(String oldConfiguration, String newConfiguration) {
         return this.wantCronUpdate(new DataProviderConfiguration(oldConfiguration), new DataProviderConfiguration(newConfiguration));
     }
-    public String getCronExpression() {
+
+    public String getCronExpression(DataProviderConfiguration configuration) {
         return null;
     }
 

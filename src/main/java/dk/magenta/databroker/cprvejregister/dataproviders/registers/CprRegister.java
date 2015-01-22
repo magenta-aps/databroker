@@ -135,13 +135,14 @@ public class CprRegister extends Register {
     }
 
     @PostConstruct
-    private void postConstruct() {
+    protected void postConstruct() {
         this.subRegisters = new ArrayList<CprSubRegister>();
         this.subRegisters.add(this.myndighedsRegister);
         this.subRegisters.add(this.vejRegister);
         this.subRegisters.add(this.lokalitetsRegister);
         this.subRegisters.add(this.postnummerRegister);
         this.subRegisters.add(this.bynavnRegister);
+        super.postConstruct();
     }
 
     @Override
@@ -212,7 +213,7 @@ public class CprRegister extends Register {
     public DataProviderConfiguration getDefaultConfiguration() {
         JSONObject config = new JSONObject();
         config.put("sourceType", "url");
-        config.put("cron", "0 0 1 * *");
+        config.put("cron", "0 0 0 1 * *");
         for (CprSubRegister subRegister : this.subRegisters) {
             config = mergeJSONObjects(config, subRegister.getDefaultConfiguration().toJSON());
         }
@@ -242,11 +243,21 @@ public class CprRegister extends Register {
         if (oldCronValue == null && newCronValue != null) {
             return true;
         }
-        if (oldCronValue != null && oldCronValue.equals(newCronValue)) {
+        if (oldCronValue != null && !oldCronValue.equals(newCronValue)) {
             return true;
         }
         return false;
     }
+
+    @Override
+    public String getCronExpression(DataProviderConfiguration configuration) {
+        List<String> value = configuration.get("cron");
+        if (value != null && value.size() > 0) {
+            return value.get(0);
+        }
+        return null;
+    }
+
 
     private static JSONObject mergeJSONObjects(JSONObject obj1, JSONObject obj2) {
         JSONObject obj = new JSONObject();
