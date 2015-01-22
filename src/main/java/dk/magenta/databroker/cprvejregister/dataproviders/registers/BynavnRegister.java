@@ -126,27 +126,20 @@ public class BynavnRegister extends CprSubRegister {
 
 
     @Override
-    protected String getUploadPartName() {
+    public String getUploadPartName() {
         return "bynavnSourceUpload";
     }
 
-    public String getSourceTypeFieldName() {
-        return "bynavnSourceType";
-    }
+    @Override
     public String getSourceUrlFieldName() {
         return "bynavnSourceUrl";
-    }
-    public String getSourceCronFieldName() {
-        return "bynavnCron";
     }
 
 
     @Override
     public DataProviderConfiguration getDefaultConfiguration() {
         JSONObject config = new JSONObject();
-        config.put(this.getSourceTypeFieldName(),"url");
         config.put(this.getSourceUrlFieldName(),"https://cpr.dk/media/152120/a370713.txt");
-        config.put(this.getSourceCronFieldName(),"0 0 1 * *");
         return new DataProviderConfiguration(config);
     }
 }

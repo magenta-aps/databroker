@@ -145,27 +145,20 @@ public class LokalitetsRegister extends CprSubRegister {
 
 
     @Override
-    protected String getUploadPartName() {
+    public String getUploadPartName() {
         return "lokalitetSourceUpload";
     }
 
-    public String getSourceTypeFieldName() {
-        return "lokalitetSourceType";
-    }
+    @Override
     public String getSourceUrlFieldName() {
         return "lokalitetSourceUrl";
-    }
-    public String getSourceCronFieldName() {
-        return "lokalitetCron";
     }
 
 
     @Override
     public DataProviderConfiguration getDefaultConfiguration() {
         JSONObject config = new JSONObject();
-        config.put(this.getSourceTypeFieldName(),"url");
         config.put(this.getSourceUrlFieldName(),"https://cpr.dk/media/152108/a370714.txt");
-        config.put(this.getSourceCronFieldName(),"0 0 1 * *");
         return new DataProviderConfiguration(config);
     }
 }

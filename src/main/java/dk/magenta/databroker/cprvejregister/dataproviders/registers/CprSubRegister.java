@@ -60,20 +60,14 @@ public abstract class CprSubRegister extends Register {
     }
 
 
-
-    public String getSourceTypeFieldName() {
-        return "sourceType";
-    }
     public String getSourceUrlFieldName() {
         return "sourceUrl";
     }
-    public String getSourceCronFieldName() { return "sourceCron"; }
 
     public boolean canPull(DataProviderConfiguration configuration) {
         JSONObject obj = configuration.toJSON();
-        String sourceType = obj.optString(this.getSourceTypeFieldName());
         String sourceUrl = obj.optString(this.getSourceUrlFieldName());
-        if (sourceType != null && sourceType.equals("url") && sourceUrl != null && !sourceUrl.isEmpty()) {
+        if (sourceUrl != null && !sourceUrl.isEmpty()) {
             try {
                 URL url = new URL(sourceUrl);
                 return true;

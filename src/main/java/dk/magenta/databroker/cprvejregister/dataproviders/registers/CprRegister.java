@@ -210,6 +210,8 @@ public class CprRegister extends Register {
     @Override
     public DataProviderConfiguration getDefaultConfiguration() {
         JSONObject config = new JSONObject();
+        config.put("sourceType", "url");
+        config.put("cron", "0 0 1 * *");
         for (CprSubRegister subRegister : this.subRegisters) {
             config = mergeJSONObjects(config, subRegister.getDefaultConfiguration().toJSON());
         }
@@ -218,28 +220,28 @@ public class CprRegister extends Register {
 
     @Override
     public boolean wantUpload(DataProviderConfiguration configuration) {
+        List<String> sourceType = configuration.get("sourceType");
+        return sourceType != null && sourceType.contains("upload");
+    }
+
+    public List<String> getUploadFields() {
+        ArrayList<String> list = new ArrayList<String>();
         for (CprSubRegister subRegister : this.subRegisters) {
-            String typeField = subRegister.getSourceTypeFieldName();
-            List<String> sourceType = configuration.get(typeField);
-            if (sourceType != null && sourceType.contains("upload")) {
-                return true;
-            };
+            list.add(subRegister.getUploadPartName());
         }
-        return false;
+        return list;
     }
 
     @Override
     public boolean wantCronUpdate(DataProviderConfiguration oldConfiguration, DataProviderConfiguration newConfiguration) {
-        for (CprSubRegister subRegister : this.subRegisters) {
-            String cronField = subRegister.getSourceCronFieldName();
-            List<String> oldCronValue = oldConfiguration.get(cronField);
-            List<String> newCronValue = newConfiguration.get(cronField);
-            if (oldCronValue == null && newCronValue != null) {
-                return true;
-            }
-            if (oldCronValue != null && oldCronValue.equals(newCronValue)) {
-                return true;
-            }
+        String cronField = "cron";
+        List<String> oldCronValue = oldConfiguration.get(cronField);
+        List<String> newCronValue = newConfiguration.get(cronField);
+        if (oldCronValue == null && newCronValue != null) {
+            return true;
+        }
+        if (oldCronValue != null && oldCronValue.equals(newCronValue)) {
+            return true;
         }
         return false;
     }

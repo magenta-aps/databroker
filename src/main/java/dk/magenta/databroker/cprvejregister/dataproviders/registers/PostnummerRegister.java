@@ -175,27 +175,20 @@ public class PostnummerRegister extends CprSubRegister {
 
 
     @Override
-    protected String getUploadPartName() {
+    public String getUploadPartName() {
         return "postnummerSourceUpload";
     }
 
-    public String getSourceTypeFieldName() {
-        return "postnummerSourceType";
-    }
+    @Override
     public String getSourceUrlFieldName() {
         return "postnummerSourceUrl";
-    }
-    public String getSourceCronFieldName() {
-        return "postnummerCron";
     }
 
 
     @Override
     public DataProviderConfiguration getDefaultConfiguration() {
         JSONObject config = new JSONObject();
-        config.put(this.getSourceTypeFieldName(),"url");
         config.put(this.getSourceUrlFieldName(),"https://cpr.dk/media/152114/a370712.txt");
-        config.put(this.getSourceCronFieldName(),"0 0 1 * *");
         return new DataProviderConfiguration(config);
     }
 }

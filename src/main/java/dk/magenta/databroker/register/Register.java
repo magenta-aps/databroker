@@ -267,7 +267,7 @@ public abstract class Register extends DataProvider {
         }
     }
 
-    protected String getUploadPartName() {
+    public String getUploadPartName() {
         return "sourceUpload";
     }
 
