@@ -203,6 +203,7 @@ public class CprRegister extends Register {
 
     //------------------------------------------------------------------------------------------------------------------
 
+    @Override
     public String getTemplatePath() {
         return "/fragments/CprRegisterForm.txt";
     }
@@ -224,6 +225,7 @@ public class CprRegister extends Register {
         return sourceType != null && sourceType.contains("upload");
     }
 
+    @Override
     public List<String> getUploadFields() {
         ArrayList<String> list = new ArrayList<String>();
         for (CprSubRegister subRegister : this.subRegisters) {

@@ -122,8 +122,7 @@ public class BynavnRegister extends CprSubRegister {
 
     }
 
-
-
+    //------------------------------------------------------------------------------------------------------------------
 
     @Override
     public String getUploadPartName() {
@@ -134,7 +133,6 @@ public class BynavnRegister extends CprSubRegister {
     public String getSourceUrlFieldName() {
         return "bynavnSourceUrl";
     }
-
 
     @Override
     public DataProviderConfiguration getDefaultConfiguration() {

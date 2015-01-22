@@ -172,7 +172,7 @@ public class PostnummerRegister extends CprSubRegister {
         postCounter.printFinalInputsProcessed();
     }
 
-
+    //------------------------------------------------------------------------------------------------------------------
 
     @Override
     public String getUploadPartName() {

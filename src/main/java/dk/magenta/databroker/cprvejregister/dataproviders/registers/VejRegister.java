@@ -608,7 +608,7 @@ public class VejRegister extends CprSubRegister {
         }
     }
 
-
+    //------------------------------------------------------------------------------------------------------------------
 
     @Override
     public String getUploadPartName() {
@@ -619,7 +619,6 @@ public class VejRegister extends CprSubRegister {
     public String getSourceUrlFieldName() {
         return "vejSourceUrl";
     }
-
 
     @Override
     public DataProviderConfiguration getDefaultConfiguration() {

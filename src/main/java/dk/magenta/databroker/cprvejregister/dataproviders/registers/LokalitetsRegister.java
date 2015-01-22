@@ -142,7 +142,7 @@ public class LokalitetsRegister extends CprSubRegister {
         counter.printModifications();
     }
 
-
+    //------------------------------------------------------------------------------------------------------------------
 
     @Override
     public String getUploadPartName() {
@@ -153,7 +153,6 @@ public class LokalitetsRegister extends CprSubRegister {
     public String getSourceUrlFieldName() {
         return "lokalitetSourceUrl";
     }
-
 
     @Override
     public DataProviderConfiguration getDefaultConfiguration() {
