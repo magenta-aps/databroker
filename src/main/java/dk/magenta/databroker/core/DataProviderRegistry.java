@@ -66,8 +66,6 @@ public class DataProviderRegistry {
                 name = entity.getUuid();
             }
             entity.setName(name);
-
-            entity.setActive(true);
             entity.setPriority(1);
 
             DataProviderConfiguration configuration = new DataProviderConfiguration(parameters);
