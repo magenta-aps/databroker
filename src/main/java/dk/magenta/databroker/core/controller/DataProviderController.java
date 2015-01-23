@@ -14,10 +14,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
-import javax.annotation.PostConstruct;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -31,10 +28,10 @@ import java.util.concurrent.ScheduledFuture;
 @Controller
 public class DataProviderController {
 
-    private HashMap<Long, Thread> threads;
+    private HashMap<String, Thread> threads;
 
     public DataProviderController() {
-        this.threads = new HashMap<Long, Thread>();
+        this.threads = new HashMap<String, Thread>();
     }
 
     /*@PostConstruct
@@ -132,9 +129,8 @@ public class DataProviderController {
 
                 if (dataProvider.wantUpload(dataProviderEntity.getConfiguration()) && this.requestHasDataInFields(request, dataProvider.getUploadFields())) {
                     Thread thread = dataProvider.asyncPush(dataProviderEntity, request, this.transactionManager);
-                    long threadId = thread.getId();
-                    this.threads.put(threadId, thread);
-                    return this.processEntity(request, threadId);
+                    this.threads.put(uuid, thread);
+                    return this.processingEntity(request, uuid);
                 }
                 return this.redirectToIndex();
             }
@@ -153,9 +149,8 @@ public class DataProviderController {
                 }
                 if (dataProvider.wantUpload(dataProviderEntity.getConfiguration()) && this.requestHasDataInFields(request, dataProvider.getUploadFields())) {
                     Thread thread = dataProvider.asyncPush(dataProviderEntity, request, this.transactionManager);
-                    long threadId = thread.getId();
-                    this.threads.put(threadId, thread);
-                    return this.processEntity(request, threadId);
+                    this.threads.put(uuid, thread);
+                    return this.processingEntity(request, uuid);
                 }
                 return this.redirectToIndex();
             }
@@ -234,35 +229,49 @@ public class DataProviderController {
     public ModelAndView pullEntity(HttpServletRequest request) {
         // Do something
         String uuid = request.getParameter("uuid");
+        String submit = request.getParameter("submit");
 
-        if (uuid != null) { // We are editing an existing entity
+        if (uuid != null) {
             DataProviderEntity dataProviderEntity = this.dataProviderRegistry.getDataProviderEntity(uuid);
             if (dataProviderEntity != null) {
-                DataProvider dataProvider = dataProviderEntity.getDataProvider();
-                Thread thread = dataProvider.asyncPull(dataProviderEntity, this.transactionManager);
-                long threadId = thread.getId();
-                this.threads.put(threadId, thread);
-                return this.processEntity(request, threadId);
+                Thread t = this.threads.get(uuid);
+                if (t != null && t.isAlive()) {
+                    // Thread is already running
+                    return this.processingEntity(request, uuid);
+                } else {
+                    if (submit != null) {
+                        if (submit.equals("ok")) {
+                            DataProvider dataProvider = dataProviderEntity.getDataProvider();
+                            Thread thread = dataProvider.asyncPull(dataProviderEntity, this.transactionManager);
+                            this.threads.put(uuid, thread);
+                            return this.processingEntity(request, uuid);
+                        } else {
+                            return this.redirectToIndex();
+                        }
+                    } else {
+                        Map<String, Object> model = new HashMap<String, Object>();
+                        model.put("name", dataProviderEntity.getName());
+                        model.put("uuid", uuid);
+                        return new ModelAndView("dataproviders/preprocessing", model);
+                    }
+                }
             }
         }
-        return this.processEntity(request);
+        return this.redirectToIndex();
     }
 
 
     @RequestMapping("/dataproviders/processing")
-    public ModelAndView processEntity(HttpServletRequest request) {
-        long id = 0;
-        try {
-            id = Long.parseLong(request.getParameter("id"));
-        } catch (NumberFormatException e) {
-        }
-        return this.processEntity(request, id);
+    public ModelAndView processingEntity(HttpServletRequest request) {
+        String uuid = request.getParameter("uuid");
+        return this.processingEntity(request, uuid);
     }
 
-    public ModelAndView processEntity(HttpServletRequest request, long id) {
+    public ModelAndView processingEntity(HttpServletRequest request, String uuid) {
         HashMap<String, Object> model = new HashMap<String, Object>();
         HashMap<String, Object> data = new HashMap<String, Object>();
-        data.put("id", id);
+        data.put("uuid", uuid);
+        data.put("name", this.dataProviderRegistry.getDataProviderEntity(uuid).getName());
         data.put("onDone", "/dataproviders/");
         model.put("data", data);
         return new ModelAndView("dataproviders/processing", model);
@@ -271,15 +280,11 @@ public class DataProviderController {
     @RequestMapping("/dataproviders/processingStatus")
     public ModelAndView processStatus(HttpServletRequest request) {
         HashMap<String, Object> model = new HashMap<String, Object>();
-        try {
-            long id = Long.parseLong(request.getParameter("id"));
-            Thread thread = this.threads.get(id);
-            if (thread != null) {
-                Thread.State state = thread.getState();
-                model.put("state", state.toString());
-            }
-
-        } catch (NumberFormatException e) {
+        String uuid = request.getParameter("uuid");
+        Thread thread = this.threads.get(uuid);
+        if (thread != null) {
+            Thread.State state = thread.getState();
+            model.put("state", state.toString());
         }
         return new ModelAndView(new MappingJackson2JsonView(), model);
     }

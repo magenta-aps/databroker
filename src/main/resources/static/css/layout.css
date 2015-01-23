@@ -23,3 +23,10 @@ input.form-control[type=file] {
     width: auto;
     padding: 0;
 }
+
+.table > thead > tr > th,
+.table > tbody > tr > th,
+.table > thead > tr > td,
+.table > tbody > tr > td {
+    vertical-align: middle;
+}
