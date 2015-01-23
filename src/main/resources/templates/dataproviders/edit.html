@@ -52,6 +52,7 @@
                   $(el).find("option[value='"+singulate(values[el.name])+"']").attr("selected","selected");
                 }
               });
+              tmp.find("select").selectpicker({width:"auto"});
 
               container.empty();
               tmp.appendTo(container);
@@ -65,6 +66,7 @@
 
         updateForm($("#dataprovider").val())
 
+        $('select').selectpicker({width:"auto"});
       });
       // ]]>
     </script>
