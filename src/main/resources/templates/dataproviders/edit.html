@@ -74,38 +74,39 @@
     <div layout:fragment="content" style="text-align: left;">
       <h1 th:if="${action == 'new'}">New data provider</h1>
       <h1 th:if="${action == 'edit'}">Edit data provider</h1>
-      <form action="" id="editform" method="post" enctype="multipart/form-data">
+      <form action="" id="editform" method="post" enctype="multipart/form-data" class="form-horizontal">
         <input th:if="${action == 'edit'}" type="hidden" name="uuid" th:value="${values.uuid[0]}"/>
 
-        <p th:if="${action == 'new'}">
-          <label for="dataprovider">Type:</label>
-          <select name="dataprovider" id="dataprovider">
-            <option th:each="dataprovider : ${dataproviders}" th:value="${dataprovider.key}" th:text="${dataprovider.key}" th:selected="${values['dataprovider'] != null and dataprovider.key.equals(values.dataprovider[0])}"></option>
-          </select>
-        </p>
+        <div class="form-group">
+          <label for="dataprovider" class="col-sm-2 control-label">Type:</label>
+          <div class="col-sm-10">
+            <select name="dataprovider" id="dataprovider" th:attr="disabled=${action == 'edit' ? 'disabled':null}">
+              <option th:each="dataprovider : ${dataproviders}" th:value="${dataprovider.key}" th:text="${dataprovider.key}" th:selected="${values['dataprovider'] != null and dataprovider.key.equals(values.dataprovider[0])}"></option>
+            </select>
+          </div>
+        </div>
 
-        <p th:if="${action == 'edit'}">
-          <label for="name">Name:</label>
-          <input type="text" name="name" id="name" th:value="${values.name[0]}"/>
-        </p>
+        <div class="form-group" th:if="${action == 'edit'}">
+          <label for="name" class="col-sm-2 control-label">Name:</label>
+          <div class="col-sm-10">
+            <input type="text" name="name" id="name" th:value="${values.name[0]}"/>
+          </div>
+        </div>
 
-        <p>
-          <label for="active">Active:</label>
-          <input type="checkbox" name="active" id="active" value="active" th:checked="${values['active'] != null and values.active[0] == 'active'}"/>
-        </p>
+        <div class="form-group">
+          <label for="active" class="col-sm-2 control-label">Active:</label>
+          <div class="col-sm-10">
+            <input type="checkbox" name="active" id="active" value="active" th:checked="${values['active'] != null and values.active[0] == 'active'}"/>
+          </div>
+        </div>
 
-        <p th:if="${action == 'edit'}">
-          <label>Type:</label> <span th:text="${values.dataprovider[0]}"/>
-          <input type="hidden" id="dataprovider" name="dataprovider" th:value="${values.dataprovider[0]}"/>
-        </p>
+        <div id="dataproviderConfiguration"/>
 
-
-        <p id="dataproviderConfiguration"></p>
-
-
-        <button type="submit" th:if="${action == 'new'}" name="submit" value="ok">Create</button>
-        <button type="submit" th:if="${action == 'edit'}" name="submit" value="ok">Update</button>
-        <button type="submit" name="submit" value="cancel">Cancel</button>
+        <div class="pull-right">
+          <button type="submit" th:if="${action == 'new'}" name="submit" value="ok" class="btn btn-default">Create</button>
+          <button type="submit" th:if="${action == 'edit'}" name="submit" value="ok" class="btn btn-default">Update</button>
+          <button type="submit" name="submit" value="cancel" class="btn btn-default">Cancel</button>
+        </div>
       </form>
     </div>
 

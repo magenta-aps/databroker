@@ -8,3 +8,18 @@ body {
 .search label {
     width: 120px;
 }
+
+.infobox {
+    border: 1px solid #eee;
+    border-radius: 3px;
+    padding: 10px; /*20px*/
+    margin: 10px; /*20px*/
+}
+
+input.form-control[type=file] {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    width: auto;
+    padding: 0;
+}
