@@ -218,7 +218,7 @@ public class DataProviderController {
                     return this.redirectToIndex();
                 }
                 Map<String, Object> model = new HashMap<String, Object>();
-                model.put("uuid", uuid);
+                model.put("name", dataProviderEntity.getName());
                 return new ModelAndView("dataproviders/delete", model);
             }
         }
