@@ -12,6 +12,9 @@ public class Level1Container<T> extends HashMap<String, T> {
     public T get(int ident1) {
         return this.get(""+ident1);
     }
+    public T get(long ident1) {
+        return this.get(""+ident1);
+    }
 
     public boolean put(String key, T value, boolean reportCollision) {
         if (reportCollision && this.containsKey(key)) {
@@ -25,7 +28,14 @@ public class Level1Container<T> extends HashMap<String, T> {
         this.put(""+ident1, value);
     }
 
+    public void put(long ident1, T value) {
+        this.put(""+ident1, value);
+    }
+
     public boolean put(int ident1, T value, boolean reportCollision) {
+        return this.put(""+ident1, value, reportCollision);
+    }
+    public boolean put(long ident1, T value, boolean reportCollision) {
         return this.put(""+ident1, value, reportCollision);
     }
 
@@ -47,6 +57,9 @@ public class Level1Container<T> extends HashMap<String, T> {
     }
 
     public boolean containsKey(int ident1) {
+        return this.containsKey(""+ident1);
+    }
+    public boolean containsKey(long ident1) {
         return this.containsKey(""+ident1);
     }
 }

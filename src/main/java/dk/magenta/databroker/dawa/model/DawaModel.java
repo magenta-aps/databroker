@@ -549,6 +549,15 @@ public class DawaModel {
         return this.enhedsAdresseRepository.search(parameters, printQuery);
     }
 
+
+    public EnhedsAdresseEntity getSingleEnhedsAdresse(SearchParameters parameters) {
+        return this.getSingleEnhedsAdresse(parameters, true);
+    }
+    public EnhedsAdresseEntity getSingleEnhedsAdresse(SearchParameters parameters, boolean printQuery) {
+        Collection<EnhedsAdresseEntity> enhedsAdresseEntities = this.enhedsAdresseRepository.search(parameters, printQuery);
+        return enhedsAdresseEntities == null ? null : enhedsAdresseEntities.iterator().next();
+    }
+
     //------------------------------------------------------------------------------------------------------------------
 
 
@@ -586,7 +595,7 @@ public class DawaModel {
             VejstykkeEntity vejstykkeEntity = this.getVejstykkeCache().get(vejKommuneKode, vejKode);
 
             KommuneEntity kommuneEntity = this.getKommuneCache().get(vejKommuneKode);
-            //System.out.println(vejKommuneKode + ":" + vejKode + " (" + (vejstykkeEntity != null ? vejstykkeEntity.getLatestVersion().getVejnavn() : "null") + ", " + (kommuneEntity != null ? kommuneEntity.getNavn() : "null") + ")");
+            //System.out.println(vejKommuneKode + ":" + vejKode + " (" + (vejstykkeEntity != null ? vejstykkeEntity.getLatestVersion().getVejnavn() : "null") + ", " + (kommuneEntity != null ? kommuneEntity.getName() : "null") + ")");
 
             if (vejstykkeEntity != null) {
                 VejstykkeVersionEntity vejstykkeVersionEntity = vejstykkeEntity.getLatestVersion();
