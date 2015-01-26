@@ -58,16 +58,18 @@
       <input type="text" id="cronDay" class="form-control" pattern="\*|[0-6]" size="2" title="Cron-udtryk: ugedagsfelt. Sæt til * eller et tal mellem 0 og 6" value="*" required/>
       <input type="hidden" name="cron" id="cron"/>
 
-      Forudindstilling:
-      <select id="cronPreset">
-        <option value="-">Brugerdefineret</option>
-        <option value="0 0 * * * *">Hver hele time</option>
-        <option value="0 0 0 * * *">Hver dag ved midnat</option>
-        <option value="0 0 0 * * 1">Hver uge (midnat til mandagen)</option>
-        <option value="0 0 0 1 * *">Hver måned (midnat til d. 1.)</option>
-        <option value="0 0 0 1 1/3 *">Hver tredje måned (januar, april, juli, oktober)</option>
-      </select>
-      <button id="cronHelpButton">?</button>
+      <p class="pull-right">
+        <label for="cronPreset" style="margin-left: 10px">Forudindstilling:</span>
+        <select id="cronPreset">
+          <option value="-">Brugerdefineret</option>
+          <option value="0 0 * * * *">Hver hele time</option>
+          <option value="0 0 0 * * *">Hver dag ved midnat</option>
+          <option value="0 0 0 * * 1">Hver uge (midnat til mandagen)</option>
+          <option value="0 0 0 1 * *">Hver måned (midnat til d. 1.)</option>
+          <option value="0 0 0 1 1/3 *">Hver tredje måned (januar, april, juli, oktober)</option>
+        </select>
+        <button id="cronHelpButton" class="btn btn-default">?</button>
+      </p>
     </div>
   </div>
 

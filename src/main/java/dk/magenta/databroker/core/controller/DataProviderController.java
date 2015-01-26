@@ -28,10 +28,12 @@ import java.util.concurrent.ScheduledFuture;
 @Controller
 public class DataProviderController {
 
-    private HashMap<String, Thread> threads;
+    private HashMap<String, Thread> userThreads;
+    private HashMap<String, Thread> cronThreads;
 
     public DataProviderController() {
-        this.threads = new HashMap<String, Thread>();
+        this.userThreads = new HashMap<String, Thread>();
+        this.cronThreads = new HashMap<String, Thread>();
     }
 
     /*@PostConstruct
@@ -42,6 +44,7 @@ public class DataProviderController {
     }*/
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private PlatformTransactionManager transactionManager;
 
     @Autowired
@@ -129,7 +132,7 @@ public class DataProviderController {
 
                 if (dataProvider.wantUpload(dataProviderEntity.getConfiguration()) && this.requestHasDataInFields(request, dataProvider.getUploadFields())) {
                     Thread thread = dataProvider.asyncPush(dataProviderEntity, request, this.transactionManager);
-                    this.threads.put(uuid, thread);
+                    this.userThreads.put(uuid, thread);
                     return this.processingEntity(request, uuid);
                 }
                 return this.redirectToIndex();
@@ -149,7 +152,7 @@ public class DataProviderController {
                 }
                 if (dataProvider.wantUpload(dataProviderEntity.getConfiguration()) && this.requestHasDataInFields(request, dataProvider.getUploadFields())) {
                     Thread thread = dataProvider.asyncPush(dataProviderEntity, request, this.transactionManager);
-                    this.threads.put(uuid, thread);
+                    this.userThreads.put(uuid, thread);
                     return this.processingEntity(request, uuid);
                 }
                 return this.redirectToIndex();
@@ -234,8 +237,8 @@ public class DataProviderController {
         if (uuid != null) {
             DataProviderEntity dataProviderEntity = this.dataProviderRegistry.getDataProviderEntity(uuid);
             if (dataProviderEntity != null) {
-                Thread t = this.threads.get(uuid);
-                if (t != null && t.isAlive()) {
+                Thread t = this.userThreads.get(uuid);
+                if (t != null && t.getState() != Thread.State.TERMINATED) {
                     // Thread is already running
                     return this.processingEntity(request, uuid);
                 } else {
@@ -243,7 +246,7 @@ public class DataProviderController {
                         if (submit.equals("ok")) {
                             DataProvider dataProvider = dataProviderEntity.getDataProvider();
                             Thread thread = dataProvider.asyncPull(dataProviderEntity, this.transactionManager);
-                            this.threads.put(uuid, thread);
+                            this.userThreads.put(uuid, thread);
                             return this.processingEntity(request, uuid);
                         } else {
                             return this.redirectToIndex();
@@ -281,7 +284,7 @@ public class DataProviderController {
     public ModelAndView processStatus(HttpServletRequest request) {
         HashMap<String, Object> model = new HashMap<String, Object>();
         String uuid = request.getParameter("uuid");
-        Thread thread = this.threads.get(uuid);
+        Thread thread = this.userThreads.get(uuid);
         if (thread != null) {
             Thread.State state = thread.getState();
             model.put("state", state.toString());
@@ -312,6 +315,7 @@ public class DataProviderController {
             String cronExpression = dataProvider.getCronExpression(dataProviderConfiguration);
             if (cronExpression != null) {
                 Thread task = entity.getDataProvider().asyncPull(entity, this.transactionManager, false);
+                this.cronThreads.put(entity.getUuid(), task);
                 ScheduledFuture scheduledTask = this.scheduler.schedule(task, new CronTrigger(cronExpression));
                 this.sheduledTasks.put(entity, scheduledTask);
             }
