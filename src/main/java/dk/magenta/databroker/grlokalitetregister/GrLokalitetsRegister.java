@@ -4,7 +4,7 @@ import dk.magenta.databroker.core.DataProviderConfiguration;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.dawa.model.RawVej;
-import dk.magenta.databroker.register.Register;
+import dk.magenta.databroker.register.LineRegister;
 import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.register.objectcontainers.Level2Container;
 import dk.magenta.databroker.register.records.Record;
@@ -22,7 +22,7 @@ import java.util.List;
  * Created by lars on 12-12-14.
  */
 @Component
-public class GrLokalitetsRegister extends Register {
+public class GrLokalitetsRegister extends LineRegister {
 
     /*
     * RegisterRun inner class

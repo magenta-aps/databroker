@@ -2,7 +2,7 @@ package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
 import dk.magenta.databroker.core.DataProviderConfiguration;
 import dk.magenta.databroker.core.model.DataProviderEntity;
-import dk.magenta.databroker.register.Register;
+import dk.magenta.databroker.register.LineRegister;
 import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.register.objectcontainers.Pair;
 import org.json.JSONObject;
@@ -26,7 +26,7 @@ import java.util.List;
  * Created by lars on 18-12-14.
  */
 @Component
-public class CprRegister extends Register {
+public class CprRegister extends LineRegister {
 
 
     private class CprPusher extends Thread {

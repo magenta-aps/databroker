@@ -1,9 +1,7 @@
 package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
 import dk.magenta.databroker.core.DataProviderConfiguration;
-import dk.magenta.databroker.core.DataProviderRegistry;
-import dk.magenta.databroker.core.model.DataProviderEntity;
-import dk.magenta.databroker.register.Register;
+import dk.magenta.databroker.register.LineRegister;
 import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
 import org.json.JSONObject;
@@ -19,7 +17,7 @@ import java.text.ParseException;
  */
 
 @Component
-public abstract class CprSubRegister extends Register {
+public abstract class CprSubRegister extends LineRegister {
 
     public CprSubRegister() {
     }
