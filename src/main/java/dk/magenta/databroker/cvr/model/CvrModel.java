@@ -53,7 +53,7 @@ public class CvrModel {
     }
 */
 
-    public CompanyEntity setCompany(String cvrKode, String name, long primaryUnitNumber, long[] unitNumbers,
+    public CompanyEntity setCompany(String cvrKode, String name, long primaryUnitNumber,
                                     int primaryIndustryCode, int[] secondaryIndustryCodes, int formCode,
                                     Date startDate, Date endDate,
                                     RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering, List<VirkningEntity> virkninger) {
@@ -75,10 +75,6 @@ public class CvrModel {
         }
 
         CompanyUnitEntity primaryUnit = this.getCompanyUnit(primaryUnitNumber);
-        HashSet<CompanyUnitEntity> units = new HashSet<CompanyUnitEntity>();
-        for (long pNummer : unitNumbers) {
-            units.add(this.getCompanyUnit(pNummer));
-        }
 
         CompanyVersionEntity companyVersionEntity = companyEntity.getLatestVersion();
 
@@ -87,7 +83,7 @@ public class CvrModel {
                 System.out.println("    creating initial CompanyVersionEntity");
             }
             companyVersionEntity = companyEntity.addVersion(createRegistrering, virkninger);
-        } else if (!companyVersionEntity.matches(name, primaryIndustry, secondaryIndustries, primaryUnit, units, startDate, endDate)) {
+        } else if (!companyVersionEntity.matches(name, primaryIndustry, secondaryIndustries, primaryUnit, startDate, endDate)) {
             if (printProcessing) {
                 System.out.println("    creating updated CompanyVersionEntity");
             }
@@ -104,9 +100,6 @@ public class CvrModel {
                 companyVersionEntity.addSecondaryIndustry(industryEntity);
             }
             companyVersionEntity.setPrimaryUnit(primaryUnit);
-            for (CompanyUnitEntity companyUnitEntity : units) {
-                companyVersionEntity.addUnit(companyUnitEntity);
-            }
             companyVersionEntity.setStartDate(startDate);
             companyVersionEntity.setEndDate(endDate);
 
@@ -117,6 +110,10 @@ public class CvrModel {
             }
         }
         return companyEntity;
+    }
+
+    public CompanyEntity getCompany(String cvrNummer) {
+        return this.getCompanyCache().get(cvrNummer);
     }
 
     //--------------------------------------------------
@@ -149,7 +146,7 @@ public class CvrModel {
     @SuppressWarnings("SpringJavaAutowiringInspection")
     private CompanyUnitRepository companyUnitRepository;
 
-    public CompanyUnitEntity setCompanyUnit(long pNummer, String name,
+    public CompanyUnitEntity setCompanyUnit(long pNummer, String name, CompanyEntity company,
                                     int primaryIndustryCode, int[] secondaryIndustryCodes,
                                     EnhedsAdresseEntity address, String phone, String fax, String email,
                                     Date startDate, Date endDate,
@@ -162,13 +159,12 @@ public class CvrModel {
             }
             companyUnitEntity = new CompanyUnitEntity();
             companyUnitEntity.setPNO(pNummer);
+            companyUnitEntity.setCompany(company);
             this.putCompanyUnitCache(companyUnitEntity);
         }
 
 
         IndustryEntity primaryIndustry = this.getIndustryEntity(primaryIndustryCode);
-        System.out.println("primaryIndustryCode: "+primaryIndustryCode);
-        System.out.println("primaryIndustry: "+primaryIndustry);
         ArrayList<IndustryEntity> secondaryIndustries = new ArrayList<IndustryEntity>();
         for (int secondaryIndustryCode : secondaryIndustryCodes) {
             secondaryIndustries.add(this.getIndustryEntity(secondaryIndustryCode));

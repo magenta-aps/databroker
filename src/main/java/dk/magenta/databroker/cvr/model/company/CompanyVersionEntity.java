@@ -48,22 +48,11 @@ public class CompanyVersionEntity extends DobbeltHistorikVersion<CompanyEntity, 
     //------------------------------------------------------------------------------------------------------------------
     /* Domain specific fields */
 
-    @OneToMany
+    @OneToMany(mappedBy = "company")
     private Collection<CompanyUnitEntity> units;
 
     public Collection<CompanyUnitEntity> getCompanyUnits() {
         return units;
-    }
-
-    public void addUnit(CompanyUnitEntity unit) {
-        if (!this.units.contains(unit)) {
-            this.units.add(unit);
-        }
-    }
-    public void removeUnit(CompanyUnitEntity unit) {
-        if (this.units.contains(unit)) {
-            this.units.remove(unit);
-        }
     }
 
     //----------------------------------------------------
@@ -160,7 +149,7 @@ public class CompanyVersionEntity extends DobbeltHistorikVersion<CompanyEntity, 
     //----------------------------------------------------
 
     public boolean matches(String name, IndustryEntity primaryIndustry, Set<IndustryEntity> secondaryIndustries,
-                           CompanyUnitEntity primaryUnit, Set<CompanyUnitEntity> units, Date startDate, Date endDate) {
+                           CompanyUnitEntity primaryUnit, Date startDate, Date endDate) {
         return Util.compare(this.name, name) &&
                 Util.compare(this.primaryIndustry, primaryIndustry) &&
                 Util.compare(this.secondaryIndustries, secondaryIndustries) &&

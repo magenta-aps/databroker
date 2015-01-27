@@ -2,6 +2,7 @@ package dk.magenta.databroker.cvr.model.companyunit;
 
 import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
+import dk.magenta.databroker.cvr.model.company.CompanyEntity;
 import org.hibernate.annotations.Index;
 
 import javax.persistence.*;
@@ -19,6 +20,19 @@ public class CompanyUnitEntity extends DobbeltHistorikBase<CompanyUnitEntity, Co
     public CompanyUnitEntity() {
         this.versions = new ArrayList<CompanyUnitVersionEntity>();
         this.generateNewUUID();
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, optional = false)
+    private CompanyEntity company;
+
+    public CompanyEntity getCompany() {
+        return company;
+    }
+
+    public void setCompany(CompanyEntity company) {
+        this.company = company;
     }
 
     //------------------------------------------------------------------------------------------------------------------

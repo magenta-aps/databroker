@@ -1,6 +1,7 @@
 package dk.magenta.databroker.cvrregister;
 
 import dk.magenta.databroker.core.DataProviderConfiguration;
+import dk.magenta.databroker.cvr.model.company.CompanyEntity;
 import dk.magenta.databroker.util.Util;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.core.model.oio.VirkningEntity;
@@ -183,78 +184,9 @@ public class CvrRegister extends Register {
 
     @Override
     protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
-        System.out.println("run.getClass(): " + run.getClass());
         if (run.getClass() == CvrRegisterRun.class) {
             CvrRegisterRun cRun = (CvrRegisterRun) run;
             this.dawaModel.resetAllCaches();
-            for (ProductionUnitRecord unit : cRun.getProductionUnits().getList()) {
-
-                this.ensureIndustryInDatabase(unit.getInt("primaryIndustry"), unit.get("primaryIndustryText"));
-                this.ensureIndustryInDatabase(unit.getInt("secondaryIndustry1"), unit.get("secondaryIndustryText1"));
-                this.ensureIndustryInDatabase(unit.getInt("secondaryIndustry2"), unit.get("secondaryIndustryText2"));
-                this.ensureIndustryInDatabase(unit.getInt("secondaryIndustry3"), unit.get("secondaryIndustryText3"));
-
-                long pNummer = unit.getLong("pNummer");
-                String name = unit.get("name");
-                int primaryIndustry = unit.getInt("primaryIndustry");
-
-                List<Integer> secondaryIndustriesList = new ArrayList<Integer>();
-                String[] keys = new String[]{"secondaryIndustry1", "secondaryIndustry2", "secondaryIndustry3"};
-                for (String key : keys) {
-                    int value = unit.getInt(key);
-                    if (value != 0) {
-                        secondaryIndustriesList.add(value);
-                    } else {
-                        break;
-                    }
-                }
-                int[] secondaryIndustries = new int[secondaryIndustriesList.size()];
-                int i = 0;
-                for (Iterator<Integer> iIter = secondaryIndustriesList.iterator(); iIter.hasNext(); secondaryIndustries[i++] = iIter.next());
-
-
-                SearchParameters addressSearch = new SearchParameters();
-                int kommuneKode = unit.getInt("kommunekode");
-                int postNr = unit.getInt("postnr");
-                int vejKode = unit.getInt("vejkode");
-                String husnr = unit.get("husnummerFra");
-                String bogstav = unit.get("bogstavFra");
-                String etage = unit.get("etage");
-                String sidedoer = unit.get("sidedoer");
-                String fullHusNr = husnr + (bogstav != null ? bogstav : "");
-                addressSearch.put(Key.KOMMUNE, kommuneKode);
-                addressSearch.put(Key.POST, postNr);
-                addressSearch.put(Key.VEJ, vejKode);
-                addressSearch.put(Key.HUSNR, fullHusNr);
-                if (etage != null) {
-                    addressSearch.put(Key.ETAGE, etage);
-                }
-                if (sidedoer != null) {
-                    addressSearch.put(Key.DOER, sidedoer);
-                }
-                EnhedsAdresseEntity adresse = dawaModel.getSingleEnhedsAdresse(addressSearch);
-                if (adresse == null) {
-                    adresse = dawaModel.setAdresse(kommuneKode, vejKode, fullHusNr, null, etage, sidedoer, this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity));
-                    System.out.println("Created new adresse " + adresse.getLatestVersion().getAdgangsadresse().getVejstykke().getLatestVersion().getVejnavn() + " " + fullHusNr);
-                }
-
-                String phone = unit.get("phone");
-                String fax = unit.get("fax");
-                String email = unit.get("email");
-
-                Date startDate = this.parseDate(unit.get("startDate"));
-                Date endDate = this.parseDate(unit.get("endDate"));
-
-                boolean advertProtection = unit.getInt("advertProtection") == 1;
-
-                this.cvrModel.setCompanyUnit(pNummer, name,
-                        primaryIndustry, secondaryIndustries,
-                        adresse, phone, fax, email,
-                        startDate, endDate,
-                        advertProtection,
-                        createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>()
-                );
-            }
 
             for (VirksomhedRecord virksomhed : cRun.getVirksomheder().getList()) {
                 this.ensureIndustryInDatabase(virksomhed.getInt("primaryIndustry"), virksomhed.get("primaryIndustryText"));
@@ -285,44 +217,117 @@ public class CvrRegister extends Register {
                 Date startDate = this.parseDate(virksomhed.get("startDate"));
                 Date endDate = this.parseDate(virksomhed.get("endDate"));
 
-
-
                 int vejkode = virksomhed.getInt("vejkode");
                 int kommunekode = virksomhed.getInt("kommunekode");
                 String phone = virksomhed.get("phone");
 
                 List<Long> productionUnitsList = virksomhed.getProductionUnits();
-                long[] productionUnits = new long[productionUnitsList.size()];
                 long primaryProductionUnit = 0;
 
-                if (productionUnitsList.size() == 1) {
-                    primaryProductionUnit = productionUnitsList.get(0);
-                }
-
-                i = 0;
-                for (Iterator<Long> iIter = productionUnitsList.iterator(); iIter.hasNext(); ) {
-                    long pNummer = productionUnits[i++] = iIter.next();
-                    if (primaryProductionUnit == 0) {
-                        ProductionUnitRecord unit = cRun.getProductionUnits().get(pNummer);
-                        if (name.equals(unit.get("name")) && vejkode == unit.getInt("vejkode") && kommunekode == unit.getInt("kommunekode") && Util.compare(phone, unit.get("phone"))) {
-                            primaryProductionUnit = pNummer;
+                if (!productionUnitsList.isEmpty()) {
+                    if (productionUnitsList.size() > 1) {
+                        for (Iterator<Long> iIter = productionUnitsList.iterator(); iIter.hasNext(); ) {
+                            long pNummer = iIter.next();
+                            if (primaryProductionUnit == 0) {
+                                ProductionUnitRecord unit = cRun.getProductionUnits().get(pNummer);
+                                if (name.equals(unit.get("name")) && vejkode == unit.getInt("vejkode") && kommunekode == unit.getInt("kommunekode") && Util.compare(phone, unit.get("phone"))) {
+                                    primaryProductionUnit = pNummer;
+                                }
+                            }
                         }
+                    }
+                    if (primaryProductionUnit == 0) {
+                        primaryProductionUnit = productionUnitsList.get(0);
                     }
                 }
 
+                System.out.println("primaryProductionUnit: "+primaryProductionUnit);
 
+                this.tic();
 
-                this.cvrModel.setCompany(cvrNummer, name, primaryProductionUnit, productionUnits,
+                this.cvrModel.setCompany(cvrNummer, name, primaryProductionUnit,
                         primaryIndustry, secondaryIndustries, form,
                         startDate, endDate,
                         this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity), new ArrayList<VirkningEntity>());
 
-                /*
-                * setCompany(String cvrKode, String name, long primaryUnitNumber, long[] unitNumbers,
-                                    int primaryIndustryCode, int[] secondaryIndustryCodes, int formCode,
-                                    Date startDate, Date endDate,
-                                    RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering, List<VirkningEntity> virkninger) {
-                * */
+                System.out.println("Crated new company in "+this.toc()+" ms");
+            }
+
+
+
+
+            for (ProductionUnitRecord unit : cRun.getProductionUnits().getList()) {
+                this.ensureIndustryInDatabase(unit.getInt("primaryIndustry"), unit.get("primaryIndustryText"));
+                this.ensureIndustryInDatabase(unit.getInt("secondaryIndustry1"), unit.get("secondaryIndustryText1"));
+                this.ensureIndustryInDatabase(unit.getInt("secondaryIndustry2"), unit.get("secondaryIndustryText2"));
+                this.ensureIndustryInDatabase(unit.getInt("secondaryIndustry3"), unit.get("secondaryIndustryText3"));
+
+                long pNummer = unit.getLong("pNummer");
+                String name = unit.get("name");
+                String cvrNummer = unit.get("cvrNummer");
+
+                CompanyEntity company = this.cvrModel.getCompany(cvrNummer);
+                int primaryIndustry = unit.getInt("primaryIndustry");
+                List<Integer> secondaryIndustriesList = new ArrayList<Integer>();
+                String[] keys = new String[]{"secondaryIndustry1", "secondaryIndustry2", "secondaryIndustry3"};
+                for (String key : keys) {
+                    int value = unit.getInt(key);
+                    if (value != 0) {
+                        secondaryIndustriesList.add(value);
+                    } else {
+                        break;
+                    }
+                }
+                int[] secondaryIndustries = new int[secondaryIndustriesList.size()];
+                int i = 0;
+                for (Iterator<Integer> iIter = secondaryIndustriesList.iterator(); iIter.hasNext(); secondaryIndustries[i++] = iIter.next());
+
+
+                SearchParameters addressSearch = new SearchParameters();
+                int kommuneKode = unit.getInt("kommunekode");
+                int postNr = unit.getInt("postnr");
+                int vejKode = unit.getInt("vejkode");
+                String husnr = unit.get("husnummerFra");
+                String bogstav = unit.get("bogstavFra");
+                String etage = unit.get("etage");
+                String sidedoer = unit.get("sidedoer");
+                String fullHusNr = husnr + (bogstav != null ? bogstav : "");
+                addressSearch.put(Key.KOMMUNE, kommuneKode);
+                //addressSearch.put(Key.POST, postNr);
+                addressSearch.put(Key.VEJ, vejKode);
+                addressSearch.put(Key.HUSNR, fullHusNr);
+                if (etage != null) {
+                    addressSearch.put(Key.ETAGE, etage);
+                }
+                if (sidedoer != null) {
+                    addressSearch.put(Key.DOER, sidedoer);
+                }
+                this.tic();
+                EnhedsAdresseEntity adresse = dawaModel.getSingleEnhedsAdresse(addressSearch, false);
+                System.out.println("Searched for adresse in "+this.toc()+" ms");
+                if (adresse == null) {
+                    this.tic();
+                    adresse = dawaModel.setAdresse(kommuneKode, vejKode, fullHusNr, null, etage, sidedoer, this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity));
+                    System.out.println("Created new adresse " + adresse.getLatestVersion().getAdgangsadresse().getVejstykke().getLatestVersion().getVejnavn() + " " + fullHusNr + " in "+this.toc()+" ms");
+                }
+
+                String phone = unit.get("phone");
+                String fax = unit.get("fax");
+                String email = unit.get("email");
+
+                Date startDate = this.parseDate(unit.get("startDate"));
+                Date endDate = this.parseDate(unit.get("endDate"));
+
+                boolean advertProtection = unit.getInt("advertProtection") == 1;
+                this.tic();
+                this.cvrModel.setCompanyUnit(pNummer, name, company,
+                        primaryIndustry, secondaryIndustries,
+                        adresse, phone, fax, email,
+                        startDate, endDate,
+                        advertProtection,
+                        createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>()
+                );
+                System.out.println("Created company unit in "+this.toc()+" ms");
             }
         }
 
@@ -342,6 +347,7 @@ public class CvrRegister extends Register {
     @Override
     protected RegisterRun parse(InputStream input) {
         try {
+            this.tic();
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
             //dbf.setValidating(false);
@@ -376,7 +382,7 @@ public class CvrRegister extends Register {
                     run.add(record);
                 }
             }
-
+            System.out.println("Parsed in "+this.toc()+" ms");
             return run;
 
         } catch (ParserConfigurationException e) {
