@@ -1,6 +1,6 @@
 package dk.magenta.databroker.dawa.model;
 
-import dk.magenta.databroker.core.Util;
+import dk.magenta.databroker.util.Util;
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.core.model.oio.VirkningEntity;
 import dk.magenta.databroker.dawa.model.lokalitet.LokalitetEntity;
@@ -19,8 +19,8 @@ import dk.magenta.databroker.dawa.model.temaer.KommuneRepository;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeRepository;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeVersionEntity;
-import dk.magenta.databroker.register.objectcontainers.Level1Container;
-import dk.magenta.databroker.register.objectcontainers.Level2Container;
+import dk.magenta.databroker.util.objectcontainers.Level1Container;
+import dk.magenta.databroker.util.objectcontainers.Level2Container;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

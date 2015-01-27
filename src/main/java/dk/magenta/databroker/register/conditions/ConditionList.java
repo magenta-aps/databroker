@@ -1,6 +1,6 @@
 package dk.magenta.databroker.register.conditions;
 
-import dk.magenta.databroker.register.objectcontainers.StringList;
+import dk.magenta.databroker.util.objectcontainers.StringList;
 
 import java.util.*;
 

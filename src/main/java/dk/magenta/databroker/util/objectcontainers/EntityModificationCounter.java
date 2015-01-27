@@ -1,4 +1,4 @@
-package dk.magenta.databroker.register.objectcontainers;
+package dk.magenta.databroker.util.objectcontainers;
 
 /**
 * Created by lars on 16-12-14.

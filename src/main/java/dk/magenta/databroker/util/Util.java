@@ -1,4 +1,4 @@
-package dk.magenta.databroker.core;
+package dk.magenta.databroker.util;
 
 /**
  * Created by lars on 27-01-15.

@@ -1,8 +1,6 @@
 package dk.magenta.databroker.dawa.model.temaer;
 
 import dk.magenta.databroker.core.model.OutputFormattable;
-import dk.magenta.databroker.core.model.oio.UniqueBase;
-import dk.magenta.databroker.register.objectcontainers.Level1Container;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
@@ -11,8 +9,6 @@ import javax.persistence.*;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPEnvelope;
 import javax.xml.soap.SOAPException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by jubk on 18-12-2014.

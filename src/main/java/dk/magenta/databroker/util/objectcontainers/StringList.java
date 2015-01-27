@@ -1,4 +1,4 @@
-package dk.magenta.databroker.register.objectcontainers;
+package dk.magenta.databroker.util.objectcontainers;
 
 import java.util.ArrayList;
 import java.util.Collection;

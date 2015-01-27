@@ -4,8 +4,7 @@ import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.ConditionList;
-import dk.magenta.databroker.register.conditions.GlobalCondition;
-import dk.magenta.databroker.register.objectcontainers.StringList;
+import dk.magenta.databroker.util.objectcontainers.StringList;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;

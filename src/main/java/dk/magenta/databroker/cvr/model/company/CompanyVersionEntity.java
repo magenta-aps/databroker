@@ -1,17 +1,15 @@
 package dk.magenta.databroker.cvr.model.company;
 
-import dk.magenta.databroker.core.Util;
+import dk.magenta.databroker.util.Util;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikVersion;
 import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitEntity;
 import dk.magenta.databroker.cvr.model.industry.IndustryEntity;
-import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseEntity;
 import org.hibernate.annotations.Index;
 
 import javax.persistence.*;
 import java.util.Date;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 /**
