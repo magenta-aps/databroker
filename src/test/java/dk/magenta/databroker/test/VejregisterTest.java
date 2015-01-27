@@ -86,14 +86,14 @@ public class VejregisterTest {
         entry = this.kommuneRepository.getByKommunekode(751);
         assertNotNull(entry);
         assertEquals(entry.getKommunekode(), 751);
-        assertEquals(entry.getNavn(), "Aarhus");
+        assertEquals(entry.getName(), "Aarhus");
 
         myndighedsregister.read(new File("src/test/resources/vejregister/kommuner2.txt"), repositories);
 
         entry = this.kommuneRepository.getByKommunekode(751);
         assertNotNull(entry);
         assertEquals(entry.getKommunekode(), 751);
-        assertEquals(entry.getNavn(), "Århus");
+        assertEquals(entry.getName(), "Århus");
     }
 
     @Test
@@ -152,18 +152,18 @@ public class VejregisterTest {
 
         entry = this.postnummerRepository.findByNummer(2100);
         assertNotNull(entry);
-        assertEquals(entry.getNavn(), "København Ø");
+        assertEquals(entry.getName(), "København Ø");
         assertEquals(entry.getNummer(), 2100);
 
         entry = this.postnummerRepository.findByNummer(3953);
         assertNotNull(entry);
-        assertEquals(entry.getNavn(), "Qeqertarssuaq");
+        assertEquals(entry.getName(), "Qeqertarssuaq");
         assertEquals(entry.getNummer(), 3953);
 
         postnummerRegister.read(new File("src/test/resources/vejregister/postnumre2.txt"), repositories);
         entry = this.postnummerRepository.findByNummer(3953);
         assertNotNull(entry);
-        assertEquals(entry.getNavn(), "Qeqertarssuaq City");
+        assertEquals(entry.getName(), "Qeqertarssuaq City");
         assertEquals(entry.getNummer(), 3953);
     }
 */

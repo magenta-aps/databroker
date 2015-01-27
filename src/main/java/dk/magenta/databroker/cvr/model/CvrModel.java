@@ -150,15 +150,14 @@ public class CvrModel {
                                     Date startDate, Date endDate,
                                     boolean advertProtection,
                                     RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering, List<VirkningEntity> virkninger) {
-        CompanyUnitEntity companyUnitEntity = this.companyUnitCache.get(pNummer);
+        CompanyUnitEntity companyUnitEntity = this.getCompanyUnitCache().get(pNummer);
         if (companyUnitEntity == null) {
             if (printProcessing) {
                 System.out.println("    creating new CompanyUnitEntity " + pNummer);
             }
+            companyUnitEntity = new CompanyUnitEntity();
             companyUnitEntity.setPNO(pNummer);
-            if (this.companyUnitCache != null) {
-                this.companyUnitCache.put(pNummer, companyUnitEntity);
-            }
+            this.getCompanyUnitCache().put(pNummer, companyUnitEntity);
         }
 
 

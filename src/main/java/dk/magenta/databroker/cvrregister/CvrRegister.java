@@ -2,6 +2,12 @@ package dk.magenta.databroker.cvrregister;
 
 import dk.magenta.databroker.core.DataProviderConfiguration;
 import dk.magenta.databroker.core.model.DataProviderEntity;
+import dk.magenta.databroker.core.model.oio.VirkningEntity;
+import dk.magenta.databroker.cvr.model.CvrModel;
+import dk.magenta.databroker.dawa.model.DawaModel;
+import dk.magenta.databroker.dawa.model.SearchParameters;
+import dk.magenta.databroker.dawa.model.SearchParameters.Key;
+import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseEntity;
 import dk.magenta.databroker.register.Register;
 import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.register.objectcontainers.Level1Container;
@@ -10,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -24,6 +31,8 @@ import javax.xml.xpath.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -114,6 +123,9 @@ public class CvrRegister extends Register {
             this.obtain("kommunekode", "beliggenhedsadresse/kommune/kode");
             this.obtain("sidedoer", "beliggenhedsadresse/sidedoer");
             this.obtain("co", "beliggenhedsadresse/coNavn");
+            this.obtain("phone", "telefonnummer/kontaktoplysning");
+            this.obtain("fax", "telefax/kontaktoplysning");
+            this.obtain("email", "email/kontaktoplysning");
         }
 
     }
@@ -135,11 +147,118 @@ public class CvrRegister extends Register {
             this.productionUnits.put(productionUnit.get("pNummer"), productionUnit);
             return this.add((Record) productionUnit);
         }
+        public Level1Container<VirksomhedRecord> getVirksomheder() {
+            return this.virksomheder;
+        }
+        public Level1Container<ProductionUnitRecord> getProductionUnits() {
+            return this.productionUnits;
+        }
     }
+
+    @Autowired
+    private CvrModel cvrModel;
+
+    @Autowired
+    private DawaModel dawaModel;
+
+    @Transactional
+    public void pull(boolean forceFetch, boolean forceParse, DataProviderEntity dataProviderEntity) {
+        super.pull(forceFetch, forceParse, dataProviderEntity);
+    }
+
+
 
     @Override
     protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
+        System.out.println("run.getClass(): " + run.getClass());
+        if (run.getClass() == CvrRegisterRun.class) {
+            CvrRegisterRun cRun = (CvrRegisterRun) run;
+            this.dawaModel.resetAllCaches();
+            for (ProductionUnitRecord unit : cRun.getProductionUnits().getList()) {
+                long pNummer = unit.getLong("pNummer");
+                String name = unit.get("name");
+                int primaryIndustry = unit.getInt("primaryIndustry");
 
+                List<Integer> secondaryIndustriesList = new ArrayList<Integer>();
+                String[] keys = new String[]{"secondaryIndustry1", "secondaryIndustry2", "secondaryIndustry3"};
+                for (String key : keys) {
+                    int value = unit.getInt(key);
+                    if (value != 0) {
+                        secondaryIndustriesList.add(value);
+                    } else {
+                        break;
+                    }
+                }
+                int[] secondaryIndustries = new int[secondaryIndustriesList.size()];
+                int i = 0;
+                for (Iterator<Integer> iIter = secondaryIndustriesList.iterator(); iIter.hasNext(); secondaryIndustries[i++] = iIter.next());
+
+
+                SearchParameters addressSearch = new SearchParameters();
+                int kommuneKode = unit.getInt("kommunekode");
+                int postNr = unit.getInt("postnr");
+                int vejKode = unit.getInt("vejkode");
+                String husnr = unit.get("husnummerFra");
+                String bogstav = unit.get("bogstavFra");
+                String etage = unit.get("etage");
+                String sidedoer = unit.get("sidedoer");
+                String fullHusNr = husnr + (bogstav != null ? bogstav : "");
+                addressSearch.put(Key.KOMMUNE, kommuneKode);
+                addressSearch.put(Key.POST, postNr);
+                addressSearch.put(Key.VEJ, vejKode);
+                addressSearch.put(Key.HUSNR, fullHusNr);
+                if (etage != null) {
+                    addressSearch.put(Key.ETAGE, etage);
+                }
+                if (sidedoer != null) {
+                    addressSearch.put(Key.DOER, sidedoer);
+                }
+                EnhedsAdresseEntity adresse = dawaModel.getSingleEnhedsAdresse(addressSearch);
+                if (adresse == null) {
+                    adresse = dawaModel.setAdresse(kommuneKode, vejKode, fullHusNr, null, etage, sidedoer, this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity));
+                    System.out.println("Created new adresse " + adresse.getLatestVersion().getAdgangsadresse().getVejstykke().getLatestVersion().getVejnavn() + " " + fullHusNr);
+                }
+
+                String phone = unit.get("phone");
+                String fax = unit.get("fax");
+                String email = unit.get("email");
+
+                Date startDate = this.parseDate(unit.get("startDate"));
+                Date endDate = this.parseDate(unit.get("endDate"));
+
+                boolean advertProtection = "1".equals(unit.get("advertProtection"));
+
+                System.out.println("setting unit "+name);
+                this.cvrModel.setCompanyUnit(pNummer, name,
+                        primaryIndustry, secondaryIndustries,
+                        adresse, phone, fax, email,
+                        startDate, endDate,
+                        advertProtection,
+                        createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>()
+                );
+            }
+        }
+
+
+
+        /* setCompanyUnit(long pNummer, String name,
+                                    int primaryIndustryCode, int[] secondaryIndustryCodes,
+                                    EnhedsAdresseEntity address, String phone, String fax, String email,
+                                    Date startDate, Date endDate,
+                                    boolean advertProtection,
+                                    RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering, List<VirkningEntity> virkninger) {
+        CompanyUnitEntity companyUnitEntity = this.companyUnitCache.get(pNummer); */
+    }
+
+    private Date parseDate(String date) {
+        if (date != null && !date.isEmpty()) {
+            final SimpleDateFormat dateParser = new SimpleDateFormat("yyyy-MM-dd");
+            try {
+                return dateParser.parse(date);
+            } catch (ParseException e) {
+            }
+        }
+        return null;
     }
 
     @Override
@@ -160,7 +279,7 @@ public class CvrRegister extends Register {
             // builder.setErrorHandler( new MyErrorHandler());
 
             Document document = builder.parse(input);
-            RegisterRun run = new RegisterRun();
+            CvrRegisterRun run = new CvrRegisterRun();
 
             NodeList virksomhedNodes = this.getNodes(document, "/report/virksomheder/virksomhed");
             if (virksomhedNodes != null) {
@@ -193,10 +312,12 @@ public class CvrRegister extends Register {
     }
 
 
-    private XPathFactory xpathFactory = XPathFactory.newInstance();
+    //------------------------------------------------------------------------------------------------------------------
+
+    private XPath xpath = XPathFactory.newInstance().newXPath();
     private NodeList getNodes(Node parentNode, String xpathExpression) {
         try {
-            return (NodeList) this.xpathFactory.newXPath().evaluate(xpathExpression, parentNode, XPathConstants.NODESET);
+            return (NodeList) this.xpath.evaluate(xpathExpression, parentNode, XPathConstants.NODESET);
         } catch (XPathExpressionException e) {
             e.printStackTrace();
             return null;
@@ -224,6 +345,7 @@ public class CvrRegister extends Register {
         return node != null ? node.getTextContent() : null;
     }
 
+    //------------------------------------------------------------------------------------------------------------------
 
     @Override
     public String getTemplatePath() {

@@ -71,6 +71,10 @@ public class NukissiorfiitRegister extends LineRegister {
         return null;
     }
 
+    protected RegisterRun createRun() {
+        return new RegisterRun();
+    }
+
 
     @Transactional
     public void pull(boolean forceFetch, boolean forceParse, DataProviderEntity dataProviderEntity) {

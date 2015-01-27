@@ -36,7 +36,7 @@ public class CvrRegisterTest {
 
     @Test
     //@Transactional
-    public void testVejregister() {
+    public void testCvrRegister() {
         DataProviderEntity tmpDataProviderEntity = new DataProviderEntity();
         tmpDataProviderEntity.setUuid(UUID.randomUUID().toString());
         tmpDataProviderEntity.setType(CvrRegister.class);

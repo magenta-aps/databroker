@@ -13,7 +13,7 @@ import java.util.Collection;
  */
 
 @Entity
-@Table(name = "cvr_company")
+@Table(name = "cvr_companyunit")
 public class CompanyUnitEntity extends DobbeltHistorikBase<CompanyUnitEntity, CompanyUnitVersionEntity> implements OutputFormattable {
 
     public CompanyUnitEntity() {

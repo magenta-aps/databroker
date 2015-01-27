@@ -281,4 +281,8 @@ public class CprRegister extends LineRegister {
         }
         return false;
     }
+
+    protected RegisterRun createRun(){
+        return new RegisterRun();
+    }
 }

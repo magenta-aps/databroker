@@ -211,6 +211,7 @@ public class DawaModel {
 
     private Level2Container<VejstykkeEntity> getVejstykkeCache() {
         if (this.vejstykkeCache == null) {
+            System.out.println("renewing vejstykkecache");
             this.vejstykkeCache = new Level2Container<VejstykkeEntity>();
             for (VejstykkeEntity item : this.vejstykkeRepository.findAll()) {
                 this.vejstykkeCache.put(item.getKommune().getKode(), item.getKode(), item);
@@ -426,16 +427,17 @@ public class DawaModel {
     private EnhedsAdresseRepository enhedsAdresseRepository;
 
 
-    public AdgangsAdresseEntity setAdresse(int kommuneKode, int vejKode, String husNr, String bnr, String etage, String doer,
+    public EnhedsAdresseEntity setAdresse(int kommuneKode, int vejKode, String husNr, String bnr, String etage, String doer,
                                            RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering) {
         return this.setAdresse(kommuneKode, vejKode, husNr, bnr, etage, doer, createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>());
     }
 
-    public AdgangsAdresseEntity setAdresse(int kommuneKode, int vejKode, String husNr, String bnr, String etage, String doer,
+    public EnhedsAdresseEntity setAdresse(int kommuneKode, int vejKode, String husNr, String bnr, String etage, String doer,
                                            RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering, List<VirkningEntity> virkninger) {
 
         VejstykkeEntity vejstykkeEntity = this.getVejstykkeCache().get(kommuneKode, vejKode);
         AdgangsAdresseEntity adgangsAdresseEntity = null;
+        EnhedsAdresseEntity enhedsAdresseEntity = null;
 
         if (vejstykkeEntity == null) {
             System.err.println("Vejstykke " + kommuneKode + ":" + vejKode + " not found");
@@ -482,7 +484,6 @@ public class DawaModel {
             }
 
 
-            EnhedsAdresseEntity enhedsAdresseEntity = null;
             for (EnhedsAdresseVersionEntity e : adgangsAdresseEntity.getEnhedsAdresseVersioner()) {
                 if (e.getEntity().getLatestVersion() == e && e.getEtage().equals(etage) && e.getDoer().equals(doer)) {
                     enhedsAdresseEntity = e.getEntity();
@@ -523,7 +524,7 @@ public class DawaModel {
                 }
             }
         }
-        return adgangsAdresseEntity;
+        return enhedsAdresseEntity;
     }
 
 
@@ -555,7 +556,7 @@ public class DawaModel {
     }
     public EnhedsAdresseEntity getSingleEnhedsAdresse(SearchParameters parameters, boolean printQuery) {
         Collection<EnhedsAdresseEntity> enhedsAdresseEntities = this.enhedsAdresseRepository.search(parameters, printQuery);
-        return enhedsAdresseEntities == null ? null : enhedsAdresseEntities.iterator().next();
+        return (enhedsAdresseEntities == null || enhedsAdresseEntities.isEmpty()) ? null : enhedsAdresseEntities.iterator().next();
     }
 
     //------------------------------------------------------------------------------------------------------------------

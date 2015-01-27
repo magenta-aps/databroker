@@ -47,6 +47,21 @@ public abstract class Record extends HashMap<String, String> {
             return 0;
         }
     }
+    public long getLong(String key) {
+        return this.getLong(key, false);
+    }
+
+    public long getLong(String key, boolean lenient) {
+        String value = this.get(key);
+        if (lenient) {
+            value = value.replaceAll("[^\\d]", "");
+        }
+        try {
+            return Long.parseLong(value, 10);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
         obj.put("type", this.getRecordClass());

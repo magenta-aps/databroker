@@ -96,4 +96,6 @@ public abstract class LineRegister extends Register {
         return null;
     }
 
+    protected abstract RegisterRun createRun();
+
 }

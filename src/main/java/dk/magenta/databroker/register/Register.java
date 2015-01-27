@@ -76,11 +76,6 @@ public abstract class Register extends DataProvider {
         return null;
     }
 
-    protected RegisterRun createRun() {
-        return new RegisterRun();
-    }
-
-
     /*
     * Registration
     * */

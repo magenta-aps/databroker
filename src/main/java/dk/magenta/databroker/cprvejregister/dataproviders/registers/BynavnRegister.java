@@ -70,6 +70,7 @@ public class BynavnRegister extends CprSubRegister {
     * */
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private DawaModel model;
 
     /*
