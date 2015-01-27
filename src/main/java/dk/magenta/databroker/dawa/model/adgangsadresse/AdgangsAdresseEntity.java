@@ -33,7 +33,7 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
     private Collection<AdgangsAdresseVersionEntity> versioner;
 
     @Override
-    public Collection<AdgangsAdresseVersionEntity> getVersioner() {
+    public Collection<AdgangsAdresseVersionEntity> getVersions() {
         return versioner;
     }
 

@@ -1,5 +1,6 @@
 package dk.magenta.databroker.cvr.model.company;
 
+import dk.magenta.databroker.core.Util;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikVersion;
 import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitEntity;
 import dk.magenta.databroker.cvr.model.industry.IndustryEntity;
@@ -162,21 +163,14 @@ public class CompanyVersionEntity extends DobbeltHistorikVersion<CompanyEntity, 
 
     public boolean matches(String name, IndustryEntity primaryIndustry, Set<IndustryEntity> secondaryIndustries,
                            CompanyUnitEntity primaryUnit, Set<CompanyUnitEntity> units, Date startDate, Date endDate) {
-        return compare(this.name, name) &&
-                compare(this.primaryIndustry, primaryIndustry) &&
-                compare(this.secondaryIndustries, secondaryIndustries) &&
-                compare(this.primaryUnit, primaryUnit) &&
-                compare(this.units, units) &&
-                compare(this.startDate, startDate) &&
-                compare(this.endDate, endDate);
+        return Util.compare(this.name, name) &&
+                Util.compare(this.primaryIndustry, primaryIndustry) &&
+                Util.compare(this.secondaryIndustries, secondaryIndustries) &&
+                Util.compare(this.primaryUnit, primaryUnit) &&
+                Util.compare(this.units, units) &&
+                Util.compare(this.startDate, startDate) &&
+                Util.compare(this.endDate, endDate);
     }
 
 
-
-    private static boolean compare(String a, String b) {
-        return a == null ? (b == null) : a.equals(b);
-    }
-    private static boolean compare(Object a, Object b) {
-        return a == null ? (b == null) : a.equals(b);
-    }
 }

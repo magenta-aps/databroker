@@ -5,6 +5,7 @@ import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import org.hibernate.annotations.Index;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -16,22 +17,22 @@ import java.util.Collection;
 public class CompanyEntity extends DobbeltHistorikBase<CompanyEntity, CompanyVersionEntity> implements OutputFormattable {
 
     public CompanyEntity() {
-
+        this.versions = new ArrayList<CompanyVersionEntity>();
         this.generateNewUUID();
     }
 
     //------------------------------------------------------------------------------------------------------------------
 
     @OneToMany(mappedBy = "entity", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Collection<CompanyVersionEntity> versioner;
+    private Collection<CompanyVersionEntity> versions;
 
     @Override
-    public Collection<CompanyVersionEntity> getVersioner() {
-        return versioner;
+    public Collection<CompanyVersionEntity> getVersions() {
+        return versions;
     }
 
-    public void setVersioner(Collection<CompanyVersionEntity> versioner) {
-        this.versioner = versioner;
+    public void setVersions(Collection<CompanyVersionEntity> versions) {
+        this.versions = versions;
     }
 
     //----------------------------------------------------

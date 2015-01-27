@@ -20,7 +20,7 @@ public abstract class DobbeltHistorikBase<
         super(uuid);
     }
 
-    public abstract Collection<R> getVersioner();
+    public abstract Collection<R> getVersions();
 
     public abstract R getLatestVersion();
     public abstract void setLatestVersion(R latestVersion);
@@ -59,7 +59,7 @@ public abstract class DobbeltHistorikBase<
             this.setLatestVersion(version);
         }
 
-        Collection<R> versioner = this.getVersioner();
+        Collection<R> versioner = this.getVersions();
         versioner.add(version);
     }
 

@@ -7,14 +7,17 @@ import org.json.JSONObject;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.xml.soap.SOAPElement;
+import javax.xml.soap.SOAPEnvelope;
 
 /**
  * Created by lars on 26-01-15.
  */
 @Entity
 @Table(name = "cvr_industry")
-public class IndustryEntity extends UniqueBase implements OutputFormattable {
+public class IndustryEntity implements OutputFormattable {
 
     public IndustryEntity() {
     }
@@ -35,6 +38,7 @@ public class IndustryEntity extends UniqueBase implements OutputFormattable {
 
     //----------------------------------------------------
 
+    @Id
     @Column(nullable = false, unique = true)
     @Index(name = "code")
     private int code;
@@ -49,16 +53,30 @@ public class IndustryEntity extends UniqueBase implements OutputFormattable {
 
     //----------------------------------------------------
 
-    @Override
     public String getTypeName() {
         return "industry";
     }
 
     public JSONObject toJSON() {
-        JSONObject obj = super.toJSON();
+        JSONObject obj = new JSONObject();
         obj.put("name", this.getName());
         obj.put("code", this.getCode());
         //obj.put("href", SearchService.getLokalitetBaseUrl() + "/" + this.getCode());
         return obj;
+    }
+
+    @Override
+    public JSONObject toFullJSON() {
+        return this.toJSON();
+    }
+
+    @Override
+    public SOAPElement toXML(SOAPElement parent, SOAPEnvelope envelope) {
+        return null;
+    }
+
+    @Override
+    public SOAPElement toFullXML(SOAPElement parent, SOAPEnvelope envelope) {
+        return null;
     }
 }

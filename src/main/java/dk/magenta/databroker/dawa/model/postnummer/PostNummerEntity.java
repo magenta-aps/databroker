@@ -33,7 +33,7 @@ public class PostNummerEntity extends DobbeltHistorikBase<PostNummerEntity, Post
     private Collection<PostNummerVersionEntity> versioner;
 
     @Override
-    public Collection<PostNummerVersionEntity> getVersioner() {
+    public Collection<PostNummerVersionEntity> getVersions() {
         return versioner;
     }
 

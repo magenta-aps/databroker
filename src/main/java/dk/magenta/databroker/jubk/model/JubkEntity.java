@@ -35,7 +35,7 @@ public class JubkEntity extends DobbeltHistorikBase<JubkEntity, JubkRegistrering
         private JubkRegistreringEntity preferredVersion;
 
         @Override
-        public Collection<JubkRegistreringEntity> getVersioner() {
+        public Collection<JubkRegistreringEntity> getVersions() {
                 return versions;
         }
 

@@ -58,15 +58,14 @@ public class CvrModel {
                                     Date startDate, Date endDate,
                                     RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering, List<VirkningEntity> virkninger) {
 
-        CompanyEntity companyEntity = this.companyCache.get(cvrKode);
+        CompanyEntity companyEntity = this.getCompanyCache().get(cvrKode);
         if (companyEntity == null) {
             if (printProcessing) {
                 System.out.println("    creating new CompanyEntity " + cvrKode);
             }
+            companyEntity = new CompanyEntity();
             companyEntity.setCvrNummer(cvrKode);
-            if (this.companyCache != null) {
-                this.companyCache.put(cvrKode, companyEntity);
-            }
+            this.getCompanyCache().put(cvrKode, companyEntity);
         }
 
         IndustryEntity primaryIndustry = this.getIndustryEntity(primaryIndustryCode);
@@ -141,9 +140,6 @@ public class CvrModel {
     @SuppressWarnings("SpringJavaAutowiringInspection")
     private CompanyUnitRepository companyUnitRepository;
 
-    private Level1Container<CompanyUnitEntity> companyUnitCache;
-
-
     public CompanyUnitEntity setCompanyUnit(long pNummer, String name,
                                     int primaryIndustryCode, int[] secondaryIndustryCodes,
                                     EnhedsAdresseEntity address, String phone, String fax, String email,
@@ -162,6 +158,8 @@ public class CvrModel {
 
 
         IndustryEntity primaryIndustry = this.getIndustryEntity(primaryIndustryCode);
+        System.out.println("primaryIndustryCode: "+primaryIndustryCode);
+        System.out.println("primaryIndustry: "+primaryIndustry);
         ArrayList<IndustryEntity> secondaryIndustries = new ArrayList<IndustryEntity>();
         for (int secondaryIndustryCode : secondaryIndustryCodes) {
             secondaryIndustries.add(this.getIndustryEntity(secondaryIndustryCode));
@@ -202,6 +200,10 @@ public class CvrModel {
         return companyUnitEntity;
     }
 
+    //--------------------------------------------------
+
+    private Level1Container<CompanyUnitEntity> companyUnitCache;
+
     private Level1Container<CompanyUnitEntity> getCompanyUnitCache() {
         if (this.companyUnitCache == null) {
             this.companyUnitCache = new Level1Container<CompanyUnitEntity>();
@@ -210,6 +212,13 @@ public class CvrModel {
             }
         }
         return this.companyUnitCache;
+    }
+
+    private void putCompanyUnitCache(CompanyUnitEntity item) {
+        if (this.companyUnitCache == null) {
+            this.companyUnitCache = new Level1Container<CompanyUnitEntity>();
+        }
+        this.companyUnitCache.put(item.getPNO(), item);
     }
 
     public void resetCompanyUnitCache() {
@@ -229,27 +238,54 @@ public class CvrModel {
         }
     }
 
-       //------------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------------------------------------------
 
     @Autowired
     @SuppressWarnings("SpringJavaAutowiringInspection")
     private IndustryRepository industryRepository;
 
     public IndustryEntity setIndustry(int code, String name) {
-        IndustryEntity industryEntity = this.industryRepository.getByCode(code);
+        return this.setIndustry(code, name, false);
+    }
+    public IndustryEntity setIndustry(int code, String name, boolean noUpdate) {
+        IndustryEntity industryEntity = this.getIndustryCache().get(code);
         if (industryEntity == null) {
             industryEntity = new IndustryEntity();
             industryEntity.setCode(code);
         }
-        if (name != null && !name.isEmpty() && (industryEntity.getName() == null || !industryEntity.getName().equals(name))) {
+        if (name != null && !name.isEmpty() && (industryEntity.getName() == null || (!noUpdate && !industryEntity.getName().equals(name)))) {
             industryEntity.setName(name);
             this.industryRepository.save(industryEntity);
+            this.putIndustryCache(industryEntity);
         }
         return industryEntity;
     }
 
     public IndustryEntity getIndustryEntity(int code) {
         return this.industryRepository.getByCode(code);
+    }
+
+    //--------------------------------------------------
+
+    private Level1Container<IndustryEntity> industryCache;
+    private Level1Container<IndustryEntity> getIndustryCache() {
+        if (this.industryCache == null) {
+            this.industryCache = new Level1Container<IndustryEntity>();
+            for (IndustryEntity item : this.industryRepository.findAll()) {
+                this.putIndustryCache(item);
+            }
+        }
+        return this.industryCache;
+    }
+    private void putIndustryCache(IndustryEntity item) {
+        if (this.industryCache == null) {
+            this.industryCache = new Level1Container<IndustryEntity>();
+        }
+        this.industryCache.put(item.getCode(), item);
+    }
+
+    public void resetIndustryCache() {
+        this.industryCache = null;
     }
 
 }

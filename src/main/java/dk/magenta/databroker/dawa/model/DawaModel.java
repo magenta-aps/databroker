@@ -1,5 +1,6 @@
 package dk.magenta.databroker.dawa.model;
 
+import dk.magenta.databroker.core.Util;
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.core.model.oio.VirkningEntity;
 import dk.magenta.databroker.dawa.model.lokalitet.LokalitetEntity;
@@ -439,6 +440,16 @@ public class DawaModel {
         AdgangsAdresseEntity adgangsAdresseEntity = null;
         EnhedsAdresseEntity enhedsAdresseEntity = null;
 
+        if (etage != null && etage.isEmpty()) {
+            etage = null;
+        }
+        if (doer != null && doer.isEmpty()) {
+            doer = null;
+        }
+        if (bnr != null && bnr.isEmpty()) {
+            bnr = null;
+        }
+
         if (vejstykkeEntity == null) {
             System.err.println("Vejstykke " + kommuneKode + ":" + vejKode + " not found");
         } else {
@@ -485,7 +496,7 @@ public class DawaModel {
 
 
             for (EnhedsAdresseVersionEntity e : adgangsAdresseEntity.getEnhedsAdresseVersioner()) {
-                if (e.getEntity().getLatestVersion() == e && e.getEtage().equals(etage) && e.getDoer().equals(doer)) {
+                if (e.getEntity().getLatestVersion() == e && Util.compare(e.getEtage(), etage) && Util.compare(e.getDoer(),doer)) {
                     enhedsAdresseEntity = e.getEntity();
                 }
             }
@@ -502,8 +513,8 @@ public class DawaModel {
                 if (printProcessing) {
                     System.out.println("    creating initial EnhedsAdresseVersionEntity");
                 }
-            } else if (!enhedsAdresseVersionEntity.getEtage().equals(etage) ||
-                    !enhedsAdresseVersionEntity.getDoer().equals(doer) ||
+            } else if (!Util.compare(enhedsAdresseVersionEntity.getEtage(), etage) ||
+                    !Util.compare(enhedsAdresseVersionEntity.getDoer(), doer) ||
                     enhedsAdresseVersionEntity.getAdgangsadresse() != adgangsAdresseEntity) {
                 enhedsAdresseVersionEntity = enhedsAdresseEntity.addVersion(updateRegistrering, virkninger);
                 if (printProcessing) {

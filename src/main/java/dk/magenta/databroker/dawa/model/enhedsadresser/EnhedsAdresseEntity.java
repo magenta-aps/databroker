@@ -31,7 +31,7 @@ public class EnhedsAdresseEntity extends DobbeltHistorikBase<EnhedsAdresseEntity
     private Collection<EnhedsAdresseVersionEntity> versioner;
 
     @Override
-    public Collection<EnhedsAdresseVersionEntity> getVersioner() {
+    public Collection<EnhedsAdresseVersionEntity> getVersions() {
         return versioner;
     }
 

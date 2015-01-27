@@ -29,7 +29,7 @@ public class EjerLavEntity extends DobbeltHistorikBase<EjerLavEntity, EjerLavVer
     @OneToMany(mappedBy="entity")
     private Collection<EjerLavVersionEntity> versioner;
 
-    public Collection<EjerLavVersionEntity> getVersioner() {
+    public Collection<EjerLavVersionEntity> getVersions() {
         return versioner;
     }
 

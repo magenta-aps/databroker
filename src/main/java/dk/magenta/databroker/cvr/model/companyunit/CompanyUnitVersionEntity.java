@@ -158,7 +158,7 @@ public class CompanyUnitVersionEntity extends DobbeltHistorikVersion<CompanyUnit
         return primaryIndustry;
     }
 
-    public void setPrimaryIndustry(IndustryEntity entity) {
+    public void setPrimaryIndustry(IndustryEntity primaryIndustry) {
         this.primaryIndustry = primaryIndustry;
     }
 

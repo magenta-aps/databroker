@@ -35,7 +35,7 @@ public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, Vejsty
     private Collection<VejstykkeVersionEntity> versioner;
 
     @Override
-    public Collection<VejstykkeVersionEntity> getVersioner() {
+    public Collection<VejstykkeVersionEntity> getVersions() {
         return versioner;
     }
 

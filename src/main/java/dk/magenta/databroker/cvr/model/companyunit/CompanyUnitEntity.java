@@ -27,7 +27,7 @@ public class CompanyUnitEntity extends DobbeltHistorikBase<CompanyUnitEntity, Co
     private Collection<CompanyUnitVersionEntity> versions;
 
     @Override
-    public Collection<CompanyUnitVersionEntity> getVersioner() {
+    public Collection<CompanyUnitVersionEntity> getVersions() {
         return versions;
     }
 
