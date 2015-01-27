@@ -65,7 +65,7 @@ public class CvrModel {
             }
             companyEntity = new CompanyEntity();
             companyEntity.setCvrNummer(cvrKode);
-            this.getCompanyCache().put(cvrKode, companyEntity);
+            this.putCompanyCache(companyEntity);
         }
 
         IndustryEntity primaryIndustry = this.getIndustryEntity(primaryIndustryCode);
@@ -119,14 +119,23 @@ public class CvrModel {
         return companyEntity;
     }
 
+    //--------------------------------------------------
+
     private Level1Container<CompanyEntity> getCompanyCache() {
         if (this.companyCache == null) {
             this.companyCache = new Level1Container<CompanyEntity>();
             for (CompanyEntity item : this.companyRepository.findAll()) {
-                this.companyCache.put(item.getCvrNummer(), item);
+                this.putCompanyCache(item);
             }
         }
         return this.companyCache;
+    }
+
+    private void putCompanyCache(CompanyEntity item) {
+        if (this.companyCache == null) {
+            this.companyCache = new Level1Container<CompanyEntity>();
+        }
+        this.companyCache.put(item.getCvrNummer(), item);
     }
 
     public void resetCompanyCache() {
@@ -153,7 +162,7 @@ public class CvrModel {
             }
             companyUnitEntity = new CompanyUnitEntity();
             companyUnitEntity.setPNO(pNummer);
-            this.getCompanyUnitCache().put(pNummer, companyUnitEntity);
+            this.putCompanyUnitCache(companyUnitEntity);
         }
 
 
@@ -200,6 +209,19 @@ public class CvrModel {
         return companyUnitEntity;
     }
 
+    public CompanyUnitEntity getCompanyUnit(long pNummer) {
+        CompanyUnitEntity companyUnitEntity = this.getCompanyUnitCache().get(pNummer);
+        if (companyUnitEntity != null) {
+            return companyUnitEntity;
+        } else {
+            companyUnitEntity = this.companyUnitRepository.getByPno(pNummer);
+            if (companyUnitEntity != null) {
+                this.companyUnitCache.put(pNummer, companyUnitEntity);
+            }
+            return companyUnitEntity;
+        }
+    }
+
     //--------------------------------------------------
 
     private Level1Container<CompanyUnitEntity> companyUnitCache;
@@ -208,7 +230,7 @@ public class CvrModel {
         if (this.companyUnitCache == null) {
             this.companyUnitCache = new Level1Container<CompanyUnitEntity>();
             for (CompanyUnitEntity item : this.companyUnitRepository.findAll()) {
-                this.companyUnitCache.put(item.getPNO(), item);
+                this.putCompanyUnitCache(item);
             }
         }
         return this.companyUnitCache;
@@ -223,19 +245,6 @@ public class CvrModel {
 
     public void resetCompanyUnitCache() {
         this.companyCache = null;
-    }
-
-    public CompanyUnitEntity getCompanyUnit(long pNummer) {
-        CompanyUnitEntity companyUnitEntity = this.getCompanyUnitCache().get(pNummer);
-        if (companyUnitEntity != null) {
-            return companyUnitEntity;
-        } else {
-            companyUnitEntity = this.companyUnitRepository.getByPno(pNummer);
-            if (companyUnitEntity != null) {
-                this.companyUnitCache.put(pNummer, companyUnitEntity);
-            }
-            return companyUnitEntity;
-        }
     }
 
     //------------------------------------------------------------------------------------------------------------------
