@@ -3,8 +3,12 @@ package dk.magenta.databroker.cvr.model.companyunit;
 import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.cvr.model.company.CompanyEntity;
+import dk.magenta.databroker.cvr.model.industry.IndustryEntity;
 import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseEntity;
+import dk.magenta.databroker.service.rest.SearchService;
 import org.hibernate.annotations.Index;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -107,6 +111,37 @@ public class CompanyUnitEntity extends DobbeltHistorikBase<CompanyUnitEntity, Co
     @Override
     public String getTypeName() {
         return "companyunit";
+    }
+
+    public JSONObject toJSON() {
+        JSONObject obj = super.toJSON();
+        CompanyUnitVersionEntity latestVersion = this.latestVersion;
+        obj.put("pNummer",this.pno);
+        obj.put("advertProtection",latestVersion.hasAdvertProtection());
+        obj.put("name",latestVersion.getName());
+        obj.put("email",latestVersion.getEmail());
+        obj.put("phone",latestVersion.getPhone());
+        obj.put("fax",latestVersion.getFax());
+        obj.put("startDate", latestVersion.getStartDate());
+        obj.put("endDate", latestVersion.getEndDate());
+        obj.put("href", SearchService.getCompanyUnitBaseUrl() + "/" + this.pno);
+        return obj;
+    }
+
+    public JSONObject toFullJSON() {
+        JSONObject obj = this.toJSON();
+        CompanyUnitVersionEntity latestVersion = this.latestVersion;
+        obj.put("address", latestVersion.getAddress().toJSON());
+        obj.put("primaryIndustry", latestVersion.getPrimaryIndustry().toJSON());
+        Collection<IndustryEntity> secondaryIndustries = latestVersion.getSecondaryIndustries();
+        if (secondaryIndustries != null && !secondaryIndustries.isEmpty()) {
+            JSONArray secondaryIndustryArray = new JSONArray();
+            for (IndustryEntity secondaryIndustry : secondaryIndustries) {
+                secondaryIndustryArray.put(secondaryIndustry.toJSON());
+            }
+            obj.put("secondaryIndustries", secondaryIndustryArray);
+        }
+        return obj;
     }
 
     //------------------------------------------------------------------------------------------------------------------

@@ -355,6 +355,11 @@ public class SearchService {
     }
 
 
+    public static String getCompanyUnitBaseUrl() {
+        return SearchService.getBaseUrl() + "/produktionsEnhed";
+    }
+
+
 
     //------------------------------------------------------------------------------------------------------------------
 

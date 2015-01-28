@@ -7,7 +7,9 @@ import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.Condition;
+import dk.magenta.databroker.service.rest.SearchService;
 import org.hibernate.annotations.Index;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.persistence.*;
@@ -114,6 +116,21 @@ public class CompanyEntity extends DobbeltHistorikBase<CompanyEntity, CompanyVer
         JSONObject obj = super.toJSON();
         obj.put("name", this.latestVersion.getName());
         obj.put("cvrnr", this.getCvrNummer());
+        obj.put("href", SearchService.getCompanyBaseUrl() + "/" + this.getCvrNummer());
+        return obj;
+    }
+
+    @Override
+    public JSONObject toFullJSON() {
+        JSONObject obj = this.toJSON();
+        Collection<CompanyUnitEntity> units = this.units;
+        if (units != null && !units.isEmpty()) {
+            JSONArray unitArray = new JSONArray();
+            for (CompanyUnitEntity unit : units) {
+                unitArray.put(unit.toJSON());
+            }
+            obj.put("units", unitArray);
+        }
         return obj;
     }
 
