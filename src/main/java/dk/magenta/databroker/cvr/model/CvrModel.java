@@ -10,6 +10,7 @@ import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitRepository;
 import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitVersionEntity;
 import dk.magenta.databroker.cvr.model.industry.IndustryEntity;
 import dk.magenta.databroker.cvr.model.industry.IndustryRepository;
+import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseEntity;
 import dk.magenta.databroker.util.objectcontainers.Level1Container;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,6 +115,13 @@ public class CvrModel {
 
     public CompanyEntity getCompany(String cvrNummer) {
         return this.getCompanyCache().get(cvrNummer);
+    }
+    public Collection<CompanyEntity> getCompany(SearchParameters parameters) {
+        return this.getCompany(parameters, true);
+    }
+
+    public Collection<CompanyEntity> getCompany(SearchParameters parameters, boolean printQuery) {
+        return this.companyRepository.search(parameters, printQuery);
     }
 
     //--------------------------------------------------

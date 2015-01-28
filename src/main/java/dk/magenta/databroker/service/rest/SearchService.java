@@ -1,6 +1,7 @@
 package dk.magenta.databroker.service.rest;
 
 import dk.magenta.databroker.core.model.OutputFormattable;
+import dk.magenta.databroker.cvr.model.CvrModel;
 import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
@@ -48,7 +49,11 @@ public class SearchService {
 
     @Autowired
     @SuppressWarnings("SpringJavaAutowiringInspection")
-    private DawaModel model;
+    private DawaModel dawaModel;
+
+    @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
+    private CvrModel cvrModel;
 
 
     @GET
@@ -86,7 +91,7 @@ public class SearchService {
         SearchParameters parameters = new SearchParameters(land, kommune, post, lokalitet, vej, new GlobalCondition(includeBefore, includeAfter));
 
         List<OutputFormattable> kommuner = new ArrayList<OutputFormattable>(
-                this.model.getKommune(parameters)
+                this.dawaModel.getKommune(parameters)
         );
 
         return this.format("kommuner", kommuner, fmt);
@@ -103,7 +108,7 @@ public class SearchService {
 
         try {
             int kommuneKode = Integer.parseInt(id, 10);
-            kommuneEntity = this.model.getKommune(kommuneKode);
+            kommuneEntity = this.dawaModel.getKommune(kommuneKode);
         } catch (NumberFormatException e) {
         }
 
@@ -132,7 +137,7 @@ public class SearchService {
         SearchParameters parameters = new SearchParameters(land, kommune, post, lokalitet, vej, new GlobalCondition(includeBefore, includeAfter));
 
         List<OutputFormattable> veje = new ArrayList<OutputFormattable>(
-            this.model.getVejstykke(parameters)
+            this.dawaModel.getVejstykke(parameters)
         );
 
         return this.format("veje", veje, fmt);
@@ -144,7 +149,7 @@ public class SearchService {
     public String vej(@PathParam("uuid") String uuid,
                         @QueryParam("format") String formatStr) {
         Format fmt = this.getFormat(formatStr);
-        OutputFormattable vejEntity = this.model.getVejstykke(uuid);
+        OutputFormattable vejEntity = this.dawaModel.getVejstykke(uuid);
         if (vejEntity != null) {
             return this.format(vejEntity, fmt);
         } else {
@@ -168,7 +173,7 @@ public class SearchService {
         SearchParameters parameters = new SearchParameters(land, kommune, post, null, vej, new GlobalCondition(includeBefore, includeAfter));
 
         ArrayList<OutputFormattable> postnumre = new ArrayList<OutputFormattable>(
-            this.model.getPostnummer(parameters)
+            this.dawaModel.getPostnummer(parameters)
         );
 
         return this.format("postnumre", postnumre, fmt);
@@ -185,7 +190,7 @@ public class SearchService {
         if (id.length() < 5) {
             try {
                 int postnr = Integer.parseInt(id,10);
-                postnummerEntity = this.model.getPostnummer(postnr);
+                postnummerEntity = this.dawaModel.getPostnummer(postnr);
             } catch (NumberFormatException e) {
             }
         }
@@ -213,7 +218,7 @@ public class SearchService {
         SearchParameters parameters = new SearchParameters(land, kommune, post, null, vej, husnr, bnr, new GlobalCondition(includeBefore, includeAfter));
 
         ArrayList<OutputFormattable> adresser = new ArrayList<OutputFormattable>(
-                this.model.getAdgangsAdresse(parameters)
+                this.dawaModel.getAdgangsAdresse(parameters)
         );
 
         return this.format("adgangsadresser", adresser, fmt);
@@ -225,7 +230,7 @@ public class SearchService {
     public String adgangsadresse(@PathParam("uuid") String uuid,
                           @QueryParam("format") String formatStr) {
         Format fmt = this.getFormat(formatStr);
-        OutputFormattable adresseEntity = this.model.getAdgangsAdresse(uuid);
+        OutputFormattable adresseEntity = this.dawaModel.getAdgangsAdresse(uuid);
         if (adresseEntity != null) {
             return this.format(adresseEntity, fmt);
         } else {
@@ -249,7 +254,7 @@ public class SearchService {
         SearchParameters parameters = new SearchParameters(land, kommune, post, null, vej, husnr, bnr, etage, doer, new GlobalCondition(includeBefore, includeAfter));
 
         ArrayList<OutputFormattable> adresser = new ArrayList<OutputFormattable>(
-                this.model.getEnhedsAdresse(parameters)
+                this.dawaModel.getEnhedsAdresse(parameters)
         );
 
         return this.format("adresser", adresser, fmt);
@@ -261,7 +266,7 @@ public class SearchService {
     public String adresse(@PathParam("uuid") String uuid,
                           @QueryParam("format") String formatStr) {
         Format fmt = this.getFormat(formatStr);
-        OutputFormattable adresseEntity = this.model.getEnhedsAdresse(uuid);
+        OutputFormattable adresseEntity = this.dawaModel.getEnhedsAdresse(uuid);
         if (adresseEntity != null) {
             return this.format(adresseEntity, fmt);
         } else {
@@ -286,7 +291,7 @@ public class SearchService {
         SearchParameters parameters = new SearchParameters(land, kommune, post, lokalitet, vej, new GlobalCondition(includeBefore, includeAfter));
 
         ArrayList<OutputFormattable> adresser = new ArrayList<OutputFormattable>(
-                this.model.getLokalitet(parameters)
+                this.dawaModel.getLokalitet(parameters)
         );
 
         return this.format("lokaliteter", adresser, fmt);
@@ -299,13 +304,57 @@ public class SearchService {
     public String lokalitet(@PathParam("uuid") String uuid,
                           @QueryParam("format") String formatStr) {
         Format fmt = this.getFormat(formatStr);
-        OutputFormattable lokalitetEntity = this.model.getLokalitet(uuid);
+        OutputFormattable lokalitetEntity = this.dawaModel.getLokalitet(uuid);
         if (lokalitetEntity != null) {
             return this.format(lokalitetEntity, fmt);
         } else {
             throw new NotFoundException();
         }
     }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    public static String getCompanyBaseUrl() {
+        return SearchService.getBaseUrl() + "/virksomhed";
+    }
+
+
+    @GET
+    @Path("virksomhed")
+    @Transactional
+    public String company(@QueryParam("land") String[] land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej, @QueryParam("husnr") String[] husnr, @QueryParam("post") String[] post, @QueryParam("lokalitet") String[] lokalitet,
+                          @QueryParam("virksomhed") String[] virksomhed, @QueryParam("cvr") String[] cvr,
+                            @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
+        Format fmt = this.getFormat(formatStr);
+
+        SearchParameters parameters = new SearchParameters(land, kommune, post, lokalitet, vej, husnr, null, new GlobalCondition(includeBefore, includeAfter));
+        parameters.put(SearchParameters.Key.VIRKSOMHED, virksomhed);
+        parameters.put(SearchParameters.Key.CVR, cvr);
+
+
+        ArrayList<OutputFormattable> virksomheder = new ArrayList<OutputFormattable>(
+                this.cvrModel.getCompany(parameters)
+        );
+
+        return this.format("virksomheder", virksomheder, fmt);
+    }
+
+
+    @GET
+    @Path("virksomhed/{cvrnr}")
+    @Transactional
+    public String company(@PathParam("cvrnr") String cvrnr,
+                            @QueryParam("format") String formatStr) {
+        Format fmt = this.getFormat(formatStr);
+        OutputFormattable lokalitetEntity = this.cvrModel.getCompany(cvrnr);
+        if (lokalitetEntity != null) {
+            return this.format(lokalitetEntity, fmt);
+        } else {
+            throw new NotFoundException();
+        }
+    }
+
+
 
     //------------------------------------------------------------------------------------------------------------------
 

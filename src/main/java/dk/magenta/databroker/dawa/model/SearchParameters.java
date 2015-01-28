@@ -19,7 +19,9 @@ public class SearchParameters extends HashMap<String, String[]> {
         HUSNR,
         BNR,
         ETAGE,
-        DOER
+        DOER,
+        VIRKSOMHED,
+        CVR
     }
 
     private GlobalCondition globalCondition = null;

@@ -138,19 +138,6 @@ public class CompanyUnitVersionEntity extends DobbeltHistorikVersion<CompanyUnit
 
     //----------------------------------------------------
 
-    @ManyToOne
-    private EnhedsAdresseEntity adresse;
-
-    public EnhedsAdresseEntity getAdresse() {
-        return adresse;
-    }
-
-    public void setAdresse(EnhedsAdresseEntity adresse) {
-        this.adresse = adresse;
-    }
-
-    //----------------------------------------------------
-
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     private IndustryEntity primaryIndustry;
 

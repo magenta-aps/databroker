@@ -142,7 +142,7 @@ public class NukissiorfiitRegister extends LineRegister {
                     if (doer == null || doer.isEmpty()) {
                         doer = "";
                     }
-                    this.model.setAdresse(kommuneKode, vejKode, husnr, bnr, etage, doer,
+                    this.model.setAdresse(kommuneKode, vejKode, husnr, bnr, etage, doer, //postnr,
                             this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
                     );
                     successes.add(new Pair<String,String>(""+postnr, vejNavn));

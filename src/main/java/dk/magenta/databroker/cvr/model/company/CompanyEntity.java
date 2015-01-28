@@ -2,7 +2,9 @@ package dk.magenta.databroker.cvr.model.company;
 
 import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
+import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitEntity;
 import org.hibernate.annotations.Index;
+import org.json.JSONObject;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -89,11 +91,27 @@ public class CompanyEntity extends DobbeltHistorikBase<CompanyEntity, CompanyVer
     }
 
 
+
+    @OneToMany(mappedBy = "company")
+    private Collection<CompanyUnitEntity> units;
+
+    public Collection<CompanyUnitEntity> getUnits() {
+        return this.units;
+    }
+
     //------------------------------------------------------------------------------------------------------------------
 
     @Override
     public String getTypeName() {
         return "company";
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject obj = super.toJSON();
+        obj.put("name",this.latestVersion.getName());
+        obj.put("cvrnr",this.getCvrNummer());
+        return obj;
     }
 
 }

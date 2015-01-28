@@ -1,4 +1,4 @@
-package dk.magenta.databroker.dawa.model.enhedsadresser;
+package dk.magenta.databroker.cvr.model.company;
 
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
@@ -13,14 +13,14 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * Created by lars on 09-12-14.
+ * Created by lars on 27-01-15.
  */
-
-interface EnhedsAdresseRepositoryCustom {
-    public Collection<EnhedsAdresseEntity> search(SearchParameters parameters, boolean printQuery);
+interface CompanyRepositoryCustom {
+    public Collection<CompanyEntity> search(SearchParameters parameters, boolean printQuery);
 }
 
-public class EnhedsAdresseRepositoryImpl implements EnhedsAdresseRepositoryCustom {
+
+public class CompanyRepositoryImpl implements CompanyRepositoryCustom {
 
     private EntityManager entityManager;
 
@@ -30,19 +30,41 @@ public class EnhedsAdresseRepositoryImpl implements EnhedsAdresseRepositoryCusto
     }
 
     @Override
-    public Collection<EnhedsAdresseEntity> search(SearchParameters parameters, boolean printQuery) {
+    public Collection<CompanyEntity> search(SearchParameters parameters, boolean printQuery) {
 
         StringList hql = new StringList();
         StringList join = new StringList();
         ConditionList conditions = new ConditionList(ConditionList.Operator.AND);
 
-        hql.append("select distinct adresse from EnhedsAdresseEntity as adresse");
+        hql.append("select distinct company from CompanyEntity as company");
         join.setPrefix("join ");
 
-        if (parameters.hasAny(Key.LAND, Key.KOMMUNE, Key.VEJ, Key.POST, Key.HUSNR, Key.BNR)) {
+        if (parameters.has(Key.VIRKSOMHED)) {
+            join.append("company.latestVersion as companyVersion");
+            conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.VIRKSOMHED), null, "companyVersion.name"));
+        }
+        if (parameters.has(Key.CVR)) {
+            conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.CVR), null, "company.cvrNummer"));
+        }
+        if (parameters.hasAny(Key.HUSNR, Key.ETAGE, Key.LAND, Key.KOMMUNE, Key.VEJ)) {
+            join.append("company.units as unit");
 
+            join.append("unit.latestVersion.address as adresse");
             join.append("adresse.latestVersion as adresseVersion");
             join.append("adresseVersion.adgangsadresse as adgang");
+            if (parameters.has(Key.HUSNR)) {
+                conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.HUSNR), null, "adgang.husnr"));
+            }
+            if (parameters.has(Key.ETAGE)) {
+                conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.ETAGE), null, "adresseVersion.etage"));
+            }
+            if (parameters.has(Key.DOER)) {
+                conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.DOER), null, "adresseVersion.doer"));
+            }
+            if (parameters.has(Key.BNR)) {
+                conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.BNR), null, "adgang.bnr"));
+            }
+
 
             if (parameters.hasAny(Key.LAND, Key.KOMMUNE, Key.VEJ)) {
                 join.append("adgang.vejstykke as vejstykke");
@@ -60,29 +82,18 @@ public class EnhedsAdresseRepositoryImpl implements EnhedsAdresseRepositoryCusto
                 }
 
                 if (parameters.has(Key.POST)) {
-                    //join.append("adgang.latestVersion.postnummer as post");
                     join.append("vejstykke.latestVersion.postnumre as post");
                     conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.POST), "post.latestVersion.nr", "post.latestVersion.navn"));
                 }
             }
-            if (parameters.has(Key.HUSNR)) {
-                conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.HUSNR), null, "adgang.husnr"));
-            }
-            if (parameters.has(Key.BNR)) {
-                conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.BNR), null, "adgang.bnr"));
-            }
+
+
+
         }
 
-        if (parameters.has(Key.ETAGE)) {
-            conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.ETAGE), null, "adresseVersion.etage"));
-        }
-        if (parameters.has(Key.DOER)) {
-            conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.DOER), null, "adresseVersion.doer"));
-        }
 
-        if (parameters.hasGlobalCondition()) {
-            conditions.addCondition(parameters.getGlobalCondition().whereField("adresse"));
-        }
+
+
 
         // our conditions list should now be complete
 
@@ -93,7 +104,7 @@ public class EnhedsAdresseRepositoryImpl implements EnhedsAdresseRepositoryCusto
         // our join list should now be complete
 
         if (join.size()>0) {
-            hql.append(join.join(" \n"));
+            hql.append(join.join(" "));
         }
         if (conditions.size() > 0) {
             hql.append("where");
@@ -113,6 +124,8 @@ public class EnhedsAdresseRepositoryImpl implements EnhedsAdresseRepositoryCusto
             q.setParameter(key, queryParameters.get(key));
         }
         return q.getResultList();
-
     }
 }
+
+
+

@@ -250,7 +250,7 @@ public class CvrRegister extends Register {
                         startDate, endDate,
                         this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity), new ArrayList<VirkningEntity>());
 
-                System.out.println("Crated new company in "+this.toc()+" ms");
+                System.out.println("Updated company in "+this.toc()+" ms");
             }
 
 
@@ -327,7 +327,7 @@ public class CvrRegister extends Register {
                         advertProtection,
                         createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>()
                 );
-                System.out.println("Created company unit in "+this.toc()+" ms");
+                System.out.println("Updated company unit in "+this.toc()+" ms");
             }
         }
 
