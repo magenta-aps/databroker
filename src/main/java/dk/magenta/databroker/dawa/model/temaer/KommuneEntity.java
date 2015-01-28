@@ -1,10 +1,15 @@
 package dk.magenta.databroker.dawa.model.temaer;
 
-import dk.magenta.databroker.cprvejregister.dataproviders.registers.LokalitetsRegister;
+import dk.magenta.databroker.dawa.model.SearchParameters;
+import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.dawa.model.lokalitet.LokalitetEntity;
+import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
 import dk.magenta.databroker.dawa.model.postnummer.PostNummerVersionEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
+import dk.magenta.databroker.register.RepositoryUtil;
+import dk.magenta.databroker.register.conditions.Condition;
 import dk.magenta.databroker.service.rest.SearchService;
+import dk.magenta.databroker.util.objectcontainers.Pair;
 import org.hibernate.annotations.Index;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -128,4 +133,38 @@ public class KommuneEntity extends TemaBase {
         return obj;
     }
 
+    //------------------------------------------------------------------------------------------------------------------
+
+    public static final String databaseKey = "kommune";
+
+    public static Condition kommuneCondition(SearchParameters parameters) {
+        if (parameters.has(Key.KOMMUNE)) {
+            return RepositoryUtil.whereField(parameters.get(Key.KOMMUNE), databaseKey+".kode", databaseKey+".navn");
+        }
+        return null;
+    }
+
+    public static Condition landCondition(SearchParameters parameters) {
+        if (parameters.has(Key.LAND)) {
+            return RepositoryUtil.whereFieldLand(parameters.get(Key.LAND));
+        }
+        return null;
+    }
+
+    public static String joinVej() {
+        return databaseKey+".vejstykker as "+VejstykkeEntity.databaseKey;
+    }
+    public static String joinLokalitet() {
+        return databaseKey+".lokaliteter as "+LokalitetEntity.databaseKey;
+    }
+    public static Pair<String[], Condition> joinPost() {
+        String version = PostNummerEntity.databaseKey+"Version";
+        return new Pair<String[], Condition>(
+                new String[] {
+                        databaseKey+".postnumre "+version,
+                        version+".entity as "+PostNummerEntity.databaseKey
+                },
+                RepositoryUtil.whereVersionLatest(version)
+        );
+    }
 }

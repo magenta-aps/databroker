@@ -1,11 +1,15 @@
 package dk.magenta.databroker.dawa.model.vejstykker;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
+import dk.magenta.databroker.dawa.model.SearchParameters;
+import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseEntity;
 import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseVersionEntity;
 import dk.magenta.databroker.dawa.model.lokalitet.LokalitetEntity;
 import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
 import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
+import dk.magenta.databroker.register.RepositoryUtil;
+import dk.magenta.databroker.register.conditions.Condition;
 import dk.magenta.databroker.service.rest.SearchService;
 import org.hibernate.annotations.Index;
 import org.json.JSONArray;
@@ -164,5 +168,21 @@ public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, Vejsty
             obj.put("lokaliteter", lokaliteter);
         }
         return obj;
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    public static final String databaseKey = "vejstykke";
+    public static Condition vejCondition(SearchParameters parameters) {
+        if (parameters.has(Key.VEJ)) {
+            return RepositoryUtil.whereField(parameters.get(Key.VEJ), databaseKey+".kode", databaseKey+".latestVersion.vejnavn");
+        }
+        return null;
+    }
+    public static String joinKommune() {
+        return databaseKey+".kommune as "+KommuneEntity.databaseKey;
+    }
+    public static String joinPost() {
+        return databaseKey+".latestVersion.postnumre as "+PostNummerEntity.databaseKey;
     }
 }

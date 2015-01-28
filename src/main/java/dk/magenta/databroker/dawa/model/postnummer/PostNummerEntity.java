@@ -2,9 +2,15 @@ package dk.magenta.databroker.dawa.model.postnummer;
 
 import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
+import dk.magenta.databroker.dawa.model.SearchParameters;
+import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
+import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeVersionEntity;
+import dk.magenta.databroker.register.RepositoryUtil;
+import dk.magenta.databroker.register.conditions.Condition;
 import dk.magenta.databroker.service.rest.SearchService;
+import dk.magenta.databroker.util.objectcontainers.Pair;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -124,6 +130,32 @@ public class PostNummerEntity extends DobbeltHistorikBase<PostNummerEntity, Post
         }
         obj.put("veje", veje);
         return obj;
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    public static final String databaseKey = "post";
+
+    public static Condition postCondition(SearchParameters parameters) {
+        if (parameters.has(Key.POST)) {
+            return RepositoryUtil.whereField(parameters.get(Key.POST), databaseKey+".latestVersion.nr", databaseKey+".latestVersion.navn");
+        }
+        return null;
+    }
+
+    public static String joinKommune() {
+        return databaseKey+".latestVersion.kommuner "+KommuneEntity.databaseKey;
+    }
+
+    public static Pair<String[],Condition> joinVej() {
+        String version = VejstykkeEntity.databaseKey+"Version";
+        return new Pair<String[],Condition>(
+                new String[]{
+                        PostNummerEntity.databaseKey+".vejstykkeVersioner "+version,
+                        version+".entity "+VejstykkeEntity.databaseKey
+                },
+                RepositoryUtil.whereVersionLatest(version)
+        );
     }
 
 }

@@ -2,9 +2,14 @@ package dk.magenta.databroker.dawa.model.lokalitet;
 
 import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.core.model.oio.UniqueBase;
+import dk.magenta.databroker.dawa.model.SearchParameters;
+import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
+import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeVersionEntity;
 
+import dk.magenta.databroker.register.RepositoryUtil;
+import dk.magenta.databroker.register.conditions.Condition;
 import dk.magenta.databroker.service.rest.SearchService;
 import org.hibernate.annotations.Index;
 import org.json.JSONArray;
@@ -96,4 +101,18 @@ public class LokalitetEntity extends UniqueBase implements OutputFormattable {
         return obj;
     }
 
+    //------------------------------------------------------------------------------------------------------------------
+
+    public static final String databaseKey = "lokalitet";
+
+    public static Condition lokalitetCondition(SearchParameters parameters) {
+        if (parameters.has(Key.LOKALITET)) {
+            return RepositoryUtil.whereField(parameters.get(Key.LOKALITET), null, databaseKey+".navn");
+        }
+        return null;
+    }
+
+    public static String joinVej() {
+        return databaseKey+".vejstykkeVersioner.entity as "+ VejstykkeEntity.databaseKey;
+    }
 }

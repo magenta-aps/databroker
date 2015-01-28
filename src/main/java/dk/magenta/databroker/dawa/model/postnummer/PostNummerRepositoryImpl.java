@@ -2,8 +2,12 @@ package dk.magenta.databroker.dawa.model.postnummer;
 
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
+import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
+import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.register.RepositoryUtil;
+import dk.magenta.databroker.register.conditions.Condition;
 import dk.magenta.databroker.register.conditions.ConditionList;
+import dk.magenta.databroker.util.objectcontainers.Pair;
 import dk.magenta.databroker.util.objectcontainers.StringList;
 
 import javax.persistence.EntityManager;
@@ -36,35 +40,26 @@ public class PostNummerRepositoryImpl implements PostNummerRepositoryCustom {
         StringList join = new StringList();
         ConditionList conditions = new ConditionList(ConditionList.Operator.AND);
 
-        hql.append("select distinct post from PostNummerEntity as post");
+        hql.append("select distinct "+PostNummerEntity.databaseKey+" from PostNummerEntity as "+PostNummerEntity.databaseKey);
         join.setPrefix("join ");
 
-
         if (parameters.hasAny(Key.LAND, Key.KOMMUNE)) {
-            join.append("post.latestVersion.kommuner kommune");
-            if (parameters.has(Key.LAND)) {
-                conditions.addCondition(RepositoryUtil.whereFieldLand(parameters.get(Key.LAND)));
-            }
-            if (parameters.has(Key.KOMMUNE)) {
-                conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.KOMMUNE), "kommune.kode", "kommune.navn"));
-            }
+            join.append(PostNummerEntity.joinKommune());
+            conditions.addCondition(KommuneEntity.landCondition(parameters));
+            conditions.addCondition(KommuneEntity.kommuneCondition(parameters));
         }
 
-        if (parameters.has(Key.POST)) {
-            conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.POST), "post.latestVersion.nr", "post.latestVersion.navn"));
-        }
+        conditions.addCondition(PostNummerEntity.postCondition(parameters));
 
         if (parameters.has(Key.VEJ)) {
-            join.append("post.vejstykkeVersioner vejVersion");
-            join.append("vejVersion.entity vej");
-            conditions.addCondition(RepositoryUtil.whereVersionLatest("vejVersion"));
-            conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.VEJ), "vej.kode", "vejVersion.vejnavn"));
+            Pair<String[],Condition> post = PostNummerEntity.joinVej();
+            join.append(post.getLeft());
+            conditions.addCondition(post.getRight());
+            conditions.addCondition(VejstykkeEntity.vejCondition(parameters));
         }
 
-
-
         if (parameters.hasGlobalCondition()) {
-            conditions.addCondition(parameters.getGlobalCondition().whereField("post"));
+            conditions.addCondition(parameters.getGlobalCondition().whereField(PostNummerEntity.databaseKey));
         }
 
         // our conditions list should now be complete
@@ -83,7 +78,7 @@ public class PostNummerRepositoryImpl implements PostNummerRepositoryCustom {
             hql.append(conditions.getWhere());
         }
 
-        hql.append("order by post.latestVersion.nr");
+        hql.append("order by "+PostNummerEntity.databaseKey+".latestVersion.nr");
 
         if (printQuery) {
             System.out.println(hql.join(" \n"));

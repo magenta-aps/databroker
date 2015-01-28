@@ -3,6 +3,7 @@ package dk.magenta.databroker.cvr.model.companyunit;
 import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.cvr.model.company.CompanyEntity;
+import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseEntity;
 import org.hibernate.annotations.Index;
 
 import javax.persistence.*;
@@ -108,4 +109,11 @@ public class CompanyUnitEntity extends DobbeltHistorikBase<CompanyUnitEntity, Co
         return "companyunit";
     }
 
+    //------------------------------------------------------------------------------------------------------------------
+
+    public static final String databaseKey = "productionUnit";
+
+    public static String joinEnhedsAdresse() {
+        return databaseKey+".latestVersion.address as "+EnhedsAdresseEntity.databaseKey;
+    }
 }

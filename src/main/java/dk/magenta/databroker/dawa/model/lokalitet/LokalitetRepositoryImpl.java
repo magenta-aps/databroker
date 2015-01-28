@@ -2,6 +2,9 @@ package dk.magenta.databroker.dawa.model.lokalitet;
 
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
+import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
+import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
+import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.util.objectcontainers.StringList;
@@ -36,36 +39,27 @@ public class LokalitetRepositoryImpl implements LokalitetRepositoryCustom {
         StringList join = new StringList();
         ConditionList conditions = new ConditionList(ConditionList.Operator.AND);
 
-        hql.append("select distinct lokalitet from LokalitetEntity as lokalitet");
+        hql.append("select distinct "+LokalitetEntity.databaseKey+" from LokalitetEntity as "+LokalitetEntity.databaseKey);
         join.setPrefix("join ");
 
         if (parameters.hasAny(Key.LAND, Key.KOMMUNE, Key.POST, Key.VEJ)) {
-            join.append("lokalitet.vejstykkeVersioner vejVersion");
-            join.append("vejVersion.entity as vej");
+            join.append(LokalitetEntity.joinVej());
 
-            if (parameters.has(Key.VEJ)) {
-                conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.VEJ), "vej.kode", "vejVersion.vejnavn"));
-            }
+            conditions.addCondition(VejstykkeEntity.vejCondition(parameters));
 
             if (parameters.has(Key.POST)) {
-                join.append("vejversion.postnumre post");
-                conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.POST), "post.latestVersion.nr", "post.latestVersion.navn"));
+                join.append(VejstykkeEntity.joinPost());
+                conditions.addCondition(PostNummerEntity.postCondition(parameters));
             }
 
             if (parameters.hasAny(Key.LAND, Key.KOMMUNE)) {
-                join.append("vej.kommune kommune");
-                if (parameters.has(Key.KOMMUNE)) {
-                    conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.KOMMUNE), "kommune.kode", "kommune.navn"));
-                }
-                if (parameters.has(Key.LAND)) {
-                    conditions.addCondition(RepositoryUtil.whereFieldLand(parameters.get(Key.LAND)));
-                }
+                join.append(VejstykkeEntity.joinKommune());
+                conditions.addCondition(KommuneEntity.kommuneCondition(parameters));
+                conditions.addCondition(KommuneEntity.landCondition(parameters));
             }
         }
 
-        if (parameters.has(Key.LOKALITET)) {
-            conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.LOKALITET), null, "lokalitet.navn"));
-        }
+        conditions.addCondition(LokalitetEntity.lokalitetCondition(parameters));
 
         /*if (parameters.hasGlobalCondition()) {
             conditions.addCondition(parameters.getGlobalCondition().whereField("vej"));
@@ -87,7 +81,7 @@ public class LokalitetRepositoryImpl implements LokalitetRepositoryCustom {
             hql.append(conditions.getWhere());
         }
 
-        hql.append("order by lokalitet.navn");
+        hql.append("order by "+LokalitetEntity.databaseKey+".navn");
 
         if (printQuery) {
             System.out.println(hql.join(" \n"));

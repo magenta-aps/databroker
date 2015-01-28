@@ -3,6 +3,10 @@ package dk.magenta.databroker.cvr.model.company;
 import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitEntity;
+import dk.magenta.databroker.dawa.model.SearchParameters;
+import dk.magenta.databroker.dawa.model.SearchParameters.Key;
+import dk.magenta.databroker.register.RepositoryUtil;
+import dk.magenta.databroker.register.conditions.Condition;
 import org.hibernate.annotations.Index;
 import org.json.JSONObject;
 
@@ -91,7 +95,6 @@ public class CompanyEntity extends DobbeltHistorikBase<CompanyEntity, CompanyVer
     }
 
 
-
     @OneToMany(mappedBy = "company")
     private Collection<CompanyUnitEntity> units;
 
@@ -109,9 +112,29 @@ public class CompanyEntity extends DobbeltHistorikBase<CompanyEntity, CompanyVer
     @Override
     public JSONObject toJSON() {
         JSONObject obj = super.toJSON();
-        obj.put("name",this.latestVersion.getName());
-        obj.put("cvrnr",this.getCvrNummer());
+        obj.put("name", this.latestVersion.getName());
+        obj.put("cvrnr", this.getCvrNummer());
         return obj;
     }
 
+    //------------------------------------------------------------------------------------------------------------------
+
+    public static final String databaseKey = "company";
+
+    public static Condition cvrCondition(SearchParameters parameters) {
+        if (parameters.has(Key.CVR)) {
+            return RepositoryUtil.whereField(parameters.get(Key.CVR), null, databaseKey+".cvrNummer");
+        }
+        return null;
+    }
+    public static Condition virksomhedCondition(SearchParameters parameters) {
+        if (parameters.has(Key.VIRKSOMHED)) {
+            return RepositoryUtil.whereField(parameters.get(Key.VIRKSOMHED), null, databaseKey+".latestVersion.name");
+        }
+        return null;
+    }
+
+    public static String joinCompanyUnit() {
+        return databaseKey+".units as "+CompanyUnitEntity.databaseKey;
+    }
 }

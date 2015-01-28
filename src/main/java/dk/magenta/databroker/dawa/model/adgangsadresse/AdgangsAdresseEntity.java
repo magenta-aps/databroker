@@ -1,10 +1,14 @@
 package dk.magenta.databroker.dawa.model.adgangsadresse;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
+import dk.magenta.databroker.dawa.model.SearchParameters;
+import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseVersionEntity;
 import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
 import dk.magenta.databroker.dawa.model.stormodtagere.StormodtagerEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
+import dk.magenta.databroker.register.RepositoryUtil;
+import dk.magenta.databroker.register.conditions.Condition;
 import dk.magenta.databroker.service.rest.SearchService;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -197,5 +201,24 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
             obj.put("enhedsadresser", enhedsAdresser);
         }
         return obj;
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    public static final String databaseKey = "adgang";
+    public static Condition bnrCondition(SearchParameters parameters) {
+        if (parameters.has(Key.BNR)) {
+            return RepositoryUtil.whereField(parameters.get(Key.BNR), null, databaseKey + ".bnr");
+        }
+        return null;
+    }
+    public static Condition husnrCondition(SearchParameters parameters) {
+        if (parameters.has(Key.HUSNR)) {
+            return RepositoryUtil.whereField(parameters.get(Key.HUSNR), null, databaseKey+".husnr");
+        }
+        return null;
+    }
+    public static String joinVej() {
+        return databaseKey+".vejstykke as "+VejstykkeEntity.databaseKey;
     }
 }

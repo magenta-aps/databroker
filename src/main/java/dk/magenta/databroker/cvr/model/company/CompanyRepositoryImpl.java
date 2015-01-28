@@ -1,7 +1,13 @@
 package dk.magenta.databroker.cvr.model.company;
 
+import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitEntity;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
+import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseEntity;
+import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseEntity;
+import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
+import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
+import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.util.objectcontainers.StringList;
@@ -36,59 +42,37 @@ public class CompanyRepositoryImpl implements CompanyRepositoryCustom {
         StringList join = new StringList();
         ConditionList conditions = new ConditionList(ConditionList.Operator.AND);
 
-        hql.append("select distinct company from CompanyEntity as company");
+        hql.append("select distinct "+CompanyEntity.databaseKey+" from CompanyEntity as "+CompanyEntity.databaseKey);
         join.setPrefix("join ");
 
-        if (parameters.has(Key.VIRKSOMHED)) {
-            join.append("company.latestVersion as companyVersion");
-            conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.VIRKSOMHED), null, "companyVersion.name"));
-        }
-        if (parameters.has(Key.CVR)) {
-            conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.CVR), null, "company.cvrNummer"));
-        }
-        if (parameters.hasAny(Key.HUSNR, Key.ETAGE, Key.LAND, Key.KOMMUNE, Key.VEJ)) {
-            join.append("company.units as unit");
+        conditions.addCondition(CompanyEntity.virksomhedCondition(parameters));
+        conditions.addCondition(CompanyEntity.cvrCondition(parameters));
 
-            join.append("unit.latestVersion.address as adresse");
-            join.append("adresse.latestVersion as adresseVersion");
-            join.append("adresseVersion.adgangsadresse as adgang");
-            if (parameters.has(Key.HUSNR)) {
-                conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.HUSNR), null, "adgang.husnr"));
-            }
-            if (parameters.has(Key.ETAGE)) {
-                conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.ETAGE), null, "adresseVersion.etage"));
-            }
-            if (parameters.has(Key.DOER)) {
-                conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.DOER), null, "adresseVersion.doer"));
-            }
-            if (parameters.has(Key.BNR)) {
-                conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.BNR), null, "adgang.bnr"));
-            }
+        if (parameters.hasAny(Key.HUSNR, Key.ETAGE, Key.LAND, Key.KOMMUNE, Key.VEJ, Key.POST)) {
+            join.append(CompanyEntity.joinCompanyUnit());
+            join.append(CompanyUnitEntity.joinEnhedsAdresse());
+            join.append(EnhedsAdresseEntity.joinAdgangsAdresse());
 
+            conditions.addCondition(EnhedsAdresseEntity.doerCondition(parameters));
+            conditions.addCondition(EnhedsAdresseEntity.etageCondition(parameters));
+            conditions.addCondition(AdgangsAdresseEntity.husnrCondition(parameters));
+            conditions.addCondition(AdgangsAdresseEntity.bnrCondition(parameters));
 
-            if (parameters.hasAny(Key.LAND, Key.KOMMUNE, Key.VEJ)) {
-                join.append("adgang.vejstykke as vejstykke");
-                if (parameters.has(Key.VEJ)) {
-                    conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.VEJ), "vejstykke.kode", "vejstykke.latestVersion.vejnavn"));
-                }
+            if (parameters.hasAny(Key.LAND, Key.KOMMUNE, Key.VEJ, Key.POST)) {
+                join.append(AdgangsAdresseEntity.joinVej());
+                conditions.addCondition(VejstykkeEntity.vejCondition(parameters));
+
                 if (parameters.hasAny(Key.LAND, Key.KOMMUNE)) {
-                    join.append("vejstykke.kommune as kommune");
-                    if (parameters.has(Key.LAND)) {
-                        conditions.addCondition(RepositoryUtil.whereFieldLand(parameters.get(Key.LAND)));
-                    }
-                    if (parameters.has(Key.KOMMUNE)) {
-                        conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.KOMMUNE), "kommune.kode", "kommune.navn"));
-                    }
+                    join.append(VejstykkeEntity.joinKommune());
+                    conditions.addCondition(KommuneEntity.landCondition(parameters));
+                    conditions.addCondition(KommuneEntity.kommuneCondition(parameters));
                 }
 
                 if (parameters.has(Key.POST)) {
-                    join.append("vejstykke.latestVersion.postnumre as post");
-                    conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.POST), "post.latestVersion.nr", "post.latestVersion.navn"));
+                    join.append(VejstykkeEntity.joinPost());
+                    conditions.addCondition(PostNummerEntity.postCondition(parameters));
                 }
             }
-
-
-
         }
 
 
