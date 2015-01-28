@@ -124,13 +124,7 @@ public class CompanyUnitEntity extends DobbeltHistorikBase<CompanyUnitEntity, Co
         obj.put("fax",latestVersion.getFax());
         obj.put("startDate", latestVersion.getStartDate());
         obj.put("endDate", latestVersion.getEndDate());
-        obj.put("href", SearchService.getCompanyUnitBaseUrl() + "/" + this.pno);
-        return obj;
-    }
 
-    public JSONObject toFullJSON() {
-        JSONObject obj = this.toJSON();
-        CompanyUnitVersionEntity latestVersion = this.latestVersion;
         obj.put("address", latestVersion.getAddress().toJSON());
         obj.put("primaryIndustry", latestVersion.getPrimaryIndustry().toJSON());
         Collection<IndustryEntity> secondaryIndustries = latestVersion.getSecondaryIndustries();

@@ -1,5 +1,7 @@
 package dk.magenta.databroker.core.controller;
 
+import dk.magenta.databroker.cvr.model.CvrModel;
+import dk.magenta.databroker.cvr.model.company.CompanyEntity;
 import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
@@ -25,7 +27,11 @@ public class DocumentationController {
 
     @Autowired
     @SuppressWarnings("SpringJavaAutowiringInspection")
-    private DawaModel model;
+    private DawaModel dawaModel;
+
+    @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
+    private CvrModel cvrModel;
 
     @RequestMapping("/doc/kommune")
     public ModelAndView kommune() {
@@ -37,7 +43,7 @@ public class DocumentationController {
 
     @RequestMapping("/doc/vej")
     public ModelAndView veje() {
-        VejstykkeEntity vejstykkeEntity = this.model.getVejstykke(101, 7064);
+        VejstykkeEntity vejstykkeEntity = this.dawaModel.getVejstykke(101, 7064);
 
         Map<String, Object> model = new HashMap<String, Object>();
         model.put("uuid", vejstykkeEntity != null ? vejstykkeEntity.getUuid() : "e9032c69-98bf-4e18-bc94-1a5e5f8901e4");
@@ -62,7 +68,7 @@ public class DocumentationController {
         parameters.put(Key.KOMMUNE, 958);
         parameters.put(Key.VEJ, 18);
         parameters.put(Key.HUSNR, 2);
-        Collection<AdgangsAdresseEntity> adgangsAdresseEntities = this.model.getAdgangsAdresse(parameters);
+        Collection<AdgangsAdresseEntity> adgangsAdresseEntities = this.dawaModel.getAdgangsAdresse(parameters);
         AdgangsAdresseEntity adgangsAdresseEntity = adgangsAdresseEntities.size() > 0 ? adgangsAdresseEntities.iterator().next() : null;
 
         Map<String, Object> model = new HashMap<String, Object>();
@@ -81,7 +87,7 @@ public class DocumentationController {
         parameters.put(Key.HUSNR, 35);
         parameters.put(Key.ETAGE, 2);
 
-        Collection<EnhedsAdresseEntity> enhedsAdresseEntities = this.model.getEnhedsAdresse(parameters);
+        Collection<EnhedsAdresseEntity> enhedsAdresseEntities = this.dawaModel.getEnhedsAdresse(parameters);
         EnhedsAdresseEntity enhedsAdresseEntity = enhedsAdresseEntities.size() > 0 ? enhedsAdresseEntities.iterator().next() : null;
 
         Map<String, Object> model = new HashMap<String, Object>();
@@ -94,7 +100,7 @@ public class DocumentationController {
 
     @RequestMapping("/doc/lokalitet")
     public ModelAndView lokalitet() {
-        Collection<LokalitetEntity> lokalitetEntities = this.model.getLokalitet(new SearchParameters(null, null, null, new String[]{"Nuuk"}, null, null, null, null, null));
+        Collection<LokalitetEntity> lokalitetEntities = this.dawaModel.getLokalitet(new SearchParameters(null, null, null, new String[]{"Nuuk"}, null, null, null, null, null));
         LokalitetEntity lokalitetEntity = lokalitetEntities.size() > 0 ? lokalitetEntities.iterator().next() : null;
 
         Map<String, Object> model = new HashMap<String, Object>();
@@ -103,4 +109,25 @@ public class DocumentationController {
 
         return new ModelAndView("doc/lokalitet", model);
     }
+
+
+    @RequestMapping("/doc/virksomhed")
+    public ModelAndView virksomhed() {
+
+        Map<String, Object> model = new HashMap<String, Object>();
+        model.put("cvr", "25052943");
+        model.put("nav","virksomhed");
+
+        return new ModelAndView("doc/virksomhed", model);
+    }
+/*
+    @RequestMapping("/doc/produktionsEnhed")
+    public ModelAndView produktionsEnhed() {
+
+        Map<String, Object> model = new HashMap<String, Object>();
+        model.put("pNummer", "1019601052");
+        model.put("nav","produktionsEnhed");
+
+        return new ModelAndView("doc/produktionsEnhed", model);
+    }*/
 }

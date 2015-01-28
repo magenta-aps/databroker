@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout">
+<head>
+    <title>Adgangsadresser</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+
+    <h3>Interaktiv Adressesøgning</h3>
+    <p>Søg efter adresser ved at udfylde et eller flere af de nedenstående felter. Se beskrivelsen af parametrene <a href="#parameters">længere nede på siden.</a></p>
+
+    <p class="search">
+        <label for="land">Land:</label>
+        <select name="land" id="land">
+            <option value="">-</option>
+            <option value="dk">Danmark</option>
+            <option value="gl">Grønland</option>
+        </select><br/>
+
+        <label for="kommune">Kommune:</label>
+        <input type="text" name="kommune" id="kommune"/><br/>
+
+        <label for="post">Post:</label>
+        <input type="text" name="post" id="post"/><br/>
+
+        <label for="vej">Vej:</label>
+        <input type="text" name="vej" id="vej"/><br/>
+
+        <label for="husnr">Husnr:</label>
+        <input type="text" name="husnr" id="husnr"/><br/>
+
+        <label for="bnr">B-nummer:</label>
+        <input type="text" name="bnr" id="bnr"/><br/>
+
+        <label for="etage">Etage:</label>
+        <input type="text" name="etage" id="etage"/><br/>
+
+        <label for="doer">Dør:</label>
+        <input type="text" name="doer" id="doer"/><br/>
+
+        <label for="format">Format:</label>
+        <select name="format" id="format">
+            <option value="json">JSON</option>
+            <option value="xml">XML</option>
+        </select><br/>
+
+        <label for="includeBefore">IncludeBefore:</label>
+        <input type="date" name="includeBefore" id="includeBefore"/><br/>
+
+        <label for="IncludeAfter">IncludeAfter:</label>
+        <input type="date" name="IncludeAfter" id="IncludeAfter"/><br/>
+
+
+        <button type="submit" id="search" onclick="">Søg</button><img id="loading" th:src="@{/img/loading.gif}" style="display:none"/><br/>
+        <textarea id="results" style="width:100%; height:200px; display: none"/>
+    </p>
+    <script type="text/javascript" th:inline="javascript">
+        //<![CDATA[
+        var fields = $('#land,#kommune,#post,#vej,#husnr,#bnr,#etage,#doer,#format,#includeBefore,#includeAfter');
+        var run = doSearch.bind(
+                null,
+                /*[[@{/services/search/adresse}]]*/ '/services/search/adresse',
+                fields,$('#results'),$("#loading")
+        );
+        $("#search").select(run);
+        $("#search").click(run);
+        fields.keyup(function(ev){
+            if (ev.keyCode == 13) {
+                run();
+            }
+        })
+        //]]>
+    </script>
+
+    <hr/>
+
+    <h3>Adresseopslag</h3>
+    <p>Find adresse ud fra id</p>
+    <pre th:text="|GET | + @{/service/search/adresse/{id}}"></pre>
+
+    <h4>Parametre</h4>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>Navn</th>
+            <th>Beskrivelse</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        <tr>
+            <td>id</td>
+            <td>
+                Adressens id. Denne er unik, tildelt af systemet, og modtages i data ved søgning.
+            </td>
+        </tr>
+
+        </tbody>
+    </table>
+
+    <h4>Eksempler</h4>
+
+    <p th:text="'Hent adresse ud fra id ' + ${uuid}"></p>
+    <a th:href="@{/services/search/adresse/{uuid}(uuid=${uuid})}"><pre th:text="'/services/search/adresse/' + ${uuid}"></pre></a>
+
+    <div class="page-header"/>
+
+    <h3>Adressesøgning</h3>
+    <p>Søg efter adresser, afgrænset af angivne parametre</p>
+    <pre th:text="|GET | + @{/service/search/adresse}"></pre>
+    <a name="parameters"></a>
+    <h4>Parametre</h4>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>Navn</th>
+            <th>Beskrivelse</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        <tr th:replace="doc/fragments/params/kommune"/>
+        <tr th:replace="doc/fragments/params/land"/>
+        <tr th:replace="doc/fragments/params/vej"/>
+        <tr th:replace="doc/fragments/params/post"/>
+        <tr th:replace="doc/fragments/params/husnr"/>
+        <tr th:replace="doc/fragments/params/bnr"/>
+        <tr th:replace="doc/fragments/params/etage"/>
+        <tr th:replace="doc/fragments/params/doer"/>
+
+        <tr th:replace="doc/fragments/params/format"/>
+        <tr th:replace="doc/fragments/params/includeBefore"/>
+        <tr th:replace="doc/fragments/params/includeAfter"/>
+
+        </tbody>
+    </table>
+
+    <h4>Eksempler</h4>
+
+    <p>Find alle adresser i Grønland, og output data i xml-format</p>
+    <a th:href="@{/services/search/adresse?land=gl&amp;format=xml}"><pre>/services/search/adresse?land=gl&amp;format=xml</pre></a>
+
+    <p>Find alle adresser på 2. etage</p>
+    <a th:href="@{/services/search/adresse?etage=2}"><pre>/services/search/adresse?etage=2</pre></a>
+
+    <p>Find alle adresser i kommuner som begynder med "a", på vejkoder som ender på 4, i postnumre som begynder med 6</p>
+    <a th:href="@{/services/search/adresse?kommune=a*&amp;vej=*4&amp;post=6*}"><pre>/services/search/adresse?kommune=a*&amp;vej=*4&amp;post=6*</pre></a>
+
+</div>
+
+</body>
+</html>
