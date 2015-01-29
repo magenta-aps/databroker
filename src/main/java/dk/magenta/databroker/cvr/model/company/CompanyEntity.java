@@ -104,6 +104,10 @@ public class CompanyEntity extends DobbeltHistorikBase<CompanyEntity, CompanyVer
         return this.units;
     }
 
+    public void setUnits(Collection<CompanyUnitEntity> units) {
+        this.units = units;
+    }
+
     //------------------------------------------------------------------------------------------------------------------
 
     @Override

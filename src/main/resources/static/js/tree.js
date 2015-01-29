@@ -8,7 +8,7 @@ $.fn.extend({
             var doProcessNode = function(name, node, hrefLinkDepth, index) {
                 if (!name) {
                     if ($.isPlainObject(node)) {
-                        name = node.name || node.navn || node.vejnavn || node.desc || null;
+                        name = node.desc || node.name || node.navn || node.vejnavn || null;
                     }
                     if (!name && index !== undefined) {
                         name = "" + index;

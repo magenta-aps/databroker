@@ -109,6 +109,7 @@ public class PostNummerEntity extends DobbeltHistorikBase<PostNummerEntity, Post
     public JSONObject toJSON() {
         JSONObject obj = super.toJSON();
         PostNummerVersionEntity version = this.latestVersion;
+        obj.put("desc", version.getNr()+" "+version.getNavn());
         obj.put("navn", version.getNavn());
         obj.put("nummer", version.getNr());
         obj.put("href", SearchService.getPostnummerBaseUrl() + "/" + version.getNr());
