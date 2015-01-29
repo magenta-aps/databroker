@@ -30,3 +30,30 @@ input.form-control[type=file] {
 .table > tbody > tr > td {
     vertical-align: middle;
 }
+
+#treeview {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 9.5px;
+}
+
+#treeview .key {
+    color: #888;
+}
+#treeview .value {
+    color: #333;
+}
+#treeview .value.href {
+    text-decoration: underline;
+}
+
+textarea {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+textarea.output {
+    background: #fff;
+    resize: none;
+    padding: 9.5px;
+}

@@ -31,12 +31,6 @@
         <label for="vej">Vej:</label>
         <input type="text" name="vej" id="vej"/><br/>
 
-        <label for="format">Format:</label>
-        <select name="format" id="format">
-            <option value="json">JSON</option>
-            <option value="xml">XML</option>
-        </select><br/>
-
 
         <label for="includeBefore">IncludeBefore:</label>
         <input type="date" name="includeBefore" id="includeBefore"/><br/>
@@ -44,22 +38,72 @@
         <label for="IncludeAfter">IncludeAfter:</label>
         <input type="date" name="IncludeAfter" id="IncludeAfter"/><br/>
 
-        <button type="submit" id="search" onclick="">Søg</button><img id="loading" th:src="@{/img/loading.gif}" style="display:none"/><br/>
-        <textarea id="results" style="width:100%; height:200px; display: none"/>
+        <button type="submit" id="json" name="format" value="json" onclick="" class="btn btn-default">JSON</button>
+        <button type="submit" id="xml" name="format" value="xml" onclick="" class="btn btn-default">XML</button>
+        <button type="submit" id="tree" name="format" value="tree" onclick="" class="btn btn-default">Tree</button>
+        <img id="loading" th:src="@{/img/loading.gif}" style="display:none"/><br/>
+        <textarea class="output" id="results" style="width:100%; height:200px; display: none" readonly="readonly"/>
+        <div id="treeview" style="display:none"/>
     </p>
     <script type="text/javascript" th:inline="javascript">
         //<![CDATA[
         var fields = $('#land,#kommune,#vej,#lokalitet,#post,#format,#includeBefore,#includeAfter');
-        var run = doSearch.bind(
+        var currentFormat = $("#json");
+
+        var showData = function(data) {
+            $("#treeview").hide();
+            $("#results").text(data);
+            $("#results").show();
+        }
+        var showTree = function(data) {
+            $("#results").hide();
+            $("#treeview").magentaTree(data);
+            $("#treeview").show();
+        }
+
+
+        $("#json,#xml").each(function(i,el){
+            var button = $(el);
+
+            var run = doSearch.bind(
+                    null,
+                    /*[[@{/services/search/vej}]]*/ '/services/search/vej',
+                    fields.add(button),
+                    function(data) {
+                        showData(data);
+                        currentFormat = button;
+                    },
+                    $("#loading")
+            );
+            button.select(run);
+            button.click(run);
+        });
+
+        $("#tree").click(doSearch.bind(
                 null,
                 /*[[@{/services/search/vej}]]*/ '/services/search/vej',
-                fields,$('#results'),$("#loading")
-        );
-        $("#search").select(run);
-        $("#search").click(run);
+                fields.add("#json"),
+                function(data) {
+                    showTree(data);
+                    currentFormat = "tree";
+                },
+                $("#loading")
+        ));
+
         fields.keyup(function(ev){
             if (ev.keyCode == 13) {
-                run();
+                doSearch(
+                        /*[[@{/services/search/vej}]]*/ '/services/search/vej',
+                        fields.add(currentFormat == "tree" ? $("#json") : currentFormat),
+                        function(data) {
+                            if (currentFormat == "tree") {
+                                showTree(data);
+                            } else {
+                                showData(data);
+                            }
+                        },
+                        $("#loading")
+                )
             }
         })
         //]]>

@@ -6,8 +6,11 @@
     <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.min.css}"/>
     <link rel="stylesheet" th:href="@{/bootstrap-select/css/bootstrap-select.min.css}"/>
     <link rel="stylesheet" th:href="@{/css/layout.css}" />
+    <link rel="stylesheet" th:href="@{/jsTree/themes/default/style.css}" />
     <script type="text/javascript" th:src="@{/jquery/jquery-1.11.2.min.js}"/>
     <script type="text/javascript" th:src="@{/js/search.js}"/>
+    <script type="text/javascript" th:src="@{/jsTree/jstree.js}"/>
+      <script type="text/javascript" th:src="@{/js/tree.js}"/>
   </head>
 
 <body>
@@ -31,6 +34,7 @@
                 <li th:class="${nav=='adresse'} ? 'active'"><a th:href="@{/doc/adresse}">Adresse</a></li>
                 <li th:class="${nav=='adgangsadresse'} ? 'active'"><a th:href="@{/doc/adgangsadresse}">Adgangsadresse</a></li>
                 <li th:class="${nav=='lokalitet'} ? 'active'"><a th:href="@{/doc/lokalitet}">Lokalitet</a></li>
+                <li th:class="${nav=='virksomhed'} ? 'active'"><a th:href="@{/doc/virksomhed}">Virksomhed</a></li>
             </ul>
         </div>
     </div>

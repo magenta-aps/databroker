@@ -17,10 +17,18 @@ function doSearch(url, formfields, resultelement, loadingIndicator) {
         dataType: "text",
         success: function(responseText, status, response) {
             if (status == "success") {
-                resultelement.text(responseText);
-                resultelement.show();
+                if ($.isFunction(resultelement)) {
+                    resultelement(responseText);
+                } else if (resultelement instanceof jQuery) {
+                    resultelement.text(responseText);
+                    resultelement.show();
+                }
             } else {
-                resultelement.text("");
+                if ($.isFunction(resultelement)) {
+                    resultelement(null);
+                } else if (resultelement instanceof jQuery) {
+                    resultelement.text("");
+                }
             }
         },
         complete: function() {
