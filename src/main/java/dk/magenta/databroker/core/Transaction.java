@@ -38,18 +38,22 @@ public class Transaction extends Thread {
         def.setName("CommandLineTransactionDefinition");
         def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
 
-        System.out.println(txManager);
+        System.out.println(this.getTxManager());
 
-        TransactionStatus status = txManager.getTransaction(def);
+        TransactionStatus status = this.getTxManager().getTransaction(def);
         try {
             this.transaction();
-            txManager.commit(status);
+            this.getTxManager().commit(status);
         }
         catch (Exception ex) {
-            txManager.rollback(status);
+            this.getTxManager().rollback(status);
         }
 
         //SpringApplication.exit(configurableApplicationContext);
+    }
+
+    public PlatformTransactionManager getTxManager() {
+        return txManager;
     }
 
     public void transaction(){

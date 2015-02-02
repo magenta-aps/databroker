@@ -156,9 +156,7 @@ public abstract class Register extends DataProvider {
 
                 if (forceParse || checksum == null || !checksumMatch) {
                     System.out.println("Checksum mismatch; parsing new data into database");
-                    RegisterRun run = this.parse(input);
-                    this.saveRunToDatabase(run, dataProviderEntity);
-
+                    this.importData(input, dataProviderEntity);
                 } else {
                     System.out.println("Checksum match; no need to update database");
                 }
@@ -173,6 +171,11 @@ public abstract class Register extends DataProvider {
         }
         System.out.println(this.getClass().getSimpleName() + " done!");
         System.gc();
+    }
+
+    protected void importData(InputStream input, DataProviderEntity dataProviderEntity) {
+        RegisterRun run = this.parse(input);
+        this.saveRunToDatabase(run, dataProviderEntity);
     }
 
 

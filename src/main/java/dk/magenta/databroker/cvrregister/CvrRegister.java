@@ -1,38 +1,31 @@
 package dk.magenta.databroker.cvrregister;
 
 import dk.magenta.databroker.core.DataProviderConfiguration;
-import dk.magenta.databroker.cvr.model.company.CompanyEntity;
-import dk.magenta.databroker.util.Util;
+import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.core.model.oio.VirkningEntity;
 import dk.magenta.databroker.cvr.model.CvrModel;
 import dk.magenta.databroker.dawa.model.DawaModel;
-import dk.magenta.databroker.dawa.model.SearchParameters;
-import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseEntity;
 import dk.magenta.databroker.register.Register;
 import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.util.objectcontainers.Level1Container;
 import dk.magenta.databroker.register.records.Record;
+import dk.magenta.databroker.util.objectcontainers.ListHash;
+import dk.magenta.databroker.util.objectcontainers.StringList;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.EntityResolver;
-import org.xml.sax.InputSource;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
+import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.*;
+import javax.xml.parsers.*;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -43,29 +36,16 @@ import java.util.*;
 @Component
 public class CvrRegister extends Register {
 
-    private class NullResolver implements EntityResolver {
-        public InputSource resolveEntity(String publicId, String systemId) throws SAXException,
-                IOException {
-            return new InputSource(new StringReader(""));
-        }
-    }
-
     private class CvrRecord extends Record {
-        private Node virksomhedNode;
-
-        public CvrRecord(Node virksomhedNode) {
-            this.virksomhedNode = virksomhedNode;
+        private ListHash<String> hash;
+        public CvrRecord(ListHash<String> hash) {
+            this.hash = hash;
         }
-
-        protected String getFirstNodeValue(String xpath) {
-            return CvrRegister.this.getFirstNodeValue(this.virksomhedNode, xpath);
+        protected void obtain(String key, String path) {
+            this.put(key, this.hash.getFirst(path));
         }
-        protected List<String> getNodeValues(String xpath) {
-            return CvrRegister.this.getNodeValues(this.virksomhedNode, xpath);
-        }
-
-        protected void obtain(String key, String xpath) {
-            this.put(key, this.getFirstNodeValue(xpath));
+        protected List<String> getList(String path) {
+            return this.hash.get(path);
         }
     }
 
@@ -73,8 +53,8 @@ public class CvrRegister extends Register {
 
         private List<Long> productionUnits;
 
-        public VirksomhedRecord(Node virksomhedNode) {
-            super(virksomhedNode);
+        public VirksomhedRecord(ListHash<String> virksomhedHash) {
+            super(virksomhedHash);
             this.obtain("cvrNummer", "cvrnr");
             this.obtain("advertProtection", "reklamebeskyttelse");
             this.obtain("name", "navn/tekst");
@@ -91,10 +71,16 @@ public class CvrRegister extends Register {
             this.obtain("phone", "telefonnummer/kontaktoplysning");
 
             this.productionUnits = new ArrayList<Long>();
-            for (String pNummer : this.getNodeValues("produktionsenheder/produktionsenhed/pnr")) {
-                try {
-                    this.productionUnits.add(Long.parseLong(pNummer));
-                } catch (NumberFormatException e) {}
+            List<String> unitList = this.getList("produktionsenheder/produktionsenhed/pnr");
+            if (unitList != null) {
+                for (String pNummer : unitList) {
+                    try {
+                        this.productionUnits.add(Long.parseLong(pNummer));
+                    } catch (NumberFormatException e) {
+                    }
+                }
+            } else {
+                System.err.println("Company "+this.get("name")+" doesn't refer to any production units");
             }
         }
 
@@ -105,8 +91,8 @@ public class CvrRegister extends Register {
 
     private class ProductionUnitRecord extends CvrRecord {
 
-        public ProductionUnitRecord(Node virksomhedNode) {
-            super(virksomhedNode);
+        public ProductionUnitRecord(ListHash<String> productionunitHash) {
+            super(productionunitHash);
             this.obtain("pNummer", "pnr");
             this.obtain("cvrNummer", "virksomhed/virksomhed/cvrnr");
             this.obtain("advertProtection", "reklamebeskyttelse");
@@ -166,14 +152,32 @@ public class CvrRegister extends Register {
     }
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private CvrModel cvrModel;
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private DawaModel dawaModel;
 
-    @Transactional
     public void pull(boolean forceFetch, boolean forceParse, DataProviderEntity dataProviderEntity) {
         super.pull(forceFetch, forceParse, dataProviderEntity);
+    }
+
+
+    @Override
+    protected void importData(InputStream input, DataProviderEntity dataProviderEntity) {
+        try {
+            DefaultHandler handler = new VirksomhedDataHandler(dataProviderEntity, 50000);
+            SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
+            parser.parse(input, handler);
+            this.bulkWireReferences();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void ensureIndustryInDatabase(int code, String text) {
@@ -182,271 +186,354 @@ public class CvrRegister extends Register {
         }
     }
 
+
+
+    @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
+    private PlatformTransactionManager txManager;
+
+
+    @Override
+    protected RegisterRun parse(InputStream input) {
+        return null;
+    }
+
+
+    private static final int UNKNOWN_INDUSTRY = 999999;
+
+
     @Override
     protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
+
         if (run.getClass() == CvrRegisterRun.class) {
-            CvrRegisterRun cRun = (CvrRegisterRun) run;
-            this.dawaModel.resetAllCaches();
 
-            for (VirksomhedRecord virksomhed : cRun.getVirksomheder().getList()) {
-                this.ensureIndustryInDatabase(virksomhed.getInt("primaryIndustry"), virksomhed.get("primaryIndustryText"));
-                this.ensureIndustryInDatabase(virksomhed.getInt("secondaryIndustry1"), virksomhed.get("secondaryIndustryText1"));
-                this.ensureIndustryInDatabase(virksomhed.getInt("secondaryIndustry2"), virksomhed.get("secondaryIndustryText2"));
-                this.ensureIndustryInDatabase(virksomhed.getInt("secondaryIndustry3"), virksomhed.get("secondaryIndustryText3"));
+            this.cvrModel.resetIndustryCache();
 
-                String cvrNummer = virksomhed.get("cvrNummer");
-                boolean advertProtection = virksomhed.getInt("advertProtection") == 1;
-                String name = virksomhed.get("name");
-                int form = virksomhed.getInt("form");
+            RegistreringEntity createRegistrering = this.getCreateRegistrering(dataProviderEntity);
+            RegistreringEntity updateRegistrering = this.getUpdateRegistrering(dataProviderEntity);
 
-                int primaryIndustry = virksomhed.getInt("primaryIndustry");
-                List<Integer> secondaryIndustriesList = new ArrayList<Integer>();
-                String[] keys = new String[]{"secondaryIndustry1", "secondaryIndustry2", "secondaryIndustry3"};
-                for (String key : keys) {
-                    int value = virksomhed.getInt(key);
-                    if (value != 0) {
-                        secondaryIndustriesList.add(value);
-                    } else {
-                        break;
+            DefaultTransactionDefinition def = new DefaultTransactionDefinition();
+            def.setName("CommandLineTransactionDefinition");
+            def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+            TransactionStatus status = this.txManager.getTransaction(def);
+
+
+            try {
+
+                CvrRegisterRun cRun = (CvrRegisterRun) run;
+                this.dawaModel.resetAllCaches();
+
+                System.out.println("there are "+cRun.getVirksomheder().getList().size()+" virksomheder");
+                System.out.println("there are "+cRun.getProductionUnits().getList().size()+" production units");
+
+                for (VirksomhedRecord virksomhed : cRun.getVirksomheder().getList()) {
+
+                    // Make sure the referenced industries are present in the DB
+                    this.ensureIndustryInDatabase(virksomhed.getInt("primaryIndustry"), virksomhed.get("primaryIndustryText"));
+                    this.ensureIndustryInDatabase(virksomhed.getInt("secondaryIndustry1"), virksomhed.get("secondaryIndustryText1"));
+                    this.ensureIndustryInDatabase(virksomhed.getInt("secondaryIndustry2"), virksomhed.get("secondaryIndustryText2"));
+                    this.ensureIndustryInDatabase(virksomhed.getInt("secondaryIndustry3"), virksomhed.get("secondaryIndustryText3"));
+
+                    // Fetch basic fields
+                    String cvrNummer = virksomhed.get("cvrNummer");
+                    boolean advertProtection = virksomhed.getInt("advertProtection") == 1;
+                    String name = virksomhed.get("name");
+
+                    if (name == null || name.isEmpty()) {
+                        System.err.println(virksomhed.toJSON().toString(2));
+                        continue;
                     }
-                }
-                int[] secondaryIndustries = new int[secondaryIndustriesList.size()];
-                int i = 0;
-                for (Iterator<Integer> iIter = secondaryIndustriesList.iterator(); iIter.hasNext(); secondaryIndustries[i++] = iIter.next());
 
-                Date startDate = this.parseDate(virksomhed.get("startDate"));
-                Date endDate = this.parseDate(virksomhed.get("endDate"));
+                    int form = virksomhed.getInt("form");
 
-                int vejkode = virksomhed.getInt("vejkode");
-                int kommunekode = virksomhed.getInt("kommunekode");
-                String phone = virksomhed.get("phone");
-
-                List<Long> productionUnitsList = virksomhed.getProductionUnits();
-                long primaryProductionUnit = 0;
-
-                if (!productionUnitsList.isEmpty()) {
-                    if (productionUnitsList.size() > 1) {
-                        for (Iterator<Long> iIter = productionUnitsList.iterator(); iIter.hasNext(); ) {
-                            long pNummer = iIter.next();
-                            if (primaryProductionUnit == 0) {
-                                ProductionUnitRecord unit = cRun.getProductionUnits().get(pNummer);
-                                if (name.equals(unit.get("name")) && vejkode == unit.getInt("vejkode") && kommunekode == unit.getInt("kommunekode") && Util.compare(phone, unit.get("phone"))) {
-                                    primaryProductionUnit = pNummer;
-                                }
-                            }
+                    int primaryIndustry = virksomhed.getInt("primaryIndustry");
+                    List<Integer> secondaryIndustriesList = new ArrayList<Integer>();
+                    String[] keys = new String[]{"secondaryIndustry1", "secondaryIndustry2", "secondaryIndustry3"};
+                    for (String key : keys) {
+                        int value = virksomhed.getInt(key);
+                        if (value != 0) {
+                            secondaryIndustriesList.add(value);
+                        } else {
+                            break;
                         }
                     }
-                    if (primaryProductionUnit == 0) {
-                        primaryProductionUnit = productionUnitsList.get(0);
+                    int[] secondaryIndustries = new int[secondaryIndustriesList.size()];
+                    int i = 0;
+                    for (Iterator<Integer> iIter = secondaryIndustriesList.iterator(); iIter.hasNext(); secondaryIndustries[i++] = iIter.next());
+
+                    Date startDate = this.parseDate(virksomhed.get("startDate"));
+                    Date endDate = this.parseDate(virksomhed.get("endDate"));
+
+                    int vejkode = virksomhed.getInt("vejkode");
+                    int kommunekode = virksomhed.getInt("kommunekode");
+                    String phone = virksomhed.get("phone");
+
+                    long primaryProductionUnit = 0;
+
+                    if (startDate == null) {
+                        System.err.println("Company "+name+" has no startDate");
                     }
+
+                    this.cvrModel.setCompany(cvrNummer, name,
+                            primaryIndustry, secondaryIndustries, form,
+                            startDate, endDate,
+                            createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>());
                 }
 
-                System.out.println("primaryProductionUnit: "+primaryProductionUnit);
 
-                this.tic();
 
-                this.cvrModel.setCompany(cvrNummer, name, primaryProductionUnit,
-                        primaryIndustry, secondaryIndustries, form,
-                        startDate, endDate,
-                        this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity), new ArrayList<VirkningEntity>());
+                for (ProductionUnitRecord unit : cRun.getProductionUnits().getList()) {
 
-                System.out.println("Updated company in "+this.toc()+" ms");
+                    // Make sure the referenced industries are present in the DB
+                    this.ensureIndustryInDatabase(unit.getInt("primaryIndustry"), unit.get("primaryIndustryText"));
+                    this.ensureIndustryInDatabase(unit.getInt("secondaryIndustry1"), unit.get("secondaryIndustryText1"));
+                    this.ensureIndustryInDatabase(unit.getInt("secondaryIndustry2"), unit.get("secondaryIndustryText2"));
+                    this.ensureIndustryInDatabase(unit.getInt("secondaryIndustry3"), unit.get("secondaryIndustryText3"));
+
+                    // Fetch basic fields
+                    long pNummer = unit.getLong("pNummer");
+                    String name = unit.get("name");
+                    String cvrNummer = unit.get("cvrNummer");
+                    String phone = unit.get("phone");
+                    String fax = unit.get("fax");
+                    String email = unit.get("email");
+                    Date startDate = this.parseDate(unit.get("startDate"));
+                    Date endDate = this.parseDate(unit.get("endDate"));
+                    boolean advertProtection = unit.getInt("advertProtection") == 1;
+
+                    int primaryIndustry = unit.getInt("primaryIndustry");
+                    if (primaryIndustry == 0) {
+                        primaryIndustry = UNKNOWN_INDUSTRY;
+                    }
+
+                    List<Integer> secondaryIndustriesList = new ArrayList<Integer>();
+                    String[] keys = new String[]{"secondaryIndustry1", "secondaryIndustry2", "secondaryIndustry3"};
+                    for (String key : keys) {
+                        int value = unit.getInt(key);
+                        if (value != 0) {
+                            secondaryIndustriesList.add(value);
+                        } else {
+                            break;
+                        }
+                    }
+                    int[] secondaryIndustries = new int[secondaryIndustriesList.size()];
+                    int i = 0;
+                    for (Iterator<Integer> iIter = secondaryIndustriesList.iterator(); iIter.hasNext(); secondaryIndustries[i++] = iIter.next());
+
+
+
+
+                    EnhedsAdresseEntity adresse = null;
+/*
+                    SearchParameters addressSearch = new SearchParameters();
+                    int kommuneKode = unit.getInt("kommunekode");
+                    int postNr = unit.getInt("postnr");
+                    int vejKode = unit.getInt("vejkode");
+                    String husnr = unit.get("husnummerFra");
+                    String bogstav = unit.get("bogstavFra");
+                    String etage = unit.get("etage");
+                    String sidedoer = unit.get("sidedoer");
+                    String fullHusNr = husnr + (bogstav != null ? bogstav : "");
+                    addressSearch.put(Key.KOMMUNE, kommuneKode);
+                    //addressSearch.put(Key.POST, postNr);
+                    addressSearch.put(Key.VEJ, vejKode);
+                    addressSearch.put(Key.HUSNR, fullHusNr);
+                    if (etage != null) {
+                        addressSearch.put(Key.ETAGE, etage);
+                    }
+                    if (sidedoer != null) {
+                        addressSearch.put(Key.DOER, sidedoer);
+                    }
+                    EnhedsAdresseEntity adresse = dawaModel.getSingleEnhedsAdresse(addressSearch, false);/////////////////////
+                    //System.out.println("Searched for adresse in "+this.toc()+" ms");
+                    if (adresse == null) {
+                        adresse = dawaModel.setAdresse(kommuneKode, vejKode, fullHusNr, null, etage, sidedoer, createRegistrering, updateRegistrering);
+                        //System.out.println("Created new adresse " + adresse.getLatestVersion().getAdgangsadresse().getVejstykke().getLatestVersion().getVejnavn() + " " + fullHusNr + " in "+this.toc()+" ms");
+                    }
+                    */
+
+
+                    this.cvrModel.setCompanyUnit(pNummer, name, cvrNummer,
+                            primaryIndustry, secondaryIndustries,
+                            adresse, phone, fax, email,
+                            startDate, endDate,
+                            advertProtection,
+                            createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>()
+                    );
+                }
+
+                this.txManager.commit(status);
             }
-
-
-
-
-            for (ProductionUnitRecord unit : cRun.getProductionUnits().getList()) {
-                this.ensureIndustryInDatabase(unit.getInt("primaryIndustry"), unit.get("primaryIndustryText"));
-                this.ensureIndustryInDatabase(unit.getInt("secondaryIndustry1"), unit.get("secondaryIndustryText1"));
-                this.ensureIndustryInDatabase(unit.getInt("secondaryIndustry2"), unit.get("secondaryIndustryText2"));
-                this.ensureIndustryInDatabase(unit.getInt("secondaryIndustry3"), unit.get("secondaryIndustryText3"));
-
-                long pNummer = unit.getLong("pNummer");
-                String name = unit.get("name");
-                String cvrNummer = unit.get("cvrNummer");
-
-                CompanyEntity company = this.cvrModel.getCompany(cvrNummer);
-                int primaryIndustry = unit.getInt("primaryIndustry");
-                List<Integer> secondaryIndustriesList = new ArrayList<Integer>();
-                String[] keys = new String[]{"secondaryIndustry1", "secondaryIndustry2", "secondaryIndustry3"};
-                for (String key : keys) {
-                    int value = unit.getInt(key);
-                    if (value != 0) {
-                        secondaryIndustriesList.add(value);
-                    } else {
-                        break;
-                    }
-                }
-                int[] secondaryIndustries = new int[secondaryIndustriesList.size()];
-                int i = 0;
-                for (Iterator<Integer> iIter = secondaryIndustriesList.iterator(); iIter.hasNext(); secondaryIndustries[i++] = iIter.next());
-
-
-                SearchParameters addressSearch = new SearchParameters();
-                int kommuneKode = unit.getInt("kommunekode");
-                int postNr = unit.getInt("postnr");
-                int vejKode = unit.getInt("vejkode");
-                String husnr = unit.get("husnummerFra");
-                String bogstav = unit.get("bogstavFra");
-                String etage = unit.get("etage");
-                String sidedoer = unit.get("sidedoer");
-                String fullHusNr = husnr + (bogstav != null ? bogstav : "");
-                addressSearch.put(Key.KOMMUNE, kommuneKode);
-                //addressSearch.put(Key.POST, postNr);
-                addressSearch.put(Key.VEJ, vejKode);
-                addressSearch.put(Key.HUSNR, fullHusNr);
-                if (etage != null) {
-                    addressSearch.put(Key.ETAGE, etage);
-                }
-                if (sidedoer != null) {
-                    addressSearch.put(Key.DOER, sidedoer);
-                }
-                this.tic();
-                EnhedsAdresseEntity adresse = dawaModel.getSingleEnhedsAdresse(addressSearch, false);
-                System.out.println("Searched for adresse in "+this.toc()+" ms");
-                if (adresse == null) {
-                    this.tic();
-                    adresse = dawaModel.setAdresse(kommuneKode, vejKode, fullHusNr, null, etage, sidedoer, this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity));
-                    System.out.println("Created new adresse " + adresse.getLatestVersion().getAdgangsadresse().getVejstykke().getLatestVersion().getVejnavn() + " " + fullHusNr + " in "+this.toc()+" ms");
-                }
-
-                String phone = unit.get("phone");
-                String fax = unit.get("fax");
-                String email = unit.get("email");
-
-                Date startDate = this.parseDate(unit.get("startDate"));
-                Date endDate = this.parseDate(unit.get("endDate"));
-
-                boolean advertProtection = unit.getInt("advertProtection") == 1;
-                this.tic();
-                this.cvrModel.setCompanyUnit(pNummer, name, company,
-                        primaryIndustry, secondaryIndustries,
-                        adresse, phone, fax, email,
-                        startDate, endDate,
-                        advertProtection,
-                        createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>()
-                );
-                System.out.println("Updated company unit in "+this.toc()+" ms");
+            catch (Exception ex) {
+                System.out.println("Transaction failed");
+                ex.printStackTrace();
+                this.txManager.rollback(status);
             }
         }
+        System.out.println("ending transaction");
+    }
 
+    private void bulkWireReferences() {
+        DefaultTransactionDefinition def = new DefaultTransactionDefinition();
+        def.setName("CommandLineTransactionDefinition");
+        def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+        TransactionStatus status = this.txManager.getTransaction(def);
+        this.cvrModel.bulkWireReferences();
+        this.txManager.commit(status);
     }
 
     private Date parseDate(String date) {
         if (date != null && !date.isEmpty()) {
-            final SimpleDateFormat dateParser = new SimpleDateFormat("yyyy-MM-dd");
+            final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
             try {
-                return dateParser.parse(date);
+                return format.parse(date);
             } catch (ParseException e) {
             }
         }
         return null;
     }
 
-    @Override
-    protected RegisterRun parse(InputStream input) {
-        try {
-            this.tic();
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
-            //dbf.setValidating(false);
-            //dbf.setIgnoringComments(false);
-            //dbf.setIgnoringElementContentWhitespace(true);
-            //dbf.setNamespaceAware(true);
-            // dbf.setCoalescing(true);
-            // dbf.setExpandEntityReferences(true);
 
-            DocumentBuilder builder = null;
-            builder = dbf.newDocumentBuilder();
-            builder.setEntityResolver(new NullResolver());
-            // builder.setErrorHandler( new MyErrorHandler());
+    private class VirksomhedDataHandler extends DefaultHandler {
 
-            Document document = builder.parse(input);
-            CvrRegisterRun run = new CvrRegisterRun();
+        private CvrRegisterRun currentRun;
+        private DataProviderEntity dataProviderEntity;
+        private int chunkSize;
+        private Stack<String> tags;
+        private boolean inVirksomhed = false;
+        private boolean inProductionUnit = false;
+        private String textChunk = "";
+        private int depth = 0;
+        private ListHash<String> parameters;
 
-            NodeList virksomhedNodes = this.getNodes(document, "/report/virksomheder/virksomhed");
-            if (virksomhedNodes != null) {
-                for (int i=0; i<virksomhedNodes.getLength(); i++) {
-                    Node virksomhedNode = virksomhedNodes.item(i);
-                    VirksomhedRecord record = new VirksomhedRecord(virksomhedNode);
-                    run.add(record);
-                }
-            }
 
-            NodeList productionUnitNodes = this.getNodes(document, "/report/produktionsenheder/produktionsenhed");
-            if (productionUnitNodes != null) {
-                for (int i=0; i<productionUnitNodes.getLength(); i++) {
-                    Node productionUnitNode = productionUnitNodes.item(i);
-                    ProductionUnitRecord record = new ProductionUnitRecord(productionUnitNode);
-                    run.add(record);
-                }
-            }
-            System.out.println("Parsed in "+this.toc()+" ms");
-            return run;
+        private int recordCount = 0;
 
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        public VirksomhedDataHandler(DataProviderEntity dataProviderEntity, int chunkSize) {
+            this.dataProviderEntity = dataProviderEntity;
+            this.chunkSize = chunkSize;
+            this.currentRun = new CvrRegisterRun();
+            this.tags = new Stack<String>();
+            this.parameters = new ListHash<String>();
         }
-        return null;
-    }
 
+        private void onRecordSave() {
+            this.onRecordSave(false);
+        }
+        private void onRecordSave(boolean force) {
+            this.recordCount++;
+            if (this.recordCount >= this.chunkSize) {
+                CvrRegister.this.saveRunToDatabase(this.currentRun, this.dataProviderEntity);
+                this.currentRun = new CvrRegisterRun();
+                this.recordCount = 0;
+                System.gc();
+            }
+        }
+
+        @Override
+        public void startDocument() throws SAXException {
+        }
+
+        @Override
+        public void endDocument() throws SAXException {
+            this.onRecordSave(true);
+        }
+
+        private boolean checkTagAndParent(String test, String tagName, String parentName) {
+            return (test != null && tagName != null && parentName != null &&
+                    test.equals(tagName) && !this.tags.isEmpty() && this.tags.peek().equals(parentName));
+        }
+
+        @Override
+        public void startElement(String uri, String localName, String qName,
+                                 Attributes attributes) throws SAXException {
+
+            if (!inVirksomhed && this.checkTagAndParent(qName, "virksomhed","virksomheder")) {
+                inVirksomhed = true;
+                this.parameters = new ListHash<String>();
+                this.depth = 0;
+            }
+            if (!inVirksomhed && !inProductionUnit && this.checkTagAndParent(qName, "produktionsenhed","produktionsenheder")) {
+                inProductionUnit = true;
+                this.parameters = new ListHash<String>();
+                this.depth = 0;
+            }
+            if ((inVirksomhed && !qName.equals("virksomhed")) ||
+                    (inProductionUnit && !qName.equals("produktionsenhed"))) {
+                this.depth++;
+            }
+
+            this.tags.push(qName);
+            this.textChunk = "";
+        }
+
+        @Override
+        public void endElement(String uri, String localName, String qName)
+                throws SAXException {
+
+            if (qName.equals(this.tags.peek())) {
+                this.tags.pop();
+            } else {
+                System.err.println("Inconsistency: trying to pop "+qName+", but to of stack is "+this.tags.peek());
+            }
+
+            if (this.inVirksomhed && this.checkTagAndParent(qName, "virksomhed","virksomheder")) {
+                this.inVirksomhed = false;
+                VirksomhedRecord virksomhedRecord = new VirksomhedRecord(this.parameters);
+                this.currentRun.add(virksomhedRecord);
+                this.onRecordSave();
+            }
+            if (!this.inVirksomhed && this.inProductionUnit && this.checkTagAndParent(qName, "produktionsenhed","produktionsenheder")) {
+                this.inProductionUnit = false;
+                ProductionUnitRecord productionUnitRecord = new ProductionUnitRecord(this.parameters);
+                this.currentRun.add(productionUnitRecord);
+                this.onRecordSave();
+            }
+
+            if (this.inVirksomhed || this.inProductionUnit) {
+                StringList path = new StringList();
+                for (int i = this.tags.size() - this.depth + 1; i < this.tags.size(); i++) {
+                    String a = this.tags.get(i);
+                    path.append(a);
+                }
+                path.append(qName);
+                this.parameters.put(path.join("/"), this.textChunk.trim());
+                this.depth--;
+            }
+            this.textChunk = "";
+        }
+
+        // To take specific actions for each chunk of character data (such as
+        // adding the data to a node or buffer, or printing it to a file).
+        @Override
+        public void characters(char ch[], int start, int length)
+                throws SAXException {
+            this.textChunk += new String(ch, start, length);
+        }
+
+    }
 
     //------------------------------------------------------------------------------------------------------------------
 
-    private XPath xpath = XPathFactory.newInstance().newXPath();
-    private NodeList getNodes(Node parentNode, String xpathExpression) {
-        try {
-            return (NodeList) this.xpath.evaluate(xpathExpression, parentNode, XPathConstants.NODESET);
-        } catch (XPathExpressionException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-    private List<String> getNodeValues(Node parentNode, String xpathExpression) {
-        ArrayList<String> values = new ArrayList<String>();
-        NodeList nodes = this.getNodes(parentNode, xpathExpression);
-        if (nodes != null) {
-            for (int i = 0; i < nodes.getLength(); i++) {
-                String nodeValue = nodes.item(i).getTextContent();
-                if (nodeValue != null) {
-                    values.add(nodeValue);
-                }
-            }
-        }
-        return values;
-    }
-    private Node getFirstNode(Node parentNode, String xpathExpression) {
-        NodeList nodes = this.getNodes(parentNode, xpathExpression);
-        return (nodes != null && nodes.getLength() > 0) ? nodes.item(0) : null;
-    }
-    private String getFirstNodeValue(Node parentNode, String xpathExpression) {
-        Node node = this.getFirstNode(parentNode, xpathExpression);
-        return node != null ? node.getTextContent() : null;
-    }
-
-    //------------------------------------------------------------------------------------------------------------------
-
-    @Override
     public String getTemplatePath() {
-        return null;
+        return "/fragments/CvrRegisterForm.txt";
     }
 
-    @Override
     public DataProviderConfiguration getDefaultConfiguration() {
-        return null;
+        return new DataProviderConfiguration("{\"sourceType\":\"upload\"}");
     }
 
-    @Autowired
-    private ConfigurableApplicationContext ctx;
-
     @Override
-    public Resource getRecordResource() {
-        return this.ctx.getResource("classpath:/data/cvr.xml");
+    public List<String> getUploadFields() {
+        ArrayList<String> list = new ArrayList<String>();
+        list.add("sourceUpload");
+        return list;
+    }
+
+    public boolean wantUpload(DataProviderConfiguration configuration) {
+        List<String> sourceType = configuration.get("sourceType");
+        return sourceType != null && sourceType.contains("upload");
     }
 
 }

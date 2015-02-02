@@ -1,6 +1,7 @@
 package dk.magenta.databroker.core;
 
 import dk.magenta.databroker.core.controller.DataProviderController;
+import dk.magenta.databroker.util.Util;
 import dk.magenta.databroker.util.objectcontainers.Pair;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -137,9 +138,13 @@ public abstract class DataProvider {
     //public abstract Properties getConfigSpecification(DataProviderEntity dataProviderEntity);
 
 
+    private static String getExtension(String filename) {
+        return filename != null ? filename.substring(filename.lastIndexOf('.')+1).toLowerCase() : null;
+    }
+
     public class NamedInputStream extends Pair<String, InputStream> {
         public NamedInputStream(String name, InputStream input) {
-            super(name.substring(name.lastIndexOf('.')+1), input);
+            super(getExtension(name), input);
         }
         public String getFileExtension() {
             return this.getLeft();
@@ -197,12 +202,17 @@ public abstract class DataProvider {
         return input;
     }
 
-
+    private static final String[] acceptedExtensions = {"xml","csv","ods","xls","xlsx"};
 
     private NamedInputStream unzip(NamedInputStream input) throws IOException {
         ZipInputStream zinput = new ZipInputStream(input.getRight());
-        ZipEntry entry = zinput.getNextEntry(); // Load the first entry in the zip archive
-        return new NamedInputStream(entry.getName(), zinput);
+        for (ZipEntry entry = zinput.getNextEntry(); entry != null; entry = zinput.getNextEntry()) {
+            String extension = getExtension(entry.getName());
+            if (extension != null && Util.inArray(acceptedExtensions, extension)) {
+                return new NamedInputStream(entry.getName(), zinput);
+            }
+        }
+        return null;
     }
 
     private NamedInputStream convertExcelSpreadsheet(NamedInputStream input) throws IOException {

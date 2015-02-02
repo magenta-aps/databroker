@@ -54,15 +54,23 @@ public class CvrModel {
     }
 */
 
-    public CompanyEntity setCompany(String cvrKode, String name, long primaryUnitNumber,
+    public CompanyEntity setCompany(String cvrKode, String name,
                                     int primaryIndustryCode, int[] secondaryIndustryCodes, int formCode,
                                     Date startDate, Date endDate,
                                     RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering, List<VirkningEntity> virkninger) {
 
-        CompanyEntity companyEntity = this.getCompanyCache().get(cvrKode);
+        CompanyEntity companyEntity = this.getCompany(cvrKode);
+
+        if (name == null) {
+            name = "";
+        }
+        if (cvrKode == null) {
+            return null;
+        }
+
         if (companyEntity == null) {
             if (printProcessing) {
-                System.out.println("    creating new CompanyEntity " + cvrKode);
+                //System.out.println("    creating new CompanyEntity " + cvrKode);
             }
             companyEntity = new CompanyEntity();
             companyEntity.setCvrNummer(cvrKode);
@@ -75,24 +83,21 @@ public class CvrModel {
             secondaryIndustries.add(this.getIndustryEntity(secondaryIndustryCode));
         }
 
-        CompanyUnitEntity primaryUnit = this.getCompanyUnit(primaryUnitNumber);
-
         CompanyVersionEntity companyVersionEntity = companyEntity.getLatestVersion();
 
         if (companyVersionEntity == null) {
             if (printProcessing) {
-                System.out.println("    creating initial CompanyVersionEntity");
+                //System.out.println("    creating initial CompanyVersionEntity");
             }
             companyVersionEntity = companyEntity.addVersion(createRegistrering, virkninger);
-        } else if (!companyVersionEntity.matches(name, primaryIndustry, secondaryIndustries, primaryUnit, startDate, endDate)) {
+        } else if (!companyVersionEntity.matches(name, primaryIndustry, secondaryIndustries, startDate, endDate)) {
             if (printProcessing) {
-                System.out.println("    creating updated CompanyVersionEntity");
+                //System.out.println("    creating updated CompanyVersionEntity");
             }
             companyVersionEntity = companyEntity.addVersion(updateRegistrering, virkninger);
         } else {
             companyVersionEntity = null;
         }
-
 
         if (companyVersionEntity != null) {
             companyVersionEntity.setName(name);
@@ -100,14 +105,14 @@ public class CvrModel {
             for (IndustryEntity industryEntity : secondaryIndustries) {
                 companyVersionEntity.addSecondaryIndustry(industryEntity);
             }
-            companyVersionEntity.setPrimaryUnit(primaryUnit);
+            //companyVersionEntity.setPrimaryUnit(primaryUnit);
             companyVersionEntity.setStartDate(startDate);
             companyVersionEntity.setEndDate(endDate);
 
             this.companyRepository.save(companyEntity);
         } else {
             if (printProcessing) {
-                System.out.println("    no changes");
+                //System.out.println("    no changes");
             }
         }
         return companyEntity;
@@ -115,6 +120,7 @@ public class CvrModel {
 
     public CompanyEntity getCompany(String cvrNummer) {
         return this.getCompanyCache().get(cvrNummer);
+        //return this.companyRepository.getByCvrNummer(cvrNummer);
     }
     public Collection<CompanyEntity> getCompany(SearchParameters parameters) {
         return this.getCompany(parameters, true);
@@ -128,10 +134,17 @@ public class CvrModel {
 
     private Level1Container<CompanyEntity> getCompanyCache() {
         if (this.companyCache == null) {
+            System.out.println("loading company cache");
             this.companyCache = new Level1Container<CompanyEntity>();
+            int i=0;
             for (CompanyEntity item : this.companyRepository.findAll()) {
                 this.putCompanyCache(item);
+                i++;
+                if (i % 1000 == 0) {
+                    System.out.println(i);
+                }
             }
+            System.out.println("company cache loaded");
         }
         return this.companyCache;
     }
@@ -154,22 +167,37 @@ public class CvrModel {
     @SuppressWarnings("SpringJavaAutowiringInspection")
     private CompanyUnitRepository companyUnitRepository;
 
-    public CompanyUnitEntity setCompanyUnit(long pNummer, String name, CompanyEntity company,
+    public CompanyUnitEntity setCompanyUnit(long pNummer, String name, String cvrNummer,
                                     int primaryIndustryCode, int[] secondaryIndustryCodes,
                                     EnhedsAdresseEntity address, String phone, String fax, String email,
                                     Date startDate, Date endDate,
                                     boolean advertProtection,
                                     RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering, List<VirkningEntity> virkninger) {
-        CompanyUnitEntity companyUnitEntity = this.getCompanyUnitCache().get(pNummer);
+
+        CompanyUnitEntity companyUnitEntity = null;//this.getCompanyUnitCache().get(pNummer);
+
         if (companyUnitEntity == null) {
             if (printProcessing) {
-                System.out.println("    creating new CompanyUnitEntity " + pNummer);
+                //System.out.println("    creating new CompanyUnitEntity " + pNummer);
             }
+
             companyUnitEntity = new CompanyUnitEntity();
             companyUnitEntity.setPNO(pNummer);
-            companyUnitEntity.setCompany(company);
-            this.putCompanyUnitCache(companyUnitEntity);
+            //companyUnitEntity.setCompany(company);
+            companyUnitEntity.setCvrNummer(cvrNummer);
+            //this.putCompanyUnitCache(companyUnitEntity);
         }
+
+
+
+
+/*
+        if (company != null && companyUnitEntity != null &&
+                company.getLatestVersion().getPrimaryUnit() == null &&
+                company.getLatestVersion().getPrimaryUnitCode() == pNummer) {
+            company.getLatestVersion().setPrimaryUnit(companyUnitEntity);
+            this.companyRepository.save(company);
+        }*/
 
 
         IndustryEntity primaryIndustry = this.getIndustryEntity(primaryIndustryCode);
@@ -182,17 +210,18 @@ public class CvrModel {
 
         if (companyUnitVersionEntity == null) {
             if (printProcessing) {
-                System.out.println("    creating initial CompanyUnitVersionEntity");
+                //System.out.println("    creating initial CompanyUnitVersionEntity");
             }
             companyUnitVersionEntity = companyUnitEntity.addVersion(createRegistrering, virkninger);
         } else if (!companyUnitVersionEntity.matches(name, address, primaryIndustry, secondaryIndustries, phone, fax, email, advertProtection, startDate, endDate)) {
             if (printProcessing) {
-                System.out.println("    creating updated CompanyUnitVersionEntity");
+                //System.out.println("    creating updated CompanyUnitVersionEntity");
             }
             companyUnitVersionEntity = companyUnitEntity.addVersion(updateRegistrering, virkninger);
         } else {
             companyUnitVersionEntity = null;
         }
+
 
         if (companyUnitVersionEntity != null) {
             companyUnitVersionEntity.setName(name);
@@ -210,6 +239,7 @@ public class CvrModel {
                 System.out.println("    no changes");
             }
         }
+
         return companyUnitEntity;
     }
 
@@ -226,16 +256,22 @@ public class CvrModel {
         }
     }
 
+    public void bulkWireReferences() {
+        this.companyUnitRepository.bulkWireReferences();
+    }
+
     //--------------------------------------------------
 
     private Level1Container<CompanyUnitEntity> companyUnitCache;
 
     private Level1Container<CompanyUnitEntity> getCompanyUnitCache() {
         if (this.companyUnitCache == null) {
+            System.out.println("loading uniy company cache");
             this.companyUnitCache = new Level1Container<CompanyUnitEntity>();
             for (CompanyUnitEntity item : this.companyUnitRepository.findAll()) {
                 this.putCompanyUnitCache(item);
             }
+            System.out.println("company unit cache loaded");
         }
         return this.companyUnitCache;
     }
@@ -275,7 +311,8 @@ public class CvrModel {
     }
 
     public IndustryEntity getIndustryEntity(int code) {
-        return this.industryRepository.getByCode(code);
+        return this.getIndustryCache().get(code);
+        //return this.industryRepository.getByCode(code);
     }
 
     //--------------------------------------------------

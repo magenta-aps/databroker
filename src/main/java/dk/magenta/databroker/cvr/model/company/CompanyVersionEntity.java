@@ -70,6 +70,19 @@ public class CompanyVersionEntity extends DobbeltHistorikVersion<CompanyEntity, 
         }
     }
 
+
+    @Column
+    @Index(name="primaryUnitCode")
+    private long primaryUnitCode;
+
+    public long getPrimaryUnitCode() {
+        return primaryUnitCode;
+    }
+
+    public void setPrimaryUnitCode(long primaryUnitCode) {
+        this.primaryUnitCode = primaryUnitCode;
+    }
+
     //----------------------------------------------------
 
     @Column(nullable = false)
@@ -122,7 +135,7 @@ public class CompanyVersionEntity extends DobbeltHistorikVersion<CompanyEntity, 
 
     //----------------------------------------------------
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Date startDate;
 
     public Date getStartDate() {
@@ -148,12 +161,10 @@ public class CompanyVersionEntity extends DobbeltHistorikVersion<CompanyEntity, 
 
     //----------------------------------------------------
 
-    public boolean matches(String name, IndustryEntity primaryIndustry, Set<IndustryEntity> secondaryIndustries,
-                           CompanyUnitEntity primaryUnit, Date startDate, Date endDate) {
+    public boolean matches(String name, IndustryEntity primaryIndustry, Set<IndustryEntity> secondaryIndustries, Date startDate, Date endDate) {
         return Util.compare(this.name, name) &&
                 Util.compare(this.primaryIndustry, primaryIndustry) &&
                 Util.compare(this.secondaryIndustries, secondaryIndustries) &&
-                Util.compare(this.primaryUnit, primaryUnit) &&
                 Util.compare(this.units, units) &&
                 Util.compare(this.startDate, startDate) &&
                 Util.compare(this.endDate, endDate);

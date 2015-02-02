@@ -15,6 +15,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.Part;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -182,7 +183,8 @@ public class DataProviderController {
     private boolean requestHasDataInFields(HttpServletRequest request, List<String> fields) {
         for (String uploadField : fields) {
             try {
-                if (request.getPart(uploadField).getSize() > 0) {
+                Part uploadPart = request.getPart(uploadField);
+                if (uploadPart != null && uploadPart.getSize() > 0) {
                     return true;
                 }
             } catch (Exception e) {

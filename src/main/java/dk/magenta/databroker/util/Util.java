@@ -13,5 +13,15 @@ public abstract class Util {
         return a == null ? (b == null) : a.equals(b);
     }
 
+    public static boolean inArray(String[] array, String item) {
+        if (array != null && item != null) {
+            for (String i : array) {
+                if (item.equals(i)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
 }

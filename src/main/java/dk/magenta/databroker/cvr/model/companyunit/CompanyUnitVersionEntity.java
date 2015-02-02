@@ -6,6 +6,7 @@ import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseEntity;
 import org.hibernate.annotations.Index;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Collection;
 import java.util.List;
@@ -18,10 +19,12 @@ import java.util.List;
 public class CompanyUnitVersionEntity extends DobbeltHistorikVersion<CompanyUnitEntity, CompanyUnitVersionEntity> {
 
     public CompanyUnitVersionEntity() {
+        this.secondaryIndustries = new ArrayList<IndustryEntity>();
     }
 
     public CompanyUnitVersionEntity(CompanyUnitEntity entity) {
         super(entity);
+        this.secondaryIndustries = new ArrayList<IndustryEntity>();
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -43,8 +46,7 @@ public class CompanyUnitVersionEntity extends DobbeltHistorikVersion<CompanyUnit
     /* Domain specific fields */
 
 
-    @Column(nullable = false)
-    @Index(name = "name")
+    @Column(nullable = true)
     private String name;
 
     public String getName() {
@@ -57,8 +59,7 @@ public class CompanyUnitVersionEntity extends DobbeltHistorikVersion<CompanyUnit
 
     //----------------------------------------------------
 
-    @ManyToOne(optional = false)
-    @Index(name = "address")
+    @ManyToOne(optional = true)
     private EnhedsAdresseEntity address;
 
     public EnhedsAdresseEntity getAddress() {
@@ -72,7 +73,6 @@ public class CompanyUnitVersionEntity extends DobbeltHistorikVersion<CompanyUnit
     //----------------------------------------------------
 
     @Column(nullable = true)
-    @Index(name = "phone")
     private String phone;
 
     public String getPhone() {
@@ -86,7 +86,6 @@ public class CompanyUnitVersionEntity extends DobbeltHistorikVersion<CompanyUnit
     //----------------------------------------------------
 
     @Column(nullable = true)
-    @Index(name = "fax")
     private String fax;
 
     public String getFax() {
@@ -100,7 +99,6 @@ public class CompanyUnitVersionEntity extends DobbeltHistorikVersion<CompanyUnit
     //----------------------------------------------------
 
     @Column(nullable = true)
-    @Index(name = "email")
     private String email;
 
     public String getEmail() {
@@ -113,7 +111,7 @@ public class CompanyUnitVersionEntity extends DobbeltHistorikVersion<CompanyUnit
 
     //----------------------------------------------------
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Date startDate;
 
     public Date getStartDate() {

@@ -29,7 +29,7 @@ public class CompanyUnitEntity extends DobbeltHistorikBase<CompanyUnitEntity, Co
 
     //------------------------------------------------------------------------------------------------------------------
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, optional = true)
     private CompanyEntity company;
 
     public CompanyEntity getCompany() {
@@ -38,6 +38,18 @@ public class CompanyUnitEntity extends DobbeltHistorikBase<CompanyUnitEntity, Co
 
     public void setCompany(CompanyEntity company) {
         this.company = company;
+    }
+
+
+    @Column
+    private String cvrNummer;
+
+    public String getCvrNummer() {
+        return cvrNummer;
+    }
+
+    public void setCvrNummer(String cvrNummer) {
+        this.cvrNummer = cvrNummer;
     }
 
     //------------------------------------------------------------------------------------------------------------------
