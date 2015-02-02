@@ -71,19 +71,6 @@ public class CompanyVersionEntity extends DobbeltHistorikVersion<CompanyEntity, 
         }
     }
 
-
-    @Column
-    @Index(name="primaryUnitCode")
-    private long primaryUnitCode;
-
-    public long getPrimaryUnitCode() {
-        return primaryUnitCode;
-    }
-
-    public void setPrimaryUnitCode(long primaryUnitCode) {
-        this.primaryUnitCode = primaryUnitCode;
-    }
-
     //----------------------------------------------------
 
     @Column
