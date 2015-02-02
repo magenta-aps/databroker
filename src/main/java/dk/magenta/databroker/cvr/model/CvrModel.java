@@ -8,6 +8,8 @@ import dk.magenta.databroker.cvr.model.company.CompanyVersionEntity;
 import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitEntity;
 import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitRepository;
 import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitVersionEntity;
+import dk.magenta.databroker.cvr.model.form.industry.FormEntity;
+import dk.magenta.databroker.cvr.model.form.industry.FormRepository;
 import dk.magenta.databroker.cvr.model.industry.IndustryEntity;
 import dk.magenta.databroker.cvr.model.industry.IndustryRepository;
 import dk.magenta.databroker.dawa.model.SearchParameters;
@@ -77,6 +79,8 @@ public class CvrModel {
             this.putCompanyCache(companyEntity);
         }
 
+        FormEntity form = this.getFormEntity(formCode);
+
         IndustryEntity primaryIndustry = this.getIndustryEntity(primaryIndustryCode);
         HashSet<IndustryEntity> secondaryIndustries = new HashSet<IndustryEntity>();
         for (int secondaryIndustryCode : secondaryIndustryCodes) {
@@ -90,7 +94,7 @@ public class CvrModel {
                 //System.out.println("    creating initial CompanyVersionEntity");
             }
             companyVersionEntity = companyEntity.addVersion(createRegistrering, virkninger);
-        } else if (!companyVersionEntity.matches(name, primaryIndustry, secondaryIndustries, startDate, endDate)) {
+        } else if (!companyVersionEntity.matches(name, form, primaryIndustry, secondaryIndustries, startDate, endDate)) {
             if (printProcessing) {
                 //System.out.println("    creating updated CompanyVersionEntity");
             }
@@ -101,6 +105,7 @@ public class CvrModel {
 
         if (companyVersionEntity != null) {
             companyVersionEntity.setName(name);
+            companyVersionEntity.setForm(form);
             companyVersionEntity.setPrimaryIndustry(primaryIndustry);
             for (IndustryEntity industryEntity : secondaryIndustries) {
                 companyVersionEntity.addSecondaryIndustry(industryEntity);
@@ -233,6 +238,9 @@ public class CvrModel {
             companyUnitVersionEntity.setAdvertProtection(advertProtection);
             companyUnitVersionEntity.setStartDate(startDate);
             companyUnitVersionEntity.setEndDate(endDate);
+            companyUnitVersionEntity.setPhone(phone);
+            companyUnitVersionEntity.setFax(fax);
+            companyUnitVersionEntity.setEmail(email);
             this.companyUnitRepository.save(companyUnitEntity);
         } else {
             if (printProcessing) {
@@ -298,11 +306,16 @@ public class CvrModel {
     }
     public IndustryEntity setIndustry(int code, String name, boolean noUpdate) {
         IndustryEntity industryEntity = this.getIndustryCache().get(code);
+        boolean created = false;
         if (industryEntity == null) {
             industryEntity = new IndustryEntity();
             industryEntity.setCode(code);
+            created = true;
         }
-        if (name != null && !name.isEmpty() && (industryEntity.getName() == null || (!noUpdate && !industryEntity.getName().equals(name)))) {
+        if (created ||
+                (name != null && !name.isEmpty() &&
+                        ((industryEntity.getName() == null) || !(noUpdate || industryEntity.getName().equals(name)))
+                )) {
             industryEntity.setName(name);
             this.industryRepository.save(industryEntity);
             this.putIndustryCache(industryEntity);
@@ -338,4 +351,61 @@ public class CvrModel {
         this.industryCache = null;
     }
 
+    //------------------------------------------------------------------------------------------------------------------
+
+
+
+    @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
+    private FormRepository formRepository;
+
+    public FormEntity setForm(int code, String name) {
+        return this.setForm(code, name, false);
+    }
+    public FormEntity setForm(int code, String name, boolean noUpdate) {
+        FormEntity formEntity = this.getFormCache().get(code);
+        boolean created = false;
+        if (formEntity == null) {
+            formEntity = new FormEntity();
+            formEntity.setCode(code);
+            created = true;
+        }
+        if (created ||
+                (name != null && !name.isEmpty() &&
+                        ((formEntity.getName() == null) || !(noUpdate || formEntity.getName().equals(name)))
+                )) {
+            formEntity.setName(name);
+            this.formRepository.save(formEntity);
+            this.putFormCache(formEntity);
+        }
+        return formEntity;
+    }
+
+    public FormEntity getFormEntity(int code) {
+        return this.getFormCache().get(code);
+        //return this.industryRepository.getByCode(code);
+    }
+
+    //--------------------------------------------------
+
+    private Level1Container<FormEntity> formCache;
+    private Level1Container<FormEntity> getFormCache() {
+        if (this.formCache == null) {
+            this.formCache = new Level1Container<FormEntity>();
+            for (FormEntity item : this.formRepository.findAll()) {
+                this.putFormCache(item);
+            }
+        }
+        return this.formCache;
+    }
+    private void putFormCache(FormEntity item) {
+        if (this.formCache == null) {
+            this.formCache = new Level1Container<FormEntity>();
+        }
+        this.formCache.put(item.getCode(), item);
+    }
+
+    public void resetFormCache() {
+        this.formCache = null;
+    }
 }

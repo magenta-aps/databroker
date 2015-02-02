@@ -51,7 +51,7 @@ public class CvrRegister extends Register {
 
     private class VirksomhedRecord extends CvrRecord {
 
-        private List<Long> productionUnits;
+        //private List<Long> productionUnits;
 
         public VirksomhedRecord(ListHash<String> virksomhedHash) {
             super(virksomhedHash);
@@ -59,6 +59,7 @@ public class CvrRegister extends Register {
             this.obtain("advertProtection", "reklamebeskyttelse");
             this.obtain("name", "navn/tekst");
             this.obtain("form", "virksomhedsform/kode");
+            this.obtain("formText", "virksomhedsform/tekst");
             this.obtain("primaryIndustry", "hovedbranche/kode");
             this.obtain("secondaryIndustry1", "bibranche1/kode");
             this.obtain("secondaryIndustry2", "bibranche2/kode");
@@ -69,7 +70,7 @@ public class CvrRegister extends Register {
             this.obtain("vejkode", "beliggenhedsadresse/vejkode");
             this.obtain("kommunekode", "beliggenhedsadresse/kommune/kode");
             this.obtain("phone", "telefonnummer/kontaktoplysning");
-
+/*
             this.productionUnits = new ArrayList<Long>();
             List<String> unitList = this.getList("produktionsenheder/produktionsenhed/pnr");
             if (unitList != null) {
@@ -79,14 +80,12 @@ public class CvrRegister extends Register {
                     } catch (NumberFormatException e) {
                     }
                 }
-            } else {
-                System.err.println("Company "+this.get("name")+" doesn't refer to any production units");
-            }
+            }*/
         }
 
-        public List<Long> getProductionUnits(){
+       /* public List<Long> getProductionUnits(){
             return this.productionUnits;
-        }
+        }*/
     }
 
     private class ProductionUnitRecord extends CvrRecord {
@@ -181,8 +180,13 @@ public class CvrRegister extends Register {
     }
 
     private void ensureIndustryInDatabase(int code, String text) {
-        if (code > 0 && text != null) {
+        if (code > 0) {
             this.cvrModel.setIndustry(code, text, true);
+        }
+    }
+    private void ensureFormInDatabase(int code, String text) {
+        if (code > 0) {
+            this.cvrModel.setForm(code, text, true);
         }
     }
 
@@ -233,20 +237,16 @@ public class CvrRegister extends Register {
                     this.ensureIndustryInDatabase(virksomhed.getInt("secondaryIndustry1"), virksomhed.get("secondaryIndustryText1"));
                     this.ensureIndustryInDatabase(virksomhed.getInt("secondaryIndustry2"), virksomhed.get("secondaryIndustryText2"));
                     this.ensureIndustryInDatabase(virksomhed.getInt("secondaryIndustry3"), virksomhed.get("secondaryIndustryText3"));
+                    this.ensureFormInDatabase(virksomhed.getInt("form"), virksomhed.get("formText"));
 
                     // Fetch basic fields
                     String cvrNummer = virksomhed.get("cvrNummer");
                     boolean advertProtection = virksomhed.getInt("advertProtection") == 1;
                     String name = virksomhed.get("name");
 
-                    if (name == null || name.isEmpty()) {
-                        System.err.println(virksomhed.toJSON().toString(2));
-                        continue;
-                    }
-
                     int form = virksomhed.getInt("form");
-
                     int primaryIndustry = virksomhed.getInt("primaryIndustry");
+
                     List<Integer> secondaryIndustriesList = new ArrayList<Integer>();
                     String[] keys = new String[]{"secondaryIndustry1", "secondaryIndustry2", "secondaryIndustry3"};
                     for (String key : keys) {
@@ -268,12 +268,6 @@ public class CvrRegister extends Register {
                     int kommunekode = virksomhed.getInt("kommunekode");
                     String phone = virksomhed.get("phone");
 
-                    long primaryProductionUnit = 0;
-
-                    if (startDate == null) {
-                        System.err.println("Company "+name+" has no startDate");
-                    }
-
                     this.cvrModel.setCompany(cvrNummer, name,
                             primaryIndustry, secondaryIndustries, form,
                             startDate, endDate,
@@ -281,7 +275,7 @@ public class CvrRegister extends Register {
                 }
 
 
-
+/*
                 for (ProductionUnitRecord unit : cRun.getProductionUnits().getList()) {
 
                     // Make sure the referenced industries are present in the DB
@@ -351,7 +345,7 @@ public class CvrRegister extends Register {
                         //System.out.println("Created new adresse " + adresse.getLatestVersion().getAdgangsadresse().getVejstykke().getLatestVersion().getVejnavn() + " " + fullHusNr + " in "+this.toc()+" ms");
                     }
                     */
-
+/*
 
                     this.cvrModel.setCompanyUnit(pNummer, name, cvrNummer,
                             primaryIndustry, secondaryIndustries,
@@ -361,7 +355,7 @@ public class CvrRegister extends Register {
                             createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>()
                     );
                 }
-
+*/
                 this.txManager.commit(status);
             }
             catch (Exception ex) {

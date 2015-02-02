@@ -1,7 +1,6 @@
-package dk.magenta.databroker.cvr.model.industry;
+package dk.magenta.databroker.cvr.model.form.industry;
 
 import dk.magenta.databroker.core.model.OutputFormattable;
-import dk.magenta.databroker.core.model.oio.UniqueBase;
 import org.hibernate.annotations.Index;
 import org.json.JSONObject;
 
@@ -16,10 +15,10 @@ import javax.xml.soap.SOAPEnvelope;
  * Created by lars on 26-01-15.
  */
 @Entity
-@Table(name = "cvr_industry")
-public class IndustryEntity implements OutputFormattable {
+@Table(name = "cvr_form")
+public class FormEntity implements OutputFormattable {
 
-    public IndustryEntity() {
+    public FormEntity() {
     }
 
     //----------------------------------------------------

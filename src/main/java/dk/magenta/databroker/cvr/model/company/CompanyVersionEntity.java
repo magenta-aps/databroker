@@ -1,5 +1,6 @@
 package dk.magenta.databroker.cvr.model.company;
 
+import dk.magenta.databroker.cvr.model.form.industry.FormEntity;
 import dk.magenta.databroker.util.Util;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikVersion;
 import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitEntity;
@@ -85,7 +86,7 @@ public class CompanyVersionEntity extends DobbeltHistorikVersion<CompanyEntity, 
 
     //----------------------------------------------------
 
-    @Column(nullable = false)
+    @Column
     @Index(name = "name")
     private String name;
 
@@ -108,6 +109,18 @@ public class CompanyVersionEntity extends DobbeltHistorikVersion<CompanyEntity, 
 
     public void setPrimaryIndustry(IndustryEntity primaryIndustry) {
         this.primaryIndustry = primaryIndustry;
+    }
+    //----------------------------------------------------
+
+    @ManyToOne
+    private FormEntity form;
+
+    public FormEntity getForm() {
+        return form;
+    }
+
+    public void setForm(FormEntity form) {
+        this.form = form;
     }
 
     //----------------------------------------------------
@@ -161,8 +174,9 @@ public class CompanyVersionEntity extends DobbeltHistorikVersion<CompanyEntity, 
 
     //----------------------------------------------------
 
-    public boolean matches(String name, IndustryEntity primaryIndustry, Set<IndustryEntity> secondaryIndustries, Date startDate, Date endDate) {
+    public boolean matches(String name, FormEntity form, IndustryEntity primaryIndustry, Set<IndustryEntity> secondaryIndustries, Date startDate, Date endDate) {
         return Util.compare(this.name, name) &&
+                Util.compare(this.form, form) &&
                 Util.compare(this.primaryIndustry, primaryIndustry) &&
                 Util.compare(this.secondaryIndustries, secondaryIndustries) &&
                 Util.compare(this.units, units) &&

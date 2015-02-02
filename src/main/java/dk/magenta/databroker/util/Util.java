@@ -5,6 +5,10 @@ package dk.magenta.databroker.util;
  */
 public abstract class Util {
 
+    public static boolean compare(int a, int b) {
+        return a == b;
+    }
+
     public static boolean compare(String a, String b) {
         return a == null ? (b == null) : a.equals(b);
     }
