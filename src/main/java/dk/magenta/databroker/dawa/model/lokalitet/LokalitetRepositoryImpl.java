@@ -1,5 +1,6 @@
 package dk.magenta.databroker.dawa.model.lokalitet;
 
+import dk.magenta.databroker.dawa.model.RepositoryImplementation;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
@@ -23,14 +24,7 @@ interface LokalitetRepositoryCustom {
     public Collection<LokalitetEntity> search(SearchParameters parameters, boolean printQuery);
 }
 
-public class LokalitetRepositoryImpl implements LokalitetRepositoryCustom {
-
-    private EntityManager entityManager;
-
-    @PersistenceContext
-    public void setEntityManager(EntityManager entityManager){
-        this.entityManager = entityManager;
-    }
+public class LokalitetRepositoryImpl extends RepositoryImplementation<LokalitetEntity> implements LokalitetRepositoryCustom {
 
     @Override
     public Collection<LokalitetEntity> search(SearchParameters parameters, boolean printQuery) {
@@ -83,18 +77,6 @@ public class LokalitetRepositoryImpl implements LokalitetRepositoryCustom {
 
         hql.append("order by "+LokalitetEntity.databaseKey+".navn");
 
-        if (printQuery) {
-            System.out.println(hql.join(" \n"));
-        }
-        Query q = this.entityManager.createQuery(hql.join(" "));
-        q.setMaxResults(1000);
-        Map<String, Object> queryParameters = conditions.getParameters();
-        for (String key : queryParameters.keySet()) {
-            if (printQuery) {
-                System.out.println(key + " = " + queryParameters.get(key));
-            }
-            q.setParameter(key, queryParameters.get(key));
-        }
-        return q.getResultList();
+        return this.query(hql, conditions, parameters.getGlobalCondition(), printQuery);
     }
 }

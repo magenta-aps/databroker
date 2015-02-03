@@ -2,6 +2,7 @@ package dk.magenta.databroker.dawa.model.enhedsadresser;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikVersion;
 import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseEntity;
+import dk.magenta.databroker.util.Util;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -36,19 +37,6 @@ public class EnhedsAdresseVersionEntity
     @Override
     public void setEntity(EnhedsAdresseEntity entity) {
         this.entity = entity;
-    }
-
-    //------------------------------------------------------------------------------------------------------------------
-
-    @ManyToOne(optional = false)
-    private AdgangsAdresseEntity adgangsadresse;
-
-    public AdgangsAdresseEntity getAdgangsadresse() {
-        return adgangsadresse;
-    }
-
-    public void setAdgangsadresse(AdgangsAdresseEntity adgangsAdresse) {
-        this.adgangsadresse = adgangsAdresse;
     }
 
     //----------------------------------------------------
@@ -88,5 +76,22 @@ public class EnhedsAdresseVersionEntity
 
     public void setDoer(String doer) {
         this.doer = doer;
+    }
+
+    //----------------------------------------------------------------
+
+    @Column
+    private String descriptor; // A field containing kommunekode,vejkode,husnr,etage and doer, for quick lookup
+
+    public String getDescriptor() {
+        return descriptor;
+    }
+
+    public void setDescriptor(String descriptor) {
+        this.descriptor = descriptor;
+    }
+
+    public static String buildDescriptor(int kommuneKode, int vejKode, String husnr, String etage, String doer) {
+        return (kommuneKode + ":" + vejKode + ":" + Util.emptyIfNull(husnr) + ":" + Util.emptyIfNull(etage) + ":" + Util.emptyIfNull(doer)).toLowerCase();
     }
 }

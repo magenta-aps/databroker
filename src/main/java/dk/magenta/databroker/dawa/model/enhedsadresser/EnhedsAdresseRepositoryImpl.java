@@ -1,5 +1,6 @@
 package dk.magenta.databroker.dawa.model.enhedsadresser;
 
+import dk.magenta.databroker.dawa.model.RepositoryImplementation;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseEntity;
@@ -13,7 +14,9 @@ import dk.magenta.databroker.util.objectcontainers.StringList;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,17 +24,25 @@ import java.util.Map;
  */
 
 interface EnhedsAdresseRepositoryCustom {
+    //public EnhedsAdresseVersionEntity getByValues(int kommuneKode, int vejKode, String husnr, String etage, String doer);
     public Collection<EnhedsAdresseEntity> search(SearchParameters parameters, boolean printQuery);
 }
 
-public class EnhedsAdresseRepositoryImpl implements EnhedsAdresseRepositoryCustom {
+public class EnhedsAdresseRepositoryImpl extends RepositoryImplementation<EnhedsAdresseEntity> implements EnhedsAdresseRepositoryCustom {
 
-    private EntityManager entityManager;
+    /*public EnhedsAdresseVersionEntity getByValues(int kommuneKode, int vejKode, String husnr, String etage, String doer) {
+        String descriptor = EnhedsAdresseVersionEntity.buildDescriptor(kommuneKode,vejKode,husnr,etage,doer);
+        Query query = this.entityManager.createQuery("select distinct version from EnhedsAdresseVersionEntity as version where version.descriptor=:descriptor and version.entity.latestVersion=version");
+        query.setParameter("descriptor", descriptor);
+        query.setMaxResults(1);
+        List list = query.getResultList();
+        if (list.size() > 0) {
+            return (EnhedsAdresseVersionEntity) list.get(0);
+        }
+        return null;
+    }*/
 
-    @PersistenceContext
-    public void setEntityManager(EntityManager entityManager){
-        this.entityManager = entityManager;
-    }
+
 
     @Override
     public Collection<EnhedsAdresseEntity> search(SearchParameters parameters, boolean printQuery) {
@@ -40,8 +51,8 @@ public class EnhedsAdresseRepositoryImpl implements EnhedsAdresseRepositoryCusto
         StringList join = new StringList();
         ConditionList conditions = new ConditionList(ConditionList.Operator.AND);
 
-        hql.append("select distinct "+EnhedsAdresseEntity.databaseKey+" from EnhedsAdresseEntity as "+EnhedsAdresseEntity.databaseKey);
         join.setPrefix("join ");
+        hql.append("select distinct " + EnhedsAdresseEntity.databaseKey + " from EnhedsAdresseEntity as " + EnhedsAdresseEntity.databaseKey);
 
         if (parameters.hasAny(Key.LAND, Key.KOMMUNE, Key.VEJ, Key.POST, Key.HUSNR, Key.BNR)) {
 
@@ -49,7 +60,8 @@ public class EnhedsAdresseRepositoryImpl implements EnhedsAdresseRepositoryCusto
 
             if (parameters.hasAny(Key.LAND, Key.KOMMUNE, Key.VEJ)) {
                 join.append(AdgangsAdresseEntity.joinVej());
-                conditions.addCondition(VejstykkeEntity.vejCondition(parameters));
+
+                //conditions.addCondition(VejstykkeEntity.vejCondition(parameters));
                 if (parameters.hasAny(Key.LAND, Key.KOMMUNE)) {
                     join.append(VejstykkeEntity.joinKommune());
                     conditions.addCondition(KommuneEntity.landCondition(parameters));
@@ -90,19 +102,15 @@ public class EnhedsAdresseRepositoryImpl implements EnhedsAdresseRepositoryCusto
             hql.append(conditions.getWhere());
         }
 
-        if (printQuery) {
-            System.out.println(hql.join(" \n"));
-        }
-        Query q = this.entityManager.createQuery(hql.join(" "));
-        q.setMaxResults(1000);
-        Map<String, Object> queryParameters = conditions.getParameters();
-        for (String key : queryParameters.keySet()) {
-            if (printQuery) {
-                System.out.println(key + " = " + queryParameters.get(key));
-            }
-            q.setParameter(key, queryParameters.get(key));
-        }
-        return q.getResultList();
+        return this.query(hql, conditions, parameters.getGlobalCondition(), printQuery);
+    }
 
+    public void generateDescriptors() {
+        Query query = this.entityManager.createNativeQuery("update dawa_enhedsadresse_version enhed" +
+                " join dawa_adgangsadresse adresse on enhed.adgangsadresse_id = adresse.id " +
+                " join dawa.vejstykke vej on adresse.vejstykke.id = vej.id " +
+                " join dawa.kommune kommune on vej.kommune_id = kommune.id " +
+                "set enhed.descriptor=CONCAT(CAST(kommune.kode as CHAR), ':', CAST(vej.kode as CHAR), ':', adresse.husnr, ':', enhed.etage, ':', enhed.doer)");
+        query.executeUpdate();
     }
 }

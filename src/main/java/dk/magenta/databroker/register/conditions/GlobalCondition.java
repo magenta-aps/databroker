@@ -20,11 +20,16 @@ public class GlobalCondition {
 
     private Date includeOnlyBefore;
     private Date includeOnlyAfter;
+    private int offset = 0;
+    private int limit = 1000;
 
     public GlobalCondition(){}
 
 
     public GlobalCondition(String includeOnlyBefore, String includeOnlyAfter){
+        this(includeOnlyBefore, includeOnlyAfter, 1000, 0);
+    }
+    public GlobalCondition(String includeOnlyBefore, String includeOnlyAfter, int offset, int limit){
         this.setIncludeOnlyBefore(includeOnlyBefore);
         this.setIncludeOnlyAfter(includeOnlyAfter);
         if (this.includeOnlyAfter != null && this.includeOnlyBefore != null) {
@@ -32,6 +37,8 @@ public class GlobalCondition {
                 throw new IllegalArgumentException("includeOnlyAfter argument must be less than includeOnlyBefore argument");
             }
         }
+        this.offset = offset;
+        this.limit = limit;
     }
 
     public Date getIncludeOnlyBefore() {
@@ -55,6 +62,21 @@ public class GlobalCondition {
         this.setIncludeOnlyAfter(this.parseDate(includeOnlyAfter));
     }
 
+    public int getLimit() {
+        return limit;
+    }
+
+    public void setLimit(int limit) {
+        this.limit = limit;
+    }
+
+    public int getOffset() {
+        return offset;
+    }
+
+    public void setOffset(int offset) {
+        this.offset = offset;
+    }
 
     private Date parseDate(String dateStr) {
         if (dateStr != null) {

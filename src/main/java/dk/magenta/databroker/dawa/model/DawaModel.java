@@ -519,13 +519,14 @@ public class DawaModel {
             }
 
 
-            for (EnhedsAdresseVersionEntity e : adgangsAdresseEntity.getEnhedsAdresseVersioner()) {
-                if (e.getEntity().getLatestVersion() == e && Util.compare(e.getEtage(), etage) && Util.compare(e.getDoer(),doer)) {
-                    enhedsAdresseEntity = e.getEntity();
+            for (EnhedsAdresseEntity e : adgangsAdresseEntity.getEnhedsAdresser()) {
+                if (Util.compare(e.getLatestVersion().getEtage(), etage) && Util.compare(e.getLatestVersion().getDoer(),doer)) {
+                    enhedsAdresseEntity = e;
                 }
             }
             if (enhedsAdresseEntity == null) {
                 enhedsAdresseEntity = new EnhedsAdresseEntity();
+                enhedsAdresseEntity.setAdgangsadresse(adgangsAdresseEntity);
                 if (printProcessing) {
                     System.out.println("    creating new EnhedsAdresseEntity");
                 }
@@ -538,8 +539,7 @@ public class DawaModel {
                     System.out.println("    creating initial EnhedsAdresseVersionEntity");
                 }
             } else if (!Util.compare(enhedsAdresseVersionEntity.getEtage(), etage) ||
-                    !Util.compare(enhedsAdresseVersionEntity.getDoer(), doer) ||
-                    enhedsAdresseVersionEntity.getAdgangsadresse() != adgangsAdresseEntity) {
+                    !Util.compare(enhedsAdresseVersionEntity.getDoer(), doer)) {
                 enhedsAdresseVersionEntity = enhedsAdresseEntity.addVersion(updateRegistrering, virkninger);
                 if (printProcessing) {
                     System.out.println("    creating updated EnhedsAdresseVersionEntity");
@@ -551,7 +551,7 @@ public class DawaModel {
             if (enhedsAdresseVersionEntity != null) {
                 enhedsAdresseVersionEntity.setEtage(etage);
                 enhedsAdresseVersionEntity.setDoer(doer);
-                enhedsAdresseVersionEntity.setAdgangsadresse(adgangsAdresseEntity);
+                enhedsAdresseVersionEntity.setDescriptor(EnhedsAdresseVersionEntity.buildDescriptor(kommuneKode,vejKode,husNr,etage,doer));
                 this.enhedsAdresseRepository.save(enhedsAdresseEntity);
             } else {
                 if (printProcessing) {
@@ -592,6 +592,12 @@ public class DawaModel {
     public EnhedsAdresseEntity getSingleEnhedsAdresse(SearchParameters parameters, boolean printQuery) {
         Collection<EnhedsAdresseEntity> enhedsAdresseEntities = this.enhedsAdresseRepository.search(parameters, printQuery);
         return (enhedsAdresseEntities == null || enhedsAdresseEntities.isEmpty()) ? null : enhedsAdresseEntities.iterator().next();
+    }
+
+    public EnhedsAdresseEntity getSingleEnhedsAdresse(int kommuneKode, int vejKode, String husnr, String etage, String doer) {
+        EnhedsAdresseVersionEntity enhedsAdresseVersionEntity = this.enhedsAdresseRepository.getByDescriptor(EnhedsAdresseVersionEntity.buildDescriptor(kommuneKode, vejKode, husnr, etage, doer));
+        //EnhedsAdresseVersionEntity enhedsAdresseVersionEntity = this.enhedsAdresseRepository.getByValues(kommuneKode, vejKode, husnr, etage, doer);
+        return enhedsAdresseVersionEntity != null ? enhedsAdresseVersionEntity.getEntity() : null;
     }
 
     //------------------------------------------------------------------------------------------------------------------

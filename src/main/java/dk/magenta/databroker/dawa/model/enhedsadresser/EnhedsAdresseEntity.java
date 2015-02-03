@@ -80,6 +80,25 @@ public class EnhedsAdresseEntity extends DobbeltHistorikBase<EnhedsAdresseEntity
         return new EnhedsAdresseVersionEntity(this);
     }
 
+
+
+
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    @ManyToOne(optional = false)
+    private AdgangsAdresseEntity adgangsadresse;
+
+    public AdgangsAdresseEntity getAdgangsadresse() {
+        return adgangsadresse;
+    }
+
+    public void setAdgangsadresse(AdgangsAdresseEntity adgangsAdresse) {
+        this.adgangsadresse = adgangsAdresse;
+    }
+
+
+
     //------------------------------------------------------------------------------------------------------------------
 
     public String getTypeName() {
@@ -95,7 +114,7 @@ public class EnhedsAdresseEntity extends DobbeltHistorikBase<EnhedsAdresseEntity
     }
     public JSONObject toFullJSON() {
         JSONObject obj = this.toJSON();
-        AdgangsAdresseEntity adgangsAdresseEntity = this.latestVersion.getAdgangsadresse();
+        AdgangsAdresseEntity adgangsAdresseEntity = this.getAdgangsadresse();
         if (adgangsAdresseEntity != null) {
             obj.put("husnr", adgangsAdresseEntity.toJSON());
             VejstykkeEntity vejstykkeEntity = adgangsAdresseEntity.getVejstykke();
@@ -136,6 +155,6 @@ public class EnhedsAdresseEntity extends DobbeltHistorikBase<EnhedsAdresseEntity
         return null;
     }
     public static String joinAdgangsAdresse() {
-        return databaseKey+".latestVersion.adgangsadresse as " + AdgangsAdresseEntity.databaseKey;
+        return databaseKey+".adgangsadresse as " + AdgangsAdresseEntity.databaseKey;
     }
 }

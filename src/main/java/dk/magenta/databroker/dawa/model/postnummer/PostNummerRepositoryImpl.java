@@ -1,5 +1,6 @@
 package dk.magenta.databroker.dawa.model.postnummer;
 
+import dk.magenta.databroker.dawa.model.RepositoryImplementation;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
@@ -24,14 +25,7 @@ interface PostNummerRepositoryCustom {
     public Collection<PostNummerEntity> search(SearchParameters parameters, boolean printQuery);
 }
 
-public class PostNummerRepositoryImpl implements PostNummerRepositoryCustom {
-
-    private EntityManager entityManager;
-
-    @PersistenceContext
-    public void setEntityManager(EntityManager entityManager){
-        this.entityManager = entityManager;
-    }
+public class PostNummerRepositoryImpl extends RepositoryImplementation<PostNummerEntity> implements PostNummerRepositoryCustom {
 
     @Override
     public Collection<PostNummerEntity> search(SearchParameters parameters, boolean printQuery) {
@@ -80,18 +74,6 @@ public class PostNummerRepositoryImpl implements PostNummerRepositoryCustom {
 
         hql.append("order by "+PostNummerEntity.databaseKey+".latestVersion.nr");
 
-        if (printQuery) {
-            System.out.println(hql.join(" \n"));
-        }
-        Query q = this.entityManager.createQuery(hql.join(" "));
-        q.setMaxResults(1000);
-        Map<String, Object> queryParameters = conditions.getParameters();
-        for (String key : queryParameters.keySet()) {
-            if (printQuery) {
-                System.out.println(key + " = " + queryParameters.get(key));
-            }
-            q.setParameter(key, queryParameters.get(key));
-        }
-        return q.getResultList();
+        return this.query(hql, conditions, parameters.getGlobalCondition(), printQuery);
     }
 }

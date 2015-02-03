@@ -17,6 +17,15 @@ public interface EnhedsAdresseRepository extends JpaRepository<EnhedsAdresseEnti
 
     public EnhedsAdresseEntity getByUuid(String uuid);
 
+    //public EnhedsAdresseVersionEntity getByValues(int kommuneKode, int vejKode, String husnr, String etage, String doer);
+
+    @Query("select version from EnhedsAdresseEntity entity " +
+            "join entity.latestVersion as version " +
+            "where version.descriptor = :descriptor")
+    public EnhedsAdresseVersionEntity getByDescriptor(@Param("descriptor") String descriptor);
+
+    //public EnhedsAdresseVersionEntity getByDescriptor(String descriptor);
+
     /*
     * To be implemented in interface implementation
     * */

@@ -3,6 +3,7 @@ package dk.magenta.databroker.dawa.model.adgangsadresse;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
+import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseEntity;
 import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseVersionEntity;
 import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
 import dk.magenta.databroker.dawa.model.stormodtagere.StormodtagerEntity;
@@ -26,7 +27,7 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
 
     public AdgangsAdresseEntity() {
         this.versioner = new ArrayList<AdgangsAdresseVersionEntity>();
-        this.enhedsAdresseVersioner = new ArrayList<EnhedsAdresseVersionEntity>();
+        this.enhedsAdresser = new ArrayList<EnhedsAdresseEntity>();
         this.generateNewUUID();
     }
 
@@ -99,14 +100,14 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
     //----------------------------------------------------
 
     @OneToMany(mappedBy = "adgangsadresse")
-    private Collection<EnhedsAdresseVersionEntity> enhedsAdresseVersioner;
+    private Collection<EnhedsAdresseEntity> enhedsAdresser;
 
-    public Collection<EnhedsAdresseVersionEntity> getEnhedsAdresseVersioner() {
-        return enhedsAdresseVersioner;
+    public Collection<EnhedsAdresseEntity> getEnhedsAdresser() {
+        return enhedsAdresser;
     }
 
-    public void setEnhedsAdresseVersioner(Collection<EnhedsAdresseVersionEntity> enhedsAdresseVersioner) {
-        this.enhedsAdresseVersioner = enhedsAdresseVersioner;
+    public void setEnhedsAdresser(Collection<EnhedsAdresseEntity> enhedsAdresser) {
+        this.enhedsAdresser = enhedsAdresser;
     }
 
     //----------------------------------------------------
@@ -191,12 +192,10 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
             obj.put("postnumre", postnumre);
         }
 
-        if (!this.enhedsAdresseVersioner.isEmpty()) {
+        if (!this.enhedsAdresser.isEmpty()) {
             JSONArray enhedsAdresser = new JSONArray();
-            for (EnhedsAdresseVersionEntity enhedsAdresseVersionEntity : this.getEnhedsAdresseVersioner()) {
-                if (enhedsAdresseVersionEntity.getEntity().getLatestVersion() == enhedsAdresseVersionEntity) {
-                    enhedsAdresser.put(enhedsAdresseVersionEntity.getEntity().toJSON());
-                }
+            for (EnhedsAdresseEntity enhedsAdresseEntity : this.getEnhedsAdresser()) {
+                enhedsAdresser.put(enhedsAdresseEntity.toJSON());
             }
             obj.put("enhedsadresser", enhedsAdresser);
         }

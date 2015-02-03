@@ -1,5 +1,6 @@
 package dk.magenta.databroker.dawa.model.vejstykker;
 
+import dk.magenta.databroker.dawa.model.RepositoryImplementation;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.register.RepositoryUtil;
@@ -19,14 +20,7 @@ interface VejstykkeRepositoryCustom {
     public Collection<VejstykkeEntity> search(SearchParameters parameters, boolean quiet);
 }
 
-public class VejstykkeRepositoryImpl implements VejstykkeRepositoryCustom {
-
-    private EntityManager entityManager;
-
-    @PersistenceContext
-    public void setEntityManager(EntityManager entityManager){
-        this.entityManager = entityManager;
-    }
+public class VejstykkeRepositoryImpl extends RepositoryImplementation<VejstykkeEntity> implements VejstykkeRepositoryCustom {
 
     @Override
     public Collection<VejstykkeEntity> search(SearchParameters parameters, boolean printQuery) {
@@ -80,18 +74,6 @@ public class VejstykkeRepositoryImpl implements VejstykkeRepositoryCustom {
         }
         hql.append("order by vej.kode");
 
-        if (printQuery) {
-            System.out.println(hql.join(" \n"));
-        }
-        Query q = this.entityManager.createQuery(hql.join(" "));
-        q.setMaxResults(1000);
-        Map<String, Object> queryParameters = conditions.getParameters();
-        for (String key : queryParameters.keySet()) {
-            if (printQuery) {
-                System.out.println(key + " = " + queryParameters.get(key));
-            }
-            q.setParameter(key, queryParameters.get(key));
-        }
-        return q.getResultList();
+        return this.query(hql, conditions, parameters.getGlobalCondition(), printQuery);
     }
 }

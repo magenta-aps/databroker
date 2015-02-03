@@ -28,4 +28,8 @@ public abstract class Util {
         return false;
     }
 
+    public static String emptyIfNull(String str) {
+        return str == null ? "" : str;
+    }
+
 }

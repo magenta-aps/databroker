@@ -85,10 +85,10 @@ public class SearchService {
     @Path("kommune")
     @Transactional
     public String kommune(@QueryParam("land") String[] land, @QueryParam("kommune") String[] kommune, @QueryParam("post") String[] post, @QueryParam("lokalitet") String[] lokalitet, @QueryParam("vej") String[] vej,
-                          @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
+                          @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter, @QueryParam("offset") int offset, @QueryParam("limit") int limit) {
         Format fmt = this.getFormat(formatStr);
 
-        SearchParameters parameters = new SearchParameters(land, kommune, post, lokalitet, vej, new GlobalCondition(includeBefore, includeAfter));
+        SearchParameters parameters = new SearchParameters(land, kommune, post, lokalitet, vej, new GlobalCondition(includeBefore, includeAfter, offset, limit));
 
         List<OutputFormattable> kommuner = new ArrayList<OutputFormattable>(
                 this.dawaModel.getKommune(parameters)
@@ -131,10 +131,10 @@ public class SearchService {
     @Path("vej")
     @Transactional
     public String vej(@QueryParam("land") String[] land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej, @QueryParam("lokalitet") String[] lokalitet, @QueryParam("post") String[] post,
-                      @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
+                      @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter, @QueryParam("offset") int offset, @QueryParam("limit") int limit) {
         Format fmt = this.getFormat(formatStr);
 
-        SearchParameters parameters = new SearchParameters(land, kommune, post, lokalitet, vej, new GlobalCondition(includeBefore, includeAfter));
+        SearchParameters parameters = new SearchParameters(land, kommune, post, lokalitet, vej, new GlobalCondition(includeBefore, includeAfter, offset, limit));
 
         List<OutputFormattable> veje = new ArrayList<OutputFormattable>(
             this.dawaModel.getVejstykke(parameters)
@@ -167,10 +167,10 @@ public class SearchService {
     @Path("postnr")
     @Transactional
     public String postnummer(@QueryParam("land") String[] land, @QueryParam("post") String[] post, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej,
-                             @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
+                             @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter, @QueryParam("offset") int offset, @QueryParam("limit") int limit) {
         Format fmt = this.getFormat(formatStr);
 
-        SearchParameters parameters = new SearchParameters(land, kommune, post, null, vej, new GlobalCondition(includeBefore, includeAfter));
+        SearchParameters parameters = new SearchParameters(land, kommune, post, null, vej, new GlobalCondition(includeBefore, includeAfter, offset, limit));
 
         ArrayList<OutputFormattable> postnumre = new ArrayList<OutputFormattable>(
             this.dawaModel.getPostnummer(parameters)
@@ -212,10 +212,10 @@ public class SearchService {
     @Path("adgangsadresse")
     @Transactional
     public String adgangsadresse(@QueryParam("land") String[] land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej, @QueryParam("post") String[] post, @QueryParam("husnr") String[] husnr, @QueryParam("bnr") String[] bnr,
-                          @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
+                          @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter, @QueryParam("offset") int offset, @QueryParam("limit") int limit) {
         Format fmt = this.getFormat(formatStr);
 
-        SearchParameters parameters = new SearchParameters(land, kommune, post, null, vej, husnr, bnr, new GlobalCondition(includeBefore, includeAfter));
+        SearchParameters parameters = new SearchParameters(land, kommune, post, null, vej, husnr, bnr, new GlobalCondition(includeBefore, includeAfter, offset, limit));
 
         ArrayList<OutputFormattable> adresser = new ArrayList<OutputFormattable>(
                 this.dawaModel.getAdgangsAdresse(parameters)
@@ -248,10 +248,10 @@ public class SearchService {
     @Path("adresse")
     @Transactional
     public String adresse(@QueryParam("land") String[] land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej, @QueryParam("post") String[] post, @QueryParam("husnr") String[] husnr, @QueryParam("bnr") String[] bnr, @QueryParam("etage") String[] etage, @QueryParam("doer") String[] doer,
-                          @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
+                          @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter, @QueryParam("offset") int offset, @QueryParam("limit") int limit) {
         Format fmt = this.getFormat(formatStr);
 
-        SearchParameters parameters = new SearchParameters(land, kommune, post, null, vej, husnr, bnr, etage, doer, new GlobalCondition(includeBefore, includeAfter));
+        SearchParameters parameters = new SearchParameters(land, kommune, post, null, vej, husnr, bnr, etage, doer, new GlobalCondition(includeBefore, includeAfter, offset, limit));
 
         ArrayList<OutputFormattable> adresser = new ArrayList<OutputFormattable>(
                 this.dawaModel.getEnhedsAdresse(parameters)
@@ -285,10 +285,10 @@ public class SearchService {
     @Path("lokalitet")
     @Transactional
     public String lokalitet(@QueryParam("land") String[] land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej, @QueryParam("post") String[] post, @QueryParam("lokalitet") String[] lokalitet,
-                          @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
+                          @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter, @QueryParam("offset") int offset, @QueryParam("limit") int limit) {
         Format fmt = this.getFormat(formatStr);
 
-        SearchParameters parameters = new SearchParameters(land, kommune, post, lokalitet, vej, new GlobalCondition(includeBefore, includeAfter));
+        SearchParameters parameters = new SearchParameters(land, kommune, post, lokalitet, vej, new GlobalCondition(includeBefore, includeAfter, offset, limit));
 
         ArrayList<OutputFormattable> adresser = new ArrayList<OutputFormattable>(
                 this.dawaModel.getLokalitet(parameters)
@@ -324,10 +324,10 @@ public class SearchService {
     @Transactional
     public String company(@QueryParam("land") String[] land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej, @QueryParam("husnr") String[] husnr, @QueryParam("post") String[] post, @QueryParam("lokalitet") String[] lokalitet,
                           @QueryParam("virksomhed") String[] virksomhed, @QueryParam("cvr") String[] cvr,
-                            @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
+                            @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter, @QueryParam("offset") int offset, @QueryParam("limit") int limit) {
         Format fmt = this.getFormat(formatStr);
 
-        SearchParameters parameters = new SearchParameters(land, kommune, post, lokalitet, vej, husnr, null, new GlobalCondition(includeBefore, includeAfter));
+        SearchParameters parameters = new SearchParameters(land, kommune, post, lokalitet, vej, husnr, null, new GlobalCondition(includeBefore, includeAfter, offset, limit));
         parameters.put(SearchParameters.Key.VIRKSOMHED, virksomhed);
         parameters.put(SearchParameters.Key.CVR, cvr);
 

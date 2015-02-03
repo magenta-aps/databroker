@@ -1,5 +1,6 @@
 package dk.magenta.databroker.dawa.model.adgangsadresse;
 
+import dk.magenta.databroker.dawa.model.RepositoryImplementation;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
@@ -22,14 +23,7 @@ interface AdgangsAdresseRepositoryCustom {
     public Collection<AdgangsAdresseEntity> search(SearchParameters parameters, boolean printQuery);
 }
 
-public class AdgangsAdresseRepositoryImpl implements AdgangsAdresseRepositoryCustom {
-
-    private EntityManager entityManager;
-
-    @PersistenceContext
-    public void setEntityManager(EntityManager entityManager){
-        this.entityManager = entityManager;
-    }
+public class AdgangsAdresseRepositoryImpl extends RepositoryImplementation<AdgangsAdresseEntity> implements AdgangsAdresseRepositoryCustom {
 
     @Override
     public Collection<AdgangsAdresseEntity> search(SearchParameters parameters, boolean printQuery) {
@@ -38,7 +32,7 @@ public class AdgangsAdresseRepositoryImpl implements AdgangsAdresseRepositoryCus
         StringList join = new StringList();
         ConditionList conditions = new ConditionList(ConditionList.Operator.AND);
 
-        hql.append("select distinct adresse from AdgangsAdresseEntity as "+AdgangsAdresseEntity.databaseKey);
+        hql.append("select distinct "+AdgangsAdresseEntity.databaseKey+" from AdgangsAdresseEntity as "+AdgangsAdresseEntity.databaseKey);
         join.setPrefix("join ");
 
         if (parameters.hasAny(Key.LAND, Key.KOMMUNE, Key.POST, Key.VEJ)) {
@@ -83,19 +77,6 @@ public class AdgangsAdresseRepositoryImpl implements AdgangsAdresseRepositoryCus
 
         hql.append("order by "+AdgangsAdresseEntity.databaseKey+".husnr");
 
-        if (printQuery) {
-            System.out.println(hql.join(" \n"));
-        }
-        Query q = this.entityManager.createQuery(hql.join(" "));
-        q.setMaxResults(1000);
-        Map<String, Object> queryParameters = conditions.getParameters();
-        for (String key : queryParameters.keySet()) {
-            if (printQuery) {
-                System.out.println(key + " = " + queryParameters.get(key));
-            }
-            q.setParameter(key, queryParameters.get(key));
-        }
-        return q.getResultList();
-
+        return this.query(hql, conditions, parameters.getGlobalCondition(), printQuery);
     }
 }
