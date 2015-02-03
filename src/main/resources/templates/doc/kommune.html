@@ -13,45 +13,13 @@
 
     <div class="search">
 
-        <div class="form-group col-sm-12">
-            <label for="land" class="col-sm-2 control-label">Land:</label>
-            <div class="col-sm-3">
-                <select name="land" id="land" class="form-control">
-                    <option value="">-</option>
-                    <option value="dk">Danmark</option>
-                    <option value="gl">Grønland</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="form-group col-sm-12">
-            <label for="kommune" class="col-sm-2 control-label">Kommune:</label>
-            <div class="col-sm-3">
-                <input type="text" name="kommune" id="kommune" class="form-control"/>
-            </div>
-        </div>
-
-        <div class="form-group col-sm-12">
-            <label for="lokalitet" class="col-sm-2 control-label">Post:</label>
-            <div class="col-sm-3">
-                <input type="text" name="post" id="post" class="form-control"/>
-            </div>
-        </div>
-
-        <div class="form-group col-sm-12">
-            <label for="lokalitet" class="col-sm-2 control-label">Lokalitet:</label>
-            <div class="col-sm-3">
-                <input type="text" name="lokalitet" id="lokalitet" class="form-control"/>
-            </div>
-        </div>
-
-        <div class="form-group col-sm-12">
-            <label for="lokalitet" class="col-sm-2 control-label">Vej:</label>
-            <div class="col-sm-3">
-                <input type="text" name="vej" id="vej" class="form-control"/>
-            </div>
-        </div>
-
+        <div th:replace="doc/fragments/inputparams/land"/>
+        <div th:replace="doc/fragments/inputparams/kommune"/>
+        <div th:replace="doc/fragments/inputparams/post"/>
+        <div th:replace="doc/fragments/inputparams/lokalitet"/>
+        <div th:replace="doc/fragments/inputparams/vej"/>
+        <div th:replace="doc/fragments/inputparams/offset"/>
+        <div th:replace="doc/fragments/inputparams/limit"/>
 
         <button type="submit" id="json" name="format" value="json" onclick="" class="btn btn-default">JSON</button>
         <button type="submit" id="xml" name="format" value="xml" onclick="" class="btn btn-default">XML</button>
@@ -63,7 +31,7 @@
 
     <script type="text/javascript" th:inline="javascript">
         //<![CDATA[
-        var fields = $('#land,#kommune,#post,#lokalitet,#vej,#format');
+        var fields = $('#land,#kommune,#post,#lokalitet,#vej,#offset,#limit');
         var currentFormat = $("#json");
 
         var showData = function(data) {
@@ -172,15 +140,17 @@
         </thead>
         <tbody>
 
-            <tr th:replace="doc/fragments/params/kommune"/>
-            <tr th:replace="doc/fragments/params/land"/>
-            <tr th:replace="doc/fragments/params/post"/>
-            <tr th:replace="doc/fragments/params/lokalitet"/>
-            <tr th:replace="doc/fragments/params/vej"/>
+            <tr th:replace="doc/fragments/docparams/kommune"/>
+            <tr th:replace="doc/fragments/docparams/land"/>
+            <tr th:replace="doc/fragments/docparams/post"/>
+            <tr th:replace="doc/fragments/docparams/lokalitet"/>
+            <tr th:replace="doc/fragments/docparams/vej"/>
 
-            <tr th:replace="doc/fragments/params/format"/>
-            <!--tr th:replace="doc/fragments/params/includeBefore"/>
-            <tr th:replace="doc/fragments/params/includeAfter"/-->
+            <tr th:replace="doc/fragments/docparams/format"/>
+            <!--tr th:replace="doc/fragments/docparams/includeBefore"/>
+            <tr th:replace="doc/fragments/docparams/includeAfter"/-->
+            <tr th:replace="doc/fragments/docparams/offset"/>
+            <tr th:replace="doc/fragments/docparams/limit"/>
 
         </tbody>
     </table>

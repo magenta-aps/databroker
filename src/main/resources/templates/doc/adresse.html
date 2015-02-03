@@ -13,80 +13,19 @@
     <p>Søg efter adresser ved at udfylde et eller flere af de nedenstående felter. Se beskrivelsen af parametrene <a href="#parameters">længere nede på siden.</a></p>
 
     <div class="search">
-        <div class="form-group col-sm-12">
-            <label for="land" class="col-sm-2 control-label">Land:</label>
-            <div class="col-sm-3">
-                <select name="land" id="land" class="form-control">
-                    <option value="">-</option>
-                    <option value="dk">Danmark</option>
-                    <option value="gl">Grønland</option>
-                </select>
-            </div>
-        </div>
 
-        <div class="form-group col-sm-12">
-            <label for="kommune" class="col-sm-2 control-label">Kommune:</label>
-            <div class="col-sm-3">
-                <input type="text" name="kommune" id="kommune" class="form-control"/>
-            </div>
-        </div>
-
-        <div class="form-group col-sm-12">
-            <label for="post" class="col-sm-2 control-label">Post:</label>
-            <div class="col-sm-3">
-                <input type="text" name="post" id="post" class="form-control"/>
-            </div>
-        </div>
-
-        <div class="form-group col-sm-12">
-            <label for="vej" class="col-sm-2 control-label">Vej:</label>
-            <div class="col-sm-3">
-                <input type="text" name="vej" id="vej" class="form-control"/>
-            </div>
-        </div>
-
-        <div class="form-group col-sm-12">
-            <label for="husnr" class="col-sm-2 control-label">Husnr:</label>
-            <div class="col-sm-3">
-                <input type="text" name="husnr" id="husnr" class="form-control"/>
-            </div>
-        </div>
-
-        <div class="form-group col-sm-12">
-            <label for="bnr" class="col-sm-2 control-label">B-nummer:</label>
-            <div class="col-sm-3">
-                <input type="text" name="bnr" id="bnr" class="form-control"/>
-            </div>
-        </div>
-
-        <div class="form-group col-sm-12">
-            <label for="etage" class="col-sm-2 control-label">Etage:</label>
-            <div class="col-sm-3">
-                <input type="text" name="etage" id="etage" class="form-control"/>
-            </div>
-        </div>
-
-        <div class="form-group col-sm-12">
-            <label for="doer" class="col-sm-2 control-label">Dør:</label>
-            <div class="col-sm-3">
-                <input type="text" name="doer" id="doer" class="form-control"/>
-            </div>
-        </div>
-
-        <div class="form-group col-sm-12">
-            <label for="includeBefore" class="col-sm-2 control-label">IncludeBefore:</label>
-            <div class="col-sm-3">
-                <input type="date" name="includeBefore" id="includeBefore" class="form-control"/>
-            </div>
-        </div>
-
-        <div class="form-group col-sm-12">
-            <label for="IncludeAfter" class="col-sm-2 control-label">IncludeAfter:</label>
-            <div class="col-sm-3">
-                <input type="date" name="IncludeAfter" id="IncludeAfter" class="form-control"/>
-            </div>
-        </div>
-
+        <div th:replace="doc/fragments/inputparams/land"/>
+        <div th:replace="doc/fragments/inputparams/kommune"/>
+        <div th:replace="doc/fragments/inputparams/post"/>
+        <div th:replace="doc/fragments/inputparams/vej"/>
+        <div th:replace="doc/fragments/inputparams/husnr"/>
+        <div th:replace="doc/fragments/inputparams/bnr"/>
+        <div th:replace="doc/fragments/inputparams/etage"/>
+        <div th:replace="doc/fragments/inputparams/doer"/>
+        <div th:replace="doc/fragments/inputparams/includeBefore"/>
+        <div th:replace="doc/fragments/inputparams/includeAfter"/>
+        <div th:replace="doc/fragments/inputparams/offset"/>
+        <div th:replace="doc/fragments/inputparams/limit"/>
 
         <button type="submit" id="json" name="format" value="json" onclick="" class="btn btn-default">JSON</button>
         <button type="submit" id="xml" name="format" value="xml" onclick="" class="btn btn-default">XML</button>
@@ -97,7 +36,7 @@
     </div>
     <script type="text/javascript" th:inline="javascript">
         //<![CDATA[
-        var fields = $('#land,#kommune,#post,#vej,#husnr,#bnr,#etage,#doer,#format,#includeBefore,#includeAfter');
+        var fields = $('#land,#kommune,#post,#vej,#husnr,#bnr,#etage,#doer,#includeBefore,#includeAfter,#offset,#limit');
         var currentFormat = $("#json");
 
         var showData = function(data) {
@@ -206,18 +145,20 @@
         </thead>
         <tbody>
 
-        <tr th:replace="doc/fragments/params/kommune"/>
-        <tr th:replace="doc/fragments/params/land"/>
-        <tr th:replace="doc/fragments/params/vej"/>
-        <tr th:replace="doc/fragments/params/post"/>
-        <tr th:replace="doc/fragments/params/husnr"/>
-        <tr th:replace="doc/fragments/params/bnr"/>
-        <tr th:replace="doc/fragments/params/etage"/>
-        <tr th:replace="doc/fragments/params/doer"/>
+        <tr th:replace="doc/fragments/docparams/kommune"/>
+        <tr th:replace="doc/fragments/docparams/land"/>
+        <tr th:replace="doc/fragments/docparams/vej"/>
+        <tr th:replace="doc/fragments/docparams/post"/>
+        <tr th:replace="doc/fragments/docparams/husnr"/>
+        <tr th:replace="doc/fragments/docparams/bnr"/>
+        <tr th:replace="doc/fragments/docparams/etage"/>
+        <tr th:replace="doc/fragments/docparams/doer"/>
 
-        <tr th:replace="doc/fragments/params/format"/>
-        <tr th:replace="doc/fragments/params/includeBefore"/>
-        <tr th:replace="doc/fragments/params/includeAfter"/>
+        <tr th:replace="doc/fragments/docparams/format"/>
+        <tr th:replace="doc/fragments/docparams/includeBefore"/>
+        <tr th:replace="doc/fragments/docparams/includeAfter"/>
+        <tr th:replace="doc/fragments/docparams/offset"/>
+        <tr th:replace="doc/fragments/docparams/limit"/>
 
         </tbody>
     </table>
