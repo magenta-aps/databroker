@@ -5,10 +5,6 @@ body {
     padding: 40px 15px;
 }
 
-.search label {
-    width: 120px;
-}
-
 .infobox {
     border: 1px solid #eee;
     border-radius: 3px;
@@ -31,12 +27,6 @@ input.form-control[type=file] {
     vertical-align: middle;
 }
 
-#treeview {
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 9.5px;
-}
-
 #treeview .key {
     color: #888;
 }
@@ -47,13 +37,29 @@ input.form-control[type=file] {
     text-decoration: underline;
 }
 
-textarea {
+textarea.output {
+    resize: none;
+}
+
+textarea,
+#treeview {
     border: 1px solid #ccc;
     border-radius: 4px;
+    background: #fff;
+    padding: 9.5px;
+    margin: 5px 0;
 }
 
 textarea.output {
-    background: #fff;
-    resize: none;
-    padding: 9.5px;
+    width: 100%;
+    height: 200px;
+    display: none
+}
+#treeview {
+    display: none
+}
+
+label {
+    height: 29px;
+    line-height: 29px;
 }

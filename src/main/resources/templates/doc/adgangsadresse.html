@@ -12,7 +12,7 @@
     <h3>Interaktiv Adgangsadressesøgning</h3>
     <p>Søg efter adresser ved at udfylde et eller flere af de nedenstående felter. Se beskrivelsen af parametrene <a href="#parameters">længere nede på siden.</a></p>
 
-    <p class="search">
+    <div class="search">
         <div class="form-group col-sm-12">
             <label for="land" class="col-sm-2 control-label">Land:</label>
             <div class="col-sm-3">
@@ -77,10 +77,10 @@
         <button type="submit" id="json" name="format" value="json" onclick="" class="btn btn-default">JSON</button>
         <button type="submit" id="xml" name="format" value="xml" onclick="" class="btn btn-default">XML</button>
         <button type="submit" id="tree" name="format" value="tree" onclick="" class="btn btn-default">Tree</button>
-        <img id="loading" th:src="@{/img/loading.gif}" style="display:none"/><br/>
-        <textarea class="output" id="results" style="width:100%; height:200px; display: none" readonly="readonly"/>
-        <div id="treeview" style="display:none"/>
-    </p>
+        <img id="loading" th:src="@{/img/loading.gif}" style="display:none"/>
+        <textarea class="output" id="results" readonly="readonly"/>
+        <div id="treeview"/>
+    </div>
     <script type="text/javascript" th:inline="javascript">
         //<![CDATA[
         var fields = $('#land,#kommune,#post,#vej,#husnr,#bnr,#format,#includeBefore,#includeAfter');
