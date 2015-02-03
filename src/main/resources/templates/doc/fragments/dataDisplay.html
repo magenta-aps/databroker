@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout">
+    <head></head>
+    <body>
+
+        <div th:fragment="buttons">
+            <button type="submit" id="json" name="format" value="json" onclick="" class="btn btn-default">JSON</button>
+            <button type="submit" id="xml" name="format" value="xml" onclick="" class="btn btn-default">XML</button>
+            <button type="submit" id="tree" name="format" value="tree" onclick="" class="btn btn-default">Tree</button>
+            <img id="loading" th:src="@{/img/loading.gif}" style="display:none"/>
+        </div>
+
+        <div th:fragment="containers">
+            <textarea class="output" id="results" readonly="readonly"/>
+            <div id="treeview"/>
+        </div>
+
+        <div th:fragment="script">
+            <script type="text/javascript">
+                //<![CDATA[
+                var fields = $('.search input, .search select');
+                var currentFormat = $("#json");
+
+                var showData = function(data) {
+                    $("#treeview").hide();
+                    $("#results").text(data);
+                    $("#results").show();
+                }
+                var showTree = function(data) {
+                    $("#results").hide();
+                    $("#treeview").magentaTree(data);
+                    $("#treeview").show();
+                }
+
+
+                $("#json,#xml").each(function(i,el){
+                    var button = $(el);
+
+                    var run = doSearch.bind(
+                            null,
+                            window.dataSource,
+                            fields.add(button),
+                            function(data) {
+                                showData(data);
+                                currentFormat = button;
+                            },
+                            $("#loading")
+                    );
+                    button.select(run);
+                    button.click(run);
+                });
+
+                $("#tree").click(doSearch.bind(
+                        null,
+                        window.dataSource,
+                        fields.add("#json"),
+                        function(data) {
+                            showTree(data);
+                            currentFormat = "tree";
+                        },
+                        $("#loading")
+                ));
+
+                fields.keyup(function(ev){
+                    if (ev.keyCode == 13) {
+                        doSearch(
+                                window.dataSource,
+                                fields.add(currentFormat == "tree" ? $("#json") : currentFormat),
+                                function(data) {
+                                    if (currentFormat == "tree") {
+                                        showTree(data);
+                                    } else {
+                                        showData(data);
+                                    }
+                                },
+                                $("#loading")
+                        )
+                    }
+                })
+
+                //]]>
+            </script>
+        </div>
+    </body>
+</html>

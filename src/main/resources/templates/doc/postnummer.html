@@ -22,76 +22,16 @@
         <div th:replace="doc/fragments/inputparams/offset"/>
         <div th:replace="doc/fragments/inputparams/limit"/>
 
-        <button type="submit" id="json" name="format" value="json" onclick="" class="btn btn-default">JSON</button>
-        <button type="submit" id="xml" name="format" value="xml" onclick="" class="btn btn-default">XML</button>
-        <button type="submit" id="tree" name="format" value="tree" onclick="" class="btn btn-default">Tree</button>
-        <img id="loading" th:src="@{/img/loading.gif}" style="display:none"/>
-        <textarea class="output" id="results" readonly="readonly"/>
-        <div id="treeview"/>
+        <div th:replace="doc/fragments/dataDisplay :: buttons"/>
     </div>
+    <div th:replace="doc/fragments/dataDisplay :: containers"/>
+
     <script type="text/javascript" th:inline="javascript">
         //<![CDATA[
-        var fields = $('.search input, .search select');
-        var currentFormat = $("#json");
-
-        var showData = function(data) {
-            $("#treeview").hide();
-            $("#results").text(data);
-            $("#results").show();
-        }
-        var showTree = function(data) {
-            $("#results").hide();
-            $("#treeview").magentaTree(data);
-            $("#treeview").show();
-        }
-
-
-        $("#json,#xml").each(function(i,el){
-            var button = $(el);
-
-            var run = doSearch.bind(
-                    null,
-                    /*[[@{/services/search/postnr}]]*/ '/services/search/postnr',
-                    fields.add(button),
-                    function(data) {
-                        showData(data);
-                        currentFormat = button;
-                    },
-                    $("#loading")
-            );
-            button.select(run);
-            button.click(run);
-        });
-
-        $("#tree").click(doSearch.bind(
-                null,
-                /*[[@{/services/search/postnr}]]*/ '/services/search/postnr',
-                fields.add("#json"),
-                function(data) {
-                    showTree(data);
-                    currentFormat = "tree";
-                },
-                $("#loading")
-        ));
-
-        fields.keyup(function(ev){
-            if (ev.keyCode == 13) {
-                doSearch(
-                        /*[[@{/services/search/postnr}]]*/ '/services/search/postnr',
-                        fields.add(currentFormat == "tree" ? $("#json") : currentFormat),
-                        function(data) {
-                            if (currentFormat == "tree") {
-                                showTree(data);
-                            } else {
-                                showData(data);
-                            }
-                        },
-                        $("#loading")
-                )
-            }
-        })
+        window.dataSource = /*[[@{/services/search/postnr}]]*/ "/services/search/postnr";
         //]]>
     </script>
+    <script th:replace="doc/fragments/dataDisplay :: script"/>
 
     <hr/>
 
