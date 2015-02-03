@@ -14,45 +14,93 @@
 
     <p class="search">
 
-        <label for="virksomhed">Virksomhedsnavn:</label>
-        <input type="text" name="virksomhed" id="virksomhed"/><br/>
+        <div class="form-group col-sm-12">
+            <label for="virksomhed" class="col-sm-2 control-label">Virksomhedsnavn:</label>
+            <div class="col-sm-3">
+                <input type="text" name="virksomhed" id="virksomhed" class="form-control"/>
+            </div>
+        </div>
 
-        <label for="cvr">CVR-nummer:</label>
-        <input type="text" name="cvr" id="cvr"/><br/>
+        <div class="form-group col-sm-12">
+            <label for="cvr" class="col-sm-2 control-label">CVR-nummer:</label>
+            <div class="col-sm-3">
+                <input type="text" name="cvr" id="cvr" class="form-control"/>
+            </div>
+        </div>
 
-        <label for="land">Land:</label>
-        <select name="land" id="land">
-            <option value="">-</option>
-            <option value="dk">Danmark</option>
-            <option value="gl">Grønland</option>
-        </select><br/>
+        <div class="form-group col-sm-12">
+            <label for="land" class="col-sm-2 control-label">Land:</label>
+            <div class="col-sm-3">
+                <select name="land" id="land" class="form-control">
+                        <option value="">-</option>
+                        <option value="dk">Danmark</option>
+                        <option value="gl">Grønland</option>
+                    </select>
+            </div>
+        </div>
 
-        <label for="kommune">Kommune:</label>
-        <input type="text" name="kommune" id="kommune"/><br/>
+        <div class="form-group col-sm-12">
+            <label for="kommune" class="col-sm-2 control-label">Kommune:</label>
+            <div class="col-sm-3">
+                <input type="text" name="kommune" id="kommune" class="form-control"/>
+            </div>
+        </div>
 
-        <label for="post">Post:</label>
-        <input type="text" name="post" id="post"/><br/>
+        <div class="form-group col-sm-12">
+            <label for="post" class="col-sm-2 control-label">Post:</label>
+            <div class="col-sm-3">
+                <input type="text" name="post" id="post" class="form-control"/>
+            </div>
+        </div>
 
-        <label for="vej">Vej:</label>
-        <input type="text" name="vej" id="vej"/><br/>
+        <div class="form-group col-sm-12">
+            <label for="vej" class="col-sm-2 control-label">Vej:</label>
+            <div class="col-sm-3">
+                <input type="text" name="vej" id="vej" class="form-control"/>
+            </div>
+        </div>
 
-        <label for="husnr">Husnr:</label>
-        <input type="text" name="husnr" id="husnr"/><br/>
+        <div class="form-group col-sm-12">
+            <label for="husnr" class="col-sm-2 control-label">Husnr:</label>
+            <div class="col-sm-3">
+                <input type="text" name="husnr" id="husnr" class="form-control"/>
+            </div>
+        </div>
 
-        <label for="bnr">B-nummer:</label>
-        <input type="text" name="bnr" id="bnr"/><br/>
+        <div class="form-group col-sm-12">
+            <label for="bnr" class="col-sm-2 control-label">B-nummer:</label>
+            <div class="col-sm-3">
+                <input type="text" name="bnr" id="bnr" class="form-control"/>
+            </div>
+        </div>
 
-        <label for="etage">Etage:</label>
-        <input type="text" name="etage" id="etage"/><br/>
+        <div class="form-group col-sm-12">
+            <label for="etage" class="col-sm-2 control-label">Etage:</label>
+            <div class="col-sm-3">
+                <input type="text" name="etage" id="etage" class="form-control"/>
+            </div>
+        </div>
 
-        <label for="doer">Dør:</label>
-        <input type="text" name="doer" id="doer"/><br/>
+        <div class="form-group col-sm-12">
+            <label for="doer" class="col-sm-2 control-label">Dør:</label>
+            <div class="col-sm-3">
+                <input type="text" name="doer" id="doer" class="form-control"/>
+            </div>
+        </div>
 
-        <label for="includeBefore">IncludeBefore:</label>
-        <input type="date" name="includeBefore" id="includeBefore"/><br/>
+        <div class="form-group col-sm-12">
+            <label for="includeBefore" class="col-sm-2 control-label">IncludeBefore:</label>
+            <div class="col-sm-3">
+                <input type="date" name="includeBefore" id="includeBefore" class="form-control"/>
+            </div>
+        </div>
 
-        <label for="IncludeAfter">IncludeAfter:</label>
-        <input type="date" name="IncludeAfter" id="IncludeAfter"/><br/>
+        <div class="form-group col-sm-12">
+            <label for="IncludeAfter" class="col-sm-2 control-label">IncludeAfter:</label>
+            <div class="col-sm-3">
+                <input type="date" name="IncludeAfter" id="IncludeAfter" class="form-control"/>
+            </div>
+        </div>
 
 
         <button type="submit" id="json" name="format" value="json" onclick="" class="btn btn-default">JSON</button>

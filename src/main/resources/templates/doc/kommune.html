@@ -12,24 +12,45 @@
     <p>Søg efter kommuner ved at udfylde et eller flere af de nedenstående felter. Se beskrivelsen af parametrene <a href="#parameters">længere nede på siden.</a></p>
 
     <p class="search">
-        <label for="land">Land:</label>
-        <select name="land" id="land">
-            <option value="">-</option>
-            <option value="dk">Danmark</option>
-            <option value="gl">Grønland</option>
-        </select><br/>
 
-        <label for="kommune">Kommune:</label>
-        <input type="text" name="kommune" id="kommune"/><br/>
+        <div class="form-group col-sm-12">
+            <label for="land" class="col-sm-2 control-label">Land:</label>
+            <div class="col-sm-3">
+                <select name="land" id="land" class="form-control">
+                    <option value="">-</option>
+                    <option value="dk">Danmark</option>
+                    <option value="gl">Grønland</option>
+                </select>
+            </div>
+        </div>
 
-        <label for="lokalitet">Post:</label>
-        <input type="text" name="post" id="post"/><br/>
+        <div class="form-group col-sm-12">
+            <label for="kommune" class="col-sm-2 control-label">Kommune:</label>
+            <div class="col-sm-3">
+                <input type="text" name="kommune" id="kommune" class="form-control"/>
+            </div>
+        </div>
 
-        <label for="lokalitet">Lokalitet:</label>
-        <input type="text" name="lokalitet" id="lokalitet"/><br/>
+        <div class="form-group col-sm-12">
+            <label for="lokalitet" class="col-sm-2 control-label">Post:</label>
+            <div class="col-sm-3">
+                <input type="text" name="post" id="post" class="form-control"/>
+            </div>
+        </div>
 
-        <label for="lokalitet">Vej:</label>
-        <input type="text" name="vej" id="vej"/><br/>
+        <div class="form-group col-sm-12">
+            <label for="lokalitet" class="col-sm-2 control-label">Lokalitet:</label>
+            <div class="col-sm-3">
+                <input type="text" name="lokalitet" id="lokalitet" class="form-control"/>
+            </div>
+        </div>
+
+        <div class="form-group col-sm-12">
+            <label for="lokalitet" class="col-sm-2 control-label">Vej:</label>
+            <div class="col-sm-3">
+                <input type="text" name="vej" id="vej" class="form-control"/>
+            </div>
+        </div>
 
 
         <button type="submit" id="json" name="format" value="json" onclick="" class="btn btn-default">JSON</button>
