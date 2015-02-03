@@ -39,7 +39,7 @@
     </div>
     <script type="text/javascript" th:inline="javascript">
         //<![CDATA[
-        var fields = $('#virksomhed,#cvr,#land,#kommune,#post,#vej,#husnr,#bnr,#etage,#doer,#includeBefore,#includeAfter,#offset,#limit');
+        var fields = $('.search input, .search select');
         var currentFormat = $("#json");
 
         var showData = function(data) {
