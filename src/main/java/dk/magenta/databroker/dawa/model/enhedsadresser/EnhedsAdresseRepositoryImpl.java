@@ -10,12 +10,15 @@ import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.util.objectcontainers.StringList;
+import org.springframework.data.repository.query.Param;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +29,7 @@ import java.util.Map;
 interface EnhedsAdresseRepositoryCustom {
     //public EnhedsAdresseVersionEntity getByValues(int kommuneKode, int vejKode, String husnr, String etage, String doer);
     public Collection<EnhedsAdresseEntity> search(SearchParameters parameters, boolean printQuery);
+    public EnhedsAdresseEntity getFirstByLatestVersion_Descriptor(String descriptor);
 }
 
 public class EnhedsAdresseRepositoryImpl extends RepositoryImplementation<EnhedsAdresseEntity> implements EnhedsAdresseRepositoryCustom {
@@ -38,6 +42,19 @@ public class EnhedsAdresseRepositoryImpl extends RepositoryImplementation<Enheds
         List list = query.getResultList();
         if (list.size() > 0) {
             return (EnhedsAdresseVersionEntity) list.get(0);
+        }
+        return null;
+    }*/
+/*
+    public EnhedsAdresseVersionEntity getByDescriptor(String descriptor) {
+
+        Query query = this.entityManager.createQuery("select distinct version from EnhedsAdresseVersionEntity as version " +
+                "where version.descriptor = :descriptor");
+        query.setParameter("descriptor", descriptor);
+        query.setMaxResults(1);
+        List<EnhedsAdresseVersionEntity> enhedsAdresseVersionEntities = query.getResultList();
+        if (enhedsAdresseVersionEntities.size() > 0) {
+            return enhedsAdresseVersionEntities.get(0);
         }
         return null;
     }*/
@@ -103,6 +120,18 @@ public class EnhedsAdresseRepositoryImpl extends RepositoryImplementation<Enheds
         }
 
         return this.query(hql, conditions, parameters.getGlobalCondition(), printQuery);
+    }
+
+    @Override
+    public EnhedsAdresseEntity getFirstByLatestVersion_Descriptor(String descriptor) {
+        System.out.println("using overriding method");
+        Query q = this.entityManager.createQuery("select version from EnhedsAdresseVersionEntity version where version.descriptor = :descriptor");
+        q.setParameter("descriptor", descriptor);
+        q.setMaxResults(1);
+        long t = new Date().getTime();
+        List<EnhedsAdresseVersionEntity> list = q.getResultList();
+        System.out.println(new Date().getTime() - t);
+        return list != null && !list.isEmpty() ? list.get(0).getEntity() : null;
     }
 
     public void generateDescriptors() {

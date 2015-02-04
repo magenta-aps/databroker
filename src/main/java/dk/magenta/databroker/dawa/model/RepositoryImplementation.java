@@ -3,7 +3,6 @@ package dk.magenta.databroker.dawa.model;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.util.objectcontainers.StringList;
-import sun.org.mozilla.javascript.tools.shell.Global;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;

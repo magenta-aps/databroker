@@ -3,6 +3,7 @@ package dk.magenta.databroker.dawa.model.enhedsadresser;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikVersion;
 import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseEntity;
 import dk.magenta.databroker.util.Util;
+import org.hibernate.annotations.Index;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -80,7 +81,8 @@ public class EnhedsAdresseVersionEntity
 
     //----------------------------------------------------------------
 
-    @Column
+    @Column(nullable = false)
+    @Index(name = "descriptor")
     private String descriptor; // A field containing kommunekode,vejkode,husnr,etage and doer, for quick lookup
 
     public String getDescriptor() {
@@ -93,5 +95,11 @@ public class EnhedsAdresseVersionEntity
 
     public static String buildDescriptor(int kommuneKode, int vejKode, String husnr, String etage, String doer) {
         return (kommuneKode + ":" + vejKode + ":" + Util.emptyIfNull(husnr) + ":" + Util.emptyIfNull(etage) + ":" + Util.emptyIfNull(doer)).toLowerCase();
+    }
+
+
+
+    public String getFoo() {
+        return Util.emptyIfNull(this.getEtage())+":"+Util.emptyIfNull(this.getDoer());
     }
 }

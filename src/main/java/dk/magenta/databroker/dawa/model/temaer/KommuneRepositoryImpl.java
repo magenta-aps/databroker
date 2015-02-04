@@ -27,7 +27,6 @@ interface KommuneRepositoryCustom {
 
 public class KommuneRepositoryImpl extends RepositoryImplementation<KommuneEntity> implements KommuneRepositoryCustom {
 
-
     // Run a search where each input field may be a code or a name, and may contain leading and/or trailing wildcards
     // subject to a global condition (e.g. only extract entries with a version newer than a certain date)
     @Override

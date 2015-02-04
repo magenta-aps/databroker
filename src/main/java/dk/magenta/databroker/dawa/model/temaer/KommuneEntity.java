@@ -9,6 +9,7 @@ import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.Condition;
 import dk.magenta.databroker.service.rest.SearchService;
+import dk.magenta.databroker.util.cache.Cacheable;
 import dk.magenta.databroker.util.objectcontainers.Pair;
 import org.hibernate.annotations.Index;
 import org.json.JSONArray;
@@ -23,7 +24,7 @@ import java.util.HashSet;
  */
 @Entity
 @Table(name = "dawa_kommune")
-public class KommuneEntity extends TemaBase {
+public class KommuneEntity extends TemaBase implements Cacheable {
 
     public KommuneEntity() {
         this.postnumre = new HashSet<PostNummerVersionEntity>();
@@ -166,5 +167,10 @@ public class KommuneEntity extends TemaBase {
                 },
                 RepositoryUtil.whereVersionLatest(version)
         );
+    }
+
+    @Override
+    public String[] getIdentifiers() {
+        return new String[] { ""+this.getKode() };
     }
 }

@@ -3,15 +3,13 @@ package dk.magenta.databroker.dawa.model.vejstykker;
 import dk.magenta.databroker.dawa.model.RepositoryImplementation;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
-import dk.magenta.databroker.register.RepositoryUtil;
+import dk.magenta.databroker.dawa.model.lokalitet.LokalitetEntity;
+import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
+import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.util.objectcontainers.StringList;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import java.util.Collection;
-import java.util.Map;
 
 /**
  * Created by lars on 19-12-14.
@@ -35,22 +33,22 @@ public class VejstykkeRepositoryImpl extends RepositoryImplementation<VejstykkeE
         if (parameters.hasAny(Key.LAND, Key.KOMMUNE)) {
             join.append("vej.kommune kommune");
             if (parameters.has(Key.LAND)) {
-                conditions.addCondition(RepositoryUtil.whereFieldLand(parameters.get(Key.LAND)));
+                conditions.addCondition(KommuneEntity.landCondition(parameters));
             }
             if (parameters.has(Key.KOMMUNE)) {
-                conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.KOMMUNE), "kommune.kode", "kommune.navn"));
+                conditions.addCondition(KommuneEntity.kommuneCondition(parameters));
             }
         }
         if (parameters.has(Key.VEJ)) {
-            conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.VEJ), "vej.kode", "vej.latestVersion.vejnavn"));
+            conditions.addCondition(VejstykkeEntity.vejCondition(parameters));
         }
         if (parameters.has(Key.LOKALITET)) {
             join.append("vej.latestVersion.lokaliteter lokalitet");
-            conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.LOKALITET), null, "lokalitet.navn"));
+            conditions.addCondition(LokalitetEntity.lokalitetCondition(parameters));
         }
         if (parameters.has(Key.POST)) {
             join.append("vej.latestVersion.postnumre post");
-            conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.POST), "post.latestVersion.nr", "post.latestVersion.navn"));
+            conditions.addCondition(PostNummerEntity.postCondition(parameters));
         }
         if (parameters.hasGlobalCondition()) {
             conditions.addCondition(parameters.getGlobalCondition().whereField("vej"));

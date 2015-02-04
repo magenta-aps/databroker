@@ -45,6 +45,16 @@
         <mapping class="dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity"/>
         <mapping class="dk.magenta.databroker.dawa.model.vejstykker.VejstykkeVersionEntity"/>
 
+
+        <!-- cvr-adresser -->
+        <mapping class="dk.magenta.databroker.cvr.model.company.CompanyEntity"/>
+        <mapping class="dk.magenta.databroker.cvr.model.company.CompanyVersionEntity"/>
+        <mapping class="dk.magenta.databroker.cvr.model.companyunit.CompanyUnitEntity"/>
+        <mapping class="dk.magenta.databroker.cvr.model.companyunit.CompanyUnitVersionEntity"/>
+        <mapping class="dk.magenta.databroker.cvr.model.form.FormEntity"/>
+        <mapping class="dk.magenta.databroker.cvr.model.industry.IndustryEntity"/>
+
+
         <!-- test stuff
         <mapping class="dk.magenta.databroker.jubk.model.JubkEntity"/>
         <mapping class="dk.magenta.databroker.jubk.model.JubkRegistreringEntity"/>

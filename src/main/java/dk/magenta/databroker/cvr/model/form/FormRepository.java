@@ -1,4 +1,4 @@
-package dk.magenta.databroker.cvr.model.form.industry;
+package dk.magenta.databroker.cvr.model.form;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

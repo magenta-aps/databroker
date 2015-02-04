@@ -7,8 +7,10 @@ import dk.magenta.databroker.core.model.oio.VirkningEntity;
 import dk.magenta.databroker.cvr.model.CvrModel;
 import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseEntity;
+import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseVersionEntity;
 import dk.magenta.databroker.register.Register;
 import dk.magenta.databroker.register.RegisterRun;
+import dk.magenta.databroker.util.Util;
 import dk.magenta.databroker.util.objectcontainers.Level1Container;
 import dk.magenta.databroker.register.records.Record;
 import dk.magenta.databroker.util.objectcontainers.ListHash;
@@ -51,8 +53,6 @@ public class CvrRegister extends Register {
 
     private class VirksomhedRecord extends CvrRecord {
 
-        //private List<Long> productionUnits;
-
         public VirksomhedRecord(ListHash<String> virksomhedHash) {
             super(virksomhedHash);
             this.obtain("cvrNummer", "cvrnr");
@@ -70,22 +70,8 @@ public class CvrRegister extends Register {
             this.obtain("vejkode", "beliggenhedsadresse/vejkode");
             this.obtain("kommunekode", "beliggenhedsadresse/kommune/kode");
             this.obtain("phone", "telefonnummer/kontaktoplysning");
-/*
-            this.productionUnits = new ArrayList<Long>();
-            List<String> unitList = this.getList("produktionsenheder/produktionsenhed/pnr");
-            if (unitList != null) {
-                for (String pNummer : unitList) {
-                    try {
-                        this.productionUnits.add(Long.parseLong(pNummer));
-                    } catch (NumberFormatException e) {
-                    }
-                }
-            }*/
         }
 
-       /* public List<Long> getProductionUnits(){
-            return this.productionUnits;
-        }*/
     }
 
     private class ProductionUnitRecord extends CvrRecord {
@@ -206,6 +192,9 @@ public class CvrRegister extends Register {
     private static final int UNKNOWN_INDUSTRY = 999999;
 
 
+    int totalCompanies = 0;
+    int totalUnits = 0;
+
     @Override
     protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
 
@@ -221,6 +210,8 @@ public class CvrRegister extends Register {
             def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
             TransactionStatus status = this.txManager.getTransaction(def);
 
+            long lookupAddress = 0;
+            long createAddress = 0;
 
             try {
 
@@ -247,6 +238,13 @@ public class CvrRegister extends Register {
                     int form = virksomhed.getInt("form");
                     int primaryIndustry = virksomhed.getInt("primaryIndustry");
 
+                    Date startDate = this.parseDate(virksomhed.get("startDate"));
+                    Date endDate = this.parseDate(virksomhed.get("endDate"));
+
+                    int vejkode = virksomhed.getInt("vejkode");
+                    int kommunekode = virksomhed.getInt("kommunekode");
+                    String phone = virksomhed.get("phone");
+
                     List<Integer> secondaryIndustriesList = new ArrayList<Integer>();
                     String[] keys = new String[]{"secondaryIndustry1", "secondaryIndustry2", "secondaryIndustry3"};
                     for (String key : keys) {
@@ -261,21 +259,14 @@ public class CvrRegister extends Register {
                     int i = 0;
                     for (Iterator<Integer> iIter = secondaryIndustriesList.iterator(); iIter.hasNext(); secondaryIndustries[i++] = iIter.next());
 
-                    Date startDate = this.parseDate(virksomhed.get("startDate"));
-                    Date endDate = this.parseDate(virksomhed.get("endDate"));
-
-                    int vejkode = virksomhed.getInt("vejkode");
-                    int kommunekode = virksomhed.getInt("kommunekode");
-                    String phone = virksomhed.get("phone");
-
                     this.cvrModel.setCompany(cvrNummer, name,
                             primaryIndustry, secondaryIndustries, form,
                             startDate, endDate,
                             createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>());
+                    totalCompanies++;
                 }
 
 
-/*
                 for (ProductionUnitRecord unit : cRun.getProductionUnits().getList()) {
 
                     // Make sure the referenced industries are present in the DB
@@ -318,8 +309,8 @@ public class CvrRegister extends Register {
 
 
                     EnhedsAdresseEntity adresse = null;
-/*
-                    SearchParameters addressSearch = new SearchParameters();
+
+                    //SearchParameters addressSearch = new SearchParameters();
                     int kommuneKode = unit.getInt("kommunekode");
                     int postNr = unit.getInt("postnr");
                     int vejKode = unit.getInt("vejkode");
@@ -328,7 +319,7 @@ public class CvrRegister extends Register {
                     String etage = unit.get("etage");
                     String sidedoer = unit.get("sidedoer");
                     String fullHusNr = husnr + (bogstav != null ? bogstav : "");
-                    addressSearch.put(Key.KOMMUNE, kommuneKode);
+                    /*addressSearch.put(Key.KOMMUNE, kommuneKode);
                     //addressSearch.put(Key.POST, postNr);
                     addressSearch.put(Key.VEJ, vejKode);
                     addressSearch.put(Key.HUSNR, fullHusNr);
@@ -345,8 +336,25 @@ public class CvrRegister extends Register {
                         //System.out.println("Created new adresse " + adresse.getLatestVersion().getAdgangsadresse().getVejstykke().getLatestVersion().getVejnavn() + " " + fullHusNr + " in "+this.toc()+" ms");
                     }
                     */
-/*
 
+                    tic();
+                    System.out.println("Looking for address "+kommuneKode+":"+vejKode+" "+fullHusNr+" "+etage+" "+sidedoer);
+                    //adresse = this.dawaModel.getSingleEnhedsAdresse(kommuneKode, vejKode, fullHusNr, etage, sidedoer);
+                    EnhedsAdresseVersionEntity adresseVersion = this.dawaModel.getEnhedsAdresseCache().get(kommuneKode, vejKode, fullHusNr, Util.emptyIfNull(etage)+":"+Util.emptyIfNull(sidedoer));
+                    if (adresseVersion != null) {
+                        adresse = adresseVersion.getEntity();
+                    }
+                    lookupAddress += toc();
+                    if (adresse == null) {
+                        System.out.println("Address not found (spent "+toc()+" ms looking)");
+                        tic();
+                        adresse = dawaModel.setAdresse(kommuneKode, vejKode, fullHusNr, null, etage, sidedoer, createRegistrering, updateRegistrering);
+                        createAddress += toc();
+                        System.out.println("Created new adresse in "+this.toc()+" ms");
+                    } else {
+                        System.out.println("Adresse found");
+                    }
+                    System.out.println("Setting company unit");
                     this.cvrModel.setCompanyUnit(pNummer, name, cvrNummer,
                             primaryIndustry, secondaryIndustries,
                             adresse, phone, fax, email,
@@ -354,8 +362,13 @@ public class CvrRegister extends Register {
                             advertProtection,
                             createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>()
                     );
+                    System.out.println("Company unit "+name+" set");
+                    totalUnits++;
                 }
-*/
+                System.out.println("Addresses searched in "+lookupAddress+" ("+((float) lookupAddress / 50000.0)+")");
+                System.out.println("Addresses created in "+createAddress+" ("+((float) createAddress / 50000.0)+")");
+                this.cvrModel.flushCompanies();
+
                 this.txManager.commit(status);
             }
             catch (Exception ex) {
@@ -364,7 +377,7 @@ public class CvrRegister extends Register {
                 this.txManager.rollback(status);
             }
         }
-        System.out.println("ending transaction");
+        System.out.println("ending transaction ("+totalCompanies+" companies and "+totalUnits+" units)");
     }
 
     private void bulkWireReferences() {

@@ -1,4 +1,4 @@
-package dk.magenta.databroker.cvr.model.form.industry;
+package dk.magenta.databroker.cvr.model.form;
 
 import dk.magenta.databroker.core.model.OutputFormattable;
 import org.hibernate.annotations.Index;

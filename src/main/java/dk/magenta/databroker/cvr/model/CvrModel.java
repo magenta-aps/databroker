@@ -8,8 +8,8 @@ import dk.magenta.databroker.cvr.model.company.CompanyVersionEntity;
 import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitEntity;
 import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitRepository;
 import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitVersionEntity;
-import dk.magenta.databroker.cvr.model.form.industry.FormEntity;
-import dk.magenta.databroker.cvr.model.form.industry.FormRepository;
+import dk.magenta.databroker.cvr.model.form.FormEntity;
+import dk.magenta.databroker.cvr.model.form.FormRepository;
 import dk.magenta.databroker.cvr.model.industry.IndustryEntity;
 import dk.magenta.databroker.cvr.model.industry.IndustryRepository;
 import dk.magenta.databroker.dawa.model.SearchParameters;
@@ -133,6 +133,10 @@ public class CvrModel {
 
     public Collection<CompanyEntity> getCompany(SearchParameters parameters, boolean printQuery) {
         return this.companyRepository.search(parameters, printQuery);
+    }
+
+    public void flushCompanies() {
+        this.companyRepository.flushEntities();
     }
 
     //--------------------------------------------------

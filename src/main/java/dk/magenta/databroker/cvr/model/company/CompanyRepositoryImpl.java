@@ -22,6 +22,7 @@ import java.util.Map;
  */
 interface CompanyRepositoryCustom {
     public Collection<CompanyEntity> search(SearchParameters parameters, boolean printQuery);
+    public void flushEntities();
 }
 
 
@@ -117,6 +118,11 @@ public class CompanyRepositoryImpl implements CompanyRepositoryCustom {
         query.executeUpdate();
         System.out.println("References updated");*/
         //update cvr_companyunit unit join cvr_company company on unit.cvr_nummer=company.cvr_nummer set unit.company_id=company.id;
+    }
+
+    public void flushEntities() {
+        this.entityManager.flush();
+        this.entityManager.clear();
     }
 }
 

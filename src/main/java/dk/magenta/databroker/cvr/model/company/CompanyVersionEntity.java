@@ -1,6 +1,6 @@
 package dk.magenta.databroker.cvr.model.company;
 
-import dk.magenta.databroker.cvr.model.form.industry.FormEntity;
+import dk.magenta.databroker.cvr.model.form.FormEntity;
 import dk.magenta.databroker.util.Util;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikVersion;
 import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitEntity;
