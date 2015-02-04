@@ -15,19 +15,20 @@ public class GlobalCondition {
     private static final String[] parseFormats = {
             "yyyy-MM-dd",
             "yyyy.MM.dd",
-            "yyyy:MM:dd"
+            "yyyy:MM:dd",
+            "yyyy/MM/dd"
     };
 
     private Date includeOnlyBefore;
     private Date includeOnlyAfter;
-    private int offset = 0;
-    private int limit = 1000;
+    private int offset;
+    private int limit;
 
     public GlobalCondition(){}
 
 
     public GlobalCondition(String includeOnlyBefore, String includeOnlyAfter){
-        this(includeOnlyBefore, includeOnlyAfter, 1000, 0);
+        this(includeOnlyBefore, includeOnlyAfter, 0, 1000);
     }
     public GlobalCondition(String includeOnlyBefore, String includeOnlyAfter, int offset, int limit){
         this.setIncludeOnlyBefore(includeOnlyBefore);
