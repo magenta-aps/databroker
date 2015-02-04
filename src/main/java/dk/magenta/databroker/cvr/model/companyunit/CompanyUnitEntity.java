@@ -6,6 +6,7 @@ import dk.magenta.databroker.cvr.model.company.CompanyEntity;
 import dk.magenta.databroker.cvr.model.industry.IndustryEntity;
 import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseEntity;
 import dk.magenta.databroker.service.rest.SearchService;
+import dk.magenta.databroker.util.cache.Cacheable;
 import org.hibernate.annotations.Index;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -20,7 +21,7 @@ import java.util.Collection;
 
 @Entity
 @Table(name = "cvr_companyunit")
-public class CompanyUnitEntity extends DobbeltHistorikBase<CompanyUnitEntity, CompanyUnitVersionEntity> implements OutputFormattable {
+public class CompanyUnitEntity extends DobbeltHistorikBase<CompanyUnitEntity, CompanyUnitVersionEntity> implements OutputFormattable, Cacheable {
 
     public CompanyUnitEntity() {
         this.versions = new ArrayList<CompanyUnitVersionEntity>();
@@ -156,5 +157,10 @@ public class CompanyUnitEntity extends DobbeltHistorikBase<CompanyUnitEntity, Co
 
     public static String joinEnhedsAdresse() {
         return databaseKey+".latestVersion.address as "+EnhedsAdresseEntity.databaseKey;
+    }
+
+    @Override
+    public String[] getIdentifiers() {
+        return new String[] { ""+this.getPNO() };
     }
 }

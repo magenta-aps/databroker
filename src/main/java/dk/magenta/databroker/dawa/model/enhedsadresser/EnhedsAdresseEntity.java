@@ -5,10 +5,13 @@ import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseEntity;
 import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
+import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.Condition;
 import dk.magenta.databroker.service.rest.SearchService;
+import dk.magenta.databroker.util.Util;
+import dk.magenta.databroker.util.cache.Cacheable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -21,7 +24,7 @@ import java.util.Collection;
  */
 @Entity
 @Table(name = "dawa_enhedsadresse")
-public class EnhedsAdresseEntity extends DobbeltHistorikBase<EnhedsAdresseEntity, EnhedsAdresseVersionEntity> {
+public class EnhedsAdresseEntity extends DobbeltHistorikBase<EnhedsAdresseEntity, EnhedsAdresseVersionEntity> implements Cacheable {
 
     public EnhedsAdresseEntity() {
         this.versioner = new ArrayList<EnhedsAdresseVersionEntity>();
@@ -156,5 +159,17 @@ public class EnhedsAdresseEntity extends DobbeltHistorikBase<EnhedsAdresseEntity
     }
     public static String joinAdgangsAdresse() {
         return databaseKey+".adgangsadresse as " + AdgangsAdresseEntity.databaseKey;
+    }
+
+    @Override
+    public String[] getIdentifiers() {
+        AdgangsAdresseEntity adgangsAdresseEntity = this.getAdgangsadresse();
+        VejstykkeEntity vejstykkeEntity = adgangsAdresseEntity.getVejstykke();
+        KommuneEntity kommuneEntity = vejstykkeEntity.getKommune();
+        return new String[] { ""+kommuneEntity.getKode(), ""+vejstykkeEntity.getKode(), adgangsAdresseEntity.getHusnr(), getFinalIdentifier(this.getLatestVersion().getEtage(), this.getLatestVersion().getDoer()) };
+    }
+
+    public static String getFinalIdentifier(String etage, String doer) {
+        return Util.emptyIfNull(etage)+":"+Util.emptyIfNull(doer);
     }
 }

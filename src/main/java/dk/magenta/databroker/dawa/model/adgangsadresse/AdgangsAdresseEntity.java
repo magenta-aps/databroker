@@ -7,10 +7,13 @@ import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseEntity;
 import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseVersionEntity;
 import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
 import dk.magenta.databroker.dawa.model.stormodtagere.StormodtagerEntity;
+import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.Condition;
 import dk.magenta.databroker.service.rest.SearchService;
+import dk.magenta.databroker.util.Util;
+import dk.magenta.databroker.util.cache.Cacheable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -23,7 +26,7 @@ import java.util.Collection;
  */
 @Entity
 @Table(name = "dawa_adgangsadresse")
-public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEntity, AdgangsAdresseVersionEntity> {
+public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEntity, AdgangsAdresseVersionEntity> implements Cacheable {
 
     public AdgangsAdresseEntity() {
         this.versioner = new ArrayList<AdgangsAdresseVersionEntity>();
@@ -219,5 +222,13 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
     }
     public static String joinVej() {
         return databaseKey+".vejstykke as "+VejstykkeEntity.databaseKey;
+    }
+
+    @Override
+    public String[] getIdentifiers() {
+        VejstykkeEntity vejstykkeEntity = this.getVejstykke();
+        KommuneEntity kommuneEntity = vejstykkeEntity.getKommune();
+
+        return new String[] { ""+kommuneEntity.getKode(), ""+vejstykkeEntity.getKode(), this.getHusnr() };
     }
 }

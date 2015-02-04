@@ -10,6 +10,7 @@ import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeVersionEntity;
 import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.Condition;
 import dk.magenta.databroker.service.rest.SearchService;
+import dk.magenta.databroker.util.cache.Cacheable;
 import dk.magenta.databroker.util.objectcontainers.Pair;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -24,7 +25,7 @@ import java.util.HashSet;
  */
 @Entity
 @Table(name = "dawa_postnummer")
-public class PostNummerEntity extends DobbeltHistorikBase<PostNummerEntity, PostNummerVersionEntity> implements OutputFormattable {
+public class PostNummerEntity extends DobbeltHistorikBase<PostNummerEntity, PostNummerVersionEntity> implements OutputFormattable, Cacheable {
 
     public PostNummerEntity() {
         this.versioner = new ArrayList<PostNummerVersionEntity>();
@@ -159,4 +160,8 @@ public class PostNummerEntity extends DobbeltHistorikBase<PostNummerEntity, Post
         );
     }
 
+    @Override
+    public String[] getIdentifiers() {
+        return new String[] { ""+this.getLatestVersion().getNr() };
+    }
 }

@@ -11,6 +11,7 @@ import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.Condition;
 import dk.magenta.databroker.service.rest.SearchService;
+import dk.magenta.databroker.util.cache.Cacheable;
 import org.hibernate.annotations.Index;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -25,7 +26,7 @@ import java.util.HashSet;
  */
 @Entity
 @Table(name = "dawa_vejstykke")
-public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, VejstykkeVersionEntity> {
+public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, VejstykkeVersionEntity> implements Cacheable {
 
     public VejstykkeEntity() {
         this.versioner = new ArrayList<VejstykkeVersionEntity>();
@@ -184,5 +185,10 @@ public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, Vejsty
     }
     public static String joinPost() {
         return databaseKey+".latestVersion.postnumre as "+PostNummerEntity.databaseKey;
+    }
+
+    @Override
+    public String[] getIdentifiers() {
+        return new String[] { ""+this.getKommune().getKode(), ""+this.getKode() };
     }
 }

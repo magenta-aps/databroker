@@ -11,6 +11,7 @@ import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeVersionEntity;
 import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.Condition;
 import dk.magenta.databroker.service.rest.SearchService;
+import dk.magenta.databroker.util.cache.Cacheable;
 import org.hibernate.annotations.Index;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -24,7 +25,7 @@ import java.util.HashSet;
  */
 @Entity
 @Table(name = "dawa_lokalitet")
-public class LokalitetEntity extends UniqueBase implements OutputFormattable {
+public class LokalitetEntity extends UniqueBase implements OutputFormattable, Cacheable {
 
     public LokalitetEntity() {
         this.vejstykkeVersioner = new HashSet<VejstykkeVersionEntity>();
@@ -114,5 +115,10 @@ public class LokalitetEntity extends UniqueBase implements OutputFormattable {
 
     public static String joinVej() {
         return databaseKey+".vejstykkeVersioner.entity as "+ VejstykkeEntity.databaseKey;
+    }
+
+    @Override
+    public String[] getIdentifiers() {
+        return new String[] { ""+this.getKommune().getKode(), this.getNavn() };
     }
 }

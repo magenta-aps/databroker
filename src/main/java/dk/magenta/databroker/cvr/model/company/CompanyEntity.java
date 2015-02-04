@@ -8,6 +8,7 @@ import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.Condition;
 import dk.magenta.databroker.service.rest.SearchService;
+import dk.magenta.databroker.util.cache.Cacheable;
 import org.hibernate.annotations.Index;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -22,7 +23,7 @@ import java.util.Collection;
 
 @Entity
 @Table(name = "cvr_company")
-public class CompanyEntity extends DobbeltHistorikBase<CompanyEntity, CompanyVersionEntity> implements OutputFormattable {
+public class CompanyEntity extends DobbeltHistorikBase<CompanyEntity, CompanyVersionEntity> implements OutputFormattable, Cacheable {
 
     public CompanyEntity() {
         this.versions = new ArrayList<CompanyVersionEntity>();
@@ -157,5 +158,10 @@ public class CompanyEntity extends DobbeltHistorikBase<CompanyEntity, CompanyVer
 
     public static String joinCompanyUnit() {
         return databaseKey+".units as "+CompanyUnitEntity.databaseKey;
+    }
+
+    @Override
+    public String[] getIdentifiers() {
+        return new String[] { this.getCvrNummer() };
     }
 }

@@ -319,42 +319,27 @@ public class CvrRegister extends Register {
                     String etage = unit.get("etage");
                     String sidedoer = unit.get("sidedoer");
                     String fullHusNr = husnr + (bogstav != null ? bogstav : "");
-                    /*addressSearch.put(Key.KOMMUNE, kommuneKode);
-                    //addressSearch.put(Key.POST, postNr);
-                    addressSearch.put(Key.VEJ, vejKode);
-                    addressSearch.put(Key.HUSNR, fullHusNr);
-                    if (etage != null) {
-                        addressSearch.put(Key.ETAGE, etage);
-                    }
-                    if (sidedoer != null) {
-                        addressSearch.put(Key.DOER, sidedoer);
-                    }
-                    EnhedsAdresseEntity adresse = dawaModel.getSingleEnhedsAdresse(addressSearch, false);/////////////////////
-                    //System.out.println("Searched for adresse in "+this.toc()+" ms");
-                    if (adresse == null) {
-                        adresse = dawaModel.setAdresse(kommuneKode, vejKode, fullHusNr, null, etage, sidedoer, createRegistrering, updateRegistrering);
-                        //System.out.println("Created new adresse " + adresse.getLatestVersion().getAdgangsadresse().getVejstykke().getLatestVersion().getVejnavn() + " " + fullHusNr + " in "+this.toc()+" ms");
-                    }
-                    */
+
 
                     tic();
-                    System.out.println("Looking for address "+kommuneKode+":"+vejKode+" "+fullHusNr+" "+etage+" "+sidedoer);
+                    //System.out.println("Looking for address "+kommuneKode+":"+vejKode+" "+fullHusNr+" "+etage+" "+sidedoer);
                     //adresse = this.dawaModel.getSingleEnhedsAdresse(kommuneKode, vejKode, fullHusNr, etage, sidedoer);
-                    EnhedsAdresseVersionEntity adresseVersion = this.dawaModel.getEnhedsAdresseCache().get(kommuneKode, vejKode, fullHusNr, Util.emptyIfNull(etage)+":"+Util.emptyIfNull(sidedoer));
-                    if (adresseVersion != null) {
-                        adresse = adresseVersion.getEntity();
-                    }
+                    //EnhedsAdresseVersionEntity adresseVersion = this.dawaModel.getEnhedsAdresseCache().get(kommuneKode, vejKode, fullHusNr, Util.emptyIfNull(etage)+":"+Util.emptyIfNull(sidedoer));
+                    //if (adresseVersion != null) {
+                    //    adresse = adresseVersion.getEntity();
+                    //}
+                    adresse = this.dawaModel.getEnhedsAdresse(kommuneKode, vejKode, fullHusNr, etage, sidedoer);
                     lookupAddress += toc();
                     if (adresse == null) {
-                        System.out.println("Address not found (spent "+toc()+" ms looking)");
+                        //System.out.println("Address not found (spent "+toc()+" ms looking)");
                         tic();
                         adresse = dawaModel.setAdresse(kommuneKode, vejKode, fullHusNr, null, etage, sidedoer, createRegistrering, updateRegistrering);
                         createAddress += toc();
-                        System.out.println("Created new adresse in "+this.toc()+" ms");
+                        //System.out.println("Created new adresse in "+this.toc()+" ms");
                     } else {
-                        System.out.println("Adresse found");
+                        //System.out.println("Adresse found");
                     }
-                    System.out.println("Setting company unit");
+                    //System.out.println("Setting company unit");
                     this.cvrModel.setCompanyUnit(pNummer, name, cvrNummer,
                             primaryIndustry, secondaryIndustries,
                             adresse, phone, fax, email,
@@ -362,7 +347,7 @@ public class CvrRegister extends Register {
                             advertProtection,
                             createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>()
                     );
-                    System.out.println("Company unit "+name+" set");
+                    //System.out.println("Company unit "+name+" set");
                     totalUnits++;
                 }
                 System.out.println("Addresses searched in "+lookupAddress+" ("+((float) lookupAddress / 50000.0)+")");

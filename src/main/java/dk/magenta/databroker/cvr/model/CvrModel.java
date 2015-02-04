@@ -14,10 +14,13 @@ import dk.magenta.databroker.cvr.model.industry.IndustryEntity;
 import dk.magenta.databroker.cvr.model.industry.IndustryRepository;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseEntity;
+import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
+import dk.magenta.databroker.util.cache.Level1Cache;
 import dk.magenta.databroker.util.objectcontainers.Level1Container;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.util.*;
 
 /**
@@ -34,8 +37,6 @@ public class CvrModel {
     @Autowired
     @SuppressWarnings("SpringJavaAutowiringInspection")
     private CompanyRepository companyRepository;
-
-    private Level1Container<CompanyEntity> companyCache;
 
     /*public CompanyEntity setCompany(String cvrKode, String name,
                                     int primaryIndustryCode, int[] secondaryIndustryCodes, int formCode,
@@ -76,7 +77,7 @@ public class CvrModel {
             }
             companyEntity = new CompanyEntity();
             companyEntity.setCvrNummer(cvrKode);
-            this.putCompanyCache(companyEntity);
+            this.companyCache.put(companyEntity);
         }
 
         FormEntity form = this.getFormEntity(formCode);
@@ -124,7 +125,7 @@ public class CvrModel {
     }
 
     public CompanyEntity getCompany(String cvrNummer) {
-        return this.getCompanyCache().get(cvrNummer);
+        return this.companyCache.get(cvrNummer);
         //return this.companyRepository.getByCvrNummer(cvrNummer);
     }
     public Collection<CompanyEntity> getCompany(SearchParameters parameters) {
@@ -141,32 +142,11 @@ public class CvrModel {
 
     //--------------------------------------------------
 
-    private Level1Container<CompanyEntity> getCompanyCache() {
-        if (this.companyCache == null) {
-            System.out.println("loading company cache");
-            this.companyCache = new Level1Container<CompanyEntity>();
-            int i=0;
-            for (CompanyEntity item : this.companyRepository.findAll()) {
-                this.putCompanyCache(item);
-                i++;
-                if (i % 1000 == 0) {
-                    System.out.println(i);
-                }
-            }
-            System.out.println("company cache loaded");
-        }
-        return this.companyCache;
-    }
+    private Level1Cache<CompanyEntity> companyCache;
 
-    private void putCompanyCache(CompanyEntity item) {
-        if (this.companyCache == null) {
-            this.companyCache = new Level1Container<CompanyEntity>();
-        }
-        this.companyCache.put(item.getCvrNummer(), item);
-    }
-
-    public void resetCompanyCache() {
-        this.companyCache = null;
+    @PostConstruct
+    private void loadCompanyCache() {
+        this.companyCache = new Level1Cache<CompanyEntity>(this.companyRepository);
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -256,7 +236,7 @@ public class CvrModel {
     }
 
     public CompanyUnitEntity getCompanyUnit(long pNummer) {
-        CompanyUnitEntity companyUnitEntity = this.getCompanyUnitCache().get(pNummer);
+        CompanyUnitEntity companyUnitEntity = this.companyUnitCache.get(pNummer);
         if (companyUnitEntity != null) {
             return companyUnitEntity;
         } else {
@@ -274,29 +254,11 @@ public class CvrModel {
 
     //--------------------------------------------------
 
-    private Level1Container<CompanyUnitEntity> companyUnitCache;
+    private Level1Cache<CompanyUnitEntity> companyUnitCache;
 
-    private Level1Container<CompanyUnitEntity> getCompanyUnitCache() {
-        if (this.companyUnitCache == null) {
-            System.out.println("loading uniy company cache");
-            this.companyUnitCache = new Level1Container<CompanyUnitEntity>();
-            for (CompanyUnitEntity item : this.companyUnitRepository.findAll()) {
-                this.putCompanyUnitCache(item);
-            }
-            System.out.println("company unit cache loaded");
-        }
-        return this.companyUnitCache;
-    }
-
-    private void putCompanyUnitCache(CompanyUnitEntity item) {
-        if (this.companyUnitCache == null) {
-            this.companyUnitCache = new Level1Container<CompanyUnitEntity>();
-        }
-        this.companyUnitCache.put(item.getPNO(), item);
-    }
-
-    public void resetCompanyUnitCache() {
-        this.companyCache = null;
+    @PostConstruct
+    private void loadCompanyUnitCache() {
+        this.companyUnitCache = new Level1Cache<CompanyUnitEntity>(this.companyUnitRepository);
     }
 
     //------------------------------------------------------------------------------------------------------------------

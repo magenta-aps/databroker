@@ -1,16 +1,16 @@
 package dk.magenta.databroker.util.cache;
 
-import dk.magenta.databroker.util.objectcontainers.Level1Container;
+import dk.magenta.databroker.util.objectcontainers.Level2Container;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
  * Created by lars on 04-02-15.
  */
-public class Level1Cache<T extends Cacheable> extends Level1Container<T> {
+public class Level2Cache<T extends Cacheable> extends Level2Container<T> {
     private JpaRepository<T, Long> repository;
     private boolean loaded;
 
-    public Level1Cache(JpaRepository<T, Long> repository) {
+    public Level2Cache(JpaRepository<T, Long> repository) {
         this.repository = repository;
         this.loaded = false;
     }
@@ -29,7 +29,7 @@ public class Level1Cache<T extends Cacheable> extends Level1Container<T> {
         for (T item : this.repository.findAll()) {
             try {
                 String[] identifiers = item.getIdentifiers();
-                this.put(identifiers[0], item);
+                this.put(identifiers[0], identifiers[1], item);
             } catch (NullPointerException e) {
             } catch (IndexOutOfBoundsException e) {}
         }
@@ -40,7 +40,7 @@ public class Level1Cache<T extends Cacheable> extends Level1Container<T> {
         this.load();
         try {
             String[] identifiers = item.getIdentifiers();
-            this.put(identifiers[0], item);
+            this.put(identifiers[0], identifiers[1], item);
         } catch (NullPointerException e) {
         } catch (IndexOutOfBoundsException e) {}
     }
@@ -50,11 +50,17 @@ public class Level1Cache<T extends Cacheable> extends Level1Container<T> {
         this.loaded = false;
     }
 
-    public T get(int ident1) {
-        return this.get(""+ident1);
+    public T get(int ident2, int ident1) {
+        return this.get(""+ident2, ""+ident1);
     }
-    public T get(String ident1) {
+    public T get(int ident2, String ident1) {
+        return this.get(""+ident2, ident1);
+    }
+    public T get(String ident2, int ident1) {
+        return this.get(ident2, ""+ident1);
+    }
+    public T get(String ident2, String ident1) {
         this.load();
-        return super.get(ident1);
+        return super.get(ident2, ident1);
     }
 }
