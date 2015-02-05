@@ -8,6 +8,13 @@ import dk.magenta.databroker.cvr.model.company.CompanyVersionEntity;
 import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitEntity;
 import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitRepository;
 import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitVersionEntity;
+import dk.magenta.databroker.cvr.model.deltager.DeltagerEntity;
+import dk.magenta.databroker.cvr.model.deltager.DeltagerRepository;
+import dk.magenta.databroker.cvr.model.deltager.DeltagerVersionEntity;
+import dk.magenta.databroker.cvr.model.deltager.rolle.RolleEntity;
+import dk.magenta.databroker.cvr.model.deltager.rolle.RolleRepository;
+import dk.magenta.databroker.cvr.model.deltager.type.TypeEntity;
+import dk.magenta.databroker.cvr.model.deltager.type.TypeRepository;
 import dk.magenta.databroker.cvr.model.form.FormEntity;
 import dk.magenta.databroker.cvr.model.form.FormRepository;
 import dk.magenta.databroker.cvr.model.industry.IndustryEntity;
@@ -37,25 +44,6 @@ public class CvrModel {
     @Autowired
     @SuppressWarnings("SpringJavaAutowiringInspection")
     private CompanyRepository companyRepository;
-
-    /*public CompanyEntity setCompany(String cvrKode, String name,
-                                    int primaryIndustryCode, int[] secondaryIndustryCodes, int formCode,
-                                    EnhedsAdresseEntity address, String phone, String fax, String email,
-                                    Date startDate, Date endDate,
-                                    boolean advertProtection,
-                                    RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering) {
-        return this.setCompany(cvrKode, name, primaryIndustryCode, secondaryIndustryCodes, formCode, address, phone, fax, email, startDate, endDate, advertProtection,
-                createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>());
-    }*/
-
-    /*public CompanyEntity setCompany(String cvrKode, String name,
-                                    int primaryIndustryCode, int[] secondaryIndustryCodes, int formCode,
-                                    EnhedsAdresseEntity address, String phone, String fax, String email,
-                                    Date startDate, Date endDate,
-                                    boolean advertProtection,
-                                    RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering, List<VirkningEntity> virkninger) {
-    }
-*/
 
     public CompanyEntity setCompany(String cvrKode, String name,
                                     int primaryIndustryCode, int[] secondaryIndustryCodes, int formCode,
@@ -163,7 +151,7 @@ public class CvrModel {
                                     boolean advertProtection,
                                     RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering, List<VirkningEntity> virkninger) {
 
-        CompanyUnitEntity companyUnitEntity = null;//this.getCompanyUnitCache().get(pNummer);
+        CompanyUnitEntity companyUnitEntity = this.companyUnitCache.get(pNummer);
 
         if (companyUnitEntity == null) {
             if (printProcessing) {
@@ -258,6 +246,114 @@ public class CvrModel {
     private void loadCompanyUnitCache() {
         this.companyUnitCache = new Level1Cache<CompanyUnitEntity>(this.companyUnitRepository);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    //------------------------------------------------------------------------------------------------------------------
+
+
+    @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
+    private DeltagerRepository deltagerRepository;
+
+    public DeltagerEntity setDeltager(long deltagerNummer, String name, String cvrNummer,
+                                            Date ajourDate, Date gyldigDate,
+                                            String typeName, String rolleName,
+                                            RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering, List<VirkningEntity> virkninger) {
+
+        DeltagerEntity deltagerEntity = this.getDeltager(deltagerNummer);
+
+        if (deltagerEntity == null) {
+            if (printProcessing) {
+                //System.out.println("    creating new CompanyUnitEntity " + pNummer);
+            }
+            deltagerEntity = new DeltagerEntity();
+            deltagerEntity.setDeltagerNummer(deltagerNummer);
+            deltagerEntity.setCvrNummer(cvrNummer);
+        }
+
+        TypeEntity typeEntity = this.setType(typeName);
+        RolleEntity rolleEntity = this.setRolle(rolleName);
+
+        DeltagerVersionEntity deltagerVersionEntity = deltagerEntity.getLatestVersion();
+
+        if (deltagerVersionEntity == null) {
+            if (printProcessing) {
+                //System.out.println("    creating initial CompanyUnitVersionEntity");
+            }
+            deltagerVersionEntity = deltagerEntity.addVersion(createRegistrering, virkninger);
+        } else if (!deltagerVersionEntity.matches(name, ajourDate, gyldigDate, typeEntity, rolleEntity)) {
+            if (printProcessing) {
+                //System.out.println("    creating updated CompanyUnitVersionEntity");
+            }
+            deltagerVersionEntity = deltagerEntity.addVersion(updateRegistrering, virkninger);
+        } else {
+            deltagerVersionEntity = null;
+        }
+
+
+        if (deltagerVersionEntity != null) {
+            deltagerVersionEntity.setName(name);
+            deltagerVersionEntity.setAjourDate(ajourDate);
+            deltagerVersionEntity.setGyldigDate(gyldigDate);
+            deltagerVersionEntity.setType(typeEntity);
+            deltagerVersionEntity.setRolle(rolleEntity);
+            this.deltagerRepository.save(deltagerEntity);
+            this.deltagerCache.put(deltagerEntity);
+        } else {
+            if (printProcessing) {
+                System.out.println("    no changes");
+            }
+        }
+
+        return deltagerEntity;
+    }
+
+    public DeltagerEntity getDeltager(long deltagerNummer) {
+        return this.deltagerCache.get(deltagerNummer);
+        //return this.deltagerRepository.getByDeltagerNummer(deltagerNummer);
+        /*CompanyUnitEntity companyUnitEntity = this.companyUnitCache.get(pNummer);
+        if (companyUnitEntity != null) {
+            return companyUnitEntity;
+        } else {
+            companyUnitEntity = this.companyUnitRepository.getByPno(pNummer);
+            if (companyUnitEntity != null) {
+                this.companyUnitCache.put(pNummer, companyUnitEntity);
+            }
+            return companyUnitEntity;
+        }*/
+    }
+
+    private Level1Cache<DeltagerEntity> deltagerCache;
+
+    @PostConstruct
+    private void loadDeltagerCache() {
+        this.deltagerCache = new Level1Cache<DeltagerEntity>(this.deltagerRepository);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     //------------------------------------------------------------------------------------------------------------------
 
@@ -372,4 +468,52 @@ public class CvrModel {
     public void resetFormCache() {
         this.formCache = null;
     }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
+    private TypeRepository deltagerTypeRepository;
+
+    public TypeEntity setType(String name) {
+        TypeEntity typeEntity = this.typeCache.get(name);
+        if (typeEntity == null) {
+            typeEntity = new TypeEntity();
+            typeEntity.setName(name);
+            this.deltagerTypeRepository.save(typeEntity);
+            this.typeCache.put(typeEntity);
+        }
+        return typeEntity;
+    }
+
+    private Level1Cache<TypeEntity> typeCache;
+
+    @PostConstruct
+    private void loadTypeCache() {
+        this.typeCache = new Level1Cache<TypeEntity>(this.deltagerTypeRepository);
+    }
+
+
+    @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
+    private RolleRepository deltagerRolleRepository;
+
+    public RolleEntity setRolle(String name) {
+        RolleEntity rolleEntity = this.rolleCache.get(name);
+        if (rolleEntity == null) {
+            rolleEntity = new RolleEntity();
+            rolleEntity.setName(name);
+            this.deltagerRolleRepository.save(rolleEntity);
+            this.rolleCache.put(rolleEntity);
+        }
+        return rolleEntity;
+    }
+
+    private Level1Cache<RolleEntity> rolleCache;
+
+    @PostConstruct
+    private void loadRolleCache() {
+        this.rolleCache = new Level1Cache<RolleEntity>(this.deltagerRolleRepository);
+    }
+
 }

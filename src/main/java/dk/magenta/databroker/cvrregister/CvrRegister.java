@@ -54,7 +54,6 @@ public class CvrRegister extends Register {
     }
 
     private class VirksomhedRecord extends CvrRecord {
-
         public VirksomhedRecord(ListHash<String> virksomhedHash) {
             super(virksomhedHash);
             this.obtain("cvrNummer", "cvrnr");
@@ -68,16 +67,13 @@ public class CvrRegister extends Register {
             this.obtain("secondaryIndustry3", "bibranche3/kode");
             this.obtain("startDate", "livsforloeb/startdato");
             this.obtain("endDate", "livsforloeb/slutdato");
-
             this.obtain("vejkode", "beliggenhedsadresse/vejkode");
             this.obtain("kommunekode", "beliggenhedsadresse/kommune/kode");
             this.obtain("phone", "telefonnummer/kontaktoplysning");
         }
-
     }
 
     private class ProductionUnitRecord extends CvrRecord {
-
         public ProductionUnitRecord(ListHash<String> productionunitHash) {
             super(productionunitHash);
             this.obtain("pNummer", "pnr");
@@ -111,16 +107,31 @@ public class CvrRegister extends Register {
             this.obtain("fax", "telefax/kontaktoplysning");
             this.obtain("email", "email/kontaktoplysning");
         }
+    }
 
+    private class DeltagerRecord extends CvrRecord {
+        public DeltagerRecord(ListHash<String> deltagerHash) {
+            super(deltagerHash);
+            this.obtain("nummer", "deltagernummer");
+            this.obtain("ajourDato", "ajourfoeringsdato");
+            this.obtain("gyldigDato", "deltagelseGyldigFra");
+            this.obtain("cvrNummer", "cvrnr");
+            this.obtain("type", "oplysninger/deltagertype");
+            this.obtain("navn", "oplysninger/navn");
+            this.obtain("status", "oplysninger/personstatus");
+            this.obtain("rolle", "rolle");
+        }
     }
 
     public class CvrRegisterRun extends RegisterRun {
         private Level1Container<VirksomhedRecord> virksomheder;
         private Level1Container<ProductionUnitRecord> productionUnits;
+        private Level1Container<DeltagerRecord> deltagere;
         public CvrRegisterRun() {
             super();
             this.virksomheder = new Level1Container<VirksomhedRecord>();
             this.productionUnits = new Level1Container<ProductionUnitRecord>();
+            this.deltagere = new Level1Container<DeltagerRecord>();
         }
 
         public boolean add(VirksomhedRecord virksomhed) {
@@ -131,11 +142,24 @@ public class CvrRegister extends Register {
             this.productionUnits.put(productionUnit.get("pNummer"), productionUnit);
             return this.add((Record) productionUnit);
         }
+        public boolean add(DeltagerRecord deltager) {
+            this.deltagere.put(deltager.get("nummer"), deltager);
+            return this.add((Record) deltager);
+        }
         public Level1Container<VirksomhedRecord> getVirksomheder() {
             return this.virksomheder;
         }
         public Level1Container<ProductionUnitRecord> getProductionUnits() {
             return this.productionUnits;
+        }
+        public Level1Container<DeltagerRecord> getDeltagere() {
+            return this.deltagere;
+        }
+        public void clear() {
+            this.virksomheder.clear();
+            this.productionUnits.clear();
+            this.deltagere.clear();
+            super.clear();
         }
     }
 
@@ -211,6 +235,7 @@ public class CvrRegister extends Register {
 
     int totalCompanies = 0;
     int totalUnits = 0;
+    int totalMembers = 0;
 
     @Override
     protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
@@ -227,9 +252,6 @@ public class CvrRegister extends Register {
             def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
             TransactionStatus status = this.txManager.getTransaction(def);
 
-            long lookupAddress = 0;
-            long createAddress = 0;
-
             try {
 
                 CvrRegisterRun cRun = (CvrRegisterRun) run;
@@ -237,6 +259,7 @@ public class CvrRegister extends Register {
 
                 System.out.println("there are "+cRun.getVirksomheder().getList().size()+" virksomheder");
                 System.out.println("there are "+cRun.getProductionUnits().getList().size()+" production units");
+                System.out.println("there are "+cRun.getDeltagere().getList().size()+" deltagere");
 
                 for (VirksomhedRecord virksomhed : cRun.getVirksomheder().getList()) {
 
@@ -350,7 +373,6 @@ public class CvrRegister extends Register {
 
                             tic();
                             adresse = this.dawaModel.getEnhedsAdresse(kommuneKode, vejKode, fullHusNr, etage, sidedoer);
-                            lookupAddress += toc();
                             if (adresse == null) {
                                 tic();
                                 adresse = dawaModel.setAdresse(kommuneKode, vejKode, fullHusNr, null, etage, sidedoer, createRegistrering, updateRegistrering);
@@ -358,7 +380,6 @@ public class CvrRegister extends Register {
                                 if (dawaModel.getVejstykkeCache().get(kommuneKode, vejKode) == null) {
                                     System.err.println("Purportedly named '" + unit.get("vejnavn") + "'");
                                 }
-                                createAddress += toc();
                             }
                             this.cvrModel.setCompanyUnit(pNummer, name, cvrNummer,
                                     primaryIndustry, secondaryIndustries,
@@ -373,8 +394,20 @@ public class CvrRegister extends Register {
                         System.err.println("Vej "+kommuneKode+":"+vejKode+" not found; cvr names it "+vejNavn);
                     }
                 }
-                System.out.println("Addresses searched in "+lookupAddress+" ("+((float) lookupAddress / 50000.0)+")");
-                System.out.println("Addresses created in "+createAddress+" ("+((float) createAddress / 50000.0)+")");
+
+                for (DeltagerRecord deltager : cRun.getDeltagere().getList()) {
+                    long deltagerNummer = deltager.getLong("nummer");
+                    Date ajourDate = this.parseDate(deltager.get("ajourDato"));
+                    Date gyldigDate = this.parseDate(deltager.get("gyldigDato"));
+                    String cvrNummer = deltager.get("cvrNummer");
+                    String typeName = deltager.get("type");
+                    String name = deltager.get("navn");
+                    String statusName = deltager.get("status");
+                    String rolleName = deltager.get("rolle");
+                    this.cvrModel.setDeltager(deltagerNummer, name, cvrNummer, ajourDate, gyldigDate, typeName, rolleName, createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>());
+                }
+
+
                 this.cvrModel.flushCompanies();
 
                 this.txManager.commit(status);
@@ -385,7 +418,7 @@ public class CvrRegister extends Register {
                 this.txManager.rollback(status);
             }
         }
-        System.out.println("ending transaction ("+totalCompanies+" companies and "+totalUnits+" units)");
+        System.out.println("ending transaction ("+totalCompanies+" companies, "+totalUnits+" units and "+totalMembers+" members)");
     }
 
     private void bulkWireReferences() {
@@ -418,6 +451,7 @@ public class CvrRegister extends Register {
         private Stack<String> tags;
         private boolean inVirksomhed = false;
         private boolean inProductionUnit = false;
+        private boolean inDeltager = false;
         private String textChunk = "";
         private int depth = 0;
         private ListHash<String> parameters;
@@ -433,6 +467,11 @@ public class CvrRegister extends Register {
             this.parameters = new ListHash<String>();
         }
 
+        private void onRecordStart() {
+            this.parameters = new ListHash<String>();
+            this.depth = 0;
+        }
+
         private void onRecordSave() {
             this.onRecordSave(false);
         }
@@ -440,10 +479,12 @@ public class CvrRegister extends Register {
             this.recordCount++;
             if (force || this.recordCount >= this.chunkSize) {
                 CvrRegister.this.saveRunToDatabase(this.currentRun, this.dataProviderEntity);
+                this.currentRun.clear();
                 this.currentRun = new CvrRegisterRun();
                 this.recordCount = 0;
                 System.gc();
             }
+            this.parameters.clear();
         }
 
         @Override
@@ -464,18 +505,22 @@ public class CvrRegister extends Register {
         public void startElement(String uri, String localName, String qName,
                                  Attributes attributes) throws SAXException {
 
-            if (!inVirksomhed && this.checkTagAndParent(qName, "virksomhed","virksomheder")) {
+            if (!inVirksomhed && !inProductionUnit && !inDeltager && this.checkTagAndParent(qName, "virksomhed","virksomheder")) {
                 inVirksomhed = true;
-                this.parameters = new ListHash<String>();
-                this.depth = 0;
+                this.onRecordStart();
             }
-            if (!inVirksomhed && !inProductionUnit && this.checkTagAndParent(qName, "produktionsenhed","produktionsenheder")) {
+            if (!inVirksomhed && !inProductionUnit && !inDeltager && this.checkTagAndParent(qName, "produktionsenhed","produktionsenheder")) {
                 inProductionUnit = true;
-                this.parameters = new ListHash<String>();
-                this.depth = 0;
+                this.onRecordStart();
             }
+            if (!inVirksomhed && !inProductionUnit && !inDeltager && this.checkTagAndParent(qName, "deltager","deltagere")) {
+                inDeltager = true;
+                this.onRecordStart();
+            }
+
             if ((inVirksomhed && !qName.equals("virksomhed")) ||
-                    (inProductionUnit && !qName.equals("produktionsenhed"))) {
+                    (inProductionUnit && !qName.equals("produktionsenhed")) ||
+                    (inDeltager && !qName.equals("deltager"))) {
                 this.depth++;
             }
 
@@ -490,23 +535,29 @@ public class CvrRegister extends Register {
             if (qName.equals(this.tags.peek())) {
                 this.tags.pop();
             } else {
-                System.err.println("Inconsistency: trying to pop "+qName+", but to of stack is "+this.tags.peek());
+                System.err.println("Inconsistency: trying to pop "+qName+", but top of stack is "+this.tags.peek());
             }
 
-            if (this.inVirksomhed && this.checkTagAndParent(qName, "virksomhed","virksomheder")) {
+            if (this.inVirksomhed && !this.inProductionUnit && !this.inDeltager && this.checkTagAndParent(qName, "virksomhed","virksomheder")) {
                 this.inVirksomhed = false;
                 VirksomhedRecord virksomhedRecord = new VirksomhedRecord(this.parameters);
                 this.currentRun.add(virksomhedRecord);
                 this.onRecordSave();
             }
-            if (!this.inVirksomhed && this.inProductionUnit && this.checkTagAndParent(qName, "produktionsenhed","produktionsenheder")) {
+            if (!this.inVirksomhed && this.inProductionUnit && !this.inDeltager && this.checkTagAndParent(qName, "produktionsenhed","produktionsenheder")) {
                 this.inProductionUnit = false;
                 ProductionUnitRecord productionUnitRecord = new ProductionUnitRecord(this.parameters);
                 this.currentRun.add(productionUnitRecord);
                 this.onRecordSave();
             }
+            if (!this.inVirksomhed && !this.inProductionUnit && this.inDeltager && this.checkTagAndParent(qName, "deltager","deltagere")) {
+                this.inDeltager = false;
+                DeltagerRecord deltagerRecord = new DeltagerRecord(this.parameters);
+                this.currentRun.add(deltagerRecord);
+                this.onRecordSave();
+            }
 
-            if (this.inVirksomhed || this.inProductionUnit) {
+            if (this.inVirksomhed || this.inProductionUnit || this.inDeltager) {
                 StringList path = new StringList();
                 for (int i = this.tags.size() - this.depth + 1; i < this.tags.size(); i++) {
                     String a = this.tags.get(i);
