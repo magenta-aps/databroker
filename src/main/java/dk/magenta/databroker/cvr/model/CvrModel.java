@@ -158,7 +158,7 @@ public class CvrModel {
 
     public CompanyUnitEntity setCompanyUnit(long pNummer, String name, String cvrNummer,
                                     int primaryIndustryCode, int[] secondaryIndustryCodes,
-                                    EnhedsAdresseEntity address, String phone, String fax, String email,
+                                    EnhedsAdresseEntity address, Date addressDate, String phone, String fax, String email,
                                     Date startDate, Date endDate,
                                     boolean advertProtection,
                                     RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering, List<VirkningEntity> virkninger) {
@@ -177,10 +177,7 @@ public class CvrModel {
             //this.putCompanyUnitCache(companyUnitEntity);
         }
 
-
-
-
-/*
+        /*
         if (company != null && companyUnitEntity != null &&
                 company.getLatestVersion().getPrimaryUnit() == null &&
                 company.getLatestVersion().getPrimaryUnitCode() == pNummer) {
@@ -202,7 +199,7 @@ public class CvrModel {
                 //System.out.println("    creating initial CompanyUnitVersionEntity");
             }
             companyUnitVersionEntity = companyUnitEntity.addVersion(createRegistrering, virkninger);
-        } else if (!companyUnitVersionEntity.matches(name, address, primaryIndustry, secondaryIndustries, phone, fax, email, advertProtection, startDate, endDate)) {
+        } else if (!companyUnitVersionEntity.matches(name, address, addressDate, primaryIndustry, secondaryIndustries, phone, fax, email, advertProtection, startDate, endDate)) {
             if (printProcessing) {
                 //System.out.println("    creating updated CompanyUnitVersionEntity");
             }
@@ -215,6 +212,7 @@ public class CvrModel {
         if (companyUnitVersionEntity != null) {
             companyUnitVersionEntity.setName(name);
             companyUnitVersionEntity.setAddress(address);
+            companyUnitVersionEntity.setAddressDate(addressDate);
             companyUnitVersionEntity.setPrimaryIndustry(primaryIndustry);
             for (IndustryEntity industryEntity : secondaryIndustries) {
                 companyUnitVersionEntity.addSecondaryIndustry(industryEntity);

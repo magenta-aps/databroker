@@ -3,6 +3,7 @@ package dk.magenta.databroker.cvr.model.companyunit;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikVersion;
 import dk.magenta.databroker.cvr.model.industry.IndustryEntity;
 import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseEntity;
+import dk.magenta.databroker.util.Util;
 import org.hibernate.annotations.Index;
 
 import javax.persistence.*;
@@ -55,6 +56,19 @@ public class CompanyUnitVersionEntity extends DobbeltHistorikVersion<CompanyUnit
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    //----------------------------------------------------
+
+    @Column(nullable = true)
+    private Date addressDate;
+
+    public Date getAddressDate() {
+        return addressDate;
+    }
+
+    public void setAddressDate(Date addressDate) {
+        this.addressDate = addressDate;
     }
 
     //----------------------------------------------------
@@ -186,28 +200,22 @@ public class CompanyUnitVersionEntity extends DobbeltHistorikVersion<CompanyUnit
 
     //----------------------------------------------------
 
-    public boolean matches(String name, EnhedsAdresseEntity address,
+    public boolean matches(String name, EnhedsAdresseEntity address, Date addressDate,
                            IndustryEntity primaryIndustry, List<IndustryEntity> secondaryIndustries,
                            String phone, String fax, String email,
                            boolean advertProtection,
                            Date startDate, Date endDate) {
-        return compare(this.name, name) &&
+        return Util.compare(this.name, name) &&
                 this.address.equals(address) &&
+                Util.compare(this.addressDate, address) &&
                 this.primaryIndustry.equals(primaryIndustry) &&
-                compare(this.secondaryIndustries, secondaryIndustries) &&
-                compare(this.phone, phone) &&
-                compare(this.fax, fax) &&
-                compare(this.email, email) &&
-                this.advertProtection == advertProtection &&
-                compare(this.startDate, startDate) &&
-                compare(this.endDate, endDate);
+                Util.compare(this.secondaryIndustries, secondaryIndustries) &&
+                Util.compare(this.phone, phone) &&
+                Util.compare(this.fax, fax) &&
+                Util.compare(this.email, email) &&
+                Util.compare(this.advertProtection, advertProtection) &&
+                Util.compare(this.startDate, startDate) &&
+                Util.compare(this.endDate, endDate);
     }
 
-
-    private static boolean compare(String a, String b) {
-        return a == null ? (b == null) : a.equals(b);
-    }
-    private static boolean compare(Object a, Object b) {
-        return a == null ? (b == null) : a.equals(b);
-    }
 }

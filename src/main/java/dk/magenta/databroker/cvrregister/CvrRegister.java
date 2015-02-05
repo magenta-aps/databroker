@@ -7,7 +7,7 @@ import dk.magenta.databroker.core.model.oio.VirkningEntity;
 import dk.magenta.databroker.cvr.model.CvrModel;
 import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseEntity;
-import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseVersionEntity;
+import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.register.Register;
 import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.util.Util;
@@ -94,6 +94,7 @@ public class CvrRegister extends Register {
             this.obtain("secondaryIndustryText3", "bibranche3/tekst");
             this.obtain("startDate", "livsforloeb/startdato");
             this.obtain("endDate", "livsforloeb/slutdato");
+            this.obtain("adresseDato", "beliggenhedsadresse/gyldigFra");
             this.obtain("vejnavn", "beliggenhedsadresse/vejnavn");
             this.obtain("vejkode", "beliggenhedsadresse/vejkode");
             this.obtain("husnummerFra", "beliggenhedsadresse/husnummerFra");
@@ -330,33 +331,47 @@ public class CvrRegister extends Register {
                     int kommuneKode = unit.getInt("kommunekode");
                     int postNr = unit.getInt("postnr");
                     int vejKode = unit.getInt("vejkode");
+                    String vejNavn = unit.get("vejnavn");
                     String husnr = unit.get("husnummerFra");
                     String bogstav = unit.get("bogstavFra");
                     String etage = unit.get("etage");
                     String sidedoer = unit.get("sidedoer");
                     String fullHusNr = husnr + (bogstav != null ? bogstav : "");
+                    Date addressDate = this.parseDate(unit.get("adresseDato"));
 
+                    VejstykkeEntity vej = this.dawaModel.getVejstykke(kommuneKode, vejKode);
+                    if (vej != null) {
 
-                    tic();
-                    adresse = this.dawaModel.getEnhedsAdresse(kommuneKode, vejKode, fullHusNr, etage, sidedoer);
-                    lookupAddress += toc();
-                    if (adresse == null) {
-                        tic();
-                        adresse = dawaModel.setAdresse(kommuneKode, vejKode, fullHusNr, null, etage, sidedoer, createRegistrering, updateRegistrering);
+                        String cprNavn = Util.emptyIfNull(vej.getLatestVersion().getVejnavn()).toLowerCase();
+                        String cvrNavn = Util.emptyIfNull(vejNavn).toLowerCase();
+                        if (!cprNavn.equals(cvrNavn)) {
+                            System.err.println("Mismatch on "+kommuneKode+":"+vejKode+"; cpr names it "+cprNavn+" while cvr names it "+cvrNavn);
+                        } else {
 
-                        if (dawaModel.getVejstykkeCache().get(kommuneKode, vejKode) == null) {
-                            System.err.println("Purportedly named '"+unit.get("vejnavn")+"'");
+                            tic();
+                            adresse = this.dawaModel.getEnhedsAdresse(kommuneKode, vejKode, fullHusNr, etage, sidedoer);
+                            lookupAddress += toc();
+                            if (adresse == null) {
+                                tic();
+                                adresse = dawaModel.setAdresse(kommuneKode, vejKode, fullHusNr, null, etage, sidedoer, createRegistrering, updateRegistrering);
+
+                                if (dawaModel.getVejstykkeCache().get(kommuneKode, vejKode) == null) {
+                                    System.err.println("Purportedly named '" + unit.get("vejnavn") + "'");
+                                }
+                                createAddress += toc();
+                            }
+                            this.cvrModel.setCompanyUnit(pNummer, name, cvrNummer,
+                                    primaryIndustry, secondaryIndustries,
+                                    adresse, addressDate, phone, fax, email,
+                                    startDate, endDate,
+                                    advertProtection,
+                                    createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>()
+                            );
+                            totalUnits++;
                         }
-                        createAddress += toc();
+                    } else {
+                        System.err.println("Vej "+kommuneKode+":"+vejKode+" not found; cvr names it "+vejNavn);
                     }
-                    this.cvrModel.setCompanyUnit(pNummer, name, cvrNummer,
-                            primaryIndustry, secondaryIndustries,
-                            adresse, phone, fax, email,
-                            startDate, endDate,
-                            advertProtection,
-                            createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>()
-                    );
-                    totalUnits++;
                 }
                 System.out.println("Addresses searched in "+lookupAddress+" ("+((float) lookupAddress / 50000.0)+")");
                 System.out.println("Addresses created in "+createAddress+" ("+((float) createAddress / 50000.0)+")");

@@ -110,16 +110,6 @@ public class CompanyRepositoryImpl implements CompanyRepositoryCustom {
         return q.getResultList();
     }
 
-
-
-    public void bulkWireReferences() {
-        /*System.out.println("Updating references");
-        Query query = this.entityManager.createNativeQuery("update cvr_company_version company join cvr_industry industry on company.primaryIndustryNumber=industry.code set company.primaryIndustry=industry.code");
-        query.executeUpdate();
-        System.out.println("References updated");*/
-        //update cvr_companyunit unit join cvr_company company on unit.cvr_nummer=company.cvr_nummer set unit.company_id=company.id;
-    }
-
     public void flushEntities() {
         this.entityManager.flush();
         this.entityManager.clear();

@@ -1,5 +1,7 @@
 package dk.magenta.databroker.util;
 
+import java.util.Date;
+
 /**
  * Created by lars on 27-01-15.
  */
@@ -14,6 +16,10 @@ public abstract class Util {
     }
 
     public static boolean compare(Object a, Object b) {
+        return a == null ? (b == null) : a.equals(b);
+    }
+
+    public static boolean compare(Date a, Date b) {
         return a == null ? (b == null) : a.equals(b);
     }
 

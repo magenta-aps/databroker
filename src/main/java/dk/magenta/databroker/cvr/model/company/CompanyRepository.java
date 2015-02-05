@@ -14,7 +14,6 @@ public interface CompanyRepository extends JpaRepository<CompanyEntity, Long> {
     public CompanyEntity getByCvrNummer(String cvrNummer);
 
     public Collection<CompanyEntity> search(SearchParameters parameters, boolean printQuery);
-    public void bulkWireReferences();
 
     public void flushEntities();
 }
