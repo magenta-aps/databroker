@@ -27,11 +27,11 @@ public class VejstykkeRepositoryImpl extends RepositoryImplementation<VejstykkeE
         StringList join = new StringList();
         ConditionList conditions = new ConditionList(ConditionList.Operator.AND);
 
-        hql.append("select distinct vej from VejstykkeEntity as vej");
+        hql.append("select distinct "+VejstykkeEntity.databaseKey+" from VejstykkeEntity as "+VejstykkeEntity.databaseKey);
 
         join.setPrefix("join ");
         if (parameters.hasAny(Key.LAND, Key.KOMMUNE)) {
-            join.append("vej.kommune kommune");
+            join.append(VejstykkeEntity.joinKommune());
             if (parameters.has(Key.LAND)) {
                 conditions.addCondition(KommuneEntity.landCondition(parameters));
             }
@@ -43,11 +43,11 @@ public class VejstykkeRepositoryImpl extends RepositoryImplementation<VejstykkeE
             conditions.addCondition(VejstykkeEntity.vejCondition(parameters));
         }
         if (parameters.has(Key.LOKALITET)) {
-            join.append("vej.latestVersion.lokaliteter lokalitet");
+            join.append(VejstykkeEntity.joinLokalitet());
             conditions.addCondition(LokalitetEntity.lokalitetCondition(parameters));
         }
         if (parameters.has(Key.POST)) {
-            join.append("vej.latestVersion.postnumre post");
+            join.append(VejstykkeEntity.joinPost());
             conditions.addCondition(PostNummerEntity.postCondition(parameters));
         }
         if (parameters.hasGlobalCondition()) {
@@ -70,7 +70,7 @@ public class VejstykkeRepositoryImpl extends RepositoryImplementation<VejstykkeE
             hql.append("where");
             hql.append(conditions.getWhere());
         }
-        hql.append("order by vej.kode");
+        hql.append("order by "+VejstykkeEntity.databaseKey+".kode");
 
         return this.query(hql, conditions, parameters.getGlobalCondition(), printQuery);
     }

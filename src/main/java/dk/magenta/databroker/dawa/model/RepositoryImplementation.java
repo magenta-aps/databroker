@@ -26,6 +26,9 @@ public abstract class RepositoryImplementation<T> {
         return this.query(hql, conditions, globalCondition, false);
     }
     protected List<T> query(StringList hql, ConditionList conditions, GlobalCondition globalCondition, boolean printQuery) {
+        if (printQuery) {
+            System.out.println(hql.join(" \n"));
+        }
         Query q = this.entityManager.createQuery(hql.join(" "));
 
         int offset = 0;
@@ -38,9 +41,6 @@ public abstract class RepositoryImplementation<T> {
         q.setFirstResult(offset);
         q.setMaxResults(limit);
 
-        if (printQuery) {
-            System.out.println(hql.join(" \n"));
-        }
         // Put all conditions' parameters into the query
         Map<String, Object> queryParameters = conditions.getParameters();
         for (String key : queryParameters.keySet()) {

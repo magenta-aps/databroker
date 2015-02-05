@@ -79,27 +79,4 @@ public class EnhedsAdresseVersionEntity
         this.doer = doer;
     }
 
-    //----------------------------------------------------------------
-
-    @Column(nullable = false)
-    @Index(name = "descriptor")
-    private String descriptor; // A field containing kommunekode,vejkode,husnr,etage and doer, for quick lookup
-
-    public String getDescriptor() {
-        return descriptor;
-    }
-
-    public void setDescriptor(String descriptor) {
-        this.descriptor = descriptor;
-    }
-
-    public static String buildDescriptor(int kommuneKode, int vejKode, String husnr, String etage, String doer) {
-        return (kommuneKode + ":" + vejKode + ":" + Util.emptyIfNull(husnr) + ":" + Util.emptyIfNull(etage) + ":" + Util.emptyIfNull(doer)).toLowerCase();
-    }
-
-
-
-    public String getFoo() {
-        return Util.emptyIfNull(this.getEtage())+":"+Util.emptyIfNull(this.getDoer());
-    }
 }

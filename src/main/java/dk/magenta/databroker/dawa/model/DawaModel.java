@@ -209,6 +209,10 @@ public class DawaModel {
         this.vejstykkeCache = new Level2Cache<VejstykkeEntity>(this.vejstykkeRepository);
     }
 
+    public Level2Cache<VejstykkeEntity> getVejstykkeCache() {
+        return this.vejstykkeCache;
+    }
+
     //------------------------------------------------------------------------------------------------------------------
 
 
@@ -507,7 +511,6 @@ public class DawaModel {
             if (enhedsAdresseVersionEntity != null) {
                 enhedsAdresseVersionEntity.setEtage(etage);
                 enhedsAdresseVersionEntity.setDoer(doer);
-                enhedsAdresseVersionEntity.setDescriptor(EnhedsAdresseVersionEntity.buildDescriptor(kommuneKode,vejKode,husNr,etage,doer));
                 this.enhedsAdresseRepository.save(enhedsAdresseEntity);
                 this.enhedsAdresseCache.put(enhedsAdresseEntity);
             } else {
@@ -553,16 +556,9 @@ public class DawaModel {
 
     public EnhedsAdresseEntity getEnhedsAdresse(int kommuneKode, int vejKode, String husnr, String etage, String doer) {
         return this.enhedsAdresseCache.get(kommuneKode, vejKode, husnr, EnhedsAdresseEntity.getFinalIdentifier(etage, doer));
-        /*String descriptor = EnhedsAdresseVersionEntity.buildDescriptor(kommuneKode, vejKode, husnr, etage, doer);
-        try {
-            return this.enhedsAdresseRepository.getFirstByLatestVersion_Descriptor(descriptor);
-        } catch (NonUniqueResultException e) {
-        } catch (IncorrectResultSizeDataAccessException e) {
-        }
-        List<EnhedsAdresseEntity> enhedsAdresseEntityList = this.enhedsAdresseRepository.getByLatestVersion_Descriptor(descriptor);
-        return enhedsAdresseEntityList != null && !enhedsAdresseEntityList.isEmpty() ? enhedsAdresseEntityList.get(0) : null;*/
     }
 
+    //----------------------------------------
 
     private Level3Cache<AdgangsAdresseEntity> adgangsAdresseCache;
 

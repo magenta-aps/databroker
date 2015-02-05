@@ -16,6 +16,8 @@ import dk.magenta.databroker.register.records.Record;
 import dk.magenta.databroker.util.objectcontainers.ListHash;
 import dk.magenta.databroker.util.objectcontainers.StringList;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
@@ -144,6 +146,20 @@ public class CvrRegister extends Register {
     @SuppressWarnings("SpringJavaAutowiringInspection")
     private DawaModel dawaModel;
 
+    /*
+    * Data source spec
+    * */
+
+    @Autowired
+    private ConfigurableApplicationContext ctx;
+
+    /*public URL getRecordUrl() throws MalformedURLException {
+        return new URL("https://cpr.dk/media/152096/vejregister_hele_landet_pr_150101.zip");
+    }*/
+    public Resource getRecordResource() {
+        return this.ctx.getResource("classpath:/data/cvrAll.zip");
+    }
+
     public void pull(boolean forceFetch, boolean forceParse, DataProviderEntity dataProviderEntity) {
         super.pull(forceFetch, forceParse, dataProviderEntity);
     }
@@ -200,7 +216,7 @@ public class CvrRegister extends Register {
 
         if (run.getClass() == CvrRegisterRun.class) {
 
-            this.cvrModel.resetIndustryCache();
+            this.cvrModel.resetIndustryCache(); // TODO: investigate how much really needs to be reset
 
             RegistreringEntity createRegistrering = this.getCreateRegistrering(dataProviderEntity);
             RegistreringEntity updateRegistrering = this.getUpdateRegistrering(dataProviderEntity);
@@ -322,24 +338,17 @@ public class CvrRegister extends Register {
 
 
                     tic();
-                    //System.out.println("Looking for address "+kommuneKode+":"+vejKode+" "+fullHusNr+" "+etage+" "+sidedoer);
-                    //adresse = this.dawaModel.getSingleEnhedsAdresse(kommuneKode, vejKode, fullHusNr, etage, sidedoer);
-                    //EnhedsAdresseVersionEntity adresseVersion = this.dawaModel.getEnhedsAdresseCache().get(kommuneKode, vejKode, fullHusNr, Util.emptyIfNull(etage)+":"+Util.emptyIfNull(sidedoer));
-                    //if (adresseVersion != null) {
-                    //    adresse = adresseVersion.getEntity();
-                    //}
                     adresse = this.dawaModel.getEnhedsAdresse(kommuneKode, vejKode, fullHusNr, etage, sidedoer);
                     lookupAddress += toc();
                     if (adresse == null) {
-                        //System.out.println("Address not found (spent "+toc()+" ms looking)");
                         tic();
                         adresse = dawaModel.setAdresse(kommuneKode, vejKode, fullHusNr, null, etage, sidedoer, createRegistrering, updateRegistrering);
+
+                        if (dawaModel.getVejstykkeCache().get(kommuneKode, vejKode) == null) {
+                            System.err.println("Purportedly named '"+unit.get("vejnavn")+"'");
+                        }
                         createAddress += toc();
-                        //System.out.println("Created new adresse in "+this.toc()+" ms");
-                    } else {
-                        //System.out.println("Adresse found");
                     }
-                    //System.out.println("Setting company unit");
                     this.cvrModel.setCompanyUnit(pNummer, name, cvrNummer,
                             primaryIndustry, secondaryIndustries,
                             adresse, phone, fax, email,
@@ -347,7 +356,6 @@ public class CvrRegister extends Register {
                             advertProtection,
                             createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>()
                     );
-                    //System.out.println("Company unit "+name+" set");
                     totalUnits++;
                 }
                 System.out.println("Addresses searched in "+lookupAddress+" ("+((float) lookupAddress / 50000.0)+")");
@@ -415,7 +423,7 @@ public class CvrRegister extends Register {
         }
         private void onRecordSave(boolean force) {
             this.recordCount++;
-            if (this.recordCount >= this.chunkSize) {
+            if (force || this.recordCount >= this.chunkSize) {
                 CvrRegister.this.saveRunToDatabase(this.currentRun, this.dataProviderEntity);
                 this.currentRun = new CvrRegisterRun();
                 this.recordCount = 0;

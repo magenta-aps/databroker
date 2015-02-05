@@ -191,27 +191,30 @@ public abstract class DataProvider {
             System.out.println("Passing data through ZIP filter");
             input = this.unzip(input);
         }
-        if (input.getFileExtension().equals("xls") || input.getFileExtension().equals("xlsx")) {
+        if (input != null && (input.getFileExtension().equals("xls") || input.getFileExtension().equals("xlsx"))) {
             System.out.println("Passing data through XLS filter");
             input = this.convertExcelSpreadsheet(input);
         }
-        if (input.getFileExtension().equals("ods")) {
+        if (input != null && input.getFileExtension().equals("ods")) {
             System.out.println("Passing data through ODS filter");
             input = this.convertOdfSpreadsheet(input);
         }
         return input;
     }
 
-    private static final String[] acceptedExtensions = {"xml","csv","ods","xls","xlsx"};
+    private static final String[] acceptedExtensions = {"xml","csv","ods","xls","xlsx","txt"};
 
     private NamedInputStream unzip(NamedInputStream input) throws IOException {
         ZipInputStream zinput = new ZipInputStream(input.getRight());
         for (ZipEntry entry = zinput.getNextEntry(); entry != null; entry = zinput.getNextEntry()) {
             String extension = getExtension(entry.getName());
+            System.out.println("extension: "+extension);
             if (extension != null && Util.inArray(acceptedExtensions, extension)) {
+                System.out.println(entry.getName());
                 return new NamedInputStream(entry.getName(), zinput);
             }
         }
+        System.out.println("Aieee");
         return null;
     }
 

@@ -11,6 +11,8 @@ import dk.magenta.databroker.cprvejregister.dataproviders.records.CprRecord;
 import dk.magenta.databroker.register.records.Record;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import java.net.MalformedURLException;
@@ -404,10 +406,15 @@ public class VejRegister extends CprSubRegister {
     * Data source spec
     * */
 
-    public URL getRecordUrl() throws MalformedURLException {
-        return new URL("https://cpr.dk/media/152096/vejregister_hele_landet_pr_150101.zip");
-    }
+    @Autowired
+    private ConfigurableApplicationContext ctx;
 
+    /*public URL getRecordUrl() throws MalformedURLException {
+        return new URL("https://cpr.dk/media/152096/vejregister_hele_landet_pr_150101.zip");
+    }*/
+    public Resource getRecordResource() {
+        return this.ctx.getResource("classpath:/data/vejregister_hele_landet_pr_150201.zip");
+    }
 
     /*
     * Parse definition
@@ -557,10 +564,7 @@ public class VejRegister extends CprSubRegister {
             );
         }
 
-
-
         Level2Container<HashSet<RawVej>> lokalitetData = new Level2Container<HashSet<RawVej>>();
-
 
         for (ByDistrikt byDistrikt : vrun.getByDistrikter()) {
             int kommuneKode = byDistrikt.getInt("kommuneKode");
