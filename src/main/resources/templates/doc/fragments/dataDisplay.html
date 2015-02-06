@@ -12,6 +12,7 @@
         </div>
 
         <div th:fragment="containers">
+            <pre id="searchUrl"/>
             <textarea class="output" id="results" readonly="readonly"/>
             <div id="treeview"/>
         </div>
@@ -37,30 +38,36 @@
                 $("#json,#xml").each(function(i,el){
                     var button = $(el);
 
-                    var run = doSearch.bind(
-                            null,
-                            window.dataSource,
-                            fields.add(button),
-                            function(data) {
-                                showData(data);
-                                currentFormat = button;
-                            },
-                            $("#loading")
-                    );
+                    var run = function() {
+                        doSearch(
+                                window.dataSource,
+                                fields.add(button),
+                                function(data) {
+                                    showData(data);
+                                    currentFormat = button;
+                                },
+                                $("#loading")
+                        );
+                        $("#searchUrl").text(getUrl(window.dataSource, fields.add(button))).show();
+                    };
+
+
                     button.select(run);
                     button.click(run);
                 });
 
-                $("#tree").click(doSearch.bind(
-                        null,
-                        window.dataSource,
-                        fields.add("#json"),
-                        function(data) {
-                            showTree(data);
-                            currentFormat = "tree";
-                        },
-                        $("#loading")
-                ));
+                $("#tree").click(function() {
+                    doSearch(
+                            window.dataSource,
+                            fields.add("#json"),
+                            function (data) {
+                                showTree(data);
+                                currentFormat = "tree";
+                            },
+                            $("#loading")
+                    );
+                    $("#searchUrl").text(getUrl(window.dataSource, fields.add("#json"))).show();
+                });
 
                 fields.keyup(function(ev){
                     if (ev.keyCode == 13) {

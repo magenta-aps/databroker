@@ -1,12 +1,5 @@
 function doSearch(url, formfields, resultelement, loadingIndicator) {
-    var params = {};
-    for (var i=0; i<formfields.length; i++) {
-        var el = formfields[i];
-        if (el instanceof jQuery) {
-            el = el.get(0);
-        }
-        params[el.name||el.id] = el.value;
-    }
+    var params = getParams(formfields);
     if (loadingIndicator) {
         loadingIndicator.show();
     }
@@ -37,4 +30,20 @@ function doSearch(url, formfields, resultelement, loadingIndicator) {
             }
         }
     });
+}
+
+function getParams(formfields) {
+    var params = {};
+    for (var i=0; i<formfields.length; i++) {
+        var el = formfields[i];
+        if (el instanceof jQuery) {
+            el = el.get(0);
+        }
+        params[el.name||el.id] = el.value;
+    }
+    return params;
+}
+
+function getUrl(base, formfields) {
+    return base + "?" + $.param(getParams(formfields));
 }

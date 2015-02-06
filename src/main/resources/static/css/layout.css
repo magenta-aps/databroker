@@ -55,8 +55,13 @@ textarea.output {
     height: 200px;
     display: none
 }
-#treeview {
-    display: none
+#treeview,
+#searchUrl {
+    display: none;
+}
+
+#searchUrl {
+    margin: 5px 0 0 0;
 }
 
 label {
