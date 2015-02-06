@@ -39,7 +39,9 @@ function getParams(formfields) {
         if (el instanceof jQuery) {
             el = el.get(0);
         }
-        params[el.name||el.id] = el.value;
+        if (el.value !== "") {
+            params[el.name || el.id] = el.value;
+        }
     }
     return params;
 }
