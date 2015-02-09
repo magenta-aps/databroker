@@ -24,7 +24,7 @@ public class TypeEntity extends UniqueBase implements OutputFormattable, Cacheab
     //----------------------------------------------------
 
     @Column(nullable = true, unique = true)
-    @Index(name = "name")
+    @Index(name = "nameIndex")
     private String name;
 
     public String getName() {

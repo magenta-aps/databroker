@@ -39,6 +39,7 @@ public class EnhedsAdresseRepositoryImpl extends RepositoryImplementation<Enheds
 
             if (parameters.hasAny(Key.LAND, Key.KOMMUNE, Key.VEJ)) {
                 join.append(AdgangsAdresseEntity.joinVej());
+                conditions.addCondition(VejstykkeEntity.vejCondition(parameters));
 
                 //conditions.addCondition(VejstykkeEntity.vejCondition(parameters));
                 if (parameters.hasAny(Key.LAND, Key.KOMMUNE)) {

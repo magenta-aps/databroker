@@ -187,7 +187,8 @@ public class DawaModel {
     * Obtain roads from DB
     * */
     public VejstykkeEntity getVejstykke(int kommuneKode, int vejKode) {
-        return this.vejstykkeRepository.getByKommunekodeAndVejkode(kommuneKode, vejKode);
+        return this.vejstykkeCache.get(kommuneKode, vejKode);
+        //return this.vejstykkeRepository.getByKommunekodeAndVejkode(kommuneKode, vejKode);
     }
 
     public Collection<VejstykkeEntity> getVejstykke(SearchParameters parameters) {
@@ -211,6 +212,10 @@ public class DawaModel {
 
     public Level2Cache<VejstykkeEntity> getVejstykkeCache() {
         return this.vejstykkeCache;
+    }
+
+    public void preloadVejstykkeCache() {
+        this.vejstykkeCache.reload(false);
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -511,6 +516,7 @@ public class DawaModel {
             if (enhedsAdresseVersionEntity != null) {
                 enhedsAdresseVersionEntity.setEtage(etage);
                 enhedsAdresseVersionEntity.setDoer(doer);
+                enhedsAdresseVersionEntity.setDescriptor(EnhedsAdresseVersionEntity.generateDescriptor(kommuneKode, vejKode, husNr, etage, doer));
                 this.enhedsAdresseRepository.save(enhedsAdresseEntity);
                 this.enhedsAdresseCache.put(enhedsAdresseEntity);
             } else {
@@ -572,6 +578,10 @@ public class DawaModel {
     @PostConstruct
     private void loadEnhedsAdresseCache() {
         this.enhedsAdresseCache = new Level4Cache<EnhedsAdresseEntity>(this.enhedsAdresseRepository);
+    }
+
+    public void preloadEnhedsadresseCache() {
+        this.enhedsAdresseCache.reload(false);
     }
 
     //------------------------------------------------------------------------------------------------------------------

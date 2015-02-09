@@ -108,7 +108,7 @@ public class CompanyUnitEntity extends DobbeltHistorikBase<CompanyUnitEntity, Co
     /* Domain specific fields */
 
     @Column(nullable = false)
-    @Index(name = "pno")
+    @Index(name = "pnoIndex")
     private long pno;
 
     public long getPNO() {

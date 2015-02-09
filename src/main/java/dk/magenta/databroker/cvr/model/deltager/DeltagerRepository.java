@@ -10,7 +10,7 @@ public interface DeltagerRepository extends JpaRepository<DeltagerEntity, Long> 
     public DeltagerEntity getByUuid(String uuid);
     public DeltagerEntity getByDeltagerNummer(long deltagernummer);
 
-
+    public void bulkWireReferences();
     /*
     * To be implemented in interface implementation
     * */

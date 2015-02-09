@@ -24,7 +24,7 @@ public class RolleEntity extends UniqueBase implements OutputFormattable, Cachea
     //----------------------------------------------------
 
     @Column(nullable = true, unique = true)
-    @Index(name = "name")
+    @Index(name = "nameIndex")
     private String name;
 
     public String getName() {

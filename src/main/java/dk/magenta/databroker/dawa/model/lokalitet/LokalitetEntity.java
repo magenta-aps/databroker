@@ -65,7 +65,7 @@ public class LokalitetEntity extends UniqueBase implements OutputFormattable, Ca
     //----------------------------------------------------
 
     @Column(nullable = false)
-    @Index(name = "navn")
+    @Index(name = "navnIndex")
     private String navn;
 
     public String getNavn() {

@@ -74,7 +74,7 @@ public class CompanyVersionEntity extends DobbeltHistorikVersion<CompanyEntity, 
     //----------------------------------------------------
 
     @Column
-    @Index(name = "name")
+    @Index(name = "nameIndex")
     private String name;
 
     public String getName() {

@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public class Level3Cache<T extends Cacheable> extends Level3Container<T> {
     private JpaRepository<T, Long> repository;
     private boolean loaded;
+    private Thread thread = null;
 
     public Level3Cache(JpaRepository<T, Long> repository) {
         this.repository = repository;
@@ -21,30 +22,51 @@ public class Level3Cache<T extends Cacheable> extends Level3Container<T> {
 
     public void load() {
         if (!this.loaded) {
-            this.reload();
+            this.reload(true);
         }
     }
 
-    public void reload() {
-        for (T item : this.repository.findAll()) {
-            try {
-                String[] identifiers = item.getIdentifiers();
-                this.put(identifiers[0], identifiers[1], identifiers[2], item);
-            } catch (NullPointerException e) {
-            } catch (IndexOutOfBoundsException e) {}
-        }
-        this.loaded = true;
+    public void reload(boolean wait) {
+        //if (this.thread == null || this.thread.getState() == Thread.State.TERMINATED) {
+        //    this.thread = new Thread() {
+        //        public void run() {
+            //            Level3Cache<T> master = Level3Cache.this;
+                        Level3Cache<T> master = this;
+                    System.out.println("Loading cache from " + master.repository);
+                    for (T item : master.repository.findAll()) {
+                        master.doPut(item);
+                    }
+                    System.out.println("Cache loaded from " + master.repository);
+                    master.loaded = true;
+        //        }
+        //    };
+        //    this.thread.start();
+        //}
+
+        //if (wait && this.thread != null && this.thread.getState() != Thread.State.TERMINATED) {
+        //    try {
+        //        this.thread.join();
+        //    } catch (InterruptedException e) {
+        //        e.printStackTrace();
+        //    }
+       // }
     }
 
     public void put(T item) {
         this.load();
+        this.doPut(item);
+    }
+    private synchronized void doPut(T item) {
         try {
             String[] identifiers = item.getIdentifiers();
             this.put(identifiers[0], identifiers[1], identifiers[2], item);
-        } catch (NullPointerException e) {}
+        } catch (NullPointerException e) {
+        } catch (IndexOutOfBoundsException e) {
+        }
     }
 
     public void reset() {
+        System.out.println("Clearing cache for "+this.repository);
         this.clear();
         this.loaded = false;
     }

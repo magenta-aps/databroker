@@ -104,7 +104,7 @@ public class DeltagerEntity extends DobbeltHistorikBase<DeltagerEntity, Deltager
     /* Domain specific fields */
 
     @Column(nullable = false)
-    @Index(name = "deltagerNummer")
+    @Index(name = "deltagerNummerIndex")
     private long deltagerNummer;
 
     public long getDeltagerNummer() {

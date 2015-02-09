@@ -39,7 +39,7 @@ public class KommuneEntity extends TemaBase implements Cacheable {
     //------------------------------------------------------------------------------------------------------------------
 
     @Column(nullable = false)
-    @Index(name = "kode")
+    @Index(name = "kodeIndex")
     private int kode;
 
     public int getKode() {

@@ -6,6 +6,7 @@ import dk.magenta.databroker.util.objectcontainers.StringList;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceContextType;
 import javax.persistence.Query;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +18,7 @@ public abstract class RepositoryImplementation<T> {
 
     protected EntityManager entityManager;
 
-    @PersistenceContext
+    @PersistenceContext(type = PersistenceContextType.EXTENDED)
     public void setEntityManager(EntityManager entityManager){
         this.entityManager = entityManager;
     }

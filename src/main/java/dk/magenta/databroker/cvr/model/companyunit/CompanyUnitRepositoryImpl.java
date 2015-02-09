@@ -24,10 +24,9 @@ public class CompanyUnitRepositoryImpl implements CompanyUnitRepositoryCustom {
 
     public void bulkWireReferences() {
         System.out.println("Updating references");
-        Query query = this.entityManager.createNativeQuery("update cvr_companyunit unit join cvr_company company on unit.cvr_nummer=company.cvr_nummer set unit.company_id=company.id");
-        query.executeUpdate();
+        this.entityManager.createNativeQuery("update cvr_companyunit unit join cvr_company company on unit.cvr_nummer=company.cvr_nummer set unit.company_id=company.id").executeUpdate();
+        this.entityManager.createNativeQuery("update cvr_companyunit_version unit join dawa_enhedsadresse_version address on unit.address_descriptor=address.descriptor set unit.address=address.entity.id").executeUpdate();
         System.out.println("References updated");
-        //update cvr_companyunit unit join cvr_company company on unit.cvr_nummer=company.cvr_nummer set unit.company_id=company.id;
     }
 
 }

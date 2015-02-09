@@ -73,6 +73,18 @@ public class CompanyUnitVersionEntity extends DobbeltHistorikVersion<CompanyUnit
 
     //----------------------------------------------------
 
+    @Column(nullable = true)
+    private String addressDescriptor;
+
+    public String getAddressDescriptor() {
+        return addressDescriptor;
+    }
+
+    public void setAddressDescriptor(String addressDescriptor) {
+        this.addressDescriptor = addressDescriptor;
+    }
+    //----------------------------------------------------
+
     @ManyToOne(optional = true)
     private EnhedsAdresseEntity address;
 

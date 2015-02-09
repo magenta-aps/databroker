@@ -115,7 +115,7 @@ public class NukissiorfiitRegister extends LineRegister {
         }
 
 
-        this.model.resetAllCaches();
+        //this.model.resetAllCaches();
         HashSet<Pair<String,String>> failures = new HashSet<Pair<String, String>>();
         HashSet<Pair<String,String>> successes = new HashSet<Pair<String, String>>();
         for (Record r : run) {

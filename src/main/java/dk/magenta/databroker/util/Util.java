@@ -1,5 +1,6 @@
 package dk.magenta.databroker.util;
 
+import java.text.Normalizer;
 import java.util.Date;
 
 /**
@@ -38,4 +39,13 @@ public abstract class Util {
         return str == null ? "" : str;
     }
 
+    public static String normalizeString(String str) {
+        if (str != null && !str.isEmpty()) {
+            return Normalizer.normalize(str.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}|[\\.']", "").trim();
+        }
+        return str;
+    }
+    public static boolean compareNormalized(String str1, String str2) {
+        return compare(Util.normalizeString(str1), Util.normalizeString(str2));
+    }
 }

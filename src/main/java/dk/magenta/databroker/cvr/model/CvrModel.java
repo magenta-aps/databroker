@@ -234,10 +234,6 @@ public class CvrModel {
         }
     }
 
-    public void bulkWireReferences() {
-        this.companyUnitRepository.bulkWireReferences();
-    }
-
     //--------------------------------------------------
 
     private Level1Cache<CompanyUnitEntity> companyUnitCache;
@@ -516,4 +512,10 @@ public class CvrModel {
         this.rolleCache = new Level1Cache<RolleEntity>(this.deltagerRolleRepository);
     }
 
+    //------------------------------------------------------------------------------------------------------------------
+
+    public void bulkWireReferences() {
+        this.companyUnitRepository.bulkWireReferences();
+        this.deltagerRepository.bulkWireReferences();
+    }
 }

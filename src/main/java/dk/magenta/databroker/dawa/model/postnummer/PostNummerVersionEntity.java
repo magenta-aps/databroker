@@ -43,7 +43,7 @@ public class PostNummerVersionEntity extends DobbeltHistorikVersion<PostNummerEn
     //----------------------------------------------------
 
     @Column(nullable = false)
-    @Index(name = "nr")
+    @Index(name = "nrIndex")
     private int nr;
 
     public int getNr() {
@@ -57,7 +57,7 @@ public class PostNummerVersionEntity extends DobbeltHistorikVersion<PostNummerEn
     //----------------------------------------------------
 
     @Column(nullable = false)
-    @Index(name = "navn")
+    @Index(name = "navnIndex")
     private String navn;
 
     public String getNavn() {

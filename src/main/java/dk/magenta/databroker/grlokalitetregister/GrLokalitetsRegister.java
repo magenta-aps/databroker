@@ -101,7 +101,7 @@ public class GrLokalitetsRegister extends LineRegister {
      protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
          System.out.println("Saving to database...");
          GrRegisterRun grun = (GrRegisterRun) run;
-         this.model.resetAllCaches();
+         //this.model.resetAllCaches();
 
          Level2Container<HashSet<RawVej>> lokalitetData = new Level2Container<HashSet<RawVej>>();
          for (Record record : grun) {

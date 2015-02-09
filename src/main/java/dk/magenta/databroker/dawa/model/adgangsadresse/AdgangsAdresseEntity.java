@@ -14,6 +14,7 @@ import dk.magenta.databroker.register.conditions.Condition;
 import dk.magenta.databroker.service.rest.SearchService;
 import dk.magenta.databroker.util.Util;
 import dk.magenta.databroker.util.cache.Cacheable;
+import org.hibernate.annotations.Index;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -129,6 +130,7 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
     //----------------------------------------------------
 
     @Column(nullable = false)
+    @Index(name = "husnrIndex")
     private String husnr;
 
     public String getHusnr() {

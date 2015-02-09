@@ -5,8 +5,10 @@ import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.core.model.oio.VirkningEntity;
 import dk.magenta.databroker.cvr.model.CvrModel;
+import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitEntity;
 import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseEntity;
+import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseVersionEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.register.Register;
 import dk.magenta.databroker.register.RegisterRun;
@@ -27,6 +29,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import javax.annotation.PostConstruct;
 import javax.xml.parsers.*;
 import java.io.IOException;
 import java.io.InputStream;
@@ -106,6 +109,10 @@ public class CvrRegister extends Register {
             this.obtain("phone", "telefonnummer/kontaktoplysning");
             this.obtain("fax", "telefax/kontaktoplysning");
             this.obtain("email", "email/kontaktoplysning");
+
+            if (this.get("kommunekode") == null || this.get("kommunekode").isEmpty()) {
+                System.err.println(productionunitHash);
+            }
         }
     }
 
@@ -193,9 +200,13 @@ public class CvrRegister extends Register {
     @Override
     protected void importData(InputStream input, DataProviderEntity dataProviderEntity) {
         try {
+            //this.dawaModel.preloadEnhedsadresseCache();
+            this.dawaModel.preloadVejstykkeCache();
             DefaultHandler handler = new VirksomhedDataHandler(dataProviderEntity, 50000);
             SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
             parser.parse(input, handler);
+            
+            this.generateAddresses();
             this.bulkWireReferences();
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
@@ -237,6 +248,17 @@ public class CvrRegister extends Register {
     int totalUnits = 0;
     int totalMembers = 0;
 
+    private HashMap<String, Boolean> generatedAddresses = new HashMap<String, Boolean>();
+
+    private synchronized String addNeededAddress(int kommuneKode, int vejKode, String husNr, String etage, String doer) {
+        String descriptor = EnhedsAdresseVersionEntity.generateDescriptor(kommuneKode, vejKode, husNr, etage, doer);
+        if (!this.generatedAddresses.containsKey(descriptor)) {
+            this.generatedAddresses.put(descriptor, false);
+        }
+        return descriptor;
+    }
+
+
     @Override
     protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
 
@@ -255,7 +277,7 @@ public class CvrRegister extends Register {
             try {
 
                 CvrRegisterRun cRun = (CvrRegisterRun) run;
-                this.dawaModel.resetAllCaches();
+                //this.dawaModel.resetAllCaches();
 
                 System.out.println("there are "+cRun.getVirksomheder().getList().size()+" virksomheder");
                 System.out.println("there are "+cRun.getProductionUnits().getList().size()+" production units");
@@ -308,7 +330,7 @@ public class CvrRegister extends Register {
 
 
                 for (ProductionUnitRecord unit : cRun.getProductionUnits().getList()) {
-
+                    long initTime = indepTic();
                     // Make sure the referenced industries are present in the DB
                     this.ensureIndustryInDatabase(unit.getInt("primaryIndustry"), unit.get("primaryIndustryText"));
                     this.ensureIndustryInDatabase(unit.getInt("secondaryIndustry1"), unit.get("secondaryIndustryText1"));
@@ -361,33 +383,46 @@ public class CvrRegister extends Register {
                     String sidedoer = unit.get("sidedoer");
                     String fullHusNr = husnr + (bogstav != null ? bogstav : "");
                     Date addressDate = this.parseDate(unit.get("adresseDato"));
+                    String postnr = unit.get("postnr");
 
+                    //System.out.println("initial moves done in "+toc(initTime));
+
+                    long vejTime = indepTic();
                     VejstykkeEntity vej = this.dawaModel.getVejstykke(kommuneKode, vejKode);
+                    //System.out.println("vej found in "+toc(vejTime)+" ms");
+
                     if (vej != null) {
 
-                        String cprNavn = Util.emptyIfNull(vej.getLatestVersion().getVejnavn()).toLowerCase();
-                        String cvrNavn = Util.emptyIfNull(vejNavn).toLowerCase();
-                        if (!cprNavn.equals(cvrNavn)) {
-                            System.err.println("Mismatch on "+kommuneKode+":"+vejKode+"; cpr names it "+cprNavn+" while cvr names it "+cvrNavn);
+                        String cprNavn = Util.emptyIfNull(vej.getLatestVersion().getVejnavn());
+                        String cvrNavn = Util.emptyIfNull(vejNavn);
+                        if (!Util.compareNormalized(cprNavn,cvrNavn)) {
+                            System.err.println("Mismatch on "+kommuneKode+":"+vejKode+"; cpr names it "+Util.normalizeString(cprNavn)+" while cvr names it "+Util.normalizeString(cvrNavn));
                         } else {
-
-                            tic();
+                            String descriptor = this.addNeededAddress(kommuneKode, vejKode, husnr, etage, sidedoer);
+                            /*long adrTime = indepTic();
                             adresse = this.dawaModel.getEnhedsAdresse(kommuneKode, vejKode, fullHusNr, etage, sidedoer);
                             if (adresse == null) {
-                                tic();
+                                //System.out.println("Searched for adresse for " + toc(adrTime) + " ms");
+                                long crAdr = indepTic();
                                 adresse = dawaModel.setAdresse(kommuneKode, vejKode, fullHusNr, null, etage, sidedoer, createRegistrering, updateRegistrering);
+                                //System.out.println("Adresse created in "+toc(crAdr)+" ms");
 
                                 if (dawaModel.getVejstykkeCache().get(kommuneKode, vejKode) == null) {
                                     System.err.println("Purportedly named '" + unit.get("vejnavn") + "'");
                                 }
-                            }
-                            this.cvrModel.setCompanyUnit(pNummer, name, cvrNummer,
+                            } else {
+                                //System.out.println("Adresse found in "+toc(adrTime)+" ms");
+                            }*/
+                            long unitTime = indepTic();
+                            CompanyUnitEntity companyUnitEntity = this.cvrModel.setCompanyUnit(pNummer, name, cvrNummer,
                                     primaryIndustry, secondaryIndustries,
                                     adresse, addressDate, phone, fax, email,
                                     startDate, endDate,
                                     advertProtection,
                                     createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>()
                             );
+                            companyUnitEntity.getLatestVersion().setAddressDescriptor(descriptor);
+                            //System.out.println("Unit created in "+toc(unitTime)+" ms");
                             totalUnits++;
                         }
                     } else {
@@ -405,6 +440,7 @@ public class CvrRegister extends Register {
                     String statusName = deltager.get("status");
                     String rolleName = deltager.get("rolle");
                     this.cvrModel.setDeltager(deltagerNummer, name, cvrNummer, ajourDate, gyldigDate, typeName, rolleName, createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>());
+                    totalMembers++;
                 }
 
 
@@ -422,11 +458,42 @@ public class CvrRegister extends Register {
     }
 
     private void bulkWireReferences() {
+        this.dawaModel.resetAllCaches();
         DefaultTransactionDefinition def = new DefaultTransactionDefinition();
         def.setName("CommandLineTransactionDefinition");
         def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
         TransactionStatus status = this.txManager.getTransaction(def);
         this.cvrModel.bulkWireReferences();
+        this.txManager.commit(status);
+    }
+
+    private void generateAddresses() {
+        this.dawaModel.resetAllCaches();
+        DefaultTransactionDefinition def = new DefaultTransactionDefinition();
+        def.setName("CommandLineTransactionDefinition");
+        def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+        TransactionStatus status = this.txManager.getTransaction(def);
+        System.out.println("Adding addresses");
+        int i = 0;
+        for (String descriptor : this.generatedAddresses.keySet()) {
+            if (this.generatedAddresses.get(descriptor) == false) {
+                try {
+                    String[] parts = descriptor.split(":",descriptor.length());
+                    int kommuneKode = Integer.parseInt(parts[0]);
+                    int vejKode = Integer.parseInt(parts[1]);
+                    String husNr = parts[2];
+                    String etage = parts[3];
+                    String doer = parts[4];
+                    this.dawaModel.setAdresse(kommuneKode, vejKode, husNr, null, etage, doer, this.createRegistrering, this.updateRegistrering);
+                    i++;
+                    if (i % 10000 == 0) {
+                        System.out.println(i);
+                    }
+                } catch (ArrayIndexOutOfBoundsException e) {
+                }
+            }
+        }
+        System.out.println(i);
         this.txManager.commit(status);
     }
 
@@ -478,6 +545,7 @@ public class CvrRegister extends Register {
         private void onRecordSave(boolean force) {
             this.recordCount++;
             if (force || this.recordCount >= this.chunkSize) {
+                System.out.println("this.recordCount: "+this.recordCount);
                 CvrRegister.this.saveRunToDatabase(this.currentRun, this.dataProviderEntity);
                 this.currentRun.clear();
                 this.currentRun = new CvrRegisterRun();

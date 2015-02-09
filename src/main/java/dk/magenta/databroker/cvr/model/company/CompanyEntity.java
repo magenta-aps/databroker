@@ -86,7 +86,7 @@ public class CompanyEntity extends DobbeltHistorikBase<CompanyEntity, CompanyVer
     /* Domain specific fields */
 
     @Column(nullable = false)
-    @Index(name = "cvrNummer")
+    @Index(name = "cvrNummerIndex")
     private String cvrNummer;
 
     public String getCvrNummer() {

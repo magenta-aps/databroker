@@ -25,7 +25,7 @@ public class IndustryEntity implements OutputFormattable {
     //----------------------------------------------------
 
     @Column(nullable = true, unique = true)
-    @Index(name = "name")
+    @Index(name = "nameIndex")
     private String name;
 
     public String getName() {
@@ -40,7 +40,7 @@ public class IndustryEntity implements OutputFormattable {
 
     @Id
     @Column(nullable = false, unique = true)
-    @Index(name = "code")
+    @Index(name = "codeIndex")
     private int code;
 
     public int getCode() {

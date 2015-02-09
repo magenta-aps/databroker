@@ -79,4 +79,20 @@ public class EnhedsAdresseVersionEntity
         this.doer = doer;
     }
 
+    //----------------------------------------------------
+
+    @Column
+    private String descriptor;
+
+    public String getDescriptor() {
+        return descriptor;
+    }
+
+    public void setDescriptor(String descriptor) {
+        this.descriptor = descriptor;
+    }
+
+    public static String generateDescriptor(int kommuneKode, int vejKode, String husNr, String etage, String doer) {
+        return kommuneKode+":"+vejKode+":"+Util.emptyIfNull(husNr)+":"+Util.emptyIfNull(etage)+":"+Util.emptyIfNull(doer);
+    }
 }

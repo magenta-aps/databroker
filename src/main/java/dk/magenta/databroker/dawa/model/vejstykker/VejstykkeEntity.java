@@ -88,7 +88,7 @@ public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, Vejsty
     /* Domain specific fields */
 
     @Column
-    @Index(name = "kode")
+    @Index(name = "kodeIndex")
     private int kode;
 
     public int getKode() {

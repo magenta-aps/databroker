@@ -24,7 +24,7 @@ public class FormEntity implements OutputFormattable {
     //----------------------------------------------------
 
     @Column(nullable = true, unique = true)
-    @Index(name = "name")
+    @Index(name = "nameIndex")
     private String name;
 
     public String getName() {
@@ -39,7 +39,7 @@ public class FormEntity implements OutputFormattable {
 
     @Id
     @Column(nullable = false, unique = true)
-    @Index(name = "code")
+    @Index(name = "codeIndex")
     private int code;
 
     public int getCode() {
