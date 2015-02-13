@@ -170,13 +170,22 @@ public class MyndighedsRegister extends CprSubRegister {
         for (Myndighed kommune : kommuner) {
             int kommuneKode = kommune.getInt("myndighedsKode");
             String kommuneNavn = kommune.get("myndighedsNavn");
-            model.setKommune(
-                    kommuneKode, kommuneNavn,
-                    this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
-            );
+            if (this.acceptKommune(kommuneKode, kommuneNavn)) {
+                model.setKommune(
+                        kommuneKode, kommuneNavn,
+                        this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
+                );
+            }
             mrun.printInputProcessed();
         }
         mrun.printFinalInputsProcessed();
+    }
+
+    private boolean acceptKommune(int kode, String navn) {
+        if (kode > 900 && kode < 955) { // Skip old greenlandic municipalities
+            return false;
+        }
+        return true;
     }
 
 
