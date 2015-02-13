@@ -29,6 +29,9 @@
         <label for="vej">Vej:</label>
         <input type="text" name="vej" id="vej"/><br/>
 
+        <label for="lokalitet">Lokalitet:</label>
+        <input type="text" name="lokalitet" id="lokalitet"/><br/>
+
         <label for="husnr">Husnr:</label>
         <input type="text" name="husnr" id="husnr"/><br/>
 
@@ -53,7 +56,7 @@
     </p>
     <script type="text/javascript" th:inline="javascript">
         //<![CDATA[
-        var fields = $('#land,#kommune,#post,#vej,#husnr,#bnr,#format,#includeBefore,#includeAfter');
+        var fields = $('#land,#kommune,#post,#vej,#lokalitet,#husnr,#bnr,#format,#includeBefore,#includeAfter');
         var run = doSearch.bind(
                 null,
                 /*[[@{/services/search/adgangsadresse}]]*/ '/services/search/adgangsadresse',
@@ -120,6 +123,7 @@
         <tr th:replace="doc/fragments/params/land"/>
         <tr th:replace="doc/fragments/params/vej"/>
         <tr th:replace="doc/fragments/params/post"/>
+        <tr th:replace="doc/fragments/params/lokalitet"/>
         <tr th:replace="doc/fragments/params/husnr"/>
         <tr th:replace="doc/fragments/params/bnr"/>
 
