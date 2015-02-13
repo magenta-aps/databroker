@@ -3,6 +3,7 @@ package dk.magenta.databroker.dawa.model.lokalitet;
 import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.core.model.oio.UniqueBase;
 import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
+import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeVersionEntity;
 
 import dk.magenta.databroker.service.rest.SearchService;
@@ -87,12 +88,16 @@ public class LokalitetEntity extends UniqueBase implements OutputFormattable {
     public JSONObject toFullJSON() {
         JSONObject obj = this.toJSON();
         JSONArray veje = new JSONArray();
+        HashSet<KommuneEntity> kommuneEntities = new HashSet<KommuneEntity>();
         for (VejstykkeVersionEntity vejstykkeVersionEntity : this.getVejstykkeVersioner()) {
             if (vejstykkeVersionEntity.getEntity().getLatestVersion() == vejstykkeVersionEntity) {
-                veje.put(vejstykkeVersionEntity.getEntity().toJSON());
+                VejstykkeEntity entity = vejstykkeVersionEntity.getEntity();
+                veje.put(entity.toJSON());
+                kommuneEntities.add(entity.getKommune());
             }
         }
         obj.put("veje", veje);
+        obj.put("kommune", this.kommune.toJSON());
         return obj;
     }
 
