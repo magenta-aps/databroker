@@ -66,7 +66,7 @@ public class AdgangsAdresseRepositoryImpl implements AdgangsAdresseRepositoryCus
         }
 
         if (parameters.has(Key.BNR)) {
-            conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.BNR), null, "adresse.bnr"));
+            conditions.addCondition(RepositoryUtil.whereField(AdgangsAdresseEntity.stripBnr(parameters.get(Key.BNR)), "adresse.bnr", null));
         }
 
         if (parameters.hasGlobalCondition()) {

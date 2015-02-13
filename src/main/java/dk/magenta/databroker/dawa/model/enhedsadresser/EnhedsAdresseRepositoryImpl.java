@@ -2,6 +2,7 @@ package dk.magenta.databroker.dawa.model.enhedsadresser;
 
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
+import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseEntity;
 import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.objectcontainers.StringList;
@@ -67,7 +68,7 @@ public class EnhedsAdresseRepositoryImpl implements EnhedsAdresseRepositoryCusto
                 conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.HUSNR), null, "adgang.husnr"));
             }
             if (parameters.has(Key.BNR)) {
-                conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.BNR), null, "adgang.bnr"));
+                conditions.addCondition(RepositoryUtil.whereField(AdgangsAdresseEntity.stripBnr(parameters.get(Key.BNR)), "adgang.bnr", null));
             }
         }
 
