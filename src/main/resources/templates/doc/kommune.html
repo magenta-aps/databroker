@@ -11,7 +11,7 @@
     <h3>Interaktiv Kommunesøgning</h3>
     <p>Søg efter kommuner ved at udfylde et eller flere af de nedenstående felter. Se beskrivelsen af parametrene <a href="#parameters">længere nede på siden.</a></p>
 
-    <p class="search">
+    <div class="search">
         <label for="land">Land:</label>
         <select name="land" id="land">
             <option value="">-</option>
@@ -39,7 +39,7 @@
 
         <button type="submit" id="search" onclick="">Søg</button><img id="loading" th:src="@{/img/loading.gif}" style="display:none"/><br/>
         <textarea id="results" style="width:100%; height:200px; display: none"/>
-    </p>
+    </div>
     <script type="text/javascript" th:inline="javascript">
         //<![CDATA[
         var fields = $('#land,#kommune,#post,#lokalitet,#vej,#format');
