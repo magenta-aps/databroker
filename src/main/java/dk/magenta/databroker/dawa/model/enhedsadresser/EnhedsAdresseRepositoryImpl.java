@@ -40,12 +40,12 @@ public class EnhedsAdresseRepositoryImpl implements EnhedsAdresseRepositoryCusto
         hql.append("select distinct adresse from EnhedsAdresseEntity as adresse");
         join.setPrefix("join ");
 
-        if (parameters.hasAny(Key.LAND, Key.KOMMUNE, Key.VEJ, Key.POST, Key.HUSNR, Key.BNR)) {
+        if (parameters.hasAny(Key.LAND, Key.KOMMUNE, Key.VEJ, Key.POST, Key.HUSNR, Key.BNR, Key.LOKALITET)) {
 
             join.append("adresse.latestVersion as adresseVersion");
             join.append("adresseVersion.adgangsadresse as adgang");
 
-            if (parameters.hasAny(Key.LAND, Key.KOMMUNE, Key.VEJ)) {
+            if (parameters.hasAny(Key.LAND, Key.KOMMUNE, Key.VEJ, Key.LOKALITET)) {
                 join.append("adgang.vejstykke as vejstykke");
                 if (parameters.has(Key.VEJ)) {
                     conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.VEJ), "vejstykke.kode", "vejstykke.latestVersion.vejnavn"));
@@ -59,10 +59,15 @@ public class EnhedsAdresseRepositoryImpl implements EnhedsAdresseRepositoryCusto
                         conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.KOMMUNE), "kommune.kode", "kommune.navn"));
                     }
                 }
-            }
-            if (parameters.has(Key.POST)) {
-                join.append("adgang.latestVersion.postnummer as post");
-                conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.POST), "post.latestVersion.nr", "post.latestVersion.navn"));
+                if (parameters.has(Key.LOKALITET)) {
+                    join.append("vejstykke.latestVersion.lokaliteter as lokalitet");
+                    conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.LOKALITET), null, "lokalitet.navn"));
+                }
+
+                if (parameters.has(Key.POST)) {
+                    join.append("vejstykke.latestVersion.postnumre as post");
+                    conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.POST), "post.latestVersion.nr", "post.latestVersion.navn"));
+                }
             }
             if (parameters.has(Key.HUSNR)) {
                 conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.HUSNR), null, "adgang.husnr"));

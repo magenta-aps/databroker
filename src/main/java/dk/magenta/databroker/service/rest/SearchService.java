@@ -88,6 +88,7 @@ public class SearchService {
         List<OutputFormattable> kommuner = new ArrayList<OutputFormattable>(
                 this.model.getKommune(parameters)
         );
+        System.out.println(kommuner.size()+" items found");
 
         return this.format("kommuner", kommuner, fmt);
     }
@@ -134,6 +135,7 @@ public class SearchService {
         List<OutputFormattable> veje = new ArrayList<OutputFormattable>(
             this.model.getVejstykke(parameters)
         );
+        System.out.println(veje.size()+" items found");
 
         return this.format("veje", veje, fmt);
     }
@@ -170,6 +172,7 @@ public class SearchService {
         ArrayList<OutputFormattable> postnumre = new ArrayList<OutputFormattable>(
             this.model.getPostnummer(parameters)
         );
+        System.out.println(postnumre.size()+" items found");
 
         return this.format("postnumre", postnumre, fmt);
     }
@@ -206,15 +209,17 @@ public class SearchService {
     @GET
     @Path("adgangsadresse")
     @Transactional
-    public String adgangsadresse(@QueryParam("land") String[] land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej, @QueryParam("post") String[] post, @QueryParam("husnr") String[] husnr, @QueryParam("bnr") String[] bnr,
+    public String adgangsadresse(@QueryParam("land") String[] land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej, @QueryParam("lokalitet") String[] lokalitet, @QueryParam("post") String[] post, @QueryParam("husnr") String[] husnr, @QueryParam("bnr") String[] bnr,
                           @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
         Format fmt = this.getFormat(formatStr);
 
-        SearchParameters parameters = new SearchParameters(land, kommune, post, null, vej, husnr, bnr, new GlobalCondition(includeBefore, includeAfter));
+        SearchParameters parameters = new SearchParameters(land, kommune, post, lokalitet, vej, husnr, bnr, new GlobalCondition(includeBefore, includeAfter));
 
         ArrayList<OutputFormattable> adresser = new ArrayList<OutputFormattable>(
                 this.model.getAdgangsAdresse(parameters)
         );
+
+        System.out.println(adresser.size()+" items found");
 
         return this.format("adgangsadresser", adresser, fmt);
     }
@@ -242,15 +247,16 @@ public class SearchService {
     @GET
     @Path("adresse")
     @Transactional
-    public String adresse(@QueryParam("land") String[] land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej, @QueryParam("post") String[] post, @QueryParam("husnr") String[] husnr, @QueryParam("bnr") String[] bnr, @QueryParam("etage") String[] etage, @QueryParam("doer") String[] doer,
+    public String adresse(@QueryParam("land") String[] land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej, @QueryParam("lokalitet") String[] lokalitet, @QueryParam("post") String[] post, @QueryParam("husnr") String[] husnr, @QueryParam("bnr") String[] bnr, @QueryParam("etage") String[] etage, @QueryParam("doer") String[] doer,
                           @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter) {
         Format fmt = this.getFormat(formatStr);
 
-        SearchParameters parameters = new SearchParameters(land, kommune, post, null, vej, husnr, bnr, etage, doer, new GlobalCondition(includeBefore, includeAfter));
+        SearchParameters parameters = new SearchParameters(land, kommune, post, lokalitet, vej, husnr, bnr, etage, doer, new GlobalCondition(includeBefore, includeAfter));
 
         ArrayList<OutputFormattable> adresser = new ArrayList<OutputFormattable>(
                 this.model.getEnhedsAdresse(parameters)
         );
+        System.out.println(adresser.size()+" items found");
 
         return this.format("adresser", adresser, fmt);
     }
@@ -285,11 +291,12 @@ public class SearchService {
 
         SearchParameters parameters = new SearchParameters(land, kommune, post, lokalitet, vej, new GlobalCondition(includeBefore, includeAfter));
 
-        ArrayList<OutputFormattable> adresser = new ArrayList<OutputFormattable>(
+        ArrayList<OutputFormattable> lokaliteter = new ArrayList<OutputFormattable>(
                 this.model.getLokalitet(parameters)
         );
+        System.out.println(lokaliteter.size()+" items found");
 
-        return this.format("lokaliteter", adresser, fmt);
+        return this.format("lokaliteter", lokaliteter, fmt);
     }
 
 

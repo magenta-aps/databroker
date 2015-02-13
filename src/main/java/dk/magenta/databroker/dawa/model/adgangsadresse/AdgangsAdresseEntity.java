@@ -141,21 +141,21 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
 
     //------------------------------------------------------------------------------------------------------------------
 
-    @Column(nullable = true, length = 6)
-    private short bnr;
+    @Column(nullable = true, length = 4)
+    private int bnr;
 
-    public short getBnr() {
+    public int getBnr() {
         return bnr;
     }
 
-    public void setBnr(short bnr) {
+    public void setBnr(int bnr) {
         this.bnr = bnr;
     }
     public void setBnr(String bnr) {
-        short b = 0;
+        int b = 0;
         if (bnr != null) {
             try {
-                b = Short.parseShort(stripBnr(bnr));
+                b = Integer.parseInt(stripBnr(bnr));
             } catch (NumberFormatException e) {
             }
         }

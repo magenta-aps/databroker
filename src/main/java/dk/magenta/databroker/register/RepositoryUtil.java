@@ -36,7 +36,7 @@ public abstract class RepositoryUtil {
         return conditionList;
     }
     public static Condition whereField(String search, String digitKey, String nameKey) {
-            if (search == null) { // Should never happen
+        if (search == null) { // Should never happen
             throw new IllegalArgumentException("Parameter 'search' must not be null");
         }
         boolean wildcardPresent = hasWildcard.matcher(search).matches();

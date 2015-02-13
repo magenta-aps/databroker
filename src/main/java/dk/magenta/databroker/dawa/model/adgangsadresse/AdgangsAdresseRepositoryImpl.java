@@ -39,7 +39,7 @@ public class AdgangsAdresseRepositoryImpl implements AdgangsAdresseRepositoryCus
         hql.append("select distinct adresse from AdgangsAdresseEntity as adresse");
         join.setPrefix("join ");
 
-        if (parameters.hasAny(Key.LAND, Key.KOMMUNE, Key.POST, Key.VEJ)) {
+        if (parameters.hasAny(Key.LAND, Key.KOMMUNE, Key.POST, Key.VEJ, Key.LOKALITET)) {
 
             join.append("adresse.vejstykke as vejstykke");
 
@@ -58,6 +58,10 @@ public class AdgangsAdresseRepositoryImpl implements AdgangsAdresseRepositoryCus
             if (parameters.has(Key.POST)) {
                 join.append("vejstykke.latestVersion.postnumre as post");
                 conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.POST), "post.latestVersion.nr", "post.latestVersion.navn"));
+            }
+            if (parameters.has(Key.LOKALITET)) {
+                join.append("vejstykke.latestVersion.lokaliteter as lokalitet");
+                conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.LOKALITET), null, "lokalitet.navn"));
             }
         }
 
