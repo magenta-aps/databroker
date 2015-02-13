@@ -6,7 +6,6 @@ import dk.magenta.databroker.cprvejregister.dataproviders.records.CprRecord;
 import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.dawa.model.RawVej;
 import dk.magenta.databroker.register.RegisterRun;
-import dk.magenta.databroker.register.objectcontainers.InputProcessingCounter;
 import dk.magenta.databroker.register.objectcontainers.Level2Container;
 import dk.magenta.databroker.register.records.Record;
 import org.json.JSONObject;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Component;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
-import java.util.UUID;
 import java.util.HashSet;
 
 /**

@@ -2,7 +2,6 @@ package dk.magenta.databroker.dawa.model.vejstykker;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseEntity;
-import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseVersionEntity;
 import dk.magenta.databroker.dawa.model.lokalitet.LokalitetEntity;
 import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
 import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
