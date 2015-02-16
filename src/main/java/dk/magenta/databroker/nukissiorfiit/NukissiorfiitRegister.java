@@ -162,7 +162,6 @@ public class NukissiorfiitRegister extends Register {
 
                 if (vejstykkeEntity == null) {
                     failures.add(new Pair<String, String>(""+postnr, vejNavn));
-                    System.out.println("Fail");
                 } else {
                     int kommuneKode = vejstykkeEntity.getKommune().getKode();
                     int vejKode = vejstykkeEntity.getKode();
@@ -184,9 +183,7 @@ public class NukissiorfiitRegister extends Register {
             }
         }
         for (Pair<String, String> success : successes) {
-            String vejnavn = success.getRight();
-
-            System.out.println("Genkendt: " + success.getLeft() + " / " + vejnavn);
+            System.out.println("Genkendt: " + success.getLeft() + " / " + success.getRight());
         }
 
         for (Pair<String, String> failure : failures) {
@@ -199,12 +196,11 @@ public class NukissiorfiitRegister extends Register {
                 parameters.put(Key.LAND, "gl");
                 //parameters.put(Key.POST, failure.getLeft());
                 parameters.put(Key.VEJ, "*" + this.longestWord(vejnavn) + "*");
-
-                //System.out.println("Guessing by longest word: "+this.longestWord(vejnavn));
+                System.out.println("  Guessing by longest word: "+this.longestWord(vejnavn));
 
                 Collection<VejstykkeEntity> guesses = this.model.getVejstykke(parameters, false);
                 if (guesses.size() > 0) {
-                    System.out.println("Search for "+this.longestWord(vejnavn));
+                    //System.out.println("  Search for "+this.longestWord(vejnavn));
 
                     //if (guesses.size() == 1) {
                         /*for (VejstykkeEntity guess : guesses) {
