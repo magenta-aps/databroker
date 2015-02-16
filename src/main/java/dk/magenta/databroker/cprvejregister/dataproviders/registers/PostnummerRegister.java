@@ -10,6 +10,8 @@ import dk.magenta.databroker.cprvejregister.dataproviders.records.CprRecord;
 import dk.magenta.databroker.register.records.Record;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import java.net.MalformedURLException;
@@ -96,9 +98,15 @@ public class PostnummerRegister extends CprSubRegister {
     * Data source spec
     * */
 
+    @Autowired
+    private ConfigurableApplicationContext ctx;
+
     @Override
-    public URL getRecordUrl() throws MalformedURLException {
+    /*public URL getRecordUrl() throws MalformedURLException {
         return new URL("https://cpr.dk/media/152114/a370712.txt");
+    }*/
+    public Resource getRecordResource() {
+        return this.ctx.getResource("classpath:/data/cprPostregister.txt");
     }
 
     @Override
