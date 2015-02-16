@@ -106,7 +106,7 @@ public class PostnummerRegister extends CprSubRegister {
         return new URL("https://cpr.dk/media/152114/a370712.txt");
     }*/
     public Resource getRecordResource() {
-        return this.ctx.getResource("classpath:/data/cprPostregister.txt");
+        return this.ctx.getResource("classpath:/data/cprPostregister.zip");
     }
 
     @Override

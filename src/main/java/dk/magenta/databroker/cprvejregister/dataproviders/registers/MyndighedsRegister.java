@@ -139,7 +139,7 @@ public class MyndighedsRegister extends CprSubRegister {
     }*/
     @Override
     public Resource getRecordResource() {
-        return this.ctx.getResource("classpath:/data/cprMyndighedsregister.txt");
+        return this.ctx.getResource("classpath:/data/cprMyndighedsregister.zip");
     }
 
 

@@ -84,7 +84,7 @@ public class LokalitetsRegister extends CprSubRegister {
     }*/
     @Override
     public Resource getRecordResource() {
-        return this.ctx.getResource("classpath:/data/cprLokalitetsregister.txt");
+        return this.ctx.getResource("classpath:/data/cprLokalitetsregister.zip");
     }
 
     @Override

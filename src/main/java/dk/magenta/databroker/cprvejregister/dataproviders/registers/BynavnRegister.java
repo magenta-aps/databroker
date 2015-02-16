@@ -61,7 +61,7 @@ public class BynavnRegister extends CprSubRegister {
     }*/
     @Override
     public Resource getRecordResource() {
-        return this.ctx.getResource("classpath:/data/cprBynavneregister.txt");
+        return this.ctx.getResource("classpath:/data/cprBynavneregister.zip");
     }
 
     protected CprRecord parseTrimmedLine(String recordType, String line) {

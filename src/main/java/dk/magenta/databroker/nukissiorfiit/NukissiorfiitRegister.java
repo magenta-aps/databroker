@@ -196,7 +196,7 @@ public class NukissiorfiitRegister extends Register {
                 parameters.put(Key.LAND, "gl");
                 //parameters.put(Key.POST, failure.getLeft());
                 parameters.put(Key.VEJ, "*" + this.longestWord(vejnavn) + "*");
-                System.out.println("  Guessing by longest word: "+this.longestWord(vejnavn));
+                System.out.println("  gætter udfra længste ord: "+this.longestWord(vejnavn));
 
                 Collection<VejstykkeEntity> guesses = this.model.getVejstykke(parameters, false);
                 if (guesses.size() > 0) {
@@ -212,7 +212,7 @@ public class NukissiorfiitRegister extends Register {
                     //} else {
                         for (VejstykkeEntity guess : guesses) {
                             for (PostNummerEntity postNummerEntity : guess.getLatestVersion().getPostnumre()) {
-                                System.out.println("    Gæt: " + postNummerEntity.getLatestVersion().getNr() + " / " + guess.getLatestVersion().getVejnavn());
+                                System.out.println("    gæt: " + postNummerEntity.getLatestVersion().getNr() + " / " + guess.getLatestVersion().getVejnavn());
                             }
                         }
                     //}
