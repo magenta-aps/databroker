@@ -208,21 +208,44 @@ public abstract class Register extends DataProvider {
         try {
             String checksum = null;
 
+
+
             if (input != null) {
                 File cacheFile = this.getCacheFile(true);
-                if (cacheFile != null && cacheFile.canWrite() && cacheFile.canRead()) {
-                    Files.copy(input, cacheFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                    input.close();
-                    checksum = DigestUtils.md5Hex(Files.newInputStream(cacheFile.toPath()));
-                    input = Files.newInputStream(cacheFile.toPath());
+                if (cacheFile != null) {
+                    if (cacheFile.canWrite() && cacheFile.canRead()) {
+                        Files.copy(input, cacheFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                        input.close();
+                        checksum = DigestUtils.md5Hex(Files.newInputStream(cacheFile.toPath()));
+                        input = Files.newInputStream(cacheFile.toPath());
+                    } else {
+                        System.err.println("Fatal: Unable to access cache file '"+cacheFile.getAbsolutePath()+"' for reading or writing");
+                    }
+                }
+
+                if (input != null) {
+                    if (this.isZipStream(input)) {
+                        input = Files.newInputStream(cacheFile.toPath());
+                        NamedInputStream nInput = this.unzip(new NamedInputStream("dummy.zip", input));
+                        if (nInput != null) {
+                            input = nInput.getRight();
+                        } else {
+                            input = Files.newInputStream(cacheFile.toPath());
+                        }
+                    } else {
+                        input = Files.newInputStream(cacheFile.toPath());
+                    }
                 }
 
                 boolean checksumMatch = compareChecksum(checksum);
 
                 if (forceParse || checksum == null || !checksumMatch) {
-                    System.out.println("Checksum mismatch; parsing new data into database");
-                    RegisterRun run = this.parse(input);
-                    this.saveRunToDatabase(run, dataProviderEntity);
+                    if (forceParse) {
+                        System.out.println("Parse forced; parsing new data into database");
+                    } else {
+                        System.out.println("Checksum mismatch; parsing new data into database");
+                    }
+                    this.importData(input, dataProviderEntity);
                 } else {
                     System.out.println("Checksum match; no need to update database");
                 }

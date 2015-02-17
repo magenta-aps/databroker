@@ -179,6 +179,14 @@ public abstract class DataProvider {
         return null;
     }
 
+    public boolean isZipStream(InputStream input) {
+        try {
+            return (new ZipInputStream(input).getNextEntry() != null);
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
     private NamedInputStream read(String filename, InputStream input) throws IOException {
         return this.read(new NamedInputStream(filename, input));
     }
@@ -202,17 +210,15 @@ public abstract class DataProvider {
     private static final String[] acceptedExtensions = {"xml","csv","ods","xls","xlsx","txt"};
 
 
-    private NamedInputStream unzip(NamedInputStream input) throws IOException {
+    protected NamedInputStream unzip(NamedInputStream input) throws IOException {
         ZipInputStream zinput = new ZipInputStream(input.getRight());
         for (ZipEntry entry = zinput.getNextEntry(); entry != null; entry = zinput.getNextEntry()) {
             String extension = getExtension(entry.getName());
-            System.out.println("extension: "+extension);
             if (extension != null && Util.inArray(acceptedExtensions, extension)) {
-                System.out.println(entry.getName());
+                System.out.println("Unzipping entry "+entry.getName());
                 return new NamedInputStream(entry.getName(), zinput);
             }
         }
-        System.out.println("Aieee");
         return null;
     }
 
