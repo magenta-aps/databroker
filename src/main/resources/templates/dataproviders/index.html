@@ -3,7 +3,7 @@
   layout:decorator="layout">
   <head>
     <title>DataBroker : Dataproviders</title>
-    <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script type="text/javascript" th:src="@{/js/processing.js}"></script>
   </head>
   <body>
 
@@ -13,18 +13,18 @@
         <tr>
           <th>Name</th>
           <th>Type</th>
-          <th>Active</th>
+          <th>Status</th>
           <th>Actions</th>
         </tr>
 
         <tr th:each="dataproviderEntity : ${dataproviderEntities}">
           <td th:text="${dataproviderEntity.getName()}">Data provider name</td>
           <td th:text="${dataproviderEntity.fetchShortType()}" th:title="${dataproviderEntity.getType()}">Data provider type</td>
-          <td th:text="${dataproviderEntity.getActive() ? 'yes' : 'no'}"></td>
+          <td th:id="${dataproviderEntity.getUuid() + '_status'}" th:text="${dataproviderEntity.getActive() ? 'Enabled' : 'Disabled'}"></td>
           <td>
-            <a th:href="${'edit?uuid='+dataproviderEntity.getUuid()}" class="btn btn-default" role="button">Edit</a>
-            <a th:href="${'delete?uuid='+dataproviderEntity.getUuid()}" class="btn btn-default" role="button">Delete</a>
-            <a th:if="${dataproviderEntity.canPull()}" th:href="${'pull?uuid='+dataproviderEntity.getUuid()}" class="btn btn-default" role="button">Pull</a>
+            <a th:id="${dataproviderEntity.getUuid() + '_edit'}" th:href="${'edit?uuid='+dataproviderEntity.getUuid()}" class="btn btn-default" role="button">Edit</a>
+            <a th:id="${dataproviderEntity.getUuid() + '_delete'}" th:href="${'delete?uuid='+dataproviderEntity.getUuid()}" class="btn btn-default" role="button">Delete</a>
+            <a th:id="${dataproviderEntity.getUuid() + '_pull'}" th:if="${dataproviderEntity.canPull()}" th:href="${'pull?uuid='+dataproviderEntity.getUuid()}" class="btn btn-default" role="button">Pull</a>
           </td>
         </tr>
       </table>
@@ -34,7 +34,62 @@
           <button type="submit" class="btn btn-default">Add new provider</button>
         </form>
       </div>
+        <script type="text/javascript" th:inline="javascript">
+            // <![CDATA[
+            var providers = [[${dataproviderInfo}]];
+            var updateProvider = function(uuid, obj, force) {
+                if (obj) {
+                    var provider = providers[uuid];
+                    var statusField = $("#" + uuid + "_status");
+                    var editButton = $("#" + uuid + "_edit");
+                    var deleteButton = $("#" + uuid + "_delete");
+                    var pullButton = $("#" + uuid + "_pull");
+                    if (provider.status != obj.state || force) {
+                        switch (obj.status) {
+                            case "ENABLED":
+                                statusField.text("Enabled");
+                                editButton.removeClass("disabled");
+                                deleteButton.removeClass("disabled");
+                                pullButton.removeClass("disabled");
+                                break;
+                            case "DISABLED":
+                                statusField.text("Disabled");
+                                editButton.removeClass("disabled");
+                                deleteButton.removeClass("disabled");
+                                pullButton.addClass("disabled");
+                                break;
+                            case "RUNNING":
+                                statusField.text("Running");
+                                editButton.addClass("disabled");
+                                deleteButton.addClass("disabled");
+                                pullButton.addClass("disabled");
+                                break;
+                            case "PAUSED":
+                                statusField.text("Paused");
+                                editButton.addClass("disabled");
+                                deleteButton.addClass("disabled");
+                                pullButton.addClass("disabled");
+                                break;
+                        }
+                        provider.status = obj.status;
+                    }
+                }
+            }
+            // ]]>
+        </script>
+
+      <script th:each="dataproviderEntity : ${dataproviderEntities}" th:inline="javascript" type="text/javascript">
+          // <![CDATA[
+          (function() {
+              var uuid = [[${dataproviderEntity.getUuid()}]];
+              var obj = providers[uuid];
+              startProcessingListener(updateProvider.bind(null, uuid), uuid, null, null, obj.status == "RUNNING" || obj.status == "PAUSED");
+              updateProvider(uuid, obj, true);
+          })();
+        // ]]>
+      </script>
     </div>
+
 
   </body>
 </html>

@@ -56,6 +56,13 @@ public class DataProviderController {
     public ModelAndView index() {
         Map<String, Object> model = new HashMap<String, Object>();
         model.put("dataproviderEntities", dataProviderRegistry.getDataProviderEntities());
+        Map<String, HashMap<String, String>> providerInfo = new HashMap<String, HashMap<String, String>>();
+        for (DataProviderEntity dataProviderEntity : dataProviderRegistry.getDataProviderEntities()) {
+            HashMap<String, String> info = new HashMap<String, String>();
+            info.put("status", this.getProviderStatus(dataProviderEntity));
+            providerInfo.put(dataProviderEntity.getUuid(), info);
+        }
+        model.put("dataproviderInfo", providerInfo);
         return new ModelAndView("dataproviders/index", model);
     }
 
@@ -274,25 +281,46 @@ public class DataProviderController {
     }
 
     public ModelAndView processingEntity(HttpServletRequest request, String uuid) {
-        HashMap<String, Object> model = new HashMap<String, Object>();
+        /*HashMap<String, Object> model = new HashMap<String, Object>();
         HashMap<String, Object> data = new HashMap<String, Object>();
         data.put("uuid", uuid);
         data.put("name", this.dataProviderRegistry.getDataProviderEntity(uuid).getName());
         data.put("onDone", "/dataproviders/");
         model.put("data", data);
-        return new ModelAndView("dataproviders/processing", model);
+        return new ModelAndView("dataproviders/processing", model);*/
+        return this.redirectToIndex();
     }
 
     @RequestMapping("/dataproviders/processingStatus")
     public ModelAndView processStatus(HttpServletRequest request) {
         HashMap<String, Object> model = new HashMap<String, Object>();
         String uuid = request.getParameter("uuid");
-        Thread thread = this.userThreads.get(uuid);
-        if (thread != null) {
-            Thread.State state = thread.getState();
-            model.put("state", state.toString());
+        DataProviderEntity dataProviderEntity = this.dataProviderRegistry.getDataProviderEntity(uuid);
+        if (dataProviderEntity != null) {
+            model.put("status", this.getProviderStatus(dataProviderEntity));
+            model.put("uuid", uuid);
         }
         return new ModelAndView(new MappingJackson2JsonView(), model);
+    }
+
+    private String getProviderStatus(DataProviderEntity dataProviderEntity) {
+        String providerStatus = dataProviderEntity.getActive() ? "ENABLED" : "DISABLED";
+        Thread thread = this.userThreads.get(dataProviderEntity.getUuid());
+        if (thread != null) {
+            switch (thread.getState()) {
+                case RUNNABLE:
+                    providerStatus = "RUNNING";
+                    break;
+                case WAITING:
+                case TIMED_WAITING:
+                case BLOCKED:
+                    providerStatus = "PAUSED";
+                    break;
+                case TERMINATED:
+                    break;
+            }
+        }
+        return providerStatus;
     }
 
     //------------------------------------------------------------------------------------------------------------------

@@ -4,6 +4,7 @@
 <head>
     <title>DataBroker : Dataproviders</title>
 
+    <script type="text/javascript" th:src="@{/js/processing.js}"></script>
     <script th:inline="javascript">
         window.data = [[${data}]];
     </script>
@@ -18,29 +19,14 @@
     <a href="/dataproviders/" class="btn btn-default">Tilbage</a>
 
     <script type="text/javascript">
-        var statusTimer = setInterval(function(){
-            $.ajax({
-                type: "GET",
-                url: "/dataproviders/processingStatus",
-                data: {
-                    uuid: window.data.uuid
-                },
-                dataType: "json",
-                success: function(responseJSON, status, response) {
-                    if (responseJSON != null) {
-                        if (responseJSON.state == "TERMINATED") {
-                            clearInterval(statusTimer);
-                            statusTimer = null;
-                            window.location.href = window.data.onDone;
-                        }
-                    }
-                }
-            });
-        }, 4000);
-
-
+        // <![CDATA[
+        startProcessingListener(function(obj){
+            if (obj.status != "RUNNING" && obj.status != "PAUSED") {
+                window.location.href = window.data.onDone;
+            }
+        }, window.data.uuid);
+        // ]]>
     </script>
-
 </div>
 
 </body>
