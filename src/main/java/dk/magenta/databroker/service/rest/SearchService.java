@@ -211,11 +211,11 @@ public class SearchService {
     @GET
     @Path("adgangsadresse")
     @Transactional
-    public String adgangsadresse(@QueryParam("land") String[] land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej, @QueryParam("post") String[] post, @QueryParam("husnr") String[] husnr, @QueryParam("bnr") String[] bnr,
+    public String adgangsadresse(@QueryParam("land") String[] land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej, @QueryParam("lokalitet") String[] lokalitet, @QueryParam("post") String[] post, @QueryParam("husnr") String[] husnr, @QueryParam("bnr") String[] bnr,
                           @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter, @QueryParam("offset") int offset, @QueryParam("limit") int limit) {
         Format fmt = this.getFormat(formatStr);
 
-        SearchParameters parameters = new SearchParameters(land, kommune, post, null, vej, husnr, bnr, new GlobalCondition(includeBefore, includeAfter, offset, limit));
+        SearchParameters parameters = new SearchParameters(land, kommune, post, lokalitet, vej, husnr, bnr, new GlobalCondition(includeBefore, includeAfter, offset, limit));
 
         ArrayList<OutputFormattable> adresser = new ArrayList<OutputFormattable>(
                 this.dawaModel.getAdgangsAdresse(parameters)
@@ -290,11 +290,11 @@ public class SearchService {
 
         SearchParameters parameters = new SearchParameters(land, kommune, post, lokalitet, vej, new GlobalCondition(includeBefore, includeAfter, offset, limit));
 
-        ArrayList<OutputFormattable> adresser = new ArrayList<OutputFormattable>(
+        ArrayList<OutputFormattable> lokaliteter = new ArrayList<OutputFormattable>(
                 this.dawaModel.getLokalitet(parameters)
         );
 
-        return this.format("lokaliteter", adresser, fmt);
+        return this.format("lokaliteter", lokaliteter, fmt);
     }
 
 

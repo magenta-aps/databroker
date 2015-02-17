@@ -92,20 +92,21 @@ public class SearchParameters extends HashMap<String, String[]> {
     public boolean has(Key key) {
         return this.keySet().contains(key.name());
     }
-    public boolean hasAny(Key key1, Key key2) {
-        return this.has(key1) || this.has(key2);
+    public boolean hasAny(Key... keys) {
+        for (Key key : keys) {
+            if (this.has(key)) {
+                return true;
+            }
+        }
+        return false;
     }
-    public boolean hasAny(Key key1, Key key2, Key key3) {
-        return this.hasAny(key1, key2) || this.has(key3);
-    }
-    public boolean hasAny(Key key1, Key key2, Key key3, Key key4) {
-        return this.hasAny(key1, key2) || this.hasAny(key3, key4);
-    }
-    public boolean hasAny(Key key1, Key key2, Key key3, Key key4, Key key5) {
-        return this.hasAny(key1, key2, key3) || this.hasAny(key4, key5);
-    }
-    public boolean hasAny(Key key1, Key key2, Key key3, Key key4, Key key5, Key key6) {
-        return this.hasAny(key1, key2, key3) || this.hasAny(key4, key5, key6);
+    public boolean hasAll(Key... keys) {
+        for (Key key : keys) {
+            if (!this.has(key)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public GlobalCondition getGlobalCondition() {

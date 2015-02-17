@@ -99,9 +99,6 @@ public abstract class DataProvider {
     }
 
 
-
-
-
     private String uuid;
 
     public String getUuid() {
@@ -203,6 +200,7 @@ public abstract class DataProvider {
     }
 
     private static final String[] acceptedExtensions = {"xml","csv","ods","xls","xlsx","txt"};
+
 
     private NamedInputStream unzip(NamedInputStream input) throws IOException {
         ZipInputStream zinput = new ZipInputStream(input.getRight());

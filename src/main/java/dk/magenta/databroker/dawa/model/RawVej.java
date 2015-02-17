@@ -1,7 +1,5 @@
 package dk.magenta.databroker.dawa.model;
 
-import java.util.Objects;
-
 /**
  * Created by lars on 02-01-15.
  */

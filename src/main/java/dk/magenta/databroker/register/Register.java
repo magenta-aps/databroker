@@ -282,7 +282,11 @@ public abstract class Register extends DataProvider {
     protected File getCacheFile(boolean forceCreateNew) throws IOException {
         File dir = new File(cacheDir, this.getClass().getSimpleName());
         if (!dir.exists()) {
+            System.out.println("Folder "+dir.getAbsolutePath()+" doesn't exist, creating it");
             dir.mkdirs();
+            if (!dir.exists()) {
+                throw new IOException("Failed to create folder '"+dir.getAbsolutePath()+"'. Possible permissions problem?");
+            }
         }
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss");
         if (forceCreateNew) {
@@ -294,15 +298,17 @@ public abstract class Register extends DataProvider {
             File[] files = dir.listFiles();
             File latest = null;
             Date latestDate = null;
-            for (File file : files) {
-                try {
-                    Date fileDate = dateFormat.parse(file.getName().replaceAll("\\.txt$",""));
-                    if (latestDate == null || fileDate.compareTo(latestDate) > 0) {
-                        latestDate = fileDate;
-                        latest = file;
+            if (files != null) {
+                for (File file : files) {
+                    try {
+                        Date fileDate = dateFormat.parse(file.getName().replaceAll("\\.txt$", ""));
+                        if (latestDate == null || fileDate.compareTo(latestDate) > 0) {
+                            latestDate = fileDate;
+                            latest = file;
+                        }
+                    } catch (ParseException e) {
+                        e.printStackTrace();
                     }
-                } catch (ParseException e) {
-                    e.printStackTrace();
                 }
             }
             return latest;

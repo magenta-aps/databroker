@@ -58,14 +58,19 @@ public abstract class CprSubRegister extends LineRegister {
     }
 
 
+
+    public String getSourceTypeFieldName() {
+        return "sourceType";
+    }
     public String getSourceUrlFieldName() {
         return "sourceUrl";
     }
 
     public boolean canPull(DataProviderConfiguration configuration) {
         JSONObject obj = configuration.toJSON();
+        String sourceType = obj.optString(this.getSourceTypeFieldName());
         String sourceUrl = obj.optString(this.getSourceUrlFieldName());
-        if (sourceUrl != null && !sourceUrl.isEmpty()) {
+        if (sourceType != null && sourceType.equals("url") && sourceUrl != null && !sourceUrl.isEmpty()) {
             try {
                 URL url = new URL(sourceUrl);
                 return true;

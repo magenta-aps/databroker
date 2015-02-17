@@ -1,7 +1,6 @@
 package dk.magenta.databroker.dawa.model.postnummer;
 
 import dk.magenta.databroker.dawa.model.SearchParameters;
-import dk.magenta.databroker.register.conditions.GlobalCondition;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

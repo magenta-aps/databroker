@@ -19,6 +19,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
@@ -99,6 +100,30 @@ public class NukissiorfiitRegister extends LineRegister {
         }
     }
 
+    private HashMap<Integer, ArrayList<Integer>> aliasMap = new HashMap<Integer, ArrayList<Integer>>();
+    private void addAlias(int... aliases) {
+        for (int alias : aliases) {
+            if (!this.aliasMap.containsKey(alias)) {
+                this.aliasMap.put(alias, new ArrayList<Integer>());
+            }
+            for (int otheralias : aliases) {
+                if (otheralias != alias) {
+                    this.aliasMap.get(alias).add(otheralias);
+                }
+            }
+        }
+    }
+    private List<Integer> getAliases(int key) {
+        return this.aliasMap.get(key);
+    }
+
+    @PostConstruct
+    private void createAliases() {
+        this.addAlias(3900, 3905);
+    }
+
+
+
     @Override
     protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
 
@@ -126,6 +151,18 @@ public class NukissiorfiitRegister extends LineRegister {
                 int postnr = record.getInt("postnummer");
 
                 VejstykkeEntity vejstykkeEntity = vejMap.get(this.normalize(vejNavn), postnr);
+                if (vejstykkeEntity == null) {
+                    List<Integer> aliases = this.getAliases(postnr);
+                    if (aliases != null) {
+                        for (int alias : aliases) {
+                            vejstykkeEntity = vejMap.get(this.normalize(vejNavn), alias);
+                            if (vejstykkeEntity != null) {
+                                System.out.println("Found "+vejstykkeEntity.getLatestVersion().getVejnavn()+" by alias "+postnr+" => "+alias);
+                                break;
+                            }
+                        }
+                    }
+                }
 
                 if (vejstykkeEntity == null) {
                     failures.add(new Pair<String, String>(""+postnr, vejNavn));
@@ -150,9 +187,7 @@ public class NukissiorfiitRegister extends LineRegister {
             }
         }
         for (Pair<String, String> success : successes) {
-            String vejnavn = success.getRight();
-
-            System.out.println("Genkendt: " + success.getLeft() + " / " + vejnavn);
+            System.out.println("Genkendt: " + success.getLeft() + " / " + success.getRight());
         }
 
         for (Pair<String, String> failure : failures) {
@@ -160,16 +195,16 @@ public class NukissiorfiitRegister extends LineRegister {
 
             System.out.println("Ikke genkendt: "+failure.getLeft()+" / "+vejnavn);
 
-            if (!vejnavn.isEmpty()) {
+            if (vejnavn.length() > 3) {
                 SearchParameters parameters = new SearchParameters();
                 parameters.put(Key.LAND, "gl");
                 //parameters.put(Key.POST, failure.getLeft());
                 parameters.put(Key.VEJ, "*" + this.longestWord(vejnavn) + "*");
-
-                //System.out.println("Guessing by longest word: "+this.longestWord(vejnavn));
+                System.out.println("  gætter udfra længste ord: "+this.longestWord(vejnavn));
 
                 Collection<VejstykkeEntity> guesses = this.model.getVejstykke(parameters, false);
                 if (guesses.size() > 0) {
+                    //System.out.println("  Search for "+this.longestWord(vejnavn));
 
                     //if (guesses.size() == 1) {
                         /*for (VejstykkeEntity guess : guesses) {
@@ -179,10 +214,9 @@ public class NukissiorfiitRegister extends LineRegister {
                             System.out.println("Single Guess: " + guess.getLatestVersion().getVejnavn()+"/"+guess.getLatestVersion().getVejadresseringsnavn() + "("+this.normalize(guess.getLatestVersion().getVejnavn(), true)+")"+(vejMap.get(this.normalize(guess.getLatestVersion().getVejnavn()))==null ? "NOT found":"found"));
                         }*/
                     //} else {
-                        System.out.println("Search for "+this.longestWord(vejnavn));
                         for (VejstykkeEntity guess : guesses) {
                             for (PostNummerEntity postNummerEntity : guess.getLatestVersion().getPostnumre()) {
-                                System.out.println("    Gæt: " + postNummerEntity.getLatestVersion().getNr() + " / " + guess.getLatestVersion().getVejnavn());
+                                System.out.println("    gæt: " + postNummerEntity.getLatestVersion().getNr() + " / " + guess.getLatestVersion().getVejnavn());
                             }
                         }
                     //}

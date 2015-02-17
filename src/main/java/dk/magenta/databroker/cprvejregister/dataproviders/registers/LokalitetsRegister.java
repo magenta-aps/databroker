@@ -10,10 +10,10 @@ import dk.magenta.databroker.util.objectcontainers.InputProcessingCounter;
 import dk.magenta.databroker.register.records.Record;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.ParseException;
 
 /**
@@ -21,7 +21,6 @@ import java.text.ParseException;
  */
 @Component
 public class LokalitetsRegister extends CprSubRegister {
-
 
     /*
     * Inner classes for parsed data
@@ -73,9 +72,16 @@ public class LokalitetsRegister extends CprSubRegister {
     * Data source spec
     * */
 
-    @Override
+    @Autowired
+    private ConfigurableApplicationContext ctx;
+
+    /*@Override
     public URL getRecordUrl() throws MalformedURLException {
         return new URL("https://cpr.dk/media/152108/a370714.txt");
+    }*/
+    @Override
+    public Resource getRecordResource() {
+        return this.ctx.getResource("classpath:/data/cprLokalitetsregister.zip");
     }
 
     @Override

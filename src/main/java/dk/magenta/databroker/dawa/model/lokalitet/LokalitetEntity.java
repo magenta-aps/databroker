@@ -93,12 +93,16 @@ public class LokalitetEntity extends UniqueBase implements OutputFormattable, Ca
     public JSONObject toFullJSON() {
         JSONObject obj = this.toJSON();
         JSONArray veje = new JSONArray();
+        HashSet<KommuneEntity> kommuneEntities = new HashSet<KommuneEntity>();
         for (VejstykkeVersionEntity vejstykkeVersionEntity : this.getVejstykkeVersioner()) {
             if (vejstykkeVersionEntity.getEntity().getLatestVersion() == vejstykkeVersionEntity) {
-                veje.put(vejstykkeVersionEntity.getEntity().toJSON());
+                VejstykkeEntity entity = vejstykkeVersionEntity.getEntity();
+                veje.put(entity.toJSON());
+                kommuneEntities.add(entity.getKommune());
             }
         }
         obj.put("veje", veje);
+        obj.put("kommune", this.kommune.toJSON());
         return obj;
     }
 

@@ -8,16 +8,15 @@
 <body>
 <div layout:fragment="content">
 
-
     <h3>Interaktiv Adressesøgning</h3>
     <p>Søg efter adresser ved at udfylde et eller flere af de nedenstående felter. Se beskrivelsen af parametrene <a href="#parameters">længere nede på siden.</a></p>
 
     <div class="search">
-
         <div th:replace="doc/fragments/inputparams/land"/>
         <div th:replace="doc/fragments/inputparams/kommune"/>
         <div th:replace="doc/fragments/inputparams/post"/>
         <div th:replace="doc/fragments/inputparams/vej"/>
+        <div th:replace="doc/fragments/inputparams/lokalitet"/>
         <div th:replace="doc/fragments/inputparams/husnr"/>
         <div th:replace="doc/fragments/inputparams/bnr"/>
         <div th:replace="doc/fragments/inputparams/etage"/>
@@ -89,6 +88,7 @@
         <tr th:replace="doc/fragments/docparams/land"/>
         <tr th:replace="doc/fragments/docparams/vej"/>
         <tr th:replace="doc/fragments/docparams/post"/>
+        <tr th:replace="doc/fragments/docparams/lokalitet"/>
         <tr th:replace="doc/fragments/docparams/husnr"/>
         <tr th:replace="doc/fragments/docparams/bnr"/>
         <tr th:replace="doc/fragments/docparams/etage"/>

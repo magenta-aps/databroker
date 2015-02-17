@@ -73,6 +73,10 @@ public class KommuneEntity extends TemaBase implements Cacheable {
         return lokaliteter;
     }
 
+    public void setLokaliteter(Collection<LokalitetEntity> lokaliteter) {
+        this.lokaliteter = lokaliteter;
+    }
+
     //----------------------------------------------------
 
     @OneToMany(mappedBy = "kommune")
@@ -118,12 +122,14 @@ public class KommuneEntity extends TemaBase implements Cacheable {
 
     public JSONObject toFullJSON() {
         JSONObject obj = this.toJSON();
+
         JSONArray delveje = new JSONArray();
         for (VejstykkeEntity vejstykkeEntity : this.vejstykker) {
             JSONObject delvej = vejstykkeEntity.toJSON();
             delveje.put(delvej);
         }
         obj.put("veje", delveje);
+
         JSONArray postnumre = new JSONArray();
         for (PostNummerVersionEntity postNummerVersionEntity : this.postnumre) {
             if (postNummerVersionEntity.getEntity().getLatestVersion() == postNummerVersionEntity) {
@@ -131,6 +137,14 @@ public class KommuneEntity extends TemaBase implements Cacheable {
             }
         }
         obj.put("postnumre", postnumre);
+
+        JSONArray lokaliteter = new JSONArray();
+        for (LokalitetEntity lokalitetEntity : this.lokaliteter) {
+            lokaliteter.put(lokalitetEntity.toJSON());
+        }
+        obj.put("lokaliteter", lokaliteter);
+
+
         return obj;
     }
 

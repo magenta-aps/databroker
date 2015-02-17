@@ -2,7 +2,6 @@ package dk.magenta.databroker.dawa.model.ejerlav;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseVersionEntity;
-import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeVersionEntity;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

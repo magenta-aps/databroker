@@ -67,4 +67,21 @@ textarea.output {
 label {
     height: 29px;
     line-height: 29px;
+.search label {
+    width: 120px;
+}
+
+a.toggleDisplay {
+    background: url('../img/arrowDown.png') no-repeat left center;
+    padding-left: 10px;
+    color: #333;
+    text-decoration: none;
+}
+
+a.toggleDisplay.collapsed {
+    background-image: url('../img/arrowRight.png');
+}
+
+span#include {
+    display: block;
 }

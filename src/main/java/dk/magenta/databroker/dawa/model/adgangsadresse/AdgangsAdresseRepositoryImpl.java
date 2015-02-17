@@ -3,6 +3,8 @@ package dk.magenta.databroker.dawa.model.adgangsadresse;
 import dk.magenta.databroker.dawa.model.RepositoryImplementation;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
+import dk.magenta.databroker.dawa.model.lokalitet.LokalitetEntity;
+import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
 import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.register.RepositoryUtil;
@@ -35,7 +37,7 @@ public class AdgangsAdresseRepositoryImpl extends RepositoryImplementation<Adgan
         hql.append("select distinct "+AdgangsAdresseEntity.databaseKey+" from AdgangsAdresseEntity as "+AdgangsAdresseEntity.databaseKey);
         join.setPrefix("join ");
 
-        if (parameters.hasAny(Key.LAND, Key.KOMMUNE, Key.POST, Key.VEJ)) {
+        if (parameters.hasAny(Key.LAND, Key.KOMMUNE, Key.POST, Key.VEJ, Key.LOKALITET)) {
 
             join.append(AdgangsAdresseEntity.joinVej());
 
@@ -47,14 +49,18 @@ public class AdgangsAdresseRepositoryImpl extends RepositoryImplementation<Adgan
 
             }
             if (parameters.has(Key.POST)) {
-                join.append("vejstykke.latestVersion.postnumre as post");
-                conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.POST), "post.latestVersion.nr", "post.latestVersion.navn"));
+                join.append(VejstykkeEntity.joinPost());
+                conditions.addCondition(PostNummerEntity.postCondition(parameters));
+            }
+            if (parameters.has(Key.LOKALITET)) {
+                join.append(VejstykkeEntity.joinLokalitet());
+                conditions.addCondition(LokalitetEntity.lokalitetCondition(parameters));
             }
         }
 
         conditions.addCondition(AdgangsAdresseEntity.husnrCondition(parameters));
         conditions.addCondition(AdgangsAdresseEntity.bnrCondition(parameters));
-
+        
         if (parameters.hasGlobalCondition()) {
             conditions.addCondition(parameters.getGlobalCondition().whereField("adresse"));
         }

@@ -7,6 +7,8 @@ import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseEntity;
 import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
 import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
+import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseEntity;
+import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.util.objectcontainers.StringList;
 
@@ -33,7 +35,7 @@ public class EnhedsAdresseRepositoryImpl extends RepositoryImplementation<Enheds
         join.setPrefix("join ");
         hql.append("select distinct " + EnhedsAdresseEntity.databaseKey + " from EnhedsAdresseEntity as " + EnhedsAdresseEntity.databaseKey);
 
-        if (parameters.hasAny(Key.LAND, Key.KOMMUNE, Key.VEJ, Key.POST, Key.HUSNR, Key.BNR)) {
+        if (parameters.hasAny(Key.LAND, Key.KOMMUNE, Key.VEJ, Key.POST, Key.HUSNR, Key.BNR, Key.LOKALITET)) {
 
             join.append(EnhedsAdresseEntity.joinAdgangsAdresse());
 
@@ -52,6 +54,15 @@ public class EnhedsAdresseRepositoryImpl extends RepositoryImplementation<Enheds
                     //join.append(AdgangsAdresseEntity.databaseKey+".latestVersion.postnummer as post");
                     join.append(VejstykkeEntity.joinPost());
                     conditions.addCondition(PostNummerEntity.postCondition(parameters));
+                }
+                if (parameters.has(Key.LOKALITET)) {
+                    join.append("vejstykke.latestVersion.lokaliteter as lokalitet");
+                    conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.LOKALITET), null, "lokalitet.navn"));
+                }
+
+                if (parameters.has(Key.POST)) {
+                    join.append("vejstykke.latestVersion.postnumre as post");
+                    conditions.addCondition(RepositoryUtil.whereField(parameters.get(Key.POST), "post.latestVersion.nr", "post.latestVersion.navn"));
                 }
             }
             conditions.addCondition(AdgangsAdresseEntity.husnrCondition(parameters));
@@ -84,5 +95,4 @@ public class EnhedsAdresseRepositoryImpl extends RepositoryImplementation<Enheds
 
         return this.query(hql, conditions, parameters.getGlobalCondition(), printQuery);
     }
-
 }

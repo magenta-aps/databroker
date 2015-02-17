@@ -15,8 +15,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.ParseException;
 import java.util.*;
 
@@ -412,9 +410,11 @@ public class VejRegister extends CprSubRegister {
     /*public URL getRecordUrl() throws MalformedURLException {
         return new URL("https://cpr.dk/media/152096/vejregister_hele_landet_pr_150101.zip");
     }*/
+
     public Resource getRecordResource() {
-        return this.ctx.getResource("classpath:/data/vejregister_hele_landet_pr_150201.zip");
+        return this.ctx.getResource("classpath:/data/cprVejregister.zip");
     }
+
 
     /*
     * Parse definition
@@ -563,9 +563,9 @@ public class VejRegister extends CprSubRegister {
                     this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
             );
         }
-
+        
         Level2Container<HashSet<RawVej>> lokalitetData = new Level2Container<HashSet<RawVej>>();
-
+        
         for (ByDistrikt byDistrikt : vrun.getByDistrikter()) {
             int kommuneKode = byDistrikt.getInt("kommuneKode");
             int vejKode = byDistrikt.getInt("vejKode");
@@ -620,6 +620,11 @@ public class VejRegister extends CprSubRegister {
     }
 
     @Override
+    public String getSourceTypeFieldName() {
+        return "vejSourceType";
+    }
+    
+    @Override
     public String getSourceUrlFieldName() {
         return "vejSourceUrl";
     }
@@ -627,7 +632,7 @@ public class VejRegister extends CprSubRegister {
     @Override
     public DataProviderConfiguration getDefaultConfiguration() {
         JSONObject config = new JSONObject();
-        config.put(this.getSourceUrlFieldName(), "https://cpr.dk/media/152096/vejregister_hele_landet_pr_150101.zip");
+        config.put(this.getSourceUrlFieldName(),"https://cpr.dk/media/152096/vejregister_hele_landet_pr_150101.zip");
         return new DataProviderConfiguration(config);
     }
 }

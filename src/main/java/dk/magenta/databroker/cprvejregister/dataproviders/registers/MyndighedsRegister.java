@@ -9,10 +9,10 @@ import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
 import dk.magenta.databroker.register.records.Record;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.ParseException;
 import java.util.*;
 
@@ -120,11 +120,24 @@ public class MyndighedsRegister extends CprSubRegister {
 
     //------------------------------------------------------------------------------------------------------------------
 
+    /*
+    * Constructors
+    * */
     public MyndighedsRegister() {
     }
 
-    public URL getRecordUrl() throws MalformedURLException {
+    /*
+    * Data source spec
+    * */
+    @Autowired
+    private ConfigurableApplicationContext ctx;
+
+    /*public URL getRecordUrl() throws MalformedURLException {
         return new URL("https://cpr.dk/media/219468/a370716.txt");
+    }*/
+    @Override
+    public Resource getRecordResource() {
+        return this.ctx.getResource("classpath:/data/cprMyndighedsregister.zip");
     }
 
     protected String getEncoding() {
@@ -170,13 +183,22 @@ public class MyndighedsRegister extends CprSubRegister {
         for (Myndighed kommune : kommuner) {
             int kommuneKode = kommune.getInt("myndighedsKode");
             String kommuneNavn = kommune.get("myndighedsNavn");
-            model.setKommune(
-                    kommuneKode, kommuneNavn,
-                    this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
-            );
+            if (this.acceptKommune(kommuneKode, kommuneNavn)) {
+                model.setKommune(
+                        kommuneKode, kommuneNavn,
+                        this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
+                );
+            }
             mrun.printInputProcessed();
         }
         mrun.printFinalInputsProcessed();
+    }
+
+    private boolean acceptKommune(int kode, String navn) {
+        if (kode > 900 && kode < 955) { // Skip old greenlandic municipalities
+            return false;
+        }
+        return true;
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -184,6 +206,11 @@ public class MyndighedsRegister extends CprSubRegister {
     @Override
     public String getUploadPartName() {
         return "myndighedSourceUpload";
+    }
+
+    @Override
+    public String getSourceTypeFieldName() {
+        return "myndighedSourceType";
     }
 
     @Override
@@ -197,6 +224,4 @@ public class MyndighedsRegister extends CprSubRegister {
         config.put(this.getSourceUrlFieldName(), "https://cpr.dk/media/219468/a370716.txt");
         return new DataProviderConfiguration(config);
     }
-
-
 }

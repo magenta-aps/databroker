@@ -151,15 +151,36 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
 
     //------------------------------------------------------------------------------------------------------------------
 
-    @Column(nullable = true, length = 6)
-    private String bnr;
+    @Column(nullable = true, length = 4)
+    private int bnr;
 
-    public String getBnr() {
+    public int getBnr() {
         return bnr;
     }
 
-    public void setBnr(String bnr) {
+    public void setBnr(int bnr) {
         this.bnr = bnr;
+    }
+    public void setBnr(String bnr) {
+        int b = 0;
+        if (bnr != null) {
+            try {
+                b = Integer.parseInt(stripBnr(bnr));
+            } catch (NumberFormatException e) {
+            }
+        }
+        this.setBnr(b);
+    }
+
+    public static String stripBnr(String bnr) {
+        return bnr != null ? bnr.replaceAll("^[Bb]-", "") : null;
+    }
+    public static String[] stripBnr(String[] bnr) {
+        String[] b = new String[bnr.length];
+        for (int i = 0; i < bnr.length; i++) {
+            b[i] = stripBnr(bnr[i]);
+        }
+        return b;
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -172,8 +193,8 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
         obj.put("id", this.getUuid());
         obj.put("husnummer", this.getHusnr());
         obj.put("href", SearchService.getAdgangsAdresseBaseUrl()+"/"+this.getUuid());
-        if (this.bnr != null) {
-            obj.put("b-nummer", this.bnr);
+        if (this.bnr != 0) {
+            obj.put("b-nummer", "B-" + this.bnr);
         }
         return obj;
     }

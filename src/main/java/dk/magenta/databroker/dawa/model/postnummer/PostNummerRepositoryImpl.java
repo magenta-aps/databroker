@@ -27,6 +27,13 @@ interface PostNummerRepositoryCustom {
 
 public class PostNummerRepositoryImpl extends RepositoryImplementation<PostNummerEntity> implements PostNummerRepositoryCustom {
 
+    private EntityManager entityManager;
+
+    @PersistenceContext
+    public void setEntityManager(EntityManager entityManager){
+        this.entityManager = entityManager;
+    }
+
     @Override
     public Collection<PostNummerEntity> search(SearchParameters parameters, boolean printQuery) {
 
