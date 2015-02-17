@@ -187,8 +187,14 @@ public class DawaModel {
     * Obtain roads from DB
     * */
     public VejstykkeEntity getVejstykke(int kommuneKode, int vejKode) {
-        return this.vejstykkeCache.get(kommuneKode, vejKode);
-        //return this.vejstykkeRepository.getByKommunekodeAndVejkode(kommuneKode, vejKode);
+        return this.getVejstykke(kommuneKode, vejKode, false);
+    }
+    public VejstykkeEntity getVejstykke(int kommuneKode, int vejKode, boolean noCache) {
+        if (noCache) {
+            return this.vejstykkeRepository.getByKommunekodeAndVejkode(kommuneKode, vejKode);
+        } else {
+            return this.vejstykkeCache.get(kommuneKode, vejKode);
+        }
     }
 
     public Collection<VejstykkeEntity> getVejstykke(SearchParameters parameters) {

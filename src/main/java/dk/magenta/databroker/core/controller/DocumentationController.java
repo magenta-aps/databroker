@@ -43,7 +43,7 @@ public class DocumentationController {
 
     @RequestMapping("/doc/vej")
     public ModelAndView veje() {
-        VejstykkeEntity vejstykkeEntity = this.dawaModel.getVejstykke(101, 7064);
+        VejstykkeEntity vejstykkeEntity = this.dawaModel.getVejstykke(101, 7064, true);
 
         Map<String, Object> model = new HashMap<String, Object>();
         model.put("uuid", vejstykkeEntity != null ? vejstykkeEntity.getUuid() : "e9032c69-98bf-4e18-bc94-1a5e5f8901e4");
