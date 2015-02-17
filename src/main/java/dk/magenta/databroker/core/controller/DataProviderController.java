@@ -152,6 +152,7 @@ public class DataProviderController {
                     this.updateCronScheduling(dataProviderEntity);
                 }
                 if (dataProvider.wantUpload(dataProviderEntity.getConfiguration()) && this.requestHasDataInFields(request, dataProvider.getUploadFields())) {
+                    uuid = dataProviderEntity.getUuid();
                     Thread thread = dataProvider.asyncPush(dataProviderEntity, request, this.transactionManager);
                     this.userThreads.put(uuid, thread);
                     return this.processingEntity(request, uuid);
