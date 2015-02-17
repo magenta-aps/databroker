@@ -67,21 +67,37 @@ textarea.output {
 label {
     height: 29px;
     line-height: 29px;
+}
+
 .search label {
     width: 120px;
 }
 
+/* Collapse form elements */
+
 a.toggleDisplay {
-    background: url('../img/arrowDown.png') no-repeat left center;
-    padding-left: 10px;
+    margin-left: 25px;
     color: #333;
     text-decoration: none;
 }
 
-a.toggleDisplay.collapsed {
-    background-image: url('../img/arrowRight.png');
+a.toggleDisplay .icon {
+    background: url('../img/collapse.png') no-repeat -36px -6px;
+    width: 20px;
+    height: 20px;
+    display: inline-block;
 }
 
-span#include {
-    display: block;
+a.toggleDisplay.collapsed .icon {
+    background: url('../img/collapse.png') no-repeat -4px -6px;
 }
+
+.collapsee > div {
+    float: none;
+    display: inline-block;
+    margin: 7px 0 8px 0;
+}
+
+.collapsee > div:last-child {
+     margin-bottom: 0;
+ }
