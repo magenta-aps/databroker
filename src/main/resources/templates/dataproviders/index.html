@@ -2,41 +2,49 @@
   xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
   layout:decorator="layout">
   <head>
-    <title>DataBroker : Dataproviders</title>
+    <title th:text="#{dataprovider.title}">DataBroker : Dataproviders</title>
     <script type="text/javascript" th:src="@{/js/processing.js}"></script>
   </head>
   <body>
 
     <div layout:fragment="content" style="text-align: left;">
-      <h1>Data providers</h1>
+      <h1 th:text="#{dataprovider.dataproviders}">Data providers</h1>
       <table class="table">
         <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Status</th>
-          <th>Actions</th>
+          <th th:text="#{dataprovider.name}">Name</th>
+          <th th:text="#{dataprovider.type}">Type</th>
+          <th th:text="#{dataprovider.status}">Status</th>
+          <th th:text="#{dataprovider.actions}">Actions</th>
         </tr>
 
         <tr th:each="dataproviderEntity : ${dataproviderEntities}">
-          <td th:text="${dataproviderEntity.getName()}">Data provider name</td>
-          <td th:text="${dataproviderEntity.fetchShortType()}" th:title="${dataproviderEntity.getType()}">Data provider type</td>
-          <td th:id="${dataproviderEntity.getUuid() + '_status'}" th:text="${dataproviderEntity.getActive() ? 'Enabled' : 'Disabled'}"></td>
+          <td th:text="${dataproviderEntity.getName()}"></td>
+          <td th:text="${dataproviderEntity.fetchShortType()}" th:title="${dataproviderEntity.getType()}"></td>
+          <td th:id="${dataproviderEntity.getUuid() + '_status'}"></td>
           <td>
-            <a th:id="${dataproviderEntity.getUuid() + '_edit'}" th:href="${'edit?uuid='+dataproviderEntity.getUuid()}" class="btn btn-default" role="button">Edit</a>
-            <a th:id="${dataproviderEntity.getUuid() + '_delete'}" th:href="${'delete?uuid='+dataproviderEntity.getUuid()}" class="btn btn-default" role="button">Delete</a>
-            <a th:id="${dataproviderEntity.getUuid() + '_pull'}" th:if="${dataproviderEntity.canPull()}" th:href="${'pull?uuid='+dataproviderEntity.getUuid()}" class="btn btn-default" role="button">Pull</a>
+            <a th:id="${dataproviderEntity.getUuid() + '_edit'}" th:href="${'edit?uuid='+dataproviderEntity.getUuid()}" class="btn btn-default" role="button" th:text="#{dataprovider.edit}">Edit</a>
+            <a th:id="${dataproviderEntity.getUuid() + '_delete'}" th:href="${'delete?uuid='+dataproviderEntity.getUuid()}" class="btn btn-default" role="button" th:text="#{dataprovider.delete}">Delete</a>
+            <a th:id="${dataproviderEntity.getUuid() + '_pull'}" th:if="${dataproviderEntity.canPull()}" th:href="${'pull?uuid='+dataproviderEntity.getUuid()}" class="btn btn-default" role="button" th:text="#{dataprovider.pull}">Pull</a>
           </td>
         </tr>
       </table>
       <hr/>
       <div class="pull-right">
         <form action="new/" method="get">
-          <button type="submit" class="btn btn-default">Add new provider</button>
+          <button type="submit" class="btn btn-default" th:text="#{dataprovider.addNew}">Add new provider</button>
         </form>
       </div>
         <script type="text/javascript" th:inline="javascript">
             // <![CDATA[
-            var providers = [[${dataproviderInfo}]];
+            var providers = [[${dataproviderInfo}]],
+                statusText = {
+                    enabled: [[#{dataprovider.enabled}]],
+                    disabled: [[#{dataprovider.disabled}]],
+                    running: [[#{dataprovider.running}]],
+                    paused: [[#{dataprovider.paused}]]
+                };
+
+
             var updateProvider = function(uuid, obj, force) {
                 if (obj) {
                     var provider = providers[uuid];
@@ -47,25 +55,25 @@
                     if (provider.status != obj.state || force) {
                         switch (obj.status) {
                             case "ENABLED":
-                                statusField.text("Enabled");
+                                statusField.text(statusText.enabled);
                                 editButton.removeClass("disabled");
                                 deleteButton.removeClass("disabled");
                                 pullButton.removeClass("disabled");
                                 break;
                             case "DISABLED":
-                                statusField.text("Disabled");
+                                statusField.text(statusText.disabled);
                                 editButton.removeClass("disabled");
                                 deleteButton.removeClass("disabled");
                                 pullButton.addClass("disabled");
                                 break;
                             case "RUNNING":
-                                statusField.text("Running");
+                                statusField.text(statusText.running);
                                 editButton.addClass("disabled");
                                 deleteButton.addClass("disabled");
                                 pullButton.addClass("disabled");
                                 break;
                             case "PAUSED":
-                                statusField.text("Paused");
+                                statusField.text(statusText.paused);
                                 editButton.addClass("disabled");
                                 deleteButton.addClass("disabled");
                                 pullButton.addClass("disabled");

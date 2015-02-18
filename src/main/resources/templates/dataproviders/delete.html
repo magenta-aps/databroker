@@ -2,16 +2,16 @@
   xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
   layout:decorator="layout">
   <head>
-    <title>DataBroker : Dataproviders</title>
+    <title th:text="#{dataprovider.title}">DataBroker : Dataproviders</title>
   </head>
   <body>
 
     <div layout:fragment="content" style="text-align: left;">
-      <h1>Delete data provider</h1>
+      <h1 th:text="#{dataprovider.deleteHeader}">Delete data provider</h1>
       <form action="" method="post">
-        <p th:text="'Are you sure you want to delete the data provider ' + ${name} + '?'"/>
-        <button type="submit" name="submit" value="ok" class="btn btn-default">Delete</button>
-        <button type="submit" name="submit" value="cancel" class="btn btn-default">Cancel</button>
+        <p th:text="#{dataprovider.deleteConfirmationPre} + ${name} + #{dataprovider.deleteConfirmationPost}"/>
+        <button type="submit" name="submit" value="ok" class="btn btn-default" th:text="#{dataprovider.delete}">Delete</button>
+        <button type="submit" name="submit" value="cancel" class="btn btn-default" th:text="#{dataprovider.cancel}">Cancel</button>
       </form>
     </div>
 

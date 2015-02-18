@@ -2,7 +2,7 @@
   xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
   layout:decorator="layout">
   <head>
-    <title>DataBroker : Dataproviders</title>
+    <title th:text="#{dataprovider.title}">DataBroker : Dataproviders</title>
     <style>
     </style>
 
@@ -68,13 +68,13 @@
   <body>
 
     <div layout:fragment="content" style="text-align: left;">
-      <h1 th:if="${action == 'new'}">New data provider</h1>
-      <h1 th:if="${action == 'edit'}">Edit data provider</h1>
+      <h1 th:if="${action == 'new'}" th:text="#{dataprovider.newProvider}">New data provider</h1>
+      <h1 th:if="${action == 'edit'}" th:text="#{dataprovider.editProvider}">Edit data provider</h1>
       <form action="" id="editform" method="post" enctype="multipart/form-data" class="form-horizontal">
         <input th:if="${action == 'edit'}" type="hidden" name="uuid" th:value="${values.uuid[0]}"/>
 
         <div class="form-group">
-          <label for="dataprovider" class="col-sm-2 control-label">Type:</label>
+          <label for="dataprovider" class="col-sm-2 control-label" th:text="#{dataprovider.typeLabel}">Type:</label>
           <div class="col-sm-10">
             <select name="dataprovider" id="dataprovider" th:attr="disabled=${action == 'edit' ? 'disabled':null}">
               <option th:each="dataprovider : ${dataproviders}" th:value="${dataprovider.key}" th:text="${dataprovider.key}" th:selected="${values['dataprovider'] != null and dataprovider.key.equals(values.dataprovider[0])}"></option>
@@ -83,14 +83,14 @@
         </div>
 
         <div class="form-group" th:if="${action == 'edit'}">
-          <label for="name" class="col-sm-2 control-label">Name:</label>
+          <label for="name" class="col-sm-2 control-label" th:text="#{dataprovider.nameLabel}">Name:</label>
           <div class="col-sm-10">
             <input type="text" name="name" id="name" th:value="${values.name[0]}" class="form-control"/>
           </div>
         </div>
 
         <div class="form-group">
-          <label for="active" class="col-sm-2 control-label">Active:</label>
+          <label for="active" class="col-sm-2 control-label"  th:text="#{dataprovider.enabledLabel}">Enabled:</label>
           <div class="col-sm-10" style="padding-top: 10px">
             <input type="checkbox" name="active" id="active" value="active" th:checked="${values['active'] != null and values.active[0] == 'active'}"/>
           </div>
@@ -100,9 +100,9 @@
 
         <hr/>
         <div class="pull-right">
-          <button type="submit" th:if="${action == 'new'}" name="submit" value="ok" class="btn btn-default">Create</button>
-          <button type="submit" th:if="${action == 'edit'}" name="submit" value="ok" class="btn btn-default">Update</button>
-          <button type="submit" name="submit" value="cancel" class="btn btn-default">Cancel</button>
+          <button type="submit" th:if="${action == 'new'}" name="submit" value="ok" class="btn btn-default" th:text="#{dataprovider.create}">Create</button>
+          <button type="submit" th:if="${action == 'edit'}" name="submit" value="ok" class="btn btn-default" th:text="#{dataprovider.update}">Update</button>
+          <button type="submit" name="submit" value="cancel" class="btn btn-default" th:text="#{dataprovider.cancel}">Cancel</button>
         </div>
       </form>
     </div>

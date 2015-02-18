@@ -2,19 +2,19 @@
       xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
       layout:decorator="layout">
 <head>
-    <title>DataBroker : Dataproviders</title>
+    <title th:text="#{dataprovider.title}">DataBroker : Dataproviders</title>
 
 </head>
 <body>
 
 <div layout:fragment="content" style="text-align: left;">
-    <h1>Dataprovider pull</h1>
+    <h1 text="#{dataprovider.dpPull}">Dataprovider pull</h1>
     <form action="" method="post">
         <input type="hidden" name="uuid" th:value="${uuid}"/>
         <p th:text="'Run pull for data provider '+${name}"></p>
         <div>
-            <button type="submit" name="submit" value="ok" class="btn btn-default">Ok</button>
-            <button type="submit" name="submit" value="cancel" class="btn btn-default">Cancel</button>
+            <button type="submit" name="submit" value="ok" class="btn btn-default" th:text="#{dataprovider.ok}">Ok</button>
+            <button type="submit" name="submit" value="cancel" class="btn btn-default" th:text="#{dataprovider.cancel}">Cancel</button>
         </div>
     </form>
 </div>
