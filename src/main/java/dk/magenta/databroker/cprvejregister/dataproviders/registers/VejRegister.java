@@ -329,8 +329,6 @@ public class VejRegister extends CprSubRegister {
     public class VejRegisterRun extends RegisterRun {
 
         private Level2Container<AktivVej> aktiveVeje;
-        private EntityModificationCounter delvejCounter;
-        private EntityModificationCounter navngivenvejCounter;
         private ArrayList<PostDistrikt> postDistrikter;
 
         private ArrayList<Bolig> boliger;
@@ -339,8 +337,6 @@ public class VejRegister extends CprSubRegister {
         public VejRegisterRun() {
             super();
             this.aktiveVeje = new Level2Container<AktivVej>();
-            this.delvejCounter = new EntityModificationCounter();
-            this.navngivenvejCounter = new EntityModificationCounter();
 
             this.boliger = new ArrayList<Bolig>();
             this.byDistrikter = new ArrayList<ByDistrikt>();
@@ -497,9 +493,7 @@ public class VejRegister extends CprSubRegister {
         long time;
         VejRegisterRun vrun = (VejRegisterRun) run;
 
-        System.out.println("Storing NavngivenvejEntities and KommunedelAfNavngivenvejEntries in database");
-
-        System.out.println("Preparatory caching");
+        System.out.println("Preparatory linking");
         time = this.indepTic();
         Level2Container<AktivVej> aktiveVeje = vrun.getAktiveVeje();
         vrun.startInputProcessing();
@@ -519,51 +513,52 @@ public class VejRegister extends CprSubRegister {
                 }
             }
         }
-        System.out.println("    Internal references set");
+        ArrayList<AktivVej> orderedList = new ArrayList<AktivVej>();
+        for (AktivVej vej : aktiveVeje.getList()) {
+            this.recursiveSortRoads(vej, orderedList);
+        }
+        System.out.println("Links created in "+this.toc(time)+" ms");
 
         // Process each AktivVej object, creating database entries
         // We do this in the VejRegisterRun instance because there is some state information
         // that we don't want to pollute our VejRegister instance with
 
-        System.out.println("Updating entries");
+        System.out.println("Storing VejstykkeEntities in database");
         time = this.indepTic();
-        //VejModel vejModel = new VejModel(this.kommuneRepository, this.kommunedelAfNavngivenVejRepository, this.navngivenVejRepository, this.getCreateRegistrering(), this.getUpdateRegistrering());
+        ModelUpdateCounter counter = new ModelUpdateCounter();
 
-        ArrayList<AktivVej> orderedList = new ArrayList<AktivVej>();
-        for (AktivVej vej : aktiveVeje.getList()) {
-            this.recursiveSortRoads(vej, orderedList);
-        }
-        //vejModel.createVeje(orderedList);
-        System.out.println("orderedList length: "+orderedList.size());
-
-        ArrayList<AktivVej> unorderedList = new ArrayList<AktivVej>(aktiveVeje.getList());
-        System.out.println("unorderedList length: "+unorderedList.size());
-
-        InputProcessingCounter vejCounter = new InputProcessingCounter();
         for (AktivVej vej : orderedList) {
             this.model.setVejstykke(
                     vej.getInt("kommuneKode"), vej.getInt("vejKode"), vej.get("vejNavn"),
                     vej.get("vejAddresseringsnavn"),
                     this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
             );
-            vejCounter.printInputProcessed();
+            counter.printEntryProcessed();
         }
-        vejCounter.printFinalInputsProcessed();
+        counter.printFinalEntriesProcessed();
+        System.out.println("VejstykkeEntities stored in "+this.toc(time)+" ms");
 
-        //vejModel.createVeje(new ArrayList<Record>(aktiveVeje.getList()));
 
-
-        System.out.println("Entry update took "+this.toc(time)+"ms");
-        //vejModel.cleanNavngivneVeje();
-
+        System.out.println("Storing AdresseEntities in database");
+        time = this.indepTic();
+        counter.reset();
         for (Bolig bolig : vrun.getBoliger()) {
             this.model.setAdresse(
                     bolig.getInt("kommuneKode"), bolig.getInt("vejKode"), bolig.get("husNr"), null,
                     bolig.get("etage"), bolig.get("sidedoer"),
                     this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
             );
+            counter.printEntryProcessed();
         }
-        
+        counter.printFinalEntriesProcessed();
+        System.out.println("AdresseEntities stored in "+this.toc(time)+" ms");
+
+
+
+        System.out.println("Storing LokalitetEntities in database");
+        time = this.indepTic();
+        counter.reset();
+
         Level2Container<HashSet<RawVej>> lokalitetData = new Level2Container<HashSet<RawVej>>();
         
         for (ByDistrikt byDistrikt : vrun.getByDistrikter()) {
@@ -596,9 +591,10 @@ public class VejRegister extends CprSubRegister {
                         this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
                 );
             }
+            counter.printEntryProcessed();
         }
-
-        System.out.println("Save complete");
+        counter.printFinalEntriesProcessed();
+        System.out.println("LokalitetEntities stored in "+this.toc(time)+" ms");
 
     }
 

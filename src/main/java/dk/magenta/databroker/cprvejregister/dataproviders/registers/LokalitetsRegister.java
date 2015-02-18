@@ -5,8 +5,7 @@ import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
-import dk.magenta.databroker.util.objectcontainers.EntityModificationCounter;
-import dk.magenta.databroker.util.objectcontainers.InputProcessingCounter;
+import dk.magenta.databroker.util.objectcontainers.ModelUpdateCounter;
 import dk.magenta.databroker.register.records.Record;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -120,12 +119,10 @@ public class LokalitetsRegister extends CprSubRegister {
     private DawaModel model;
 
     protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
-
-        System.out.println("Storing KommuneEntities in database");
+        System.out.println("Storing LokalitetEntities in database");
+        long time = this.indepTic();
+        ModelUpdateCounter counter = new ModelUpdateCounter();
         LokalitetRegisterRun lrun = (LokalitetRegisterRun) run;
-        EntityModificationCounter counter = new EntityModificationCounter();
-        InputProcessingCounter inputCounter = new InputProcessingCounter(true);
-
 
         for (Record record : lrun) {
             if (record.getClass() == Lokalitet.class) {
@@ -139,13 +136,12 @@ public class LokalitetsRegister extends CprSubRegister {
                 model.setAdresse(kommuneKode, vejKode, husnr, null, etage, sidedoer,
                         this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
                 );
-                inputCounter.printInputProcessed();
+                counter.printEntryProcessed();
             }
         }
-        inputCounter.printFinalInputsProcessed();
+        counter.printFinalEntriesProcessed();
 
-        System.out.println("Stored LokalitetEntities in database:");
-        counter.printModifications();
+        System.out.println("LokalitetEntities stored in "+this.toc(time)+" ms");
     }
 
     //------------------------------------------------------------------------------------------------------------------

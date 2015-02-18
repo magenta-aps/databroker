@@ -27,29 +27,12 @@ public class Level3Cache<T extends Cacheable> extends Level3Container<T> {
     }
 
     public void reload(boolean wait) {
-        //if (this.thread == null || this.thread.getState() == Thread.State.TERMINATED) {
-        //    this.thread = new Thread() {
-        //        public void run() {
-            //            Level3Cache<T> master = Level3Cache.this;
-                        Level3Cache<T> master = this;
-                    System.out.println("Loading cache from " + master.repository);
-                    for (T item : master.repository.findAll()) {
-                        master.doPut(item);
-                    }
-                    System.out.println("Cache loaded from " + master.repository);
-                    master.loaded = true;
-        //        }
-        //    };
-        //    this.thread.start();
-        //}
-
-        //if (wait && this.thread != null && this.thread.getState() != Thread.State.TERMINATED) {
-        //    try {
-        //        this.thread.join();
-        //    } catch (InterruptedException e) {
-        //        e.printStackTrace();
-        //    }
-       // }
+        //System.out.println("Loading cache from " + master.repository);
+        for (T item : this.repository.findAll()) {
+            this.doPut(item);
+        }
+        //System.out.println("Cache loaded from " + master.repository);
+        this.loaded = true;
     }
 
     public void put(T item) {

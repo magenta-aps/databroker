@@ -118,24 +118,27 @@ public abstract class Register extends DataProvider {
             InputStream input = null;
             boolean fromCache = false;
             String checksum = null;
+            File cacheFile = this.getCacheFile(false);
 
             if (!forceFetch) {
-                File cacheFile = this.getCacheFile(false);
+                // See if we can obtain the data from cache
                 if (cacheFile != null && cacheFile.canRead()) {
                     input = this.readFile(cacheFile);
                     checksum = DigestUtils.md5Hex(input);
                     input.close();
-                    System.out.println("Loading data from " + cacheFile.getAbsolutePath());
+                    System.out.println("Loading data from cache file " + cacheFile.getAbsolutePath());
                     input = this.readFile(cacheFile);
                     fromCache = true;
                 }
             }
 
+            // Try fetching from URL
             if (input == null && this.getRecordUrl() != null) {
                 System.out.println("Loading data from " + this.getRecordUrl().toString());
                 input = this.readUrl(this.getRecordUrl());
             }
 
+            // Try fetching from local resource
             if (input == null && this.getRecordResource() != null) {
                 System.out.println("Loading data from " + this.getRecordResource().toString());
                 input = this.readResource(this.getRecordResource());
@@ -143,11 +146,23 @@ public abstract class Register extends DataProvider {
 
             if (input != null) {
                 if (!fromCache) {
-                    File cacheFile = this.getCacheFile(true);
+                    cacheFile = this.getCacheFile(true);
+                    // Write data to cache
                     if (cacheFile != null && cacheFile.canWrite() && cacheFile.canRead()) {
+                        System.out.println("Storing data in cache "+cacheFile.getAbsolutePath());
                         Files.copy(input, cacheFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                         input.close();
                         checksum = DigestUtils.md5Hex(Files.newInputStream(cacheFile.toPath()));
+                        input = Files.newInputStream(cacheFile.toPath());
+                    }
+                }
+
+                if (cacheFile.canRead() && this.isZipStream(input)) {
+                    input = Files.newInputStream(cacheFile.toPath());
+                    NamedInputStream nInput = this.unzip(new NamedInputStream("dummy.zip", input));
+                    if (nInput != null) {
+                        input = nInput.getRight();
+                    } else {
                         input = Files.newInputStream(cacheFile.toPath());
                     }
                 }

@@ -39,7 +39,7 @@ public abstract class LineRegister extends Register {
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputstream, encoding.toUpperCase()));
 
             System.out.println("Reading data");
-            Date startTime = new Date();
+            long time = this.tic();
             int i = 0, j = 0;
 
             RegisterRun run = this.createRun();
@@ -62,24 +62,13 @@ public abstract class LineRegister extends Register {
                 i++;
                 if (i >= 100000) {
                     j++;
-                    tic();
                     System.gc();
-
-                    System.out.println("    parsed " + (j * i) + " entries (cleanup took "+toc()+" ms)");
-
+                    System.out.println("    parsed " + (j * i) + " lines");
                     i = 0;
-
-                    //Runtime runtime = Runtime.getRuntime();
-                    //NumberFormat format = NumberFormat.getInstance();
-                    //System.out.println("free memory: " + format.format(runtime.freeMemory() / 1024) + " of " + format.format(runtime.maxMemory() / 1024));
-
                 }
             }
-
-            System.out.println("    parsed " + (j * 100000 + i) + " entries in " + String.format("%.3f", 0.001 * (new Date().getTime() - startTime.getTime())) + " seconds");
-
-            //System.out.println(run.toFullJSON().toString(2));
-            System.out.println("Parse complete ("+run.size()+" entries)");
+            System.out.println("    parsed " + (j * 100000 + i) + " lines");
+            System.out.println("Parse complete ("+run.size()+" usable entries found) in "+ this.toc(time) + " ms");
             return run;
 
 

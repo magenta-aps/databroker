@@ -191,7 +191,6 @@ public abstract class DataProvider {
         return this.read(new NamedInputStream(filename, input));
     }
     private NamedInputStream read(NamedInputStream input) throws IOException {
-        System.out.println("input.getFileExtension(): "+input.getFileExtension());
         if (input.getFileExtension().equals("zip")) {
             System.out.println("Passing data through ZIP filter");
             input = this.unzip(input);

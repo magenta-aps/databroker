@@ -146,11 +146,11 @@ public class PostnummerRegister extends CprSubRegister {
     * */
 
     protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
+        System.out.println("Storing PostnummerEntities in database");
+        long time = this.indepTic();
+        ModelUpdateCounter counter = new ModelUpdateCounter();
         PostnummerRegisterRun prun = (PostnummerRegisterRun) run;
 
-        System.out.println("Storing PostnummerEntities in database");
-
-        InputProcessingCounter postCounter = new InputProcessingCounter();
         for (String nummer : prun.getPostnumre().keySet()) {
             ArrayList<PostNummer> postnummerRecords = prun.getPostnumre().get(nummer);
             int nr = Integer.parseInt(nummer, 10);
@@ -172,10 +172,11 @@ public class PostnummerRegister extends CprSubRegister {
                         nr, navn, veje,
                         this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
                 );
-                postCounter.printInputProcessed();
+                counter.printEntryProcessed();
             }
         }
-        postCounter.printFinalInputsProcessed();
+        counter.printFinalEntriesProcessed();
+        System.out.println("PostnummerEntities stored in " + this.toc(time) + " ms");
     }
 
     //------------------------------------------------------------------------------------------------------------------

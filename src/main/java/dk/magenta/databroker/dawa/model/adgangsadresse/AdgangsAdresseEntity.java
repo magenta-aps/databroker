@@ -233,7 +233,7 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
     public static final String databaseKey = "adgang";
     public static Condition bnrCondition(SearchParameters parameters) {
         if (parameters.has(Key.BNR)) {
-            return RepositoryUtil.whereField(parameters.get(Key.BNR), null, databaseKey + ".bnr");
+            return RepositoryUtil.whereField(parameters.get(Key.BNR), databaseKey + ".bnr", null);
         }
         return null;
     }

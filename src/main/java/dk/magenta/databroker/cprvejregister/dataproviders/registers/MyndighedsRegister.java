@@ -7,6 +7,7 @@ import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.util.objectcontainers.Level2Container;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
 import dk.magenta.databroker.register.records.Record;
+import dk.magenta.databroker.util.objectcontainers.ModelUpdateCounter;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -177,6 +178,8 @@ public class MyndighedsRegister extends CprSubRegister {
 
     protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
         System.out.println("Storing KommuneEntities in database");
+        long time = this.indepTic();
+        ModelUpdateCounter counter = new ModelUpdateCounter();
         MyndighedsRegisterRun mrun = (MyndighedsRegisterRun) run;
         List<Myndighed> kommuner = mrun.getMyndigheder("5");
 
@@ -189,9 +192,10 @@ public class MyndighedsRegister extends CprSubRegister {
                         this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
                 );
             }
-            mrun.printInputProcessed();
+            counter.printEntryProcessed();
         }
-        mrun.printFinalInputsProcessed();
+        counter.printFinalEntriesProcessed();
+        System.out.println("KommuneEntities stored in "+this.toc(time)+" ms");
     }
 
     private boolean acceptKommune(int kode, String navn) {

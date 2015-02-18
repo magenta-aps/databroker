@@ -8,6 +8,7 @@ import dk.magenta.databroker.register.LineRegister;
 import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.util.objectcontainers.Level2Container;
 import dk.magenta.databroker.register.records.Record;
+import dk.magenta.databroker.util.objectcontainers.ModelUpdateCounter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
@@ -99,9 +100,10 @@ public class GrLokalitetsRegister extends LineRegister {
     private DawaModel model;
 
      protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
-         System.out.println("Saving to database...");
+         System.out.println("Preparatory linking");
+         long time = this.indepTic();
+         ModelUpdateCounter counter = new ModelUpdateCounter();
          GrRegisterRun grun = (GrRegisterRun) run;
-         //this.model.resetAllCaches();
 
          Level2Container<HashSet<RawVej>> lokalitetData = new Level2Container<HashSet<RawVej>>();
          for (Record record : grun) {
@@ -125,16 +127,25 @@ public class GrLokalitetsRegister extends LineRegister {
              if (!contains) {
                  veje.add(vej);
              }
+             counter.printEntryProcessed();
          }
+         counter.printFinalEntriesProcessed();
+         System.out.println("Links created in "+this.toc(time)+" ms");
+
+
+         System.out.println("Storing LokalitetEntities in database");
+         counter.reset();
          for (int kommuneKode : lokalitetData.intKeySet()) {
              for (String lokalitetsNavn : lokalitetData.get(kommuneKode).keySet()) {
                  HashSet<RawVej> veje = lokalitetData.get(kommuneKode, lokalitetsNavn);
                  this.model.setLokalitet(kommuneKode, lokalitetsNavn, veje,
                          this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
                  );
+                 counter.printEntryProcessed();
              }
          }
-         System.out.println("Save complete");
+         counter.printFinalEntriesProcessed();
+         System.out.println("LokalitetEntities stored in "+this.toc(time)+" ms");
     }
 
     //------------------------------------------------------------------------------------------------------------------

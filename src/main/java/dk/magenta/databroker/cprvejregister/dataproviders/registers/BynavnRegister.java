@@ -8,6 +8,7 @@ import dk.magenta.databroker.dawa.model.RawVej;
 import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.util.objectcontainers.Level2Container;
 import dk.magenta.databroker.register.records.Record;
+import dk.magenta.databroker.util.objectcontainers.ModelUpdateCounter;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -93,7 +94,9 @@ public class BynavnRegister extends CprSubRegister {
 
     protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
 
-        System.out.println("Storing Bynavne in database");
+        System.out.println("Preparatory linking");
+        long time = this.indepTic();
+        ModelUpdateCounter counter = new ModelUpdateCounter();
 
         Level2Container<HashSet<RawVej>> lokalitetData = new Level2Container<HashSet<RawVej>>();
 
@@ -120,9 +123,15 @@ public class BynavnRegister extends CprSubRegister {
                 if (!contains) {
                     veje.add(vej);
                 }
+                counter.printEntryProcessed();
             }
         }
+        counter.printFinalEntriesProcessed();
+        System.out.println("Links created in " + this.toc(time) + " ms");
 
+        System.out.println("Storing LokalitetEntities in database");
+        time = this.indepTic();
+        counter.reset();
         for (int kommuneKode : lokalitetData.intKeySet()) {
             for (String lokalitetsNavn : lokalitetData.get(kommuneKode).keySet()) {
                 HashSet<RawVej> veje = lokalitetData.get(kommuneKode, lokalitetsNavn);
@@ -131,10 +140,10 @@ public class BynavnRegister extends CprSubRegister {
                         this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
                 );
             }
+            counter.printEntryProcessed();
         }
-
-        System.out.println("Save complete");
-
+        counter.printFinalEntriesProcessed();
+        System.out.println("LokalitetEntities stored in "+this.toc(time)+" ms");
     }
 
     //------------------------------------------------------------------------------------------------------------------

@@ -11,6 +11,7 @@ import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.register.LineRegister;
 import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.util.objectcontainers.Level2Container;
+import dk.magenta.databroker.util.objectcontainers.ModelUpdateCounter;
 import dk.magenta.databroker.util.objectcontainers.Pair;
 import dk.magenta.databroker.register.records.Record;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -127,7 +128,11 @@ public class NukissiorfiitRegister extends LineRegister {
     @Override
     protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
 
-        Collection<KommuneEntity> kommuner = this.model.getKommune(new SearchParameters(new String[]{"gl"}, null, null, null, null, null, null, null));
+        System.out.println("Preparatory linking");
+        long time = this.indepTic();
+        ModelUpdateCounter counter = new ModelUpdateCounter();
+
+        Collection<KommuneEntity> kommuner = this.model.getKommune(new SearchParameters(new String[]{"gl"}, null, null, null, null, null, null, null), false);
         Level2Container<VejstykkeEntity> vejMap = new Level2Container<VejstykkeEntity>();
         for (KommuneEntity kommuneEntity : kommuner) {
             Collection<VejstykkeEntity> veje = kommuneEntity.getVejstykkeVersioner();
@@ -135,11 +140,16 @@ public class NukissiorfiitRegister extends LineRegister {
                 String navn = this.normalize(vej.getLatestVersion().getVejnavn());
                 for (PostNummerEntity post : vej.getLatestVersion().getPostnumre()) {
                     vejMap.put(navn, post.getLatestVersion().getNr(), vej);
+                    counter.printEntryProcessed();
                 }
             }
         }
+        counter.printFinalEntriesProcessed();
+        System.out.println("Links created in " + this.toc(time) + " ms");
 
 
+        System.out.println("Storing AdresseEntities in database");
+        counter.reset();
         //this.model.resetAllCaches();
         HashSet<Pair<String,String>> failures = new HashSet<Pair<String, String>>();
         HashSet<Pair<String,String>> successes = new HashSet<Pair<String, String>>();
@@ -156,10 +166,10 @@ public class NukissiorfiitRegister extends LineRegister {
                     if (aliases != null) {
                         for (int alias : aliases) {
                             vejstykkeEntity = vejMap.get(this.normalize(vejNavn), alias);
-                            if (vejstykkeEntity != null) {
-                                System.out.println("Found "+vejstykkeEntity.getLatestVersion().getVejnavn()+" by alias "+postnr+" => "+alias);
-                                break;
-                            }
+                            //if (vejstykkeEntity != null) {
+                            //  System.out.println("Found "+vejstykkeEntity.getLatestVersion().getVejnavn()+" by alias "+postnr+" => "+alias);
+                            //  break;
+                            //}
                         }
                     }
                 }
@@ -184,8 +194,13 @@ public class NukissiorfiitRegister extends LineRegister {
                     );
                     successes.add(new Pair<String,String>(""+postnr, vejNavn));
                 }
+                counter.printEntryProcessed();
             }
         }
+
+        counter.printFinalEntriesProcessed();
+        System.out.println("AdresseEntities stored in "+this.toc(time)+" ms");
+        /*
         for (Pair<String, String> success : successes) {
             System.out.println("Genkendt: " + success.getLeft() + " / " + success.getRight());
         }
@@ -207,12 +222,12 @@ public class NukissiorfiitRegister extends LineRegister {
                     //System.out.println("  Search for "+this.longestWord(vejnavn));
 
                     //if (guesses.size() == 1) {
-                        /*for (VejstykkeEntity guess : guesses) {
-                            System.out.println("---------------------------------");
-                            System.out.println("not found: "+failure.getLeft()+" : "+vejnavn + "("+this.normalize(vejnavn,true)+")");
-                            System.out.println("Guessing by longest word: "+this.longestWord(vejnavn));
-                            System.out.println("Single Guess: " + guess.getLatestVersion().getVejnavn()+"/"+guess.getLatestVersion().getVejadresseringsnavn() + "("+this.normalize(guess.getLatestVersion().getVejnavn(), true)+")"+(vejMap.get(this.normalize(guess.getLatestVersion().getVejnavn()))==null ? "NOT found":"found"));
-                        }*/
+                        //for (VejstykkeEntity guess : guesses) {
+                        //  System.out.println("---------------------------------");
+                        //  System.out.println("not found: "+failure.getLeft()+" : "+vejnavn + "("+this.normalize(vejnavn,true)+")");
+                        //  System.out.println("Guessing by longest word: "+this.longestWord(vejnavn));
+                        //  System.out.println("Single Guess: " + guess.getLatestVersion().getVejnavn()+"/"+guess.getLatestVersion().getVejadresseringsnavn() + "("+this.normalize(guess.getLatestVersion().getVejnavn(), true)+")"+(vejMap.get(this.normalize(guess.getLatestVersion().getVejnavn()))==null ? "NOT found":"found"));
+                        //}
                     //} else {
                         for (VejstykkeEntity guess : guesses) {
                             for (PostNummerEntity postNummerEntity : guess.getLatestVersion().getPostnumre()) {
@@ -222,7 +237,7 @@ public class NukissiorfiitRegister extends LineRegister {
                     //}
                 }
             }
-        }
+        }*/
     }
 
     private String ignoredSuffixes = "\\b(aqquser(na)?)|(aqqulaa)|(avquserna)|(avquta+t?)|(aqquta+t?)|(aqqut*)|(aq+)|([av]vq)|(kujalleq)$";
