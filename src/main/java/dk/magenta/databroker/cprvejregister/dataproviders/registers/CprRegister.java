@@ -206,7 +206,7 @@ public class CprRegister extends LineRegister {
 
     @Override
     public String getTemplatePath() {
-        return "/fragments/CprRegisterForm.txt";
+        return "CprRegisterForm";
     }
 
     @Override

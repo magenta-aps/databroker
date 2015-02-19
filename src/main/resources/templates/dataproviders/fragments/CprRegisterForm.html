@@ -1,0 +1,228 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div class="form-group">
+  <label class="col-sm-2 control-label" th:text="#{cprprovider.type.label}">Datakilde type:</label>
+  <div class="col-sm-10">
+    <label class="radio-inline">
+      <input type="radio" name="sourceType" value="url" id="sourceTypeUrl" th:text="#{cprprovider.type.URL}" />
+    </label>
+    <label class="radio-inline">
+      <input type="radio" name="sourceType" value="upload" id="sourceTypeUpload" th:text="#{cprprovider.type.upload}"/>
+    </label>
+  </div>
+</div>
+
+<div id="urlContainer">
+
+  <div class="form-group">
+    <label for="myndighedSourceUrl" class="col-sm-2 control-label" th:text="#{cprprovider.myndighedsLabel}">Myndighedsdata:</label>
+    <div class="col-sm-10">
+      <input type="url" name="myndighedSourceUrl" id="myndighedSourceUrl" size="50" class="form-control"/>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="vejSourceUrl" class="col-sm-2 control-label" th:text="#{cprprovider.vejLabel}">Vejdata:</label>
+    <div class="col-sm-10">
+      <input type="url" name="vejSourceUrl" id="vejSourceUrl" size="50" class="form-control"/>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="lokalitetSourceUrl" class="col-sm-2 control-label" th:text="#{cprprovider.lokalitetsLabel}">Lokalitetsdata:</label>
+    <div class="col-sm-10">
+      <input type="url" name="lokalitetSourceUrl" id="lokalitetSourceUrl" size="50" class="form-control"/>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="postnummerSourceUrl" class="col-sm-2 control-label" th:text="#{cprprovider.postnummerLabel}">Postnummerdata:</label>
+    <div class="col-sm-10">
+      <input type="url" name="postnummerSourceUrl" id="postnummerSourceUrl" size="50" class="form-control"/>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="bynavnSourceUrl" class="col-sm-2 control-label" th:text="#{cprprovider.bynavneLabel}">Bynavnedata:</label>
+    <div class="col-sm-10">
+      <input type="url" name="bynavnSourceUrl" id="bynavnSourceUrl" size="50" class="form-control"/>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="cronMinute" class="col-sm-2 control-label" th:text="#{cprprovider.cron.label}">Cron-plan:</label>
+    <div class="col-sm-10 form-inline">
+      <input type="text" id="cronSecond" class="form-control" pattern="\*|(([1-5]?[0-9])([/\-][1-5]?[0-9])?)" size="2" th:title="#{cprprovider.cron.second}" value="*" required="required"/>
+      <input type="text" id="cronMinute" class="form-control" pattern="\*|(([1-5]?[0-9])([/\-][1-5]?[0-9])?)" size="2" th:title="#{cprprovider.cron.minute}" value="*" required="required"/>
+      <input type="text" id="cronHour" class="form-control" pattern="\*|((1?[0-9])|(2[0-3]))" size="2" th:title="#{cprprovider.cron.hour}" value="*" required="required"/>
+      <input type="text" id="cronDate" class="form-control" pattern="\*|(([1-2]?[0-9])|(3[0-1]))" size="2" th:title="#{cprprovider.cron.date}" value="*" required="required"/>
+      <input type="text" id="cronMonth" class="form-control" pattern="\*|([0-9]|(1[1-2]))" size="2" th:title="#{cprprovider.cron.month}" value="*" required="required"/>
+      <input type="text" id="cronDay" class="form-control" pattern="\*|[0-6]" size="2" th:title="#{cprprovider.cron.day}" value="*" required="required"/>
+      <input type="hidden" name="cron" id="cron"/>
+
+      <p class="pull-right">
+        <label for="cronPreset" style="margin-left: 10px" th:text="#{cprprovider.cronpreset.label}">Forudindstilling:</label>
+        <select id="cronPreset">
+          <option value="-" th:text="#{cprprovider.cronpreset.custom}"></option>
+          <option value="0 0 * * * *" th:text="#{cprprovider.cronpreset.hour}"></option>
+          <option value="0 0 0 * * *" th:text="#{cprprovider.cronpreset.day}"></option>
+          <option value="0 0 0 * * 1" th:text="#{cprprovider.cronpreset.week}"></option>
+          <option value="0 0 0 1 * *" th:text="#{cprprovider.cronpreset.month}"></option>
+          <option value="0 0 0 1 1/3 *" th:text="#{cprprovider.cronpreset.quarter}"></option>
+        </select>
+        <button id="cronHelpButton" class="btn btn-default">?</button>
+      </p>
+    </div>
+  </div>
+
+  <div id="cronHelp" style="display:none" class="infobox">
+    <button type="button" class="close" aria-label="Close" id="cronHelpClose"><span aria-hidden="true">&times;</span></button>
+      <p th:utext="#{cprprovider.cronhelp}">
+      </p>
+  </div>
+
+</div>
+
+<div id="uploadContainer">
+  <div class="form-group">
+    <label for="myndighedSourceUpload" class="col-sm-2 control-label" th:text="#{cprprovider.myndighedsLabel}">Myndighedsdata:</label>
+    <div class="col-sm-10">
+      <input type="file" name="myndighedSourceUpload" id="myndighedSourceUpload" class="form-control" />
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="vejSourceUpload" class="col-sm-2 control-label" th:text="#{cprprovider.vejLabel}">Vejdata:</label>
+    <div class="col-sm-10">
+      <input type="file" name="vejSourceUpload" id="vejSourceUpload" class="form-control" />
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="lokalitetSourceUpload" class="col-sm-2 control-label" th:text="#{cprprovider.lokalitetsLabel}">Lokalitetsdata:</label>
+    <div class="col-sm-10">
+      <input type="file" name="lokalitetSourceUpload" id="lokalitetSourceUpload" class="form-control" />
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="postnummerSourceUpload" class="col-sm-2 control-label" th:text="#{cprprovider.postnummerLabel}">Postnummerdata:</label>
+    <div class="col-sm-10">
+      <input type="file" name="postnummerSourceUpload" id="postnummerSourceUpload" class="form-control" />
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="bynavnSourceUpload" class="col-sm-2 control-label" th:text="#{cprprovider.bynavneLabel}">Bynavnedata:</label>
+    <div class="col-sm-10">
+      <input type="file" name="bynavnSourceUpload" id="bynavnSourceUpload" class="form-control" />
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+// <![CDATA[
+var enables = [
+  {
+    radioName:"sourceType",
+    typeMap:{
+      "url":$("#urlContainer"),
+      "upload":$("#uploadContainer")
+    }
+  },
+ ]
+for (var i=0; i<enables.length; i++) {
+  var radioName = enables[i].radioName;
+  var typeMap = enables[i].typeMap;
+
+  var updateSourcetype = function(typeMap,el){
+    for (var key in typeMap) {
+      if (key == el.value) {
+        typeMap[key].show();
+      } else {
+        typeMap[key].hide();
+      }
+    }
+  }
+
+  $("input[name='"+radioName+"']").change(function(typeMap, event){
+    updateSourcetype(typeMap, event.target);
+  }.bind(null, typeMap));
+
+  var checkedRadios = $("input[name='"+radioName+"']:checked");
+  if (checkedRadios.size() == 0) {
+    for (var key in typeMap) {
+      var radio = $("input[name='"+radioName+"'][value='"+key+"']");
+      radio.attr("checked", "checked");
+      checkedRadios = radio;
+      break;
+    }
+  }
+  if (checkedRadios.size() == 1) {
+    updateSourcetype(typeMap, checkedRadios.get(0));
+  }
+}
+
+
+
+
+var fields = $("#cronSecond, #cronMinute, #cronHour, #cronDate, #cronMonth, #cronDay");
+var cron = $("#cron");
+
+var setCronFields = function(cronValue) {
+  var pieces = cronValue.split(/\s+/);
+  fields.each(function(i, el) {
+    el.value = pieces[i] || "*";
+  });
+}
+
+var setCronValue = function() {
+  var cronValue = [];
+  fields.each(function(i, el) {
+    cronValue.push(el.value);
+  });
+  cron.val(cronValue.join(" "));
+}
+
+var setCronDropdown = function(){
+  var cronValue = cron.val();
+  var found = false;
+  select.find("option").each(function(index, el){
+    if (el.value == cronValue) {
+      found = true;
+    }
+  });
+  select.val(found ? cronValue : "-");
+}
+
+setCronFields(cron.val());
+
+$("#editform").submit(setCronValue);
+
+var select = $("#cronPreset");
+select.change(function(){
+  setCronFields(select.val());
+});
+
+setCronDropdown();
+
+fields.on("keyup change", function(){
+  setCronValue();
+  setCronDropdown();
+});
+
+$("#cronHelpButton").click(function(){
+  $("#cronHelp").slideToggle();
+  return false;
+});
+$("#cronHelpClose").click(function(){
+  $("#cronHelp").slideUp();
+  return false;
+})
+
+// ]]>
+</script>
+
+</body>
+</html>

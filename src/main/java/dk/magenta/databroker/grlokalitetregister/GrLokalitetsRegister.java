@@ -151,7 +151,7 @@ public class GrLokalitetsRegister extends LineRegister {
     //------------------------------------------------------------------------------------------------------------------
 
     public String getTemplatePath() {
-        return "/fragments/GrLokalitetsRegisterForm.txt";
+        return "GrLokalitetsRegisterForm";
     }
 
     public DataProviderConfiguration getDefaultConfiguration() {

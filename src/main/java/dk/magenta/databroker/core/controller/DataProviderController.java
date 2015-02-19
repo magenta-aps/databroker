@@ -323,6 +323,17 @@ public class DataProviderController {
         return providerStatus;
     }
 
+
+
+    @RequestMapping("/dataproviders/fragment")
+    public ModelAndView fragment(HttpServletRequest request) {
+        String fragment = request.getParameter("f");
+        return new ModelAndView("dataproviders/fragments/" + fragment);
+    }
+
+
+
+
     //------------------------------------------------------------------------------------------------------------------
 
     @Autowired

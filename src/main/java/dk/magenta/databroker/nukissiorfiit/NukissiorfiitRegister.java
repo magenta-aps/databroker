@@ -310,8 +310,9 @@ public class NukissiorfiitRegister extends LineRegister {
 
 
     @Override
+
     public String getTemplatePath() {
-        return null;
+        return "NukissiorfiitRegisterForm";
     }
 
     @Override

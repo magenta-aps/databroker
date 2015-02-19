@@ -651,7 +651,7 @@ public class CvrRegister extends Register {
     //------------------------------------------------------------------------------------------------------------------
 
     public String getTemplatePath() {
-        return "/fragments/CvrRegisterForm.txt";
+        return "CvrRegisterForm";
     }
 
     public DataProviderConfiguration getDefaultConfiguration() {

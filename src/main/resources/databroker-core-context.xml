@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:jaxws="http://cxf.apache.org/jaxws"
@@ -25,5 +26,51 @@
             <ref bean="jsonProvider"/>
         </jaxrs:providers>
     </jaxrs:server>
+
+    <!--<bean class="org.thymeleaf.spring4.view.ThymeleafViewResolver">
+        <property name="characterEncoding" value="UTF-8" />
+        <property name="templateEngine">-->
+            <bean id="templateEngine" class="org.thymeleaf.spring4.SpringTemplateEngine">
+                <property name="messageResolvers">
+                    <set>
+                        <bean id="thymeleafMessageResolver" class="org.thymeleaf.messageresolver.StandardMessageResolver">
+                            <property name="order" value="1" />
+                        </bean>
+                        <bean id="springMessageResolver" class="org.thymeleaf.spring4.messageresolver.SpringMessageResolver">
+                            <property name="order" value="2" />
+                        </bean>
+                    </set>
+                </property>
+                <property name="templateResolver">
+                    <bean id="templateResolver" class="org.thymeleaf.templateresolver.TemplateResolver">
+                        <property name="resourceResolver">
+                            <bean id="resourceResolver" class="org.thymeleaf.spring4.resourceresolver.SpringResourceResourceResolver"/>
+                        </property>
+                        <property name="prefix" value="classpath:/templates/"/>
+                        <property name="suffix" value=".html"/>
+                        <property name="templateMode" value="HTML5"/>
+                        <property name="characterEncoding" value="UTF-8"/>
+                        <property name="cacheable" value="true"/>
+                    </bean>
+                </property>
+                <property name="additionalDialects">
+                    <set>
+                        <bean class="nz.net.ultraq.thymeleaf.LayoutDialect"/>
+                    </set>
+                </property>
+            </bean>
+        <!--</property>
+    </bean>-->
+
+
+
+
+
+
+    <bean id="viewResolver" class="org.thymeleaf.spring4.view.ThymeleafViewResolver">
+        <property name="templateEngine" ref="templateEngine"/>
+        <property name="characterEncoding" value="UTF-8"/>
+    </bean>
+
 
 </beans>
