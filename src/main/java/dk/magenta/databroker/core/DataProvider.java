@@ -3,6 +3,7 @@ package dk.magenta.databroker.core;
 import dk.magenta.databroker.core.controller.DataProviderController;
 import dk.magenta.databroker.util.Util;
 import dk.magenta.databroker.util.objectcontainers.Pair;
+import org.apache.commons.io.input.CountingInputStream;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.odftoolkit.simple.SpreadsheetDocument;
@@ -139,19 +140,51 @@ public abstract class DataProvider {
         return filename != null ? filename.substring(filename.lastIndexOf('.')+1).toLowerCase() : null;
     }
 
-    public class NamedInputStream extends Pair<String, InputStream> {
-        public NamedInputStream(String name, InputStream input) {
-            super(getExtension(name), input);
+    public class NamedInputStream extends FilterInputStream {
+        long knownSize = 0;
+        String basename;
+        String extension;
+
+        public NamedInputStream(InputStream input, String filename) {
+            super(input);
+            this.basename = this.extractBasename(filename);
+            this.extension = "";
         }
-        public String getFileExtension() {
-            return this.getLeft();
+        public NamedInputStream(InputStream input, String basename, String extension) {
+            super(input);
+            this.basename = basename;
+            this.extension = extension;
+        }
+
+        public String getBasename() {
+            return basename;
+        }
+        public String getExtension() {
+            return this.extension;
+        }
+        public boolean extensionEquals(String extension) {
+            return this.extension != null && this.extension.equalsIgnoreCase(extension);
+        }
+        public long getKnownSize() {
+            return knownSize;
+        }
+        public void setKnownSize(long knownSize) {
+            this.knownSize = knownSize;
+        }
+        private String extractBasename(String filename) {
+            int index = filename.lastIndexOf(".");
+            return index == -1 ? filename : filename.substring(0, index);
+        }
+        private String extractExtension(String filename) {
+            int index = filename.lastIndexOf(".");
+            return index == -1 ? "" : filename.substring(index);
         }
     }
 
     protected InputStream readUrl(URL url) {
         if (url != null) {
             try {
-                return this.read(url.getFile(), url.openStream()).getRight();
+                return this.read(url.getFile(), url.openStream());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -162,7 +195,7 @@ public abstract class DataProvider {
     protected InputStream readFile(File file) {
         if (file.canRead()) {
             try {
-                return this.read(file.getAbsolutePath(), new FileInputStream(file)).getRight();
+                return this.read(file.getAbsolutePath(), new FileInputStream(file));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -172,7 +205,7 @@ public abstract class DataProvider {
 
     protected InputStream readResource(Resource resource) {
         try {
-            return this.read(resource.getFilename(), resource.getInputStream()).getRight();
+            return this.read(resource.getFilename(), resource.getInputStream());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -188,18 +221,18 @@ public abstract class DataProvider {
     }
 
     private NamedInputStream read(String filename, InputStream input) throws IOException {
-        return this.read(new NamedInputStream(filename, input));
+        return this.read(new NamedInputStream(input, filename));
     }
     private NamedInputStream read(NamedInputStream input) throws IOException {
-        if (input.getFileExtension().equals("zip")) {
+        if (input.extensionEquals("zip")) {
             System.out.println("Passing data through ZIP filter");
             input = this.unzip(input);
         }
-        if (input != null && (input.getFileExtension().equals("xls") || input.getFileExtension().equals("xlsx"))) {
+        if (input != null && (input.extensionEquals("xls") || input.extensionEquals("xlsx"))) {
             System.out.println("Passing data through XLS filter");
             input = this.convertExcelSpreadsheet(input);
         }
-        if (input != null && input.getFileExtension().equals("ods")) {
+        if (input != null && input.extensionEquals("ods")) {
             System.out.println("Passing data through ODS filter");
             input = this.convertOdfSpreadsheet(input);
         }
@@ -210,19 +243,22 @@ public abstract class DataProvider {
 
 
     protected NamedInputStream unzip(NamedInputStream input) throws IOException {
-        ZipInputStream zinput = new ZipInputStream(input.getRight());
+        ZipInputStream zinput = new ZipInputStream(input);
         for (ZipEntry entry = zinput.getNextEntry(); entry != null; entry = zinput.getNextEntry()) {
             String extension = getExtension(entry.getName());
             if (extension != null && Util.inArray(acceptedExtensions, extension)) {
                 System.out.println("Unzipping entry "+entry.getName());
-                return new NamedInputStream(entry.getName(), zinput);
+                System.out.println("unzipped size: "+entry.getSize());
+                NamedInputStream output = new NamedInputStream(zinput, entry.getName());
+                output.setKnownSize(entry.getSize());
+                return output;
             }
         }
         return null;
     }
 
     private NamedInputStream convertExcelSpreadsheet(NamedInputStream input) throws IOException {
-        final Workbook wb = input.getFileExtension().equals("xlsx") ? new XSSFWorkbook(input.getRight()) : new HSSFWorkbook(input.getRight());
+        final Workbook wb = input.extensionEquals("xlsx") ? new XSSFWorkbook(input) : new HSSFWorkbook(input);
         PipedInputStream returnStream = new PipedInputStream();
         final OutputStream outputStream = new PipedOutputStream(returnStream);
         new Thread(new Runnable() {
@@ -265,11 +301,11 @@ public abstract class DataProvider {
                 }
             }
         }).start();
-        return new NamedInputStream("csv", returnStream);
+        return new NamedInputStream(returnStream, null, "csv");
     }
     private NamedInputStream convertOdfSpreadsheet(NamedInputStream input) throws IOException {
         try {
-            final SpreadsheetDocument document = SpreadsheetDocument.loadDocument(input.getRight());
+            final SpreadsheetDocument document = SpreadsheetDocument.loadDocument(input);
             PipedInputStream returnStream = new PipedInputStream();
             final OutputStream outputStream = new PipedOutputStream(returnStream);
             new Thread(new Runnable() {
@@ -302,7 +338,7 @@ public abstract class DataProvider {
                     }
                 }
             }).start();
-            return new NamedInputStream("csv", returnStream);
+            return new NamedInputStream(returnStream, null, "csv");
         } catch (Exception e) {
             e.printStackTrace();
         }

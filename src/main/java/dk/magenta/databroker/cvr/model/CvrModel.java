@@ -94,6 +94,9 @@ public class CvrModel {
 
         if (companyVersionEntity != null) {
             companyVersionEntity.setName(name);
+            if (name.length() > 200) {
+                System.out.println(name);
+            }
             companyVersionEntity.setForm(form);
             companyVersionEntity.setPrimaryIndustry(primaryIndustry);
             for (IndustryEntity industryEntity : secondaryIndustries) {

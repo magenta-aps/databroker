@@ -41,7 +41,7 @@ public abstract class Util {
 
     public static String normalizeString(String str) {
         if (str != null && !str.isEmpty()) {
-            return Normalizer.normalize(str.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}|[\\.']", "").trim();
+            return Normalizer.normalize(str.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}|[\\.']|\\s", "").trim();
         }
         return str;
     }

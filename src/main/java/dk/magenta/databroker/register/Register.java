@@ -10,6 +10,7 @@ import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.core.model.oio.RegistreringRepository;
 import dk.magenta.databroker.register.records.Record;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.input.CountingInputStream;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -143,42 +144,13 @@ public abstract class Register extends DataProvider {
                 System.out.println("Loading data from " + this.getRecordResource().toString());
                 input = this.readResource(this.getRecordResource());
             }
-
             if (input != null) {
-                if (!fromCache) {
-                    cacheFile = this.getCacheFile(true);
-                    // Write data to cache
-                    if (cacheFile != null && cacheFile.canWrite() && cacheFile.canRead()) {
-                        System.out.println("Storing data in cache "+cacheFile.getAbsolutePath());
-                        Files.copy(input, cacheFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                        input.close();
-                        checksum = DigestUtils.md5Hex(Files.newInputStream(cacheFile.toPath()));
-                        input = Files.newInputStream(cacheFile.toPath());
-                    }
-                }
-
-                if (cacheFile.canRead() && this.isZipStream(input)) {
-                    input = Files.newInputStream(cacheFile.toPath());
-                    NamedInputStream nInput = this.unzip(new NamedInputStream("dummy.zip", input));
-                    if (nInput != null) {
-                        input = nInput.getRight();
-                    } else {
-                        input = Files.newInputStream(cacheFile.toPath());
-                    }
-                }
-
-                boolean checksumMatch = compareChecksum(checksum);
-
-                if (forceParse || checksum == null || !checksumMatch) {
-                    System.out.println("Checksum mismatch; parsing new data into database");
-                    this.importData(input, dataProviderEntity);
-                } else {
-                    System.out.println("Checksum match; no need to update database");
-                }
-
+                // Now that we have an input stream, process it
+                this.handleInput(input, dataProviderEntity, fromCache, forceParse);
             } else {
                 System.out.println("No input data");
             }
+
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -187,6 +159,21 @@ public abstract class Register extends DataProvider {
         System.out.println(this.getClass().getSimpleName() + " done!");
         System.gc();
     }
+
+
+    public void handlePush(boolean forceParse, DataProviderEntity dataProviderEntity, InputStream input) {
+        this.clearRegistreringEntities();
+        System.out.println("-----------------------------");
+        System.out.println(this.getClass().getSimpleName() + " receiving push...");
+        if (input != null) {
+            this.handleInput(input, dataProviderEntity, false, forceParse);
+        } else {
+            System.out.println("No input data");
+        }
+        System.out.println(this.getClass().getSimpleName() + " done!");
+        System.gc();
+    }
+
 
     protected void importData(InputStream input, DataProviderEntity dataProviderEntity) {
         RegisterRun run = this.parse(input);
@@ -216,68 +203,102 @@ public abstract class Register extends DataProvider {
     }
 
 
-    public void handlePush(boolean forceParse, DataProviderEntity dataProviderEntity, InputStream input) {
-        this.clearRegistreringEntities();
-        System.out.println("-----------------------------");
-        System.out.println(this.getClass().getSimpleName() + " receiving push...");
-        try {
-            String checksum = null;
+    private NamedInputStream readCache(File cacheFile) throws IOException {
+        NamedInputStream input = new NamedInputStream(Files.newInputStream(cacheFile.toPath()), cacheFile.getName());
+        input.setKnownSize(cacheFile.length());
+        return input;
+    }
 
+    private void handleInput(InputStream input, DataProviderEntity dataProviderEntity, boolean alreadyCached, boolean forceParse) {
+        if (input != null) {
+            // If cachefile doesn't exist, create it
+            File cacheFile = null;
+            String checksum;
+            NamedInputStream data;
+            try {
+                cacheFile = this.getCacheFile(true);
 
-
-            if (input != null) {
-                File cacheFile = this.getCacheFile(true);
                 if (cacheFile != null) {
-                    if (cacheFile.canWrite() && cacheFile.canRead()) {
-                        Files.copy(input, cacheFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                        input.close();
-                        checksum = DigestUtils.md5Hex(Files.newInputStream(cacheFile.toPath()));
-                        input = Files.newInputStream(cacheFile.toPath());
-                    } else {
-                        System.err.println("Fatal: Unable to access cache file '"+cacheFile.getAbsolutePath()+"' for reading or writing");
-                    }
-                }
 
-                if (input != null) {
-                    if (this.isZipStream(input)) {
-                        input = Files.newInputStream(cacheFile.toPath());
-                        NamedInputStream nInput = this.unzip(new NamedInputStream("dummy.zip", input));
-                        if (nInput != null) {
-                            input = nInput.getRight();
+                    if (!alreadyCached) {
+                        // Pipe our data into the file
+                        if (cacheFile.canWrite() && cacheFile.canRead()) {
+                            Files.copy(input, cacheFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                            input.close();
                         } else {
-                            input = Files.newInputStream(cacheFile.toPath());
+                            System.err.println("Fatal: Unable to access cache file '" + cacheFile.getAbsolutePath() + "' for reading or writing");
+                            return;
+                        }
+                    }
+
+                    checksum = DigestUtils.md5Hex(Files.newInputStream(cacheFile.toPath()));
+                    data = this.readCache(cacheFile);
+
+                    // Determining whether it's a zip stream, or in general just reading from the stream
+                    // ruins it for further reading, so each time we need to reload it from the cache
+
+                    if (this.isZipStream(data)) {
+                        data.close();
+                        // Re-read from cache
+                        data = this.readCache(cacheFile);
+                        // We have a zipped file, get the contained data
+                        data = this.unzip(data);
+                        if (data == null) {
+                            data = this.readCache(cacheFile);
                         }
                     } else {
-                        input = Files.newInputStream(cacheFile.toPath());
+                        data.close();
+                        data = this.readCache(cacheFile);
                     }
-                }
 
-                boolean checksumMatch = compareChecksum(checksum);
+                    final long dataSize = data.getKnownSize();
+                    System.out.println("Data size: "+dataSize);
 
-                if (forceParse || checksum == null || !checksumMatch) {
-                    if (forceParse) {
-                        System.out.println("Parse forced; parsing new data into database");
+                    boolean checksumMatch = compareChecksum(checksum);
+
+                    if (forceParse || checksum == null || !checksumMatch) {
+                        if (forceParse) {
+                            System.out.println("Parse forced; parsing new data into database");
+                        } else {
+                            System.out.println("Checksum mismatch; parsing new data into database");
+                        }
+                        final CountingInputStream countingInputStream = new CountingInputStream(data);
+                        Thread t = new Thread(){
+                            public void run() {
+                                try {
+                                    while (countingInputStream.available() > 0) {
+                                        long bytesRead = countingInputStream.getByteCount();
+                                        System.err.println("Processed "+bytesRead+" bytes ("+ String.format("%.2f", 100.0 * (double)bytesRead / (double) dataSize)+"%)");
+                                        try {
+                                            Thread.sleep(10000L);
+                                        } catch (InterruptedException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        };
+                        t.start();
+
+                        this.importData(countingInputStream, dataProviderEntity);
+
+                        //this.importData(input, dataProviderEntity);
                     } else {
-                        System.out.println("Checksum mismatch; parsing new data into database");
+                        System.out.println("Checksum match; no need to update database");
                     }
-                    this.importData(input, dataProviderEntity);
-                } else {
-                    System.out.println("Checksum match; no need to update database");
                 }
-
-
-
-            } else {
-                System.out.println("No input data");
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
             }
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } else {
+            System.out.println("No input data");
         }
-        System.out.println(this.getClass().getSimpleName() + " done!");
-        System.gc();
     }
+
+
 
 
 

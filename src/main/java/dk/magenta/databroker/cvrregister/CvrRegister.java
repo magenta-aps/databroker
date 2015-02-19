@@ -7,6 +7,7 @@ import dk.magenta.databroker.core.model.oio.VirkningEntity;
 import dk.magenta.databroker.cvr.model.CvrModel;
 import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitEntity;
 import dk.magenta.databroker.dawa.model.DawaModel;
+import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseEntity;
 import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseVersionEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
@@ -208,6 +209,8 @@ public class CvrRegister extends Register {
             
             this.generateAddresses();
             this.bulkWireReferences();
+
+            System.out.println("There were "+misses+" misses");
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
         } catch (SAXException e) {
@@ -257,6 +260,9 @@ public class CvrRegister extends Register {
         }
         return descriptor;
     }
+
+
+    int misses = 0;
 
 
     @Override
@@ -329,6 +335,9 @@ public class CvrRegister extends Register {
                 }
 
 
+                long createTime = 0;
+                int searches = 0;
+
                 for (ProductionUnitRecord unit : cRun.getProductionUnits().getList()) {
                     long initTime = indepTic();
                     // Make sure the referenced industries are present in the DB
@@ -387,48 +396,63 @@ public class CvrRegister extends Register {
 
                     //System.out.println("initial moves done in "+toc(initTime));
 
-                    long vejTime = indepTic();
-                    VejstykkeEntity vej = this.dawaModel.getVejstykke(kommuneKode, vejKode);
-                    //System.out.println("vej found in "+toc(vejTime)+" ms");
+                    if (kommuneKode > 0 && vejKode > 0) {
 
-                    if (vej != null) {
+                        long vejTime = indepTic();
+                        VejstykkeEntity vej = this.dawaModel.getVejstykke(kommuneKode, vejKode);
+                        //System.out.println("vej found in "+toc(vejTime)+" ms");
 
-                        String cprNavn = Util.emptyIfNull(vej.getLatestVersion().getVejnavn());
-                        String cvrNavn = Util.emptyIfNull(vejNavn);
-                        if (!Util.compareNormalized(cprNavn,cvrNavn)) {
-                            System.err.println("Mismatch on "+kommuneKode+":"+vejKode+"; cpr names it "+Util.normalizeString(cprNavn)+" while cvr names it "+Util.normalizeString(cvrNavn));
-                        } else {
-                            String descriptor = this.addNeededAddress(kommuneKode, vejKode, husnr, etage, sidedoer);
-                            /*long adrTime = indepTic();
-                            adresse = this.dawaModel.getEnhedsAdresse(kommuneKode, vejKode, fullHusNr, etage, sidedoer);
-                            if (adresse == null) {
-                                //System.out.println("Searched for adresse for " + toc(adrTime) + " ms");
-                                long crAdr = indepTic();
-                                adresse = dawaModel.setAdresse(kommuneKode, vejKode, fullHusNr, null, etage, sidedoer, createRegistrering, updateRegistrering);
-                                //System.out.println("Adresse created in "+toc(crAdr)+" ms");
 
-                                if (dawaModel.getVejstykkeCache().get(kommuneKode, vejKode) == null) {
-                                    System.err.println("Purportedly named '" + unit.get("vejnavn") + "'");
+                        if (vej == null) {
+                            System.err.println("Vej " + kommuneKode + ":" + vejKode + " not found; cvr names it " + vejNavn);
+                            if (vejNavn != null && !vejNavn.isEmpty()) {
+                                SearchParameters searchParameters = new SearchParameters();
+                                searchParameters.put(SearchParameters.Key.KOMMUNE, kommuneKode);
+                                searchParameters.put(SearchParameters.Key.VEJ, vejNavn);
+                                searches++;
+                                Collection<VejstykkeEntity> candidates = this.dawaModel.getVejstykke(searchParameters, false);
+                                if (candidates.size() == 1) {
+                                    VejstykkeEntity candidate = candidates.iterator().next();
+                                    System.err.println("    Candidate: " + kommuneKode + ":" + candidate.getKode() + " = " + candidate.getLatestVersion().getVejnavn());
+                                    if (Math.abs(candidate.getKode() - vejKode) < 4) {
+                                        vejKode = candidate.getKode();
+                                        vej = candidate;
+                                        System.err.println("Using candidate " + kommuneKode + ":" + vejKode);
+                                    }
                                 }
-                            } else {
-                                //System.out.println("Adresse found in "+toc(adrTime)+" ms");
-                            }*/
-                            long unitTime = indepTic();
-                            CompanyUnitEntity companyUnitEntity = this.cvrModel.setCompanyUnit(pNummer, name, cvrNummer,
-                                    primaryIndustry, secondaryIndustries,
-                                    adresse, addressDate, phone, fax, email,
-                                    startDate, endDate,
-                                    advertProtection,
-                                    createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>()
-                            );
-                            companyUnitEntity.getLatestVersion().setAddressDescriptor(descriptor);
-                            //System.out.println("Unit created in "+toc(unitTime)+" ms");
-                            totalUnits++;
+                            }
                         }
-                    } else {
-                        System.err.println("Vej "+kommuneKode+":"+vejKode+" not found; cvr names it "+vejNavn);
+
+                        if (vej != null) {
+                            String cprNavn = Util.emptyIfNull(vej.getLatestVersion().getVejnavn());
+                            String cvrNavn = Util.emptyIfNull(vejNavn);
+                            if (!Util.compareNormalized(cprNavn, cvrNavn)) {
+                                System.err.println("Mismatch on " + kommuneKode + ":" + vejKode + "; cpr names it " + cprNavn + " while cvr names it " + cvrNavn);
+                                misses++;
+                            } else {
+                                String descriptor = this.addNeededAddress(kommuneKode, vejKode, husnr, etage, sidedoer);
+                                long unitTime = this.indepTic();
+                                CompanyUnitEntity companyUnitEntity = this.cvrModel.setCompanyUnit(pNummer, name, cvrNummer,
+                                        primaryIndustry, secondaryIndustries,
+                                        adresse, addressDate, phone, fax, email,
+                                        startDate, endDate,
+                                        advertProtection,
+                                        createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>()
+                                );
+                                companyUnitEntity.getLatestVersion().setAddressDescriptor(descriptor);
+                                createTime += toc(unitTime);
+                                totalUnits++;
+                            }
+                        } else {
+                            misses++;
+                        }
                     }
                 }
+
+                if (cRun.getProductionUnits().size() > 0) {
+                    System.out.println("Units created in avg " + ((double) createTime / (double) cRun.getProductionUnits().size()) + " ms");
+                }
+                System.out.println(searches+" searches run");
 
                 for (DeltagerRecord deltager : cRun.getDeltagere().getList()) {
                     long deltagerNummer = deltager.getLong("nummer");
@@ -519,12 +543,13 @@ public class CvrRegister extends Register {
         private boolean inVirksomhed = false;
         private boolean inProductionUnit = false;
         private boolean inDeltager = false;
-        private String textChunk = "";
+        private StringList textChunk = new StringList();
         private int depth = 0;
         private ListHash<String> parameters;
 
-
         private int recordCount = 0;
+
+
 
         public VirksomhedDataHandler(DataProviderEntity dataProviderEntity, int chunkSize) {
             this.dataProviderEntity = dataProviderEntity;
@@ -545,7 +570,6 @@ public class CvrRegister extends Register {
         private void onRecordSave(boolean force) {
             this.recordCount++;
             if (force || this.recordCount >= this.chunkSize) {
-                System.out.println("this.recordCount: "+this.recordCount);
                 CvrRegister.this.saveRunToDatabase(this.currentRun, this.dataProviderEntity);
                 this.currentRun.clear();
                 this.currentRun = new CvrRegisterRun();
@@ -593,7 +617,7 @@ public class CvrRegister extends Register {
             }
 
             this.tags.push(qName);
-            this.textChunk = "";
+            this.textChunk = new StringList();
         }
 
         @Override
@@ -632,10 +656,10 @@ public class CvrRegister extends Register {
                     path.append(a);
                 }
                 path.append(qName);
-                this.parameters.put(path.join("/"), this.textChunk.trim());
+                this.parameters.put(path.join("/"), this.textChunk.join().replaceAll("\\s\\s+", " ").trim());
                 this.depth--;
             }
-            this.textChunk = "";
+            this.textChunk = new StringList();
         }
 
         // To take specific actions for each chunk of character data (such as
@@ -643,7 +667,7 @@ public class CvrRegister extends Register {
         @Override
         public void characters(char ch[], int start, int length)
                 throws SAXException {
-            this.textChunk += new String(ch, start, length);
+            this.textChunk.append(new String(ch, start, length));
         }
 
     }

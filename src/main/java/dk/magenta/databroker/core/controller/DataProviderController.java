@@ -124,7 +124,9 @@ public class DataProviderController {
 
         if (uuid != null) { // We are editing an existing entity
             dataProviderEntity = this.dataProviderRegistry.getDataProviderEntity(uuid);
+            System.out.println("edit");
             if (processSubmit) {
+                System.out.println("Submitted");
                 boolean active = "active".equals(request.getParameter("active"));
                 String name = request.getParameter("name");
 
@@ -138,17 +140,14 @@ public class DataProviderController {
                     }
                 }
 
-                if (dataProvider.wantUpload(dataProviderEntity.getConfiguration()) && this.requestHasDataInFields(request, dataProvider.getUploadFields())) {
-                    Thread thread = dataProvider.asyncPush(dataProviderEntity, request, this.transactionManager);
-                    this.userThreads.put(uuid, thread);
-                    return this.processingEntity(request, uuid);
-                }
-                return this.redirectToIndex();
+                return processUpload(request, dataProviderEntity, dataProvider);
             }
             values.put("uuid", new String[]{uuid});
             action = "edit";
         } else {
+            System.out.println("new");
             if (processSubmit) {
+                System.out.println("Submitted");
                 // Processing a "new" submit, create a new DataProviderEntity
                 String providerType = request.getParameter("dataprovider");
                 values.put("dataprovider", new String[]{providerType});
@@ -158,13 +157,7 @@ public class DataProviderController {
                 if (active && dataProvider.wantCronUpdate(null, dataProviderEntity.getConfiguration())) {
                     this.updateCronScheduling(dataProviderEntity);
                 }
-                if (dataProvider.wantUpload(dataProviderEntity.getConfiguration()) && this.requestHasDataInFields(request, dataProvider.getUploadFields())) {
-                    uuid = dataProviderEntity.getUuid();
-                    Thread thread = dataProvider.asyncPush(dataProviderEntity, request, this.transactionManager);
-                    this.userThreads.put(uuid, thread);
-                    return this.processingEntity(request, uuid);
-                }
-                return this.redirectToIndex();
+                return processUpload(request, dataProviderEntity, dataProvider);
             }
             action = "new";
         }
@@ -186,6 +179,19 @@ public class DataProviderController {
 
         model.put("dataproviders", this.getDataProviderData());
         return new ModelAndView("dataproviders/edit", model);
+    }
+
+    private ModelAndView processUpload(HttpServletRequest request, DataProviderEntity dataProviderEntity, DataProvider dataProvider) {
+        String uuid = dataProviderEntity.getUuid();
+        if (dataProvider.wantUpload(dataProviderEntity.getConfiguration()) && this.requestHasDataInFields(request, dataProvider.getUploadFields())) {
+            System.out.println("processing upload");
+            Thread thread = dataProvider.asyncPush(dataProviderEntity, request, this.transactionManager);
+            this.userThreads.put(uuid, thread);
+            return this.processingEntity(request, uuid);
+        } else {
+            System.out.println("not processing upload ("+dataProvider.wantUpload(dataProviderEntity.getConfiguration())+" && "+this.requestHasDataInFields(request, dataProvider.getUploadFields())+")");
+        }
+        return this.redirectToIndex();
     }
 
     private boolean requestHasDataInFields(HttpServletRequest request, List<String> fields) {
