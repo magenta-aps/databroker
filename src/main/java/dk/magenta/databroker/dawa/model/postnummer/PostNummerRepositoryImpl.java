@@ -23,6 +23,7 @@ import java.util.Map;
 
 interface PostNummerRepositoryCustom {
     public Collection<PostNummerEntity> search(SearchParameters parameters, boolean printQuery);
+    public void clear();
 }
 
 public class PostNummerRepositoryImpl extends RepositoryImplementation<PostNummerEntity> implements PostNummerRepositoryCustom {

@@ -114,6 +114,27 @@ public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, Vejsty
 
     //----------------------------------------------------
 
+    @Column
+    @Index(name = "descriptorIndex")
+    private String descriptor;
+
+    public String getDescriptor() {
+        return descriptor;
+    }
+
+    public void setDescriptor(String descriptor) {
+        this.descriptor = descriptor;
+    }
+
+    public static String generateDescriptor(int kommuneKode, int vejKode) {
+        return kommuneKode+":"+vejKode;
+    }
+
+    public void generateDescriptor() {
+        this.setDescriptor(generateDescriptor(this.kommune.getKode(), this.kode));
+    }
+    //----------------------------------------------------
+
     @OneToMany(mappedBy = "vejstykke")
     private Collection<AdgangsAdresseEntity> adgangsAdresser;
 
@@ -178,6 +199,9 @@ public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, Vejsty
             return RepositoryUtil.whereField(parameters.get(Key.VEJ), databaseKey+".kode", databaseKey+".latestVersion.vejnavn");
         }
         return null;
+    }
+    public static Condition descriptorCondition(String descriptor) {
+        return RepositoryUtil.whereField(descriptor, null, databaseKey+".descriptor");
     }
     public static String joinKommune() {
         return databaseKey+".kommune as "+KommuneEntity.databaseKey;

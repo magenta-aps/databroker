@@ -22,6 +22,7 @@ import java.util.Map;
 
 interface LokalitetRepositoryCustom {
     public Collection<LokalitetEntity> search(SearchParameters parameters, boolean printQuery);
+    public void clear();
 }
 
 public class LokalitetRepositoryImpl extends RepositoryImplementation<LokalitetEntity> implements LokalitetRepositoryCustom {

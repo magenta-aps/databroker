@@ -2,6 +2,8 @@ package dk.magenta.databroker.dawa.model.enhedsadresser;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikVersion;
 import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseEntity;
+import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
+import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.util.Util;
 import org.hibernate.annotations.Index;
 
@@ -53,46 +55,4 @@ public class EnhedsAdresseVersionEntity
         this.objekttype = objekttype;
     }
 
-    //----------------------------------------------------
-
-    @Column
-    private String etage;
-
-    public String getEtage() {
-        return etage;
-    }
-
-    public void setEtage(String etage) {
-        this.etage = etage;
-    }
-
-    //----------------------------------------------------
-
-    @Column
-    private String doer;
-
-    public String getDoer() {
-        return doer;
-    }
-
-    public void setDoer(String doer) {
-        this.doer = doer;
-    }
-
-    //----------------------------------------------------
-
-    @Column
-    private String descriptor;
-
-    public String getDescriptor() {
-        return descriptor;
-    }
-
-    public void setDescriptor(String descriptor) {
-        this.descriptor = descriptor;
-    }
-
-    public static String generateDescriptor(int kommuneKode, int vejKode, String husNr, String etage, String doer) {
-        return kommuneKode+":"+vejKode+":"+Util.emptyIfNull(husNr)+":"+Util.emptyIfNull(etage)+":"+Util.emptyIfNull(doer);
-    }
 }

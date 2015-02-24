@@ -100,7 +100,54 @@ public class EnhedsAdresseEntity extends DobbeltHistorikBase<EnhedsAdresseEntity
         this.adgangsadresse = adgangsAdresse;
     }
 
+    //----------------------------------------------------
 
+    @Column
+    private String etage;
+
+    public String getEtage() {
+        return etage;
+    }
+
+    public void setEtage(String etage) {
+        this.etage = etage;
+    }
+
+    //----------------------------------------------------
+
+    @Column
+    private String doer;
+
+    public String getDoer() {
+        return doer;
+    }
+
+    public void setDoer(String doer) {
+        this.doer = doer;
+    }
+    //----------------------------------------------------
+
+    @Column
+    private String descriptor;
+
+    public String getDescriptor() {
+        return descriptor;
+    }
+
+    public void setDescriptor(String descriptor) {
+        this.descriptor = descriptor;
+    }
+
+    public static String generateDescriptor(int kommuneKode, int vejKode, String husNr, String etage, String doer) {
+        return kommuneKode+":"+vejKode+":"+Util.emptyIfNull(husNr)+":"+Util.emptyIfNull(etage)+":"+Util.emptyIfNull(doer);
+    }
+
+    public void generateDescriptor() {
+        AdgangsAdresseEntity adgangsAdresseEntity = this.getAdgangsadresse();
+        VejstykkeEntity vejstykkeEntity = adgangsAdresseEntity.getVejstykke();
+        KommuneEntity kommuneEntity = vejstykkeEntity.getKommune();
+        this.setDescriptor(generateDescriptor(kommuneEntity.getKode(), vejstykkeEntity.getKode(), adgangsAdresseEntity.getHusnr(), this.getEtage(), this.getDoer()));
+    }
 
     //------------------------------------------------------------------------------------------------------------------
 
@@ -110,8 +157,8 @@ public class EnhedsAdresseEntity extends DobbeltHistorikBase<EnhedsAdresseEntity
     public JSONObject toJSON() {
         JSONObject obj = super.toJSON();
         obj.put("id", this.getUuid());
-        obj.put("etage", this.latestVersion.getEtage());
-        obj.put("sidedoer", this.latestVersion.getDoer());
+        obj.put("etage", this.getEtage());
+        obj.put("sidedoer", this.getDoer());
         obj.put("href", SearchService.getEnhedsAdresseBaseUrl()+"/"+this.getUuid());
         return obj;
     }
@@ -157,6 +204,9 @@ public class EnhedsAdresseEntity extends DobbeltHistorikBase<EnhedsAdresseEntity
         }
         return null;
     }
+    public static Condition descriptorCondition(String descriptor) {
+        return RepositoryUtil.whereField(descriptor, null, databaseKey+".descriptor");
+    }
     public static String joinAdgangsAdresse() {
         return databaseKey+".adgangsadresse as " + AdgangsAdresseEntity.databaseKey;
     }
@@ -166,7 +216,7 @@ public class EnhedsAdresseEntity extends DobbeltHistorikBase<EnhedsAdresseEntity
         AdgangsAdresseEntity adgangsAdresseEntity = this.getAdgangsadresse();
         VejstykkeEntity vejstykkeEntity = adgangsAdresseEntity.getVejstykke();
         KommuneEntity kommuneEntity = vejstykkeEntity.getKommune();
-        return new String[] { ""+kommuneEntity.getKode(), ""+vejstykkeEntity.getKode(), adgangsAdresseEntity.getHusnr(), getFinalIdentifier(this.getLatestVersion().getEtage(), this.getLatestVersion().getDoer()) };
+        return new String[] { ""+kommuneEntity.getKode(), ""+vejstykkeEntity.getKode(), adgangsAdresseEntity.getHusnr(), getFinalIdentifier(this.getEtage(), this.getDoer()) };
     }
 
     public static String getFinalIdentifier(String etage, String doer) {

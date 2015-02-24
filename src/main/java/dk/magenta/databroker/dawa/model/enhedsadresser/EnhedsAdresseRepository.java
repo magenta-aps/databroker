@@ -17,4 +17,5 @@ public interface EnhedsAdresseRepository extends JpaRepository<EnhedsAdresseEnti
     * To be implemented in interface implementation
     * */
     public Collection<EnhedsAdresseEntity> search(SearchParameters parameters, boolean printQuery);
+    public void clear();
 }

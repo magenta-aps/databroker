@@ -11,6 +11,7 @@ import javax.persistence.Query;
 
 interface CompanyUnitRepositoryCustom {
     public void bulkWireReferences();
+    public void clear();
 }
 
 public class CompanyUnitRepositoryImpl implements CompanyUnitRepositoryCustom {
@@ -27,6 +28,15 @@ public class CompanyUnitRepositoryImpl implements CompanyUnitRepositoryCustom {
         this.entityManager.createNativeQuery("update cvr_companyunit unit join cvr_company company on unit.cvr_nummer=company.cvr_nummer set unit.company_id=company.id").executeUpdate();
         this.entityManager.createNativeQuery("update cvr_companyunit_version unit join dawa_enhedsadresse_version address on unit.address_descriptor=address.descriptor set unit.address=address.entity.id").executeUpdate();
         System.out.println("References updated");
+    }
+
+
+    public void clear() {
+        if (this.entityManager != null) {
+            System.out.println("clearing " + this.entityManager);
+            this.entityManager.flush();
+            this.entityManager.clear();
+        }
     }
 
 }

@@ -13,6 +13,7 @@ import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseVersionEntit
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.register.Register;
 import dk.magenta.databroker.register.RegisterRun;
+import dk.magenta.databroker.util.TimeRecorder;
 import dk.magenta.databroker.util.Util;
 import dk.magenta.databroker.util.objectcontainers.Level1Container;
 import dk.magenta.databroker.register.records.Record;
@@ -111,9 +112,9 @@ public class CvrRegister extends Register {
             this.obtain("fax", "telefax/kontaktoplysning");
             this.obtain("email", "email/kontaktoplysning");
 
-            if (this.get("kommunekode") == null || this.get("kommunekode").isEmpty()) {
+            /*if (this.get("kommunekode") == null || this.get("kommunekode").isEmpty()) {
                 System.err.println(productionunitHash);
-            }
+            }*/
         }
     }
 
@@ -190,7 +191,7 @@ public class CvrRegister extends Register {
         return new URL("https://cpr.dk/media/152096/vejregister_hele_landet_pr_150101.zip");
     }*/
     public Resource getRecordResource() {
-        return this.ctx.getResource("classpath:/data/cvrAll.zip");
+        return this.ctx.getResource("classpath:/data/cvrRegister.zip");
     }
 
     public void pull(boolean forceFetch, boolean forceParse, DataProviderEntity dataProviderEntity) {
@@ -202,15 +203,15 @@ public class CvrRegister extends Register {
     protected void importData(InputStream input, DataProviderEntity dataProviderEntity) {
         try {
             //this.dawaModel.preloadEnhedsadresseCache();
-            this.dawaModel.preloadVejstykkeCache();
+            //this.dawaModel.preloadVejstykkeCache();
             DefaultHandler handler = new VirksomhedDataHandler(dataProviderEntity, 50000);
             SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
             parser.parse(input, handler);
-            
+
+            System.out.println("There were "+misses+" misses");
             this.generateAddresses();
             this.bulkWireReferences();
 
-            System.out.println("There were "+misses+" misses");
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
         } catch (SAXException e) {
@@ -254,7 +255,7 @@ public class CvrRegister extends Register {
     private HashMap<String, Boolean> generatedAddresses = new HashMap<String, Boolean>();
 
     private synchronized String addNeededAddress(int kommuneKode, int vejKode, String husNr, String etage, String doer) {
-        String descriptor = EnhedsAdresseVersionEntity.generateDescriptor(kommuneKode, vejKode, husNr, etage, doer);
+        String descriptor = EnhedsAdresseEntity.generateDescriptor(kommuneKode, vejKode, husNr, etage, doer);
         if (!this.generatedAddresses.containsKey(descriptor)) {
             this.generatedAddresses.put(descriptor, false);
         }
@@ -332,6 +333,10 @@ public class CvrRegister extends Register {
                             startDate, endDate,
                             createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>());
                     totalCompanies++;
+
+                    if (totalCompanies % 10000 == 0) {
+                        this.cvrModel.flush();
+                    }
                 }
 
 
@@ -339,13 +344,14 @@ public class CvrRegister extends Register {
                 int searches = 0;
 
                 for (ProductionUnitRecord unit : cRun.getProductionUnits().getList()) {
+                    TimeRecorder time = new TimeRecorder();
                     long initTime = indepTic();
                     // Make sure the referenced industries are present in the DB
                     this.ensureIndustryInDatabase(unit.getInt("primaryIndustry"), unit.get("primaryIndustryText"));
                     this.ensureIndustryInDatabase(unit.getInt("secondaryIndustry1"), unit.get("secondaryIndustryText1"));
                     this.ensureIndustryInDatabase(unit.getInt("secondaryIndustry2"), unit.get("secondaryIndustryText2"));
                     this.ensureIndustryInDatabase(unit.getInt("secondaryIndustry3"), unit.get("secondaryIndustryText3"));
-
+                    time.record();
                     // Fetch basic fields
                     long pNummer = unit.getLong("pNummer");
                     String name = unit.get("name");
@@ -376,7 +382,7 @@ public class CvrRegister extends Register {
                     int i = 0;
                     for (Iterator<Integer> iIter = secondaryIndustriesList.iterator(); iIter.hasNext(); secondaryIndustries[i++] = iIter.next());
 
-
+                    time.record();
 
 
                     EnhedsAdresseEntity adresse = null;
@@ -397,11 +403,11 @@ public class CvrRegister extends Register {
                     //System.out.println("initial moves done in "+toc(initTime));
 
                     if (kommuneKode > 0 && vejKode > 0) {
-
+                        time.record();
                         long vejTime = indepTic();
-                        VejstykkeEntity vej = this.dawaModel.getVejstykke(kommuneKode, vejKode);
+                        VejstykkeEntity vej = this.dawaModel.getVejstykke(kommuneKode, vejKode, false);
                         //System.out.println("vej found in "+toc(vejTime)+" ms");
-
+                        time.record();
 
                         if (vej == null) {
                             System.err.println("Vej " + kommuneKode + ":" + vejKode + " not found; cvr names it " + vejNavn);
@@ -422,12 +428,13 @@ public class CvrRegister extends Register {
                                 }
                             }
                         }
-
+                        time.record();
                         if (vej != null) {
-                            String cprNavn = Util.emptyIfNull(vej.getLatestVersion().getVejnavn());
-                            String cvrNavn = Util.emptyIfNull(vejNavn);
+                            String cprNavn = this.normalizeVejnavn(vej.getLatestVersion().getVejnavn());
+                            String cvrNavn = this.normalizeVejnavn(vejNavn);
                             if (!Util.compareNormalized(cprNavn, cvrNavn)) {
                                 System.err.println("Mismatch on " + kommuneKode + ":" + vejKode + "; cpr names it " + cprNavn + " while cvr names it " + cvrNavn);
+
                                 misses++;
                             } else {
                                 String descriptor = this.addNeededAddress(kommuneKode, vejKode, husnr, etage, sidedoer);
@@ -442,10 +449,14 @@ public class CvrRegister extends Register {
                                 companyUnitEntity.getLatestVersion().setAddressDescriptor(descriptor);
                                 createTime += toc(unitTime);
                                 totalUnits++;
+                                if (totalUnits % 10000 == 0) {
+                                    this.cvrModel.flush();
+                                }
                             }
                         } else {
                             misses++;
                         }
+                        time.record();
                     }
                 }
 
@@ -465,6 +476,9 @@ public class CvrRegister extends Register {
                     String rolleName = deltager.get("rolle");
                     this.cvrModel.setDeltager(deltagerNummer, name, cvrNummer, ajourDate, gyldigDate, typeName, rolleName, createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>());
                     totalMembers++;
+                    if (totalMembers % 10000 == 0) {
+                        this.cvrModel.flush();
+                    }
                 }
 
 
@@ -497,7 +511,7 @@ public class CvrRegister extends Register {
         def.setName("CommandLineTransactionDefinition");
         def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
         TransactionStatus status = this.txManager.getTransaction(def);
-        System.out.println("Adding addresses");
+        System.out.println("Adding "+this.generatedAddresses.size()+" addresses");
         int i = 0;
         for (String descriptor : this.generatedAddresses.keySet()) {
             if (this.generatedAddresses.get(descriptor) == false) {
@@ -508,7 +522,8 @@ public class CvrRegister extends Register {
                     String husNr = parts[2];
                     String etage = parts[3];
                     String doer = parts[4];
-                    this.dawaModel.setAdresse(kommuneKode, vejKode, husNr, null, etage, doer, this.createRegistrering, this.updateRegistrering);
+                    this.dawaModel.setAdresse(kommuneKode, vejKode, husNr, null, etage, doer,
+                            this.createRegistrering, this.updateRegistrering, new ArrayList<VirkningEntity>(), true);
                     i++;
                     if (i % 10000 == 0) {
                         System.out.println(i);
@@ -519,6 +534,7 @@ public class CvrRegister extends Register {
         }
         System.out.println(i);
         this.txManager.commit(status);
+        this.dawaModel.bulkwireAdresser();
     }
 
     private Date parseDate(String date) {
@@ -530,6 +546,18 @@ public class CvrRegister extends Register {
             }
         }
         return null;
+    }
+
+    private String normalizeVejnavn(String vejnavn) {
+        if (vejnavn != null && !vejnavn.isEmpty()) {
+            vejnavn = vejnavn.toLowerCase().replaceAll("\\bv\\b|vejen\\b", "vej");
+            //vejnavn = vejnavn.replaceAll("[s|e]\\s", " ");
+            vejnavn = vejnavn.replaceAll("ö", "ø").replaceAll("aa", "å").replaceAll("é", "e");
+            vejnavn = vejnavn.replaceAll("\\s","");
+            return vejnavn;
+        } else {
+            return "";
+        }
     }
 
 

@@ -23,4 +23,5 @@ public interface PostNummerRepository extends JpaRepository<PostNummerEntity, Lo
     * To be implemented in interface implementation
     * */
     public Collection<PostNummerEntity> search(SearchParameters parameters, boolean printQuery);
+    public void clear();
 }

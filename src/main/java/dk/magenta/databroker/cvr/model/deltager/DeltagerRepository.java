@@ -14,5 +14,6 @@ public interface DeltagerRepository extends JpaRepository<DeltagerEntity, Long> 
     /*
     * To be implemented in interface implementation
     * */
+    public void clear();
 
 }

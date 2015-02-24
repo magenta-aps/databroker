@@ -16,6 +16,10 @@ public class ConditionList extends ArrayList<Condition> implements Condition {
 
     private Operator operator;
 
+    public ConditionList() {
+        this(Operator.AND);
+    }
+
     public ConditionList(Operator operator) {
         this.operator = operator;
     }

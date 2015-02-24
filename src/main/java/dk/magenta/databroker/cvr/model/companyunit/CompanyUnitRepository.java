@@ -16,4 +16,5 @@ public interface CompanyUnitRepository extends JpaRepository<CompanyUnitEntity, 
     * */
     //public Collection<CompanyEntity> search(SearchParameters parameters, boolean printQuery);
     public void bulkWireReferences();
+    public void clear();
 }

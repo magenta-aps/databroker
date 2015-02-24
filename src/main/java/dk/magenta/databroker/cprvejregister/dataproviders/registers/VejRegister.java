@@ -1,6 +1,7 @@
 package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
 import dk.magenta.databroker.core.DataProviderConfiguration;
+import dk.magenta.databroker.core.model.oio.VirkningEntity;
 import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.dawa.model.RawVej;
 import dk.magenta.databroker.register.RegisterRun;
@@ -492,6 +493,7 @@ public class VejRegister extends CprSubRegister {
     protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
         long time;
         VejRegisterRun vrun = (VejRegisterRun) run;
+        int count = 0;
 
         System.out.println("Preparatory linking");
         time = this.indepTic();
@@ -535,8 +537,10 @@ public class VejRegister extends CprSubRegister {
             );
             counter.printEntryProcessed();
         }
+        //this.model.flush();
         counter.printFinalEntriesProcessed();
         System.out.println("VejstykkeEntities stored in "+this.toc(time)+" ms");
+
 
 
         System.out.println("Storing AdresseEntities in database");
@@ -550,9 +554,9 @@ public class VejRegister extends CprSubRegister {
             );
             counter.printEntryProcessed();
         }
+        //this.model.flush();
         counter.printFinalEntriesProcessed();
         System.out.println("AdresseEntities stored in "+this.toc(time)+" ms");
-
 
 
         System.out.println("Storing LokalitetEntities in database");
@@ -593,9 +597,9 @@ public class VejRegister extends CprSubRegister {
             }
             counter.printEntryProcessed();
         }
+        //this.model.flush();
         counter.printFinalEntriesProcessed();
         System.out.println("LokalitetEntities stored in "+this.toc(time)+" ms");
-
     }
 
     private void recursiveSortRoads(AktivVej vej, ArrayList<AktivVej> list) {

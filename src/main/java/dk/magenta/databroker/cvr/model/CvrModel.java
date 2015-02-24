@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.persistence.EntityManagerFactory;
 import java.util.*;
 
 /**
@@ -37,6 +38,21 @@ import java.util.*;
 public class CvrModel {
 
     private boolean printProcessing = true;
+
+
+
+    @Autowired
+    private EntityManagerFactory entityManagerFactory;
+
+    public void flush() {
+        System.out.println("Flushing");
+
+        this.companyRepository.clear();
+        this.companyUnitRepository.clear();
+        this.deltagerRepository.clear();
+
+        this.entityManagerFactory.getCache().evictAll();
+    }
 
 
     //------------------------------------------------------------------------------------------------------------------
@@ -128,7 +144,9 @@ public class CvrModel {
     }
 
     public void flushCompanies() {
-        this.companyRepository.flushEntities();
+        this.companyRepository.clear();
+        this.companyUnitRepository.clear();
+        this.deltagerRepository.clear();
     }
 
     //--------------------------------------------------

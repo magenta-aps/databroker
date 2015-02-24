@@ -10,6 +10,7 @@ import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseEntity;
 import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.ConditionList;
+import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.util.objectcontainers.StringList;
 
 import java.util.Collection;
@@ -21,9 +22,22 @@ import java.util.Collection;
 
 interface EnhedsAdresseRepositoryCustom {
     public Collection<EnhedsAdresseEntity> search(SearchParameters parameters, boolean printQuery);
+    public void clear();
 }
 
 public class EnhedsAdresseRepositoryImpl extends RepositoryImplementation<EnhedsAdresseEntity> implements EnhedsAdresseRepositoryCustom {
+
+
+    public EnhedsAdresseEntity getByDescriptor(String descriptor) {
+        StringList hql = new StringList();
+        hql.append("select distinct "+EnhedsAdresseEntity.databaseKey+" from EnhedsAdresseEntity as "+EnhedsAdresseEntity.databaseKey);
+        ConditionList conditions = new ConditionList();
+        conditions.addCondition(EnhedsAdresseEntity.descriptorCondition(descriptor));
+        hql.append("where");
+        hql.append(conditions.getWhere());
+        Collection<EnhedsAdresseEntity> enhedsAdresseEntities = this.query(hql, conditions, new GlobalCondition(null,null,0,1), false);
+        return enhedsAdresseEntities.size() > 0 ? enhedsAdresseEntities.iterator().next() : null;
+    }
 
     @Override
     public Collection<EnhedsAdresseEntity> search(SearchParameters parameters, boolean printQuery) {

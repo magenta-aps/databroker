@@ -7,15 +7,11 @@ import dk.magenta.databroker.dawa.model.lokalitet.LokalitetEntity;
 import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
 import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
-import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.ConditionList;
+import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.util.objectcontainers.StringList;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import java.util.Collection;
-import java.util.Map;
 
 /**
  * Created by lars on 09-12-14.
@@ -23,16 +19,32 @@ import java.util.Map;
 
 interface AdgangsAdresseRepositoryCustom {
     public Collection<AdgangsAdresseEntity> search(SearchParameters parameters, boolean printQuery);
+    public void bulkWireReferences();
+    public void clear();
+    public AdgangsAdresseEntity getByDescriptor(String descriptor);
 }
 
 public class AdgangsAdresseRepositoryImpl extends RepositoryImplementation<AdgangsAdresseEntity> implements AdgangsAdresseRepositoryCustom {
+
+
+    public AdgangsAdresseEntity getByDescriptor(String descriptor) {
+        StringList hql = new StringList();
+        hql.append("select distinct "+AdgangsAdresseEntity.databaseKey+" from AdgangsAdresseEntity as "+AdgangsAdresseEntity.databaseKey);
+        ConditionList conditions = new ConditionList();
+        conditions.addCondition(AdgangsAdresseEntity.descriptorCondition(descriptor));
+        hql.append("where");
+        hql.append(conditions.getWhere());
+        Collection<AdgangsAdresseEntity> adgangsAdresseEntities = this.query(hql, conditions, new GlobalCondition(null,null,0,1), false);
+        return adgangsAdresseEntities.size() > 0 ? adgangsAdresseEntities.iterator().next() : null;
+    }
+
 
     @Override
     public Collection<AdgangsAdresseEntity> search(SearchParameters parameters, boolean printQuery) {
 
         StringList hql = new StringList();
         StringList join = new StringList();
-        ConditionList conditions = new ConditionList(ConditionList.Operator.AND);
+        ConditionList conditions = new ConditionList();
 
         hql.append("select distinct "+AdgangsAdresseEntity.databaseKey+" from AdgangsAdresseEntity as "+AdgangsAdresseEntity.databaseKey);
         join.setPrefix("join ");
@@ -84,5 +96,11 @@ public class AdgangsAdresseRepositoryImpl extends RepositoryImplementation<Adgan
         hql.append("order by "+AdgangsAdresseEntity.databaseKey+".husnr");
 
         return this.query(hql, conditions, parameters.getGlobalCondition(), printQuery);
+    }
+
+    public void bulkWireReferences() {
+        System.out.println("Updating references");
+        this.entityManager.createNativeQuery("update dawa_adgangsadresse adresse join dawa_vejstykke vej on adresse.vejstykke_descriptor=vej.descriptor set adresse.vejstykke_id=vej.id").executeUpdate();
+        System.out.println("References updated");
     }
 }

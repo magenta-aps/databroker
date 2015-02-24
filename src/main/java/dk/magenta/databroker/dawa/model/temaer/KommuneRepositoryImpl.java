@@ -23,6 +23,7 @@ import java.util.Map;
  */
 interface KommuneRepositoryCustom {
     public Collection<KommuneEntity> search(SearchParameters parameters, boolean printQuery);
+    public void clear();
 }
 
 public class KommuneRepositoryImpl extends RepositoryImplementation<KommuneEntity> implements KommuneRepositoryCustom {

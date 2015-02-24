@@ -23,7 +23,7 @@ import java.util.Map;
  */
 interface CompanyRepositoryCustom {
     public Collection<CompanyEntity> search(SearchParameters parameters, boolean printQuery);
-    public void flushEntities();
+    public void clear();
 }
 
 
@@ -111,9 +111,11 @@ public class CompanyRepositoryImpl implements CompanyRepositoryCustom {
         return q.getResultList();
     }
 
-    public void flushEntities() {
-        this.entityManager.flush();
-        this.entityManager.clear();
+    public void clear() {
+        if (this.entityManager != null) {
+            this.entityManager.flush();
+            this.entityManager.clear();
+        }
     }
 }
 

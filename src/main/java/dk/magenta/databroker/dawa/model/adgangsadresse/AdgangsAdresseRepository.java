@@ -38,8 +38,14 @@ public interface AdgangsAdresseRepository extends JpaRepository<AdgangsAdresseEn
             "and adgangsadresse.husnr = :husnr")
     public Collection<AdgangsAdresseEntity> getByKommunekodeAndVejkodeAndHusnr(@Param("kommunekode") int kommuneKode, @Param("vejkode") int vejKode, @Param("husnr") String husnr);
 
+
     /*
     * To be implemented in interface implementation
     * */
     public Collection<AdgangsAdresseEntity> search(SearchParameters parameters, boolean printQuery);
+    public AdgangsAdresseEntity getByDescriptor(String descriptor);
+
+    public void bulkWireReferences();
+    public void clear();
+
 }

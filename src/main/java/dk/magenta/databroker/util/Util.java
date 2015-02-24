@@ -48,4 +48,8 @@ public abstract class Util {
     public static boolean compareNormalized(String str1, String str2) {
         return compare(Util.normalizeString(str1), Util.normalizeString(str2));
     }
+
+    public static long getTime() {
+        return new Date().getTime();
+    }
 }

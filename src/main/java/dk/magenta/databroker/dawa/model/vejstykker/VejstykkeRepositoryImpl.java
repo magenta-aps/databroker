@@ -7,6 +7,7 @@ import dk.magenta.databroker.dawa.model.lokalitet.LokalitetEntity;
 import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
 import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.register.conditions.ConditionList;
+import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.util.objectcontainers.StringList;
 
 import java.util.Collection;
@@ -16,9 +17,24 @@ import java.util.Collection;
  */
 interface VejstykkeRepositoryCustom {
     public Collection<VejstykkeEntity> search(SearchParameters parameters, boolean quiet);
+    public VejstykkeEntity getByDescriptor(String descriptor);
+    public void clear();
 }
 
 public class VejstykkeRepositoryImpl extends RepositoryImplementation<VejstykkeEntity> implements VejstykkeRepositoryCustom {
+
+
+    public VejstykkeEntity getByDescriptor(String descriptor) {
+        StringList hql = new StringList();
+        hql.append("select distinct "+VejstykkeEntity.databaseKey+" from VejstykkeEntity as "+VejstykkeEntity.databaseKey);
+        ConditionList conditions = new ConditionList();
+        conditions.addCondition(VejstykkeEntity.descriptorCondition(descriptor));
+        hql.append("where");
+        hql.append(conditions.getWhere());
+        Collection<VejstykkeEntity> vejstykkeEntities = this.query(hql, conditions, new GlobalCondition(null,null,0,1), false);
+        return vejstykkeEntities.size() > 0 ? vejstykkeEntities.iterator().next() : null;
+    }
+
 
     @Override
     public Collection<VejstykkeEntity> search(SearchParameters parameters, boolean printQuery) {

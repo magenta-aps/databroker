@@ -11,6 +11,7 @@ import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.Condition;
+import dk.magenta.databroker.register.conditions.SingleCondition;
 import dk.magenta.databroker.service.rest.SearchService;
 import dk.magenta.databroker.util.Util;
 import dk.magenta.databroker.util.cache.Cacheable;
@@ -116,7 +117,7 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
 
     //----------------------------------------------------
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = true)
     private VejstykkeEntity vejstykke;
 
     public VejstykkeEntity getVejstykke() {
@@ -125,6 +126,19 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
 
     public void setVejstykke(VejstykkeEntity vejstykke) {
         this.vejstykke = vejstykke;
+    }
+
+    //----------------------------------------------------
+
+    @Column
+    private String vejstykkeDescriptor;
+
+    public String getVejstykkeDescriptor() {
+        return vejstykkeDescriptor;
+    }
+
+    public void setVejstykkeDescriptor(String vejstykkeDescriptor) {
+        this.vejstykkeDescriptor = vejstykkeDescriptor;
     }
 
     //----------------------------------------------------
@@ -147,6 +161,38 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
         } catch (NumberFormatException e) {
             return 0;
         }
+    }
+
+    //----------------------------------------------------
+
+    @Column
+    @Index(name="descriptorIndex")
+    private String descriptor;
+
+    public String getDescriptor() {
+        return descriptor;
+    }
+
+    public void setDescriptor(String descriptor) {
+        this.descriptor = descriptor;
+    }
+
+    public static String generateDescriptor(int kommuneKode, int vejKode, String husNr) {
+        return kommuneKode+":"+vejKode+":"+Util.emptyIfNull(husNr).toLowerCase();
+    }
+
+    public void generateDescriptor() {
+        VejstykkeEntity vejstykkeEntity = this.getVejstykke();
+        if (vejstykkeEntity != null) {
+            KommuneEntity kommuneEntity = vejstykkeEntity.getKommune();
+            this.setDescriptor(generateDescriptor(kommuneEntity.getKode(), vejstykkeEntity.getKode(), this.getHusnr()));
+        } else if (this.vejstykkeDescriptor != null) {
+            this.setDescriptor(this.vejstykkeDescriptor+":"+Util.emptyIfNull(this.getHusnr()).toLowerCase());
+        }
+    }
+
+    public static String getDescriptorKey() {
+        return "descriptor";
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -242,6 +288,9 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
             return RepositoryUtil.whereField(parameters.get(Key.HUSNR), null, databaseKey+".husnr");
         }
         return null;
+    }
+    public static Condition descriptorCondition(String descriptor) {
+        return RepositoryUtil.whereField(descriptor, null, databaseKey+".descriptor");
     }
     public static String joinVej() {
         return databaseKey+".vejstykke as "+VejstykkeEntity.databaseKey;

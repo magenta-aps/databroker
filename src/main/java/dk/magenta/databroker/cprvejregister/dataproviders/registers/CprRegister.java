@@ -48,7 +48,6 @@ public class CprRegister extends LineRegister {
             final DataProviderEntity dataProviderEntity = this.dataProviderEntity;
             final List<Pair<CprSubRegister, File>> input = this.input;
             final boolean deleteFiles = this.deleteFiles;
-
             this.transactionTemplate.execute(new TransactionCallback() {
                 // the code in this method executes in a transactional context
                 public Object doInTransaction(TransactionStatus status) {
@@ -87,7 +86,7 @@ public class CprRegister extends LineRegister {
         public CprPuller(DataProviderEntity dataProviderEntity, List<CprSubRegister> registers, PlatformTransactionManager transactionManager) {
             this.dataProviderEntity = dataProviderEntity;
             this.registers = registers;
-            this.transactionTemplate = new TransactionTemplate(transactionManager);;
+            this.transactionTemplate = new TransactionTemplate(transactionManager);
         }
 
         public void run() {

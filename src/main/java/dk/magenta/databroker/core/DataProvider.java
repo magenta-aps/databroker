@@ -51,10 +51,10 @@ public abstract class DataProvider {
         public void run() {
             final DataProviderEntity dataProviderEntity = this.dataProviderEntity;
             final HttpServletRequest request = this.request;
-
             this.transactionTemplate.execute(new TransactionCallback() {
                 // the code in this method executes in a transactional context
                 public Object doInTransaction(TransactionStatus status) {
+                    System.out.println("Running in transaction");
                     DataProvider.this.handlePush(dataProviderEntity, request);
                     return null;
                 }
@@ -113,12 +113,14 @@ public abstract class DataProvider {
     public abstract void pull(DataProviderEntity dataProviderEntity);
 
     public void handlePush(DataProviderEntity dataProviderEntity, HttpServletRequest request) {
+        System.err.println("aieee");
         throw new NotImplementedException();
     }
 
     public Thread asyncPush(DataProviderEntity dataProviderEntity, HttpServletRequest request, PlatformTransactionManager transactionManager) {
         Thread thread = new DataProviderPusher(dataProviderEntity, request, transactionManager);
         thread.start();
+        System.out.println("Push thread started");
         return thread;
     }
 

@@ -3,6 +3,8 @@ package dk.magenta.databroker.dawa.model;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.util.objectcontainers.StringList;
+import org.hibernate.Session;
+import org.hibernate.stat.Statistics;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -22,6 +24,15 @@ public abstract class RepositoryImplementation<T> {
     public void setEntityManager(EntityManager entityManager){
         this.entityManager = entityManager;
     }
+
+    public void clear() {
+        if (this.entityManager != null) {
+            //System.out.println("clearing " + this.entityManager);
+            this.entityManager.flush();
+            this.entityManager.clear();
+        }
+    }
+
 
     protected List<T> query(StringList hql, ConditionList conditions, GlobalCondition globalCondition) {
         return this.query(hql, conditions, globalCondition, false);

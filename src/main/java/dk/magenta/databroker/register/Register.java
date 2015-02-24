@@ -124,9 +124,6 @@ public abstract class Register extends DataProvider {
             if (!forceFetch) {
                 // See if we can obtain the data from cache
                 if (cacheFile != null && cacheFile.canRead()) {
-                    input = this.readFile(cacheFile);
-                    checksum = DigestUtils.md5Hex(input);
-                    input.close();
                     System.out.println("Loading data from cache file " + cacheFile.getAbsolutePath());
                     input = this.readFile(cacheFile);
                     fromCache = true;
@@ -216,20 +213,22 @@ public abstract class Register extends DataProvider {
             String checksum;
             NamedInputStream data;
             try {
-                cacheFile = this.getCacheFile(true);
+                if (alreadyCached) {
+                    cacheFile = this.getCacheFile(false);
+                } else {
+                    // Pipe our data into the file
+                    cacheFile = this.getCacheFile(true);
+                    if (cacheFile.canWrite() && cacheFile.canRead()) {
+                        System.out.println("Writing to cache "+cacheFile.getAbsolutePath());
+                        Files.copy(input, cacheFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                        input.close();
+                    } else {
+                        System.err.println("Fatal: Unable to access cache file '" + cacheFile.getAbsolutePath() + "' for reading or writing");
+                        return;
+                    }
+                }
 
                 if (cacheFile != null) {
-
-                    if (!alreadyCached) {
-                        // Pipe our data into the file
-                        if (cacheFile.canWrite() && cacheFile.canRead()) {
-                            Files.copy(input, cacheFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                            input.close();
-                        } else {
-                            System.err.println("Fatal: Unable to access cache file '" + cacheFile.getAbsolutePath() + "' for reading or writing");
-                            return;
-                        }
-                    }
 
                     checksum = DigestUtils.md5Hex(Files.newInputStream(cacheFile.toPath()));
                     data = this.readCache(cacheFile);
@@ -273,8 +272,10 @@ public abstract class Register extends DataProvider {
                                             Thread.sleep(10000L);
                                         } catch (InterruptedException e) {
                                             e.printStackTrace();
+                                            return;
                                         }
                                     }
+                                    System.err.println("Processed "+dataSize+" bytes (100%)");
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -288,6 +289,8 @@ public abstract class Register extends DataProvider {
                     } else {
                         System.out.println("Checksum match; no need to update database");
                     }
+                } else {
+                    System.err.println("No cache");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -312,7 +315,9 @@ public abstract class Register extends DataProvider {
                 input = uploadPart.getInputStream();
             }
         } catch (IOException e) {
+            e.printStackTrace();
         } catch (ServletException e) {
+            e.printStackTrace();
         }
         return input;
     }
@@ -321,9 +326,12 @@ public abstract class Register extends DataProvider {
     @Transactional
     @Override
     public void handlePush(DataProviderEntity dataProviderEntity, HttpServletRequest request) {
+        System.out.println("handlePush "+this);
         InputStream input = this.getUploadStream(request);
         if (input != null) {
             this.handlePush(true, dataProviderEntity, input);
+        } else {
+            System.out.println("No inputstream");
         }
     }
 
@@ -349,6 +357,7 @@ public abstract class Register extends DataProvider {
         }
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss");
         if (forceCreateNew) {
+            System.out.println("Creating new file");
             String filename = dateFormat.format(new Date()) + ".txt";
             File file = new File(dir, filename);
             file.createNewFile();
