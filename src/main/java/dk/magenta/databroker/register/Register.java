@@ -1,7 +1,5 @@
 package dk.magenta.databroker.register;
 
-import com.ibm.icu.text.CharsetDetector;
-import com.ibm.icu.text.CharsetMatch;
 import dk.magenta.databroker.core.DataProvider;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.core.model.DataProviderStorageEntity;
@@ -11,6 +9,7 @@ import dk.magenta.databroker.core.model.oio.RegistreringRepository;
 import dk.magenta.databroker.register.records.Record;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.input.CountingInputStream;
+import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +36,7 @@ public abstract class Register extends DataProvider {
 
 
     protected static final File cacheDir = new File("cache/");
+    private Logger log = Logger.getLogger(Register.class);
 
     @Autowired
     @SuppressWarnings("SpringJavaAutowiringInspection")
@@ -63,10 +63,6 @@ public abstract class Register extends DataProvider {
             }
             this.storageEntity = storageEntity;
         }
-    }
-
-    public URL getRecordUrl() throws MalformedURLException {
-        return null;
     }
 
     public Resource getRecordResource() {
@@ -125,20 +121,16 @@ public abstract class Register extends DataProvider {
                 // See if we can obtain the data from cache
                 if (cacheFile != null && cacheFile.canRead()) {
                     System.out.println("Loading data from cache file " + cacheFile.getAbsolutePath());
+                    log.info("Loading data from cache file " + cacheFile.getAbsolutePath());
                     input = this.readFile(cacheFile);
                     fromCache = true;
                 }
             }
 
-            // Try fetching from URL
-            if (input == null && this.getRecordUrl() != null) {
-                System.out.println("Loading data from " + this.getRecordUrl().toString());
-                input = this.readUrl(this.getRecordUrl());
-            }
-
             // Try fetching from local resource
             if (input == null && this.getRecordResource() != null) {
                 System.out.println("Loading data from " + this.getRecordResource().toString());
+                log.info("Loading data from " + this.getRecordResource().toString());
                 input = this.readResource(this.getRecordResource());
             }
             if (input != null) {
@@ -146,10 +138,9 @@ public abstract class Register extends DataProvider {
                 this.handleInput(input, dataProviderEntity, fromCache, forceParse);
             } else {
                 System.out.println("No input data");
+                log.warn("No input data found");
             }
 
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }

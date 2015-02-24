@@ -187,9 +187,6 @@ public class CvrRegister extends Register {
     @Autowired
     private ConfigurableApplicationContext ctx;
 
-    /*public URL getRecordUrl() throws MalformedURLException {
-        return new URL("https://cpr.dk/media/152096/vejregister_hele_landet_pr_150101.zip");
-    }*/
     public Resource getRecordResource() {
         return this.ctx.getResource("classpath:/data/cvrRegister.zip");
     }

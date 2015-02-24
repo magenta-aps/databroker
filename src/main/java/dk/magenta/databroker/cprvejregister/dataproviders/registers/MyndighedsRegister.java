@@ -133,9 +133,6 @@ public class MyndighedsRegister extends CprSubRegister {
     @Autowired
     private ConfigurableApplicationContext ctx;
 
-    /*public URL getRecordUrl() throws MalformedURLException {
-        return new URL("https://cpr.dk/media/219468/a370716.txt");
-    }*/
     @Override
     public Resource getRecordResource() {
         return this.ctx.getResource("classpath:/data/cprMyndighedsregister.zip");

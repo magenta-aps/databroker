@@ -100,9 +100,6 @@ public class PostnummerRegister extends CprSubRegister {
     private ConfigurableApplicationContext ctx;
 
     @Override
-    /*public URL getRecordUrl() throws MalformedURLException {
-        return new URL("https://cpr.dk/media/152114/a370712.txt");
-    }*/
     public Resource getRecordResource() {
         return this.ctx.getResource("classpath:/data/cprPostregister.zip");
     }

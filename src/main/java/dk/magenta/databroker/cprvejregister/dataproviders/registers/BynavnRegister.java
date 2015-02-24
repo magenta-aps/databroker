@@ -56,10 +56,6 @@ public class BynavnRegister extends CprSubRegister {
     @Autowired
     private ConfigurableApplicationContext ctx;
 
-
-    /*public URL getRecordUrl() throws MalformedURLException {
-        return new URL("https://cpr.dk/media/152120/a370713.txt");
-    }*/
     @Override
     public Resource getRecordResource() {
         return this.ctx.getResource("classpath:/data/cprBynavneregister.zip");
