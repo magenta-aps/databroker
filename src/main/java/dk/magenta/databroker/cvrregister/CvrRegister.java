@@ -1,7 +1,7 @@
 package dk.magenta.databroker.cvrregister;
 
 import dk.magenta.databroker.core.DataProviderConfiguration;
-import dk.magenta.databroker.core.model.oio.RegistreringEntity;
+import dk.magenta.databroker.core.RegistreringInfo;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.core.model.oio.VirkningEntity;
 import dk.magenta.databroker.cvr.model.CvrModel;
@@ -265,15 +265,12 @@ public class CvrRegister extends Register {
 
             this.cvrModel.resetIndustryCache(); // TODO: investigate how much really needs to be reset
 
-            RegistreringEntity createRegistrering = this.getCreateRegistrering(dataProviderEntity);
-            RegistreringEntity updateRegistrering = this.getUpdateRegistrering(dataProviderEntity);
+            RegistreringInfo registreringInfo = this.getRegistreringInfo(dataProviderEntity);
 
             DefaultTransactionDefinition def = new DefaultTransactionDefinition();
             def.setName("CommandLineTransactionDefinition");
             def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
             TransactionStatus status = this.txManager.getTransaction(def);
-
-
 
             CvrRegisterRun cRun = (CvrRegisterRun) run;
             //this.dawaModel.resetAllCaches();
@@ -340,7 +337,7 @@ public class CvrRegister extends Register {
                         this.cvrModel.setCompany(cvrNummer, name,
                                 primaryIndustry, secondaryIndustries, form,
                                 startDate, endDate,
-                                createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>());
+                                registreringInfo, new ArrayList<VirkningEntity>());
                         totalCompanies++;
 
                         if (totalCompanies % 10000 == 0) {
@@ -428,7 +425,7 @@ public class CvrRegister extends Register {
                                     searchParameters.put(SearchParameters.Key.KOMMUNE, kommuneKode);
                                     searchParameters.put(SearchParameters.Key.VEJ, vejNavn);
                                     searches++;
-                                    Collection<VejstykkeEntity> candidates = this.dawaModel.getVejstykke(searchParameters, false);
+                                    Collection<VejstykkeEntity> candidates = this.dawaModel.getVejstykke(searchParameters);
                                     if (candidates.size() == 1) {
                                         VejstykkeEntity candidate = candidates.iterator().next();
                                         if (Math.abs(candidate.getKode() - vejKode) < 4) {
@@ -536,7 +533,7 @@ public class CvrRegister extends Register {
                     String etage = parts[3];
                     String doer = parts[4];
                     this.dawaModel.setAdresse(kommuneKode, vejKode, husNr, null, etage, doer,
-                            this.createRegistrering, this.updateRegistrering, new ArrayList<VirkningEntity>(), bulkwire);
+                            registreringInfo, new ArrayList<VirkningEntity>(), bulkwire);
                 } catch (ArrayIndexOutOfBoundsException e) {
                 }
             }

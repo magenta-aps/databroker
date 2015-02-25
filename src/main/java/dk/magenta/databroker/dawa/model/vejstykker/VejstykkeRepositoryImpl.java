@@ -1,6 +1,6 @@
 package dk.magenta.databroker.dawa.model.vejstykker;
 
-import dk.magenta.databroker.dawa.model.RepositoryImplementation;
+import dk.magenta.databroker.core.model.RepositoryImplementation;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.dawa.model.lokalitet.LokalitetEntity;
@@ -16,13 +16,12 @@ import java.util.Collection;
  * Created by lars on 19-12-14.
  */
 interface VejstykkeRepositoryCustom {
-    public Collection<VejstykkeEntity> search(SearchParameters parameters, boolean quiet);
+    public Collection<VejstykkeEntity> search(SearchParameters parameters);
     public VejstykkeEntity getByDescriptor(String descriptor);
     public void clear();
 }
 
 public class VejstykkeRepositoryImpl extends RepositoryImplementation<VejstykkeEntity> implements VejstykkeRepositoryCustom {
-
 
     public VejstykkeEntity getByDescriptor(String descriptor) {
         StringList hql = new StringList();
@@ -31,13 +30,13 @@ public class VejstykkeRepositoryImpl extends RepositoryImplementation<VejstykkeE
         conditions.addCondition(VejstykkeEntity.descriptorCondition(descriptor));
         hql.append("where");
         hql.append(conditions.getWhere());
-        Collection<VejstykkeEntity> vejstykkeEntities = this.query(hql, conditions, new GlobalCondition(null,null,0,1), false);
+        Collection<VejstykkeEntity> vejstykkeEntities = this.query(hql, conditions, new GlobalCondition(null,null,0,1));
         return vejstykkeEntities.size() > 0 ? vejstykkeEntities.iterator().next() : null;
     }
 
 
     @Override
-    public Collection<VejstykkeEntity> search(SearchParameters parameters, boolean printQuery) {
+    public Collection<VejstykkeEntity> search(SearchParameters parameters) {
 
         StringList hql = new StringList();
         StringList join = new StringList();
@@ -73,7 +72,6 @@ public class VejstykkeRepositoryImpl extends RepositoryImplementation<VejstykkeE
         // our conditions list should now be complete
 
         if (conditions.hasRequiredJoin()) {
-            System.out.println("conditions.getRequiredJoin(): "+conditions.getRequiredJoin());
             join.append(conditions.getRequiredJoin());
         }
 
@@ -88,6 +86,6 @@ public class VejstykkeRepositoryImpl extends RepositoryImplementation<VejstykkeE
         }
         hql.append("order by "+VejstykkeEntity.databaseKey+".kode");
 
-        return this.query(hql, conditions, parameters.getGlobalCondition(), printQuery);
+        return this.query(hql, conditions, parameters.getGlobalCondition());
     }
 }

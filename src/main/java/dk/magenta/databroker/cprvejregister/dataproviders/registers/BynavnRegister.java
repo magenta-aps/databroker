@@ -133,7 +133,7 @@ public class BynavnRegister extends CprSubRegister {
                 HashSet<RawVej> veje = lokalitetData.get(kommuneKode, lokalitetsNavn);
                 this.model.setLokalitet(
                         kommuneKode, lokalitetsNavn, veje,
-                        this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
+                        this.getRegistreringInfo(dataProviderEntity)
                 );
             }
             counter.printEntryProcessed();

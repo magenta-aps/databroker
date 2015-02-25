@@ -39,7 +39,6 @@ public class CompanyUnitRepositoryImpl implements CompanyUnitRepositoryCustom {
         this.log.info("References updated in "+(Util.getTime() - time)+" ms");
     }
 
-
     public void clear() {
         if (this.entityManager != null) {
             this.entityManager.flush();

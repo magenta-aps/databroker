@@ -1,18 +1,16 @@
 package dk.magenta.databroker.dawa.model.enhedsadresser;
 
-import dk.magenta.databroker.dawa.model.RepositoryImplementation;
+import dk.magenta.databroker.core.model.RepositoryImplementation;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseEntity;
 import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
 import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
-import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseEntity;
 import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.util.objectcontainers.StringList;
-import org.apache.log4j.Logger;
 
 import java.util.Collection;
 
@@ -22,7 +20,7 @@ import java.util.Collection;
  */
 
 interface EnhedsAdresseRepositoryCustom {
-    public Collection<EnhedsAdresseEntity> search(SearchParameters parameters, boolean printQuery);
+    public Collection<EnhedsAdresseEntity> search(SearchParameters parameters);
     public void clear();
 }
 
@@ -35,12 +33,12 @@ public class EnhedsAdresseRepositoryImpl extends RepositoryImplementation<Enheds
         conditions.addCondition(EnhedsAdresseEntity.descriptorCondition(descriptor));
         hql.append("where");
         hql.append(conditions.getWhere());
-        Collection<EnhedsAdresseEntity> enhedsAdresseEntities = this.query(hql, conditions, new GlobalCondition(null,null,0,1), false);
+        Collection<EnhedsAdresseEntity> enhedsAdresseEntities = this.query(hql, conditions, new GlobalCondition(null,null,0,1));
         return enhedsAdresseEntities.size() > 0 ? enhedsAdresseEntities.iterator().next() : null;
     }
 
     @Override
-    public Collection<EnhedsAdresseEntity> search(SearchParameters parameters, boolean printQuery) {
+    public Collection<EnhedsAdresseEntity> search(SearchParameters parameters) {
 
         StringList hql = new StringList();
         StringList join = new StringList();
@@ -107,6 +105,6 @@ public class EnhedsAdresseRepositoryImpl extends RepositoryImplementation<Enheds
             hql.append(conditions.getWhere());
         }
 
-        return this.query(hql, conditions, parameters.getGlobalCondition(), printQuery);
+        return this.query(hql, conditions, parameters.getGlobalCondition());
     }
 }

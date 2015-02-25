@@ -1,6 +1,6 @@
 package dk.magenta.databroker.dawa.model.temaer;
 
-import dk.magenta.databroker.dawa.model.RepositoryImplementation;
+import dk.magenta.databroker.core.model.RepositoryImplementation;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.dawa.model.lokalitet.LokalitetEntity;
@@ -8,21 +8,16 @@ import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.register.conditions.Condition;
 import dk.magenta.databroker.register.conditions.ConditionList;
-import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.util.objectcontainers.Pair;
 import dk.magenta.databroker.util.objectcontainers.StringList;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import java.util.Collection;
-import java.util.Map;
 
 /**
  * Created by lars on 19-12-14.
  */
 interface KommuneRepositoryCustom {
-    public Collection<KommuneEntity> search(SearchParameters parameters, boolean printQuery);
+    public Collection<KommuneEntity> search(SearchParameters parameters);
     public void clear();
 }
 
@@ -32,7 +27,7 @@ public class KommuneRepositoryImpl extends RepositoryImplementation<KommuneEntit
     // subject to a global condition (e.g. only extract entries with a version newer than a certain date)
     @Override
     // String land, String[] kommune, String[] postnr, String[] lokalitet, String[] vej
-    public Collection<KommuneEntity> search(SearchParameters parameters, boolean printQuery) {
+    public Collection<KommuneEntity> search(SearchParameters parameters) {
         StringList hql = new StringList();
         StringList join = new StringList();
         ConditionList conditions = new ConditionList(ConditionList.Operator.AND);
@@ -80,6 +75,6 @@ public class KommuneRepositoryImpl extends RepositoryImplementation<KommuneEntit
         // Append order clause
         hql.append("order by "+KommuneEntity.databaseKey+".kode");
 
-        return this.query(hql, conditions, parameters.getGlobalCondition(), printQuery);
+        return this.query(hql, conditions, parameters.getGlobalCondition());
     }
 }

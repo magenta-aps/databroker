@@ -4,6 +4,7 @@ import dk.magenta.databroker.core.controller.DataProviderController;
 import dk.magenta.databroker.util.Util;
 import dk.magenta.databroker.util.objectcontainers.Pair;
 import org.apache.commons.io.input.CountingInputStream;
+import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.odftoolkit.simple.SpreadsheetDocument;
@@ -63,16 +64,6 @@ public abstract class DataProvider {
         @Override
         public void run() {
             final DataProviderEntity dataProviderEntity = this.dataProviderEntity;
-            final HttpServletRequest request = this.request;
-            try {
-                for (Part p : request.getParts()) {
-                    System.out.println("C "+p.getName()+": "+p.getSize()); // Parten findes her, men ikke senere
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (ServletException e) {
-                e.printStackTrace();
-            }
 
             this.transactionTemplate.execute(new TransactionCallback() {
                 // the code in this method executes in a transactional context
@@ -117,6 +108,8 @@ public abstract class DataProvider {
     @SuppressWarnings("SpringJavaAutowiringInspection")
     private DataProviderController dataProviderController;
 
+    private Logger log = Logger.getLogger(DataProvider.class);
+
     public DataProvider() {
         this.uuid = UUID.randomUUID().toString();
     }
@@ -143,19 +136,16 @@ public abstract class DataProvider {
     public abstract InputStream getUploadStream(HttpServletRequest request);
 
     public void handlePush(DataProviderEntity dataProviderEntity, HttpServletRequest request) {
-        System.err.println("aieee");
         throw new NotImplementedException();
     }
 
     public void handlePush(boolean forceParse, DataProviderEntity dataProviderEntity, InputStream input) {
-        System.err.println("aieee");
         throw new NotImplementedException();
     }
 
     public Thread asyncPush(DataProviderEntity dataProviderEntity, HttpServletRequest request, PlatformTransactionManager transactionManager) {
         Thread thread = new DataProviderPusher(dataProviderEntity, request, transactionManager);
         thread.start();
-        System.out.println("Push thread started");
         return thread;
     }
 
@@ -262,15 +252,15 @@ public abstract class DataProvider {
     }
     private NamedInputStream read(NamedInputStream input) throws IOException {
         if (input.extensionEquals("zip")) {
-            System.out.println("Passing data through ZIP filter");
+            this.log.info("Passing data through ZIP filter");
             input = this.unzip(input);
         }
         if (input != null && (input.extensionEquals("xls") || input.extensionEquals("xlsx"))) {
-            System.out.println("Passing data through XLS filter");
+            this.log.info("Passing data through XLS filter");
             input = this.convertExcelSpreadsheet(input);
         }
         if (input != null && input.extensionEquals("ods")) {
-            System.out.println("Passing data through ODS filter");
+            this.log.info("Passing data through ODS filter");
             input = this.convertOdfSpreadsheet(input);
         }
         return input;
@@ -284,8 +274,7 @@ public abstract class DataProvider {
         for (ZipEntry entry = zinput.getNextEntry(); entry != null; entry = zinput.getNextEntry()) {
             String extension = getExtension(entry.getName());
             if (extension != null && Util.inArray(acceptedExtensions, extension)) {
-                System.out.println("Unzipping entry "+entry.getName());
-                System.out.println("unzipped size: "+entry.getSize());
+                this.log.info("Unzipping entry " + entry.getName() + " (" + entry.getSize() + " bytes)");
                 NamedInputStream output = new NamedInputStream(zinput, entry.getName());
                 output.setKnownSize(entry.getSize());
                 return output;

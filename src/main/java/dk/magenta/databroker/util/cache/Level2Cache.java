@@ -27,11 +27,11 @@ public class Level2Cache<T extends Cacheable> extends Level2Container<T> {
     }
 
     public void reload(boolean wait) {
-        System.out.println("Loading cache from " + this.repository);
+        //System.out.println("Loading cache from " + this.repository);
         for (T item : this.repository.findAll()) {
             this.doPut(item);
         }
-        System.out.println("Cache loaded from " + this.repository);
+        //System.out.println("Cache loaded from " + this.repository);
         this.loaded = true;
     }
 

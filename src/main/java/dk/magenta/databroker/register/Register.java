@@ -1,6 +1,7 @@
 package dk.magenta.databroker.register;
 
 import dk.magenta.databroker.core.DataProvider;
+import dk.magenta.databroker.core.RegistreringInfo;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.core.model.DataProviderStorageEntity;
 import dk.magenta.databroker.core.model.DataProviderStorageRepository;
@@ -82,9 +83,12 @@ public abstract class Register extends DataProvider {
     protected RegistreringEntity createRegistrering;
     protected RegistreringEntity updateRegistrering;
 
+    protected RegistreringInfo registreringInfo;
+
     protected void clearRegistreringEntities() {
         createRegistrering = null;
         updateRegistrering = null;
+        this.registreringInfo = null;
     }
 
     protected RegistreringEntity getCreateRegistrering(DataProviderEntity entity) {
@@ -99,6 +103,16 @@ public abstract class Register extends DataProvider {
         }
         return this.updateRegistrering;
     }
+
+    protected RegistreringInfo getRegistreringInfo(DataProviderEntity entity) {
+        if (this.registreringInfo == null) {
+            this.registreringInfo = new RegistreringInfo(registreringRepository.createNew(entity), registreringRepository.createUpdate(entity));
+        }
+        return this.registreringInfo;
+    }
+
+
+
 
     protected abstract void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity);
 

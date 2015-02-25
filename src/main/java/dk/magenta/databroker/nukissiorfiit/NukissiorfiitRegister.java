@@ -1,6 +1,7 @@
 package dk.magenta.databroker.nukissiorfiit;
 
 import dk.magenta.databroker.core.DataProviderConfiguration;
+import dk.magenta.databroker.core.RegistreringInfo;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.dawa.model.SearchParameters;
@@ -152,11 +153,13 @@ public class NukissiorfiitRegister extends LineRegister {
     @Override
     protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
 
+        RegistreringInfo registreringInfo = this.getRegistreringInfo(dataProviderEntity);
+
         this.log.info("Preparatory linking");
         long time = this.indepTic();
         ModelUpdateCounter counter = new ModelUpdateCounter();
 
-        Collection<KommuneEntity> kommuner = this.model.getKommune(new SearchParameters(new String[]{"gl"}, null, null, null, null, null, null, null), false);
+        Collection<KommuneEntity> kommuner = this.model.getKommune(new SearchParameters(new String[]{"gl"}, null, null, null, null, null, null, null));
         Level2Container<VejstykkeEntity> vejMap = new Level2Container<VejstykkeEntity>();
         for (KommuneEntity kommuneEntity : kommuner) {
             Collection<VejstykkeEntity> veje = kommuneEntity.getVejstykkeVersioner();
@@ -214,7 +217,7 @@ public class NukissiorfiitRegister extends LineRegister {
                         doer = "";
                     }
                     this.model.setAdresse(kommuneKode, vejKode, husnr, bnr, etage, doer, //postnr,
-                            this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
+                            registreringInfo
                     );
                     successes.add(new Pair<String,String>(""+postnr, vejNavn));
                 }
@@ -282,10 +285,6 @@ public class NukissiorfiitRegister extends LineRegister {
     }
 
     private String normalize(String navn) {
-        return this.normalize(navn, false);
-    }
-
-    private String normalize(String navn, boolean print) {
         String a = navn;
         navn = navn.toLowerCase();
         navn = navn.replaceAll("[\":'\\*\\+]", "");
@@ -326,9 +325,6 @@ public class NukissiorfiitRegister extends LineRegister {
         navn = navn.trim();
 
         String e = navn;
-        if (print) {
-            System.out.println("\"" + a + "\" => \"" + b + "\" => \"" + c + "\" => \"" + d + "\" => \"" + e + "\"");
-        }
         return navn;
     }
 

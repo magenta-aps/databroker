@@ -1,4 +1,4 @@
-package dk.magenta.databroker.dawa.model;
+package dk.magenta.databroker.core.model;
 
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
@@ -34,12 +34,6 @@ public abstract class RepositoryImplementation<T> {
     protected Logger log = Logger.getLogger(this.getClass());
 
     protected List<T> query(StringList hql, ConditionList conditions, GlobalCondition globalCondition) {
-        return this.query(hql, conditions, globalCondition, false);
-    }
-    protected List<T> query(StringList hql, ConditionList conditions, GlobalCondition globalCondition, boolean printQuery) {
-        if (printQuery) {
-            System.out.println(hql.join(" \n"));
-        }
         this.log.trace(hql.join(" \n"));
         Query q = this.entityManager.createQuery(hql.join(" "));
 
@@ -56,9 +50,6 @@ public abstract class RepositoryImplementation<T> {
         // Put all conditions' parameters into the query
         Map<String, Object> queryParameters = conditions.getParameters();
         for (String key : queryParameters.keySet()) {
-            if (printQuery) {
-                System.out.println(key + " = " + queryParameters.get(key));
-            }
             this.log.trace(key + " = " + queryParameters.get(key));
             q.setParameter(key, queryParameters.get(key));
         }

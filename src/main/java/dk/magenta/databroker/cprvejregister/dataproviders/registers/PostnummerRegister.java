@@ -167,7 +167,7 @@ public class PostnummerRegister extends CprSubRegister {
 
                 model.setPostNummer(
                         nr, navn, veje,
-                        this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
+                        this.getRegistreringInfo(dataProviderEntity)
                 );
                 counter.printEntryProcessed();
             }

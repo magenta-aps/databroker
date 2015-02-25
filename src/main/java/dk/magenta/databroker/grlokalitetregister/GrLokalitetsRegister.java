@@ -1,6 +1,7 @@
 package dk.magenta.databroker.grlokalitetregister;
 
 import dk.magenta.databroker.core.DataProviderConfiguration;
+import dk.magenta.databroker.core.RegistreringInfo;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.dawa.model.RawVej;
@@ -107,6 +108,9 @@ public class GrLokalitetsRegister extends LineRegister {
     private DawaModel model;
 
      protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
+
+         RegistreringInfo registreringInfo = this.getRegistreringInfo(dataProviderEntity);
+
          this.log.info("Preparatory linking");
          long time = this.indepTic();
          ModelUpdateCounter counter = new ModelUpdateCounter();
@@ -145,14 +149,12 @@ public class GrLokalitetsRegister extends LineRegister {
          for (int kommuneKode : lokalitetData.intKeySet()) {
              for (String lokalitetsNavn : lokalitetData.get(kommuneKode).keySet()) {
                  HashSet<RawVej> veje = lokalitetData.get(kommuneKode, lokalitetsNavn);
-                 this.model.setLokalitet(kommuneKode, lokalitetsNavn, veje,
-                         this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
-                 );
+                 this.model.setLokalitet(kommuneKode, lokalitetsNavn, veje, registreringInfo);
                  counter.printEntryProcessed();
              }
          }
          counter.printFinalEntriesProcessed();
-         this.log.info("LokalitetEntities stored in "+this.toc(time)+" ms");
+         this.log.info("LokalitetEntities stored in " + this.toc(time) + " ms");
     }
 
     //------------------------------------------------------------------------------------------------------------------

@@ -1,5 +1,6 @@
 package dk.magenta.databroker.cvr.model;
 
+import dk.magenta.databroker.core.RegistreringInfo;
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.core.model.oio.VirkningEntity;
 import dk.magenta.databroker.cvr.model.company.CompanyEntity;
@@ -59,7 +60,7 @@ public class CvrModel {
     public CompanyEntity setCompany(String cvrKode, String name,
                                     int primaryIndustryCode, int[] secondaryIndustryCodes, int formCode,
                                     Date startDate, Date endDate,
-                                    RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering, List<VirkningEntity> virkninger) {
+                                    RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
 
         CompanyEntity companyEntity = this.getCompany(cvrKode);
 
@@ -89,10 +90,10 @@ public class CvrModel {
 
         if (companyVersionEntity == null) {
             this.log.trace("Creating initial CompanyVersionEntity");
-            companyVersionEntity = companyEntity.addVersion(createRegistrering, virkninger);
+            companyVersionEntity = companyEntity.addVersion(registreringInfo.getCreateRegistrering(), virkninger);
         } else if (!companyVersionEntity.matches(name, form, primaryIndustry, secondaryIndustries, startDate, endDate)) {
             this.log.trace("Creating updated CompanyVersionEntity");
-            companyVersionEntity = companyEntity.addVersion(updateRegistrering, virkninger);
+            companyVersionEntity = companyEntity.addVersion(registreringInfo.getUpdateRegisterering(), virkninger);
         } else {
             companyVersionEntity = null;
         }
@@ -117,12 +118,9 @@ public class CvrModel {
         return this.companyCache.get(cvrNummer);
         //return this.companyRepository.getByCvrNummer(cvrNummer);
     }
-    public Collection<CompanyEntity> getCompany(SearchParameters parameters) {
-        return this.getCompany(parameters, true);
-    }
 
-    public Collection<CompanyEntity> getCompany(SearchParameters parameters, boolean printQuery) {
-        return this.companyRepository.search(parameters, printQuery);
+    public Collection<CompanyEntity> getCompany(SearchParameters parameters) {
+        return this.companyRepository.search(parameters);
     }
 
     public void flushCompanies() {

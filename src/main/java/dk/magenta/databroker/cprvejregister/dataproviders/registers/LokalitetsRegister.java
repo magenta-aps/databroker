@@ -130,7 +130,7 @@ public class LokalitetsRegister extends CprSubRegister {
                 String etage = lokalitet.get("etage");
                 String sidedoer = lokalitet.get("sidedoer");
                 model.setAdresse(kommuneKode, vejKode, husnr, null, etage, sidedoer,
-                        this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
+                        this.getRegistreringInfo(dataProviderEntity)
                 );
                 counter.printEntryProcessed();
             }

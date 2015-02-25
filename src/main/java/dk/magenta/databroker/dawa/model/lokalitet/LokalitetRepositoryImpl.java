@@ -1,34 +1,29 @@
 package dk.magenta.databroker.dawa.model.lokalitet;
 
-import dk.magenta.databroker.dawa.model.RepositoryImplementation;
+import dk.magenta.databroker.core.model.RepositoryImplementation;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
 import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
-import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.util.objectcontainers.StringList;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import java.util.Collection;
-import java.util.Map;
 
 /**
  * Created by lars on 09-12-14.
  */
 
 interface LokalitetRepositoryCustom {
-    public Collection<LokalitetEntity> search(SearchParameters parameters, boolean printQuery);
+    public Collection<LokalitetEntity> search(SearchParameters parameters);
     public void clear();
 }
 
 public class LokalitetRepositoryImpl extends RepositoryImplementation<LokalitetEntity> implements LokalitetRepositoryCustom {
 
     @Override
-    public Collection<LokalitetEntity> search(SearchParameters parameters, boolean printQuery) {
+    public Collection<LokalitetEntity> search(SearchParameters parameters) {
 
         StringList hql = new StringList();
         StringList join = new StringList();
@@ -78,6 +73,6 @@ public class LokalitetRepositoryImpl extends RepositoryImplementation<LokalitetE
 
         hql.append("order by "+LokalitetEntity.databaseKey+".navn");
 
-        return this.query(hql, conditions, parameters.getGlobalCondition(), printQuery);
+        return this.query(hql, conditions, parameters.getGlobalCondition());
     }
 }

@@ -190,7 +190,7 @@ public class MyndighedsRegister extends CprSubRegister {
             if (this.acceptKommune(kommuneKode, kommuneNavn)) {
                 model.setKommune(
                         kommuneKode, kommuneNavn,
-                        this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
+                        this.getRegistreringInfo(dataProviderEntity)
                 );
             }
             counter.printEntryProcessed();

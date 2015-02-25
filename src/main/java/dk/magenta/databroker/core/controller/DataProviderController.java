@@ -120,17 +120,6 @@ public class DataProviderController {
     private ModelAndView edit(HttpServletRequest request) {
         this.logRequest(request);
 
-        try {
-            for (Part p : request.getParts()) {
-                System.out.println("A "+p.getName()+": "+p.getSize()); // Parten findes her, men ikke senere
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ServletException e) {
-            e.printStackTrace();
-        }
-
-
         Map<String, String[]> params = request.getParameterMap();
         String uuid = request.getParameter("uuid");
         String submit = request.getParameter("submit");

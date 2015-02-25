@@ -1,11 +1,10 @@
 package dk.magenta.databroker.dawa.model.postnummer;
 
-import dk.magenta.databroker.dawa.model.RepositoryImplementation;
+import dk.magenta.databroker.core.model.RepositoryImplementation;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
-import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.Condition;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.util.objectcontainers.Pair;
@@ -13,16 +12,14 @@ import dk.magenta.databroker.util.objectcontainers.StringList;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import java.util.Collection;
-import java.util.Map;
 
 /**
  * Created by lars on 09-12-14.
  */
 
 interface PostNummerRepositoryCustom {
-    public Collection<PostNummerEntity> search(SearchParameters parameters, boolean printQuery);
+    public Collection<PostNummerEntity> search(SearchParameters parameters);
     public void clear();
 }
 
@@ -36,7 +33,7 @@ public class PostNummerRepositoryImpl extends RepositoryImplementation<PostNumme
     }
 
     @Override
-    public Collection<PostNummerEntity> search(SearchParameters parameters, boolean printQuery) {
+    public Collection<PostNummerEntity> search(SearchParameters parameters) {
 
         StringList hql = new StringList();
         StringList join = new StringList();
@@ -82,6 +79,6 @@ public class PostNummerRepositoryImpl extends RepositoryImplementation<PostNumme
 
         hql.append("order by "+PostNummerEntity.databaseKey+".latestVersion.nr");
 
-        return this.query(hql, conditions, parameters.getGlobalCondition(), printQuery);
+        return this.query(hql, conditions, parameters.getGlobalCondition());
     }
 }

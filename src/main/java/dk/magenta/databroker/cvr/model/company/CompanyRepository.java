@@ -12,8 +12,6 @@ public interface CompanyRepository extends JpaRepository<CompanyEntity, Long> {
 
     public CompanyEntity getByUuid(String uuid);
     public CompanyEntity getByCvrNummer(String cvrNummer);
-
-    public Collection<CompanyEntity> search(SearchParameters parameters, boolean printQuery);
-
+    public Collection<CompanyEntity> search(SearchParameters parameters);
     public void clear();
 }

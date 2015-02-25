@@ -350,7 +350,7 @@ public class VejRegister extends CprSubRegister {
                 int vejKode = vej.getInt("vejKode");
                 int kommuneKode = vej.getInt("kommuneKode");
                 if (!aktiveVeje.put(kommuneKode, vejKode, vej, true)) {
-                    System.out.println("Collision on kommuneKode "+kommuneKode+", vejKode "+vejKode+" ("+aktiveVeje.get(kommuneKode, vejKode).get("vejNavn")+" vs "+vej.get("vejNavn")+")");
+                    VejRegister.this.log.warn("Collision on road " + kommuneKode + ":" + vejKode + " (present twice in input, named " + aktiveVeje.get(kommuneKode, vejKode).get("vejNavn") + " and " + vej.get("vejNavn") + ")");
                 }
                 super.add(vej);
             }
@@ -557,7 +557,7 @@ public class VejRegister extends CprSubRegister {
             this.model.setVejstykke(
                     vej.getInt("kommuneKode"), vej.getInt("vejKode"), vej.get("vejNavn"),
                     vej.get("vejAddresseringsnavn"),
-                    this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
+                    this.getRegistreringInfo(dataProviderEntity)
             );
             counter.printEntryProcessed();
         }
@@ -574,7 +574,7 @@ public class VejRegister extends CprSubRegister {
             this.model.setAdresse(
                     bolig.getInt("kommuneKode"), bolig.getInt("vejKode"), bolig.get("husNr"), null,
                     bolig.get("etage"), bolig.get("sidedoer"),
-                    this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
+                    this.getRegistreringInfo(dataProviderEntity)
             );
             counter.printEntryProcessed();
         }
@@ -592,7 +592,7 @@ public class VejRegister extends CprSubRegister {
                 HashSet<RawVej> veje = lokalitetData.get(kommuneKode, lokalitetsNavn);
                 this.model.setLokalitet(
                         kommuneKode, lokalitetsNavn, veje,
-                        this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
+                        this.getRegistreringInfo(dataProviderEntity)
                 );
             }
             counter.printEntryProcessed();

@@ -1,5 +1,6 @@
 package dk.magenta.databroker.cvr.model.company;
 
+import dk.magenta.databroker.core.model.RepositoryImplementation;
 import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitEntity;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
@@ -22,12 +23,12 @@ import java.util.Map;
  * Created by lars on 27-01-15.
  */
 interface CompanyRepositoryCustom {
-    public Collection<CompanyEntity> search(SearchParameters parameters, boolean printQuery);
+    public Collection<CompanyEntity> search(SearchParameters parameters);
     public void clear();
 }
 
 
-public class CompanyRepositoryImpl implements CompanyRepositoryCustom {
+public class CompanyRepositoryImpl extends RepositoryImplementation<CompanyEntity> implements CompanyRepositoryCustom {
 
     private EntityManager entityManager;
 
@@ -37,7 +38,7 @@ public class CompanyRepositoryImpl implements CompanyRepositoryCustom {
     }
 
     @Override
-    public Collection<CompanyEntity> search(SearchParameters parameters, boolean printQuery) {
+    public Collection<CompanyEntity> search(SearchParameters parameters) {
 
         StringList hql = new StringList();
         StringList join = new StringList();
@@ -76,10 +77,6 @@ public class CompanyRepositoryImpl implements CompanyRepositoryCustom {
             }
         }
 
-
-
-
-
         // our conditions list should now be complete
 
         if (conditions.hasRequiredJoin()) {
@@ -96,19 +93,7 @@ public class CompanyRepositoryImpl implements CompanyRepositoryCustom {
             hql.append(conditions.getWhere());
         }
 
-        if (printQuery) {
-            System.out.println(hql.join(" \n"));
-        }
-        Query q = this.entityManager.createQuery(hql.join(" "));
-        q.setMaxResults(1000);
-        Map<String, Object> queryParameters = conditions.getParameters();
-        for (String key : queryParameters.keySet()) {
-            if (printQuery) {
-                System.out.println(key + " = " + queryParameters.get(key));
-            }
-            q.setParameter(key, queryParameters.get(key));
-        }
-        return q.getResultList();
+        return this.query(hql, conditions, parameters.getGlobalCondition());
     }
 
     public void clear() {
