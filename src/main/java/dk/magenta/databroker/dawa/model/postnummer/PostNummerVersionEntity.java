@@ -100,4 +100,10 @@ public class PostNummerVersionEntity extends DobbeltHistorikVersion<PostNummerEn
             this.kommuner.remove(kommune);
         }
     }
+
+    //-----------------------------------------------------
+
+    public boolean matches(int nr, String navn) {
+        return this.getNr() == nr && this.getNavn() != null && this.getNavn().equals(navn);
+    }
 }

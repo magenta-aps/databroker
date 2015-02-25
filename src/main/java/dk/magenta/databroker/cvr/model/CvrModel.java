@@ -21,9 +21,9 @@ import dk.magenta.databroker.cvr.model.industry.IndustryEntity;
 import dk.magenta.databroker.cvr.model.industry.IndustryRepository;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseEntity;
-import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
 import dk.magenta.databroker.util.cache.Level1Cache;
 import dk.magenta.databroker.util.objectcontainers.Level1Container;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -37,23 +37,18 @@ import java.util.*;
 @Component
 public class CvrModel {
 
-    private boolean printProcessing = true;
-
-
-
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private EntityManagerFactory entityManagerFactory;
 
     public void flush() {
-        System.out.println("Flushing");
-
         this.companyRepository.clear();
         this.companyUnitRepository.clear();
         this.deltagerRepository.clear();
-
         this.entityManagerFactory.getCache().evictAll();
     }
 
+    private Logger log = Logger.getLogger(CvrModel.class);
 
     //------------------------------------------------------------------------------------------------------------------
 
@@ -76,9 +71,7 @@ public class CvrModel {
         }
 
         if (companyEntity == null) {
-            if (printProcessing) {
-                //System.out.println("    creating new CompanyEntity " + cvrKode);
-            }
+            this.log.trace("Creating new CompanyEntity " + cvrKode);
             companyEntity = new CompanyEntity();
             companyEntity.setCvrNummer(cvrKode);
             this.companyCache.put(companyEntity);
@@ -95,14 +88,10 @@ public class CvrModel {
         CompanyVersionEntity companyVersionEntity = companyEntity.getLatestVersion();
 
         if (companyVersionEntity == null) {
-            if (printProcessing) {
-                //System.out.println("    creating initial CompanyVersionEntity");
-            }
+            this.log.trace("Creating initial CompanyVersionEntity");
             companyVersionEntity = companyEntity.addVersion(createRegistrering, virkninger);
         } else if (!companyVersionEntity.matches(name, form, primaryIndustry, secondaryIndustries, startDate, endDate)) {
-            if (printProcessing) {
-                //System.out.println("    creating updated CompanyVersionEntity");
-            }
+            this.log.trace("Creating updated CompanyVersionEntity");
             companyVersionEntity = companyEntity.addVersion(updateRegistrering, virkninger);
         } else {
             companyVersionEntity = null;
@@ -110,9 +99,6 @@ public class CvrModel {
 
         if (companyVersionEntity != null) {
             companyVersionEntity.setName(name);
-            if (name.length() > 200) {
-                System.out.println(name);
-            }
             companyVersionEntity.setForm(form);
             companyVersionEntity.setPrimaryIndustry(primaryIndustry);
             for (IndustryEntity industryEntity : secondaryIndustries) {
@@ -123,10 +109,6 @@ public class CvrModel {
             companyVersionEntity.setEndDate(endDate);
 
             this.companyRepository.save(companyEntity);
-        } else {
-            if (printProcessing) {
-                //System.out.println("    no changes");
-            }
         }
         return companyEntity;
     }
@@ -175,10 +157,7 @@ public class CvrModel {
         CompanyUnitEntity companyUnitEntity = this.companyUnitCache.get(pNummer);
 
         if (companyUnitEntity == null) {
-            if (printProcessing) {
-                //System.out.println("    creating new CompanyUnitEntity " + pNummer);
-            }
-
+            this.log.trace("Creating new CompanyUnitEntity " + pNummer);
             companyUnitEntity = new CompanyUnitEntity();
             companyUnitEntity.setPNO(pNummer);
             //companyUnitEntity.setCompany(company);
@@ -204,14 +183,10 @@ public class CvrModel {
         CompanyUnitVersionEntity companyUnitVersionEntity = companyUnitEntity.getLatestVersion();
 
         if (companyUnitVersionEntity == null) {
-            if (printProcessing) {
-                //System.out.println("    creating initial CompanyUnitVersionEntity");
-            }
+            this.log.trace("Creating initial CompanyUnitVersionEntity");
             companyUnitVersionEntity = companyUnitEntity.addVersion(createRegistrering, virkninger);
         } else if (!companyUnitVersionEntity.matches(name, address, addressDate, primaryIndustry, secondaryIndustries, phone, fax, email, advertProtection, startDate, endDate)) {
-            if (printProcessing) {
-                //System.out.println("    creating updated CompanyUnitVersionEntity");
-            }
+            this.log.trace("Creating updated CompanyUnitVersionEntity");
             companyUnitVersionEntity = companyUnitEntity.addVersion(updateRegistrering, virkninger);
         } else {
             companyUnitVersionEntity = null;
@@ -233,10 +208,6 @@ public class CvrModel {
             companyUnitVersionEntity.setFax(fax);
             companyUnitVersionEntity.setEmail(email);
             this.companyUnitRepository.save(companyUnitEntity);
-        } else {
-            if (printProcessing) {
-                System.out.println("    no changes");
-            }
         }
 
         return companyUnitEntity;
@@ -292,9 +263,7 @@ public class CvrModel {
         DeltagerEntity deltagerEntity = this.getDeltager(deltagerNummer);
 
         if (deltagerEntity == null) {
-            if (printProcessing) {
-                //System.out.println("    creating new CompanyUnitEntity " + pNummer);
-            }
+            this.log.trace("Creating new DeltagerEntity " + deltagerNummer);
             deltagerEntity = new DeltagerEntity();
             deltagerEntity.setDeltagerNummer(deltagerNummer);
             deltagerEntity.setCvrNummer(cvrNummer);
@@ -306,19 +275,14 @@ public class CvrModel {
         DeltagerVersionEntity deltagerVersionEntity = deltagerEntity.getLatestVersion();
 
         if (deltagerVersionEntity == null) {
-            if (printProcessing) {
-                //System.out.println("    creating initial CompanyUnitVersionEntity");
-            }
+            this.log.trace("Creating initial DeltagerVersionEntity");
             deltagerVersionEntity = deltagerEntity.addVersion(createRegistrering, virkninger);
         } else if (!deltagerVersionEntity.matches(name, ajourDate, gyldigDate, typeEntity, rolleEntity)) {
-            if (printProcessing) {
-                //System.out.println("    creating updated CompanyUnitVersionEntity");
-            }
+            this.log.trace("Creating updated DeltagerVersionEntity");
             deltagerVersionEntity = deltagerEntity.addVersion(updateRegistrering, virkninger);
         } else {
             deltagerVersionEntity = null;
         }
-
 
         if (deltagerVersionEntity != null) {
             deltagerVersionEntity.setName(name);
@@ -328,10 +292,6 @@ public class CvrModel {
             deltagerVersionEntity.setRolle(rolleEntity);
             this.deltagerRepository.save(deltagerEntity);
             this.deltagerCache.put(deltagerEntity);
-        } else {
-            if (printProcessing) {
-                System.out.println("    no changes");
-            }
         }
 
         return deltagerEntity;

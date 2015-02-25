@@ -14,6 +14,7 @@ import dk.magenta.databroker.util.objectcontainers.Level2Container;
 import dk.magenta.databroker.util.objectcontainers.ModelUpdateCounter;
 import dk.magenta.databroker.util.objectcontainers.Pair;
 import dk.magenta.databroker.register.records.Record;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
@@ -34,10 +35,19 @@ import java.util.*;
 @Component
 public class NukissiorfiitRegister extends LineRegister {
 
-    private class NukissiorfiitRecord extends Record {
+    /*
+    * Constructors
+    * */
+
+     private class NukissiorfiitRecord extends Record {
     }
 
-    @Autowired
+
+    /*
+    * Data source spec
+    * */
+
+     @Autowired
     private ConfigurableApplicationContext ctx;
 
     @Override
@@ -51,9 +61,15 @@ public class NukissiorfiitRegister extends LineRegister {
     }
 
 
-    @Autowired
-    @SuppressWarnings("SpringJavaAutowiringInspection")
-    private DawaModel model;
+    /*
+    * Logging
+     */
+    private Logger log = Logger.getLogger(NukissiorfiitRegister.class);
+
+
+    /*
+    * Parse definition
+    * */
 
     protected Record parseTrimmedLine(String line) {
         String[] parts = line.split(",");
@@ -83,6 +99,14 @@ public class NukissiorfiitRegister extends LineRegister {
         super.pull(forceFetch, forceParse, dataProviderEntity);
     }
 
+
+    /*
+    * Database save
+    * */
+
+    @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
+    private DawaModel model;
 
     @Transactional
     @Override
@@ -128,7 +152,7 @@ public class NukissiorfiitRegister extends LineRegister {
     @Override
     protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
 
-        System.out.println("Preparatory linking");
+        this.log.info("Preparatory linking");
         long time = this.indepTic();
         ModelUpdateCounter counter = new ModelUpdateCounter();
 
@@ -145,10 +169,10 @@ public class NukissiorfiitRegister extends LineRegister {
             }
         }
         counter.printFinalEntriesProcessed();
-        System.out.println("Links created in " + this.toc(time) + " ms");
+        this.log.info("Links created in " + this.toc(time) + " ms");
 
 
-        System.out.println("Storing AdresseEntities in database");
+        this.log.info("Storing AdresseEntities in database");
         counter.reset();
         //this.model.resetAllCaches();
         HashSet<Pair<String,String>> failures = new HashSet<Pair<String, String>>();
@@ -199,7 +223,7 @@ public class NukissiorfiitRegister extends LineRegister {
         }
 
         counter.printFinalEntriesProcessed();
-        System.out.println("AdresseEntities stored in "+this.toc(time)+" ms");
+        this.log.info("AdresseEntities stored in " + this.toc(time) + " ms");
         /*
         for (Pair<String, String> success : successes) {
             System.out.println("Genkendt: " + success.getLeft() + " / " + success.getRight());
@@ -308,9 +332,9 @@ public class NukissiorfiitRegister extends LineRegister {
         return navn;
     }
 
+    //------------------------------------------------------------------------------------------------------------------
 
     @Override
-
     public String getTemplatePath() {
         return "NukissiorfiitRegisterForm";
     }

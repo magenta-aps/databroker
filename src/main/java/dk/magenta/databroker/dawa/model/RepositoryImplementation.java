@@ -3,8 +3,7 @@ package dk.magenta.databroker.dawa.model;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.util.objectcontainers.StringList;
-import org.hibernate.Session;
-import org.hibernate.stat.Statistics;
+import org.apache.log4j.Logger;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -27,12 +26,12 @@ public abstract class RepositoryImplementation<T> {
 
     public void clear() {
         if (this.entityManager != null) {
-            //System.out.println("clearing " + this.entityManager);
             this.entityManager.flush();
             this.entityManager.clear();
         }
     }
 
+    protected Logger log = Logger.getLogger(this.getClass());
 
     protected List<T> query(StringList hql, ConditionList conditions, GlobalCondition globalCondition) {
         return this.query(hql, conditions, globalCondition, false);
@@ -41,6 +40,7 @@ public abstract class RepositoryImplementation<T> {
         if (printQuery) {
             System.out.println(hql.join(" \n"));
         }
+        this.log.trace(hql.join(" \n"));
         Query q = this.entityManager.createQuery(hql.join(" "));
 
         int offset = 0;
@@ -59,6 +59,7 @@ public abstract class RepositoryImplementation<T> {
             if (printQuery) {
                 System.out.println(key + " = " + queryParameters.get(key));
             }
+            this.log.trace(key + " = " + queryParameters.get(key));
             q.setParameter(key, queryParameters.get(key));
         }
         // Run the query and return the results

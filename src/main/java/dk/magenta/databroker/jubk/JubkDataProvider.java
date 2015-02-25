@@ -5,6 +5,9 @@ import dk.magenta.databroker.core.DataProviderConfiguration;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.InputStream;
+
 /**
  * Created by jubk on 11/24/14.
  */
@@ -16,6 +19,11 @@ public class JubkDataProvider extends DataProvider {
     @Override
     public void pull(DataProviderEntity dataProviderEntity) {
         // Do nothing
+    }
+
+    @Override
+    public InputStream getUploadStream(HttpServletRequest request) {
+        return null;
     }
 
     public String getTemplatePath() {

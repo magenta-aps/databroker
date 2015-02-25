@@ -4,6 +4,7 @@ import dk.magenta.databroker.core.DataProvider;
 import dk.magenta.databroker.core.DataProviderConfiguration;
 import dk.magenta.databroker.core.DataProviderRegistry;
 import dk.magenta.databroker.core.model.DataProviderEntity;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
@@ -14,12 +15,11 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 
 /**
@@ -31,10 +31,12 @@ public class DataProviderController {
 
     private HashMap<String, Thread> userThreads;
     private HashMap<String, Thread> cronThreads;
+    private Logger log;
 
     public DataProviderController() {
         this.userThreads = new HashMap<String, Thread>();
         this.cronThreads = new HashMap<String, Thread>();
+        this.log = Logger.getLogger(DataProviderController.class);
     }
 
     /*@PostConstruct
@@ -52,8 +54,40 @@ public class DataProviderController {
     @SuppressWarnings("SpringJavaAutowiringInspection")
     private DataProviderRegistry dataProviderRegistry;
 
+
+    private void logRequest(HttpServletRequest request) {
+        this.log.trace(request.getMethod()+" "+request.getServletPath());
+        if (request.getMethod().equals("POST")) {
+            Enumeration<String> headerNames = request.getHeaderNames();
+            if (headerNames.hasMoreElements()) {
+                this.log.trace("Headers:");
+                while (headerNames.hasMoreElements()) {
+                    String headerName = headerNames.nextElement();
+                    Enumeration<String> headerValues = request.getHeaders(headerName);
+                    while (headerValues.hasMoreElements()) {
+                        this.log.trace(headerName + " = " + headerValues.nextElement());
+                    }
+                }
+            }
+            try {
+                Collection<Part> parts = request.getParts();
+                if (parts != null && parts.size() > 0) {
+                    this.log.trace("Parts: ");
+                    for (Part p : request.getParts()) {
+                        this.log.trace(p.getName() + ": " + p.getContentType() + ", "+ p.getSize()+" bytes"); // Parten findes her, men ikke senere
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ServletException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     @RequestMapping("/dataproviders/")
-    public ModelAndView index() {
+    public ModelAndView index(HttpServletRequest request) {
+        this.logRequest(request);
         Map<String, Object> model = new HashMap<String, Object>();
         model.put("dataproviderEntities", dataProviderRegistry.getDataProviderEntities());
         Map<String, HashMap<String, String>> providerInfo = new HashMap<String, HashMap<String, String>>();
@@ -67,6 +101,7 @@ public class DataProviderController {
     }
 
     private ModelAndView redirectToIndex() {
+        this.log.trace("Redirecting to index");
         return new ModelAndView(new RedirectView("/dataproviders/"));
     }
 
@@ -83,6 +118,18 @@ public class DataProviderController {
     }
 
     private ModelAndView edit(HttpServletRequest request) {
+        this.logRequest(request);
+
+        try {
+            for (Part p : request.getParts()) {
+                System.out.println("A "+p.getName()+": "+p.getSize()); // Parten findes her, men ikke senere
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ServletException e) {
+            e.printStackTrace();
+        }
+
 
         Map<String, String[]> params = request.getParameterMap();
         String uuid = request.getParameter("uuid");
@@ -124,9 +171,8 @@ public class DataProviderController {
 
         if (uuid != null) { // We are editing an existing entity
             dataProviderEntity = this.dataProviderRegistry.getDataProviderEntity(uuid);
-            System.out.println("edit");
             if (processSubmit) {
-                System.out.println("Submitted");
+                this.log.trace("Updating existing DataproviderEntity " + uuid + " (" + dataProviderEntity.getClass().getSimpleName() + ")");
                 boolean active = "active".equals(request.getParameter("active"));
                 String name = request.getParameter("name");
 
@@ -139,17 +185,15 @@ public class DataProviderController {
                         this.updateCronScheduling(dataProviderEntity);
                     }
                 }
-
                 return processUpload(request, dataProviderEntity, dataProvider);
             }
             values.put("uuid", new String[]{uuid});
             action = "edit";
         } else {
-            System.out.println("new");
             if (processSubmit) {
-                System.out.println("Submitted");
                 // Processing a "new" submit, create a new DataProviderEntity
                 String providerType = request.getParameter("dataprovider");
+                this.log.trace("Creating new DataproviderEntity ("+providerType+")");
                 values.put("dataprovider", new String[]{providerType});
                 boolean active = "active".equals(request.getParameter("active"));
                 dataProviderEntity = this.dataProviderRegistry.createDataProviderEntity(providerType, valueMap, active);
@@ -184,7 +228,19 @@ public class DataProviderController {
     private ModelAndView processUpload(HttpServletRequest request, DataProviderEntity dataProviderEntity, DataProvider dataProvider) {
         String uuid = dataProviderEntity.getUuid();
         if (dataProvider.wantUpload(dataProviderEntity.getConfiguration()) && this.requestHasDataInFields(request, dataProvider.getUploadFields())) {
-            System.out.println("processing upload");
+            System.out.println("Processing upload");
+
+            try {
+                for (Part p : request.getParts()) {
+                    System.out.println("B "+p.getName()+": "+p.getSize()); // Parten findes her, men ikke senere
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ServletException e) {
+                e.printStackTrace();
+            }
+
+
             Thread thread = dataProvider.asyncPush(dataProviderEntity, request, this.transactionManager);
             this.userThreads.put(uuid, thread);
             return this.processingEntity(request, uuid);
@@ -225,6 +281,7 @@ public class DataProviderController {
 
     @RequestMapping("/dataproviders/delete")
     public ModelAndView deleteEntity(HttpServletRequest request) {
+        this.logRequest(request);
         String uuid = request.getParameter("uuid");
         if (uuid != null) {
             DataProviderEntity dataProviderEntity = this.dataProviderRegistry.getDataProviderEntity(uuid);
@@ -232,6 +289,7 @@ public class DataProviderController {
                 String submit = request.getParameter("submit");
                 if (submit != null) {
                     if (submit.equals("ok")) {
+                        this.log.trace("Deleting DataproviderEntity "+dataProviderEntity.getUuid()+" ("+dataProviderEntity.getClass().getSimpleName()+")");
                         this.dataProviderRegistry.deleteDataProviderEntity(dataProviderEntity);
                     }
                     return this.redirectToIndex();
@@ -246,6 +304,7 @@ public class DataProviderController {
 
     @RequestMapping("/dataproviders/pull")
     public ModelAndView pullEntity(HttpServletRequest request) {
+        this.logRequest(request);
         // Do something
         String uuid = request.getParameter("uuid");
         String submit = request.getParameter("submit");
@@ -260,6 +319,7 @@ public class DataProviderController {
                 } else {
                     if (submit != null) {
                         if (submit.equals("ok")) {
+                            this.log.trace("Pulling DataproviderEntity "+dataProviderEntity.getUuid()+" ("+dataProviderEntity.getClass().getSimpleName()+")");
                             DataProvider dataProvider = dataProviderEntity.getDataProvider();
                             Thread thread = dataProvider.asyncPull(dataProviderEntity, this.transactionManager);
                             this.userThreads.put(uuid, thread);
@@ -282,6 +342,7 @@ public class DataProviderController {
 
     @RequestMapping("/dataproviders/processing")
     public ModelAndView processingEntity(HttpServletRequest request) {
+        this.logRequest(request);
         String uuid = request.getParameter("uuid");
         return this.processingEntity(request, uuid);
     }
@@ -299,6 +360,7 @@ public class DataProviderController {
 
     @RequestMapping("/dataproviders/processingStatus")
     public ModelAndView processStatus(HttpServletRequest request) {
+        this.logRequest(request);
         HashMap<String, Object> model = new HashMap<String, Object>();
         String uuid = request.getParameter("uuid");
         DataProviderEntity dataProviderEntity = this.dataProviderRegistry.getDataProviderEntity(uuid);
@@ -333,6 +395,7 @@ public class DataProviderController {
 
     @RequestMapping("/dataproviders/fragment")
     public ModelAndView fragment(HttpServletRequest request) {
+        this.logRequest(request);
         String fragment = request.getParameter("f");
         return new ModelAndView("dataproviders/fragments/" + fragment);
     }

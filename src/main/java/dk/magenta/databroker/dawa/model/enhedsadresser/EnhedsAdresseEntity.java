@@ -83,10 +83,6 @@ public class EnhedsAdresseEntity extends DobbeltHistorikBase<EnhedsAdresseEntity
         return new EnhedsAdresseVersionEntity(this);
     }
 
-
-
-
-
     //------------------------------------------------------------------------------------------------------------------
 
     @ManyToOne(optional = false)

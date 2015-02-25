@@ -97,7 +97,11 @@ public class MyndighedsRegister extends CprSubRegister {
             String myndighedsType = myndighed.get("myndighedsType");
             String myndighedsKode = myndighed.get("myndighedsKode");
             if (!this.myndigheder.put(myndighedsType, myndighedsKode, myndighed, true)) {
-                System.err.println("Collision on myndighedsType "+myndighedsType+", myndighedsKode "+myndighedsKode+" ("+myndigheder.get(myndighedsType, myndighedsKode).get("myndighedsNavn")+" vs "+myndighed.get("myndighedsNavn")+")");
+                String otherName = myndigheder.get(myndighedsType, myndighedsKode).get("myndighedsNavn");
+                String thisName = myndighed.get("myndighedsNavn");
+                if (!thisName.equals(otherName)) {
+                    MyndighedsRegister.this.log.warn("Collision on myndighedsType " + myndighedsType + ", myndighedsKode " + myndighedsKode + " (claimed by both '" + otherName + "' and '" + thisName + "')");
+                }
             }
             return super.add(myndighed);
         }
@@ -174,7 +178,7 @@ public class MyndighedsRegister extends CprSubRegister {
     private DawaModel model;
 
     protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
-        System.out.println("Storing KommuneEntities in database");
+        this.log.info("Storing KommuneEntities in database");
         long time = this.indepTic();
         ModelUpdateCounter counter = new ModelUpdateCounter();
         MyndighedsRegisterRun mrun = (MyndighedsRegisterRun) run;
@@ -192,7 +196,7 @@ public class MyndighedsRegister extends CprSubRegister {
             counter.printEntryProcessed();
         }
         counter.printFinalEntriesProcessed();
-        System.out.println("KommuneEntities stored in "+this.toc(time)+" ms");
+        this.log.info("KommuneEntities stored in " + this.toc(time) + " ms");
     }
 
     private boolean acceptKommune(int kode, String navn) {

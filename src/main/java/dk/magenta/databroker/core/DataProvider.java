@@ -22,9 +22,13 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.Part;
 import java.io.*;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -38,6 +42,7 @@ public abstract class DataProvider {
     private class DataProviderPusher extends Thread {
         private DataProviderEntity dataProviderEntity;
         private HttpServletRequest request;
+        private File uploadData;
 
         private TransactionTemplate transactionTemplate;
 
@@ -45,20 +50,43 @@ public abstract class DataProvider {
         public DataProviderPusher(DataProviderEntity dataProviderEntity, HttpServletRequest request, PlatformTransactionManager transactionManager) {
             this.dataProviderEntity = dataProviderEntity;
             this.request = request;
+            try {
+                this.uploadData = File.createTempFile(dataProviderEntity.getUuid(), "tmp");
+                this.uploadData.deleteOnExit();
+                InputStream data = DataProvider.this.getUploadStream(request);
+                Files.copy(data, this.uploadData.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             this.transactionTemplate = new TransactionTemplate(transactionManager);
         }
         @Override
         public void run() {
             final DataProviderEntity dataProviderEntity = this.dataProviderEntity;
             final HttpServletRequest request = this.request;
+            try {
+                for (Part p : request.getParts()) {
+                    System.out.println("C "+p.getName()+": "+p.getSize()); // Parten findes her, men ikke senere
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ServletException e) {
+                e.printStackTrace();
+            }
+
             this.transactionTemplate.execute(new TransactionCallback() {
                 // the code in this method executes in a transactional context
                 public Object doInTransaction(TransactionStatus status) {
                     System.out.println("Running in transaction");
-                    DataProvider.this.handlePush(dataProviderEntity, request);
+                    try {
+                        DataProvider.this.handlePush(true, dataProviderEntity, new FileInputStream(DataProviderPusher.this.uploadData));
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
                     return null;
                 }
             });
+            this.uploadData.delete();
         }
     }
 
@@ -112,7 +140,14 @@ public abstract class DataProvider {
 
     public abstract void pull(DataProviderEntity dataProviderEntity);
 
+    public abstract InputStream getUploadStream(HttpServletRequest request);
+
     public void handlePush(DataProviderEntity dataProviderEntity, HttpServletRequest request) {
+        System.err.println("aieee");
+        throw new NotImplementedException();
+    }
+
+    public void handlePush(boolean forceParse, DataProviderEntity dataProviderEntity, InputStream input) {
         System.err.println("aieee");
         throw new NotImplementedException();
     }

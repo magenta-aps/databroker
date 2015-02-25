@@ -49,7 +49,6 @@ public class Level4Cache<T extends Cacheable> extends Level4Container<T> {
     }
 
     public void reset() {
-        System.out.println("Clearing cache for "+this.repository);
         this.clear();
         this.loaded = false;
     }

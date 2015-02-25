@@ -9,7 +9,9 @@ import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
+import dk.magenta.databroker.util.Util;
 import dk.magenta.databroker.util.objectcontainers.StringList;
+import org.apache.log4j.Logger;
 
 import java.util.Collection;
 
@@ -25,7 +27,6 @@ interface AdgangsAdresseRepositoryCustom {
 }
 
 public class AdgangsAdresseRepositoryImpl extends RepositoryImplementation<AdgangsAdresseEntity> implements AdgangsAdresseRepositoryCustom {
-
 
     public AdgangsAdresseEntity getByDescriptor(String descriptor) {
         StringList hql = new StringList();
@@ -99,8 +100,9 @@ public class AdgangsAdresseRepositoryImpl extends RepositoryImplementation<Adgan
     }
 
     public void bulkWireReferences() {
-        System.out.println("Updating references");
+        System.out.println("Updating references between addresses and roads");
+        long time = Util.getTime();
         this.entityManager.createNativeQuery("update dawa_adgangsadresse adresse join dawa_vejstykke vej on adresse.vejstykke_descriptor=vej.descriptor set adresse.vejstykke_id=vej.id").executeUpdate();
-        System.out.println("References updated");
+        System.out.println("References updated in "+(Util.getTime()-time)+" ms");
     }
 }

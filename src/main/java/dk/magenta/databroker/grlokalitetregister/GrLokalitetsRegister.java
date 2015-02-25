@@ -9,6 +9,7 @@ import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.util.objectcontainers.Level2Container;
 import dk.magenta.databroker.register.records.Record;
 import dk.magenta.databroker.util.objectcontainers.ModelUpdateCounter;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
@@ -68,6 +69,12 @@ public class GrLokalitetsRegister extends LineRegister {
 
 
     /*
+    * Logging
+     */
+    private Logger log = Logger.getLogger(GrLokalitetsRegister.class);
+
+
+    /*
     * Parse definition
     * */
 
@@ -100,7 +107,7 @@ public class GrLokalitetsRegister extends LineRegister {
     private DawaModel model;
 
      protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
-         System.out.println("Preparatory linking");
+         this.log.info("Preparatory linking");
          long time = this.indepTic();
          ModelUpdateCounter counter = new ModelUpdateCounter();
          GrRegisterRun grun = (GrRegisterRun) run;
@@ -130,10 +137,10 @@ public class GrLokalitetsRegister extends LineRegister {
              counter.printEntryProcessed();
          }
          counter.printFinalEntriesProcessed();
-         System.out.println("Links created in "+this.toc(time)+" ms");
+         this.log.info("Links created in " + this.toc(time) + " ms");
 
 
-         System.out.println("Storing LokalitetEntities in database");
+         this.log.info("Storing LokalitetEntities in database");
          counter.reset();
          for (int kommuneKode : lokalitetData.intKeySet()) {
              for (String lokalitetsNavn : lokalitetData.get(kommuneKode).keySet()) {
@@ -145,7 +152,7 @@ public class GrLokalitetsRegister extends LineRegister {
              }
          }
          counter.printFinalEntriesProcessed();
-         System.out.println("LokalitetEntities stored in "+this.toc(time)+" ms");
+         this.log.info("LokalitetEntities stored in "+this.toc(time)+" ms");
     }
 
     //------------------------------------------------------------------------------------------------------------------

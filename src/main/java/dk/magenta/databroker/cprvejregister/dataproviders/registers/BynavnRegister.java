@@ -90,7 +90,7 @@ public class BynavnRegister extends CprSubRegister {
 
     protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
 
-        System.out.println("Preparatory linking");
+        this.log.info("Preparatory linking");
         long time = this.indepTic();
         ModelUpdateCounter counter = new ModelUpdateCounter();
 
@@ -123,9 +123,9 @@ public class BynavnRegister extends CprSubRegister {
             }
         }
         counter.printFinalEntriesProcessed();
-        System.out.println("Links created in " + this.toc(time) + " ms");
+        this.log.info("Links created in " + this.toc(time) + " ms");
 
-        System.out.println("Storing LokalitetEntities in database");
+        this.log.info("Storing LokalitetEntities in database");
         time = this.indepTic();
         counter.reset();
         for (int kommuneKode : lokalitetData.intKeySet()) {
@@ -139,7 +139,7 @@ public class BynavnRegister extends CprSubRegister {
             counter.printEntryProcessed();
         }
         counter.printFinalEntriesProcessed();
-        System.out.println("LokalitetEntities stored in "+this.toc(time)+" ms");
+        this.log.info("LokalitetEntities stored in "+this.toc(time)+" ms");
     }
 
     //------------------------------------------------------------------------------------------------------------------

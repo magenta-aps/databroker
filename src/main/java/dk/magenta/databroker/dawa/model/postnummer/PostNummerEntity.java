@@ -87,6 +87,7 @@ public class PostNummerEntity extends DobbeltHistorikBase<PostNummerEntity, Post
 
     //------------------------------------------------------------------------------------------------------------------
     /* Domain specific fields */
+
     @ManyToMany(mappedBy = "postnumre")
     private Collection<VejstykkeVersionEntity> vejstykkeVersioner;
 

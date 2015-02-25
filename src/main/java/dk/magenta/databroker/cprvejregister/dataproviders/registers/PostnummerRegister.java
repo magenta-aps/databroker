@@ -143,7 +143,7 @@ public class PostnummerRegister extends CprSubRegister {
     * */
 
     protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
-        System.out.println("Storing PostnummerEntities in database");
+        this.log.info("Storing PostnummerEntities in database");
         long time = this.indepTic();
         ModelUpdateCounter counter = new ModelUpdateCounter();
         PostnummerRegisterRun prun = (PostnummerRegisterRun) run;
@@ -173,7 +173,7 @@ public class PostnummerRegister extends CprSubRegister {
             }
         }
         counter.printFinalEntriesProcessed();
-        System.out.println("PostnummerEntities stored in " + this.toc(time) + " ms");
+        this.log.info("PostnummerEntities stored in " + this.toc(time) + " ms");
     }
 
     //------------------------------------------------------------------------------------------------------------------

@@ -3,6 +3,7 @@ package dk.magenta.databroker.dawa.model.vejstykker;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikVersion;
 import dk.magenta.databroker.dawa.model.lokalitet.LokalitetEntity;
 import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
+import dk.magenta.databroker.util.Util;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -122,5 +123,11 @@ public class VejstykkeVersionEntity extends DobbeltHistorikVersion<VejstykkeEnti
             this.vejnavn = otherVersion.getVejnavn();
             this.vejadresseringsnavn = otherVersion.getVejadresseringsnavn();
         }
+    }
+
+    //-----------------------------------------------------
+
+    public boolean matches(String vejnavn, String vejAddresseringsnavn) {
+        return Util.compare(this.vejnavn, vejnavn) && Util.compare(this.vejadresseringsnavn, vejAddresseringsnavn);
     }
 }

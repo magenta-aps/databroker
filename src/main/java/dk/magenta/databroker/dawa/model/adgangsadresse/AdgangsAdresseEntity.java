@@ -300,7 +300,6 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
     public String[] getIdentifiers() {
         VejstykkeEntity vejstykkeEntity = this.getVejstykke();
         KommuneEntity kommuneEntity = vejstykkeEntity.getKommune();
-
         return new String[] { ""+kommuneEntity.getKode(), ""+vejstykkeEntity.getKode(), this.getHusnr() };
     }
 }

@@ -12,6 +12,7 @@ import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.util.objectcontainers.StringList;
+import org.apache.log4j.Logger;
 
 import java.util.Collection;
 
@@ -26,7 +27,6 @@ interface EnhedsAdresseRepositoryCustom {
 }
 
 public class EnhedsAdresseRepositoryImpl extends RepositoryImplementation<EnhedsAdresseEntity> implements EnhedsAdresseRepositoryCustom {
-
 
     public EnhedsAdresseEntity getByDescriptor(String descriptor) {
         StringList hql = new StringList();

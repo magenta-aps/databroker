@@ -115,7 +115,7 @@ public class LokalitetsRegister extends CprSubRegister {
     private DawaModel model;
 
     protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
-        System.out.println("Storing LokalitetEntities in database");
+        this.log.info("Storing LokalitetEntities in database");
         long time = this.indepTic();
         ModelUpdateCounter counter = new ModelUpdateCounter();
         LokalitetRegisterRun lrun = (LokalitetRegisterRun) run;
@@ -136,8 +136,7 @@ public class LokalitetsRegister extends CprSubRegister {
             }
         }
         counter.printFinalEntriesProcessed();
-
-        System.out.println("LokalitetEntities stored in "+this.toc(time)+" ms");
+        this.log.info("LokalitetEntities stored in " + this.toc(time) + " ms");
     }
 
     //------------------------------------------------------------------------------------------------------------------

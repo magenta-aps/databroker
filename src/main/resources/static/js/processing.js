@@ -9,7 +9,8 @@ var startProcessingListener = function(onStatus, uuid, idleInterval, runningInte
             DISABLED: "DISABLED",
             RUNNING: "RUNNING",
             PAUSED: "PAUSED"
-        };
+        },
+        lastWasError = false;
     var startTimer = function(interval) {
         stopTimer();
         statusTimer = setInterval(function () {
@@ -42,6 +43,14 @@ var startProcessingListener = function(onStatus, uuid, idleInterval, runningInte
                             }
                             lastStatus = newStatus;
                         }
+                    }
+                    lastWasError = false;
+                },
+                error: function(){
+                    if (lastWasError) {
+                        stopTimer();
+                    } else {
+                        lastWasError = true;
                     }
                 }
             });

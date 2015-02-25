@@ -496,7 +496,7 @@ public class VejRegister extends CprSubRegister {
         VejRegisterRun vrun = (VejRegisterRun) run;
         int count = 0;
 
-        System.out.println("Preparatory linking");
+        this.log.info("Preparatory linking");
         time = this.indepTic();
         Level2Container<AktivVej> aktiveVeje = vrun.getAktiveVeje();
         vrun.startInputProcessing();
@@ -520,52 +520,8 @@ public class VejRegister extends CprSubRegister {
         for (AktivVej vej : aktiveVeje.getList()) {
             this.recursiveSortRoads(vej, orderedList);
         }
-        System.out.println("Links created in "+this.toc(time)+" ms");
-
-        // Process each AktivVej object, creating database entries
-        // We do this in the VejRegisterRun instance because there is some state information
-        // that we don't want to pollute our VejRegister instance with
-
-        System.out.println("Storing VejstykkeEntities in database");
-        time = this.indepTic();
-        ModelUpdateCounter counter = new ModelUpdateCounter();
-
-        for (AktivVej vej : orderedList) {
-            this.model.setVejstykke(
-                    vej.getInt("kommuneKode"), vej.getInt("vejKode"), vej.get("vejNavn"),
-                    vej.get("vejAddresseringsnavn"),
-                    this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
-            );
-            counter.printEntryProcessed();
-        }
-        //this.model.flush();
-        counter.printFinalEntriesProcessed();
-        System.out.println("VejstykkeEntities stored in "+this.toc(time)+" ms");
-
-
-
-        System.out.println("Storing AdresseEntities in database");
-        time = this.indepTic();
-        counter.reset();
-        for (Bolig bolig : vrun.getBoliger()) {
-            this.model.setAdresse(
-                    bolig.getInt("kommuneKode"), bolig.getInt("vejKode"), bolig.get("husNr"), null,
-                    bolig.get("etage"), bolig.get("sidedoer"),
-                    this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
-            );
-            counter.printEntryProcessed();
-        }
-        //this.model.flush();
-        counter.printFinalEntriesProcessed();
-        System.out.println("AdresseEntities stored in "+this.toc(time)+" ms");
-
-
-        System.out.println("Storing LokalitetEntities in database");
-        time = this.indepTic();
-        counter.reset();
-
         Level2Container<HashSet<RawVej>> lokalitetData = new Level2Container<HashSet<RawVej>>();
-        
+
         for (ByDistrikt byDistrikt : vrun.getByDistrikter()) {
             int kommuneKode = byDistrikt.getInt("kommuneKode");
             int vejKode = byDistrikt.getInt("vejKode");
@@ -587,6 +543,49 @@ public class VejRegister extends CprSubRegister {
                 veje.add(vej);
             }
         }
+        this.log.info("Links created in " + this.toc(time) + " ms");
+
+        // Process each AktivVej object, creating database entries
+        // We do this in the VejRegisterRun instance because there is some state information
+        // that we don't want to pollute our VejRegister instance with
+
+        this.log.info("Storing VejstykkeEntities in database");
+        time = this.indepTic();
+        ModelUpdateCounter counter = new ModelUpdateCounter();
+
+        for (AktivVej vej : orderedList) {
+            this.model.setVejstykke(
+                    vej.getInt("kommuneKode"), vej.getInt("vejKode"), vej.get("vejNavn"),
+                    vej.get("vejAddresseringsnavn"),
+                    this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
+            );
+            counter.printEntryProcessed();
+        }
+        //this.model.flush();
+        counter.printFinalEntriesProcessed();
+        this.log.info("VejstykkeEntities stored in " + this.toc(time) + " ms");
+
+
+
+        this.log.info("Storing AdresseEntities in database");
+        time = this.indepTic();
+        counter.reset();
+        for (Bolig bolig : vrun.getBoliger()) {
+            this.model.setAdresse(
+                    bolig.getInt("kommuneKode"), bolig.getInt("vejKode"), bolig.get("husNr"), null,
+                    bolig.get("etage"), bolig.get("sidedoer"),
+                    this.getCreateRegistrering(dataProviderEntity), this.getUpdateRegistrering(dataProviderEntity)
+            );
+            counter.printEntryProcessed();
+        }
+        //this.model.flush();
+        counter.printFinalEntriesProcessed();
+        this.log.info("AdresseEntities stored in " + this.toc(time) + " ms");
+
+
+        this.log.info("Storing LokalitetEntities in database");
+        time = this.indepTic();
+        counter.reset();
 
         for (int kommuneKode : lokalitetData.intKeySet()) {
             for (String lokalitetsNavn : lokalitetData.get(kommuneKode).keySet()) {
@@ -600,7 +599,7 @@ public class VejRegister extends CprSubRegister {
         }
         //this.model.flush();
         counter.printFinalEntriesProcessed();
-        System.out.println("LokalitetEntities stored in "+this.toc(time)+" ms");
+        this.log.info("LokalitetEntities stored in "+this.toc(time)+" ms");
     }
 
     private void recursiveSortRoads(AktivVej vej, ArrayList<AktivVej> list) {

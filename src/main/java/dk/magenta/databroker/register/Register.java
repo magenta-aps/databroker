@@ -7,6 +7,7 @@ import dk.magenta.databroker.core.model.DataProviderStorageRepository;
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.core.model.oio.RegistreringRepository;
 import dk.magenta.databroker.register.records.Record;
+import dk.magenta.databroker.util.Util;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.input.CountingInputStream;
 import org.apache.log4j.Logger;
@@ -21,8 +22,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
 import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.text.ParseException;
@@ -36,7 +35,7 @@ public abstract class Register extends DataProvider {
 
 
     protected static final File cacheDir = new File("cache/");
-    private Logger log = Logger.getLogger(Register.class);
+    protected Logger log = Logger.getLogger(Register.class);
 
     @Autowired
     @SuppressWarnings("SpringJavaAutowiringInspection")
@@ -89,13 +88,13 @@ public abstract class Register extends DataProvider {
     }
 
     protected RegistreringEntity getCreateRegistrering(DataProviderEntity entity) {
-        if(this.createRegistrering == null) {
+        if (this.createRegistrering == null) {
             this.createRegistrering = registreringRepository.createNew(entity);
         }
         return this.createRegistrering;
     }
     protected RegistreringEntity getUpdateRegistrering(DataProviderEntity entity) {
-        if(this.updateRegistrering == null) {
+        if (this.updateRegistrering == null) {
             this.updateRegistrering = registreringRepository.createUpdate(entity);
         }
         return this.updateRegistrering;
@@ -109,8 +108,7 @@ public abstract class Register extends DataProvider {
 
     public void pull(boolean forceFetch, boolean forceParse, DataProviderEntity dataProviderEntity) {
         this.clearRegistreringEntities();
-        System.out.println("-----------------------------");
-        System.out.println(this.getClass().getSimpleName() + " pulling...");
+        this.log.info(this.getClass().getSimpleName() + " pulling");
         try {
             InputStream input = null;
             boolean fromCache = false;
@@ -120,8 +118,7 @@ public abstract class Register extends DataProvider {
             if (!forceFetch) {
                 // See if we can obtain the data from cache
                 if (cacheFile != null && cacheFile.canRead()) {
-                    System.out.println("Loading data from cache file " + cacheFile.getAbsolutePath());
-                    log.info("Loading data from cache file " + cacheFile.getAbsolutePath());
+                    this.log.info("Loading data from cache file " + cacheFile.getAbsolutePath());
                     input = this.readFile(cacheFile);
                     fromCache = true;
                 }
@@ -129,38 +126,49 @@ public abstract class Register extends DataProvider {
 
             // Try fetching from local resource
             if (input == null && this.getRecordResource() != null) {
-                System.out.println("Loading data from " + this.getRecordResource().toString());
-                log.info("Loading data from " + this.getRecordResource().toString());
+                this.log.info("Loading data from included resource " + this.getRecordResource().toString());
                 input = this.readResource(this.getRecordResource());
             }
             if (input != null) {
                 // Now that we have an input stream, process it
                 this.handleInput(input, dataProviderEntity, fromCache, forceParse);
             } else {
-                System.out.println("No input data");
-                log.warn("No input data found");
+                this.log.error("Register " + this.getClass().getSimpleName() + " cannot pull; no input data found");
             }
 
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println(this.getClass().getSimpleName() + " done!");
+        this.log.info(this.getClass().getSimpleName() + " pull complete");
         System.gc();
     }
 
 
+    public void handlePush(DataProviderEntity dataProviderEntity, HttpServletRequest request) {
+        InputStream input = this.getUploadStream(request);
+        if (input != null) {
+            this.handlePush(true, dataProviderEntity, input);
+        } else {
+            this.log.error("Register " + this.getClass().getSimpleName() + " cannot receive push; no input data found");
+        }
+    }
+
+    @Transactional
+    @Override
     public void handlePush(boolean forceParse, DataProviderEntity dataProviderEntity, InputStream input) {
         this.clearRegistreringEntities();
-        System.out.println("-----------------------------");
-        System.out.println(this.getClass().getSimpleName() + " receiving push...");
+        this.log.info(this.getClass().getSimpleName() + " receiving push");
         if (input != null) {
             this.handleInput(input, dataProviderEntity, false, forceParse);
+            this.log.info(this.getClass().getSimpleName() + " push complete");
         } else {
-            System.out.println("No input data");
+            this.log.error("Register " + this.getClass().getSimpleName() + " cannot receive push; no input data found");
         }
-        System.out.println(this.getClass().getSimpleName() + " done!");
         System.gc();
     }
+
+
+
 
 
     protected void importData(InputStream input, DataProviderEntity dataProviderEntity) {
@@ -210,11 +218,11 @@ public abstract class Register extends DataProvider {
                     // Pipe our data into the file
                     cacheFile = this.getCacheFile(true);
                     if (cacheFile.canWrite() && cacheFile.canRead()) {
-                        System.out.println("Writing to cache "+cacheFile.getAbsolutePath());
+                        this.log.info("Writing to cache " + cacheFile.getAbsolutePath());
                         Files.copy(input, cacheFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                         input.close();
                     } else {
-                        System.err.println("Fatal: Unable to access cache file '" + cacheFile.getAbsolutePath() + "' for reading or writing");
+                        this.log.error("Fatal: Unable to access cache file '" + cacheFile.getAbsolutePath() + "' for reading or writing. Cannot continue import");
                         return;
                     }
                 }
@@ -242,15 +250,14 @@ public abstract class Register extends DataProvider {
                     }
 
                     final long dataSize = data.getKnownSize();
-                    System.out.println("Data size: "+dataSize);
 
                     boolean checksumMatch = compareChecksum(checksum);
 
                     if (forceParse || checksum == null || !checksumMatch) {
                         if (forceParse) {
-                            System.out.println("Parse forced; parsing new data into database");
+                            this.log.info("Parse forced; parsing new data into database");
                         } else {
-                            System.out.println("Checksum mismatch; parsing new data into database");
+                            this.log.info("Checksum mismatch; parsing new data into database");
                         }
                         final CountingInputStream countingInputStream = new CountingInputStream(data);
                         Thread t = new Thread(){
@@ -278,17 +285,17 @@ public abstract class Register extends DataProvider {
 
                         //this.importData(input, dataProviderEntity);
                     } else {
-                        System.out.println("Checksum match; no need to update database");
+                        this.log.info("Checksum match; no need to update database");
                     }
                 } else {
-                    System.err.println("No cache");
+                    this.log.error("No cached data exists. Cannot import");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
                 return;
             }
         } else {
-            System.out.println("No input data");
+            this.log.error("No input data received. Cannot import");
         }
     }
 
@@ -299,10 +306,9 @@ public abstract class Register extends DataProvider {
     public InputStream getUploadStream(HttpServletRequest request) {
         InputStream input = null;
         try {
-
             Part uploadPart = request.getPart(this.getUploadPartName());
             if (uploadPart != null && uploadPart.getSize() > 0) {
-                System.out.println("receiving "+uploadPart.getSize()+" byte upload from "+this.getUploadPartName());
+                this.log.info("Receiving " + uploadPart.getSize() + " byte upload from part " + this.getUploadPartName());
                 input = uploadPart.getInputStream();
             }
         } catch (IOException e) {
@@ -311,19 +317,6 @@ public abstract class Register extends DataProvider {
             e.printStackTrace();
         }
         return input;
-    }
-
-
-    @Transactional
-    @Override
-    public void handlePush(DataProviderEntity dataProviderEntity, HttpServletRequest request) {
-        System.out.println("handlePush "+this);
-        InputStream input = this.getUploadStream(request);
-        if (input != null) {
-            this.handlePush(true, dataProviderEntity, input);
-        } else {
-            System.out.println("No inputstream");
-        }
     }
 
     public String getUploadPartName() {
@@ -340,7 +333,7 @@ public abstract class Register extends DataProvider {
     protected File getCacheFile(boolean forceCreateNew) throws IOException {
         File dir = new File(cacheDir, this.getClass().getSimpleName());
         if (!dir.exists()) {
-            System.out.println("Folder "+dir.getAbsolutePath()+" doesn't exist, creating it");
+            this.log.info("Folder " + dir.getAbsolutePath() + " doesn't exist, creating it");
             dir.mkdirs();
             if (!dir.exists()) {
                 throw new IOException("Failed to create folder '"+dir.getAbsolutePath()+"'. Possible permissions problem?");
@@ -348,9 +341,9 @@ public abstract class Register extends DataProvider {
         }
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss");
         if (forceCreateNew) {
-            System.out.println("Creating new file");
             String filename = dateFormat.format(new Date()) + ".txt";
             File file = new File(dir, filename);
+            this.log.info("Creating new cache file " + file.getAbsolutePath());
             file.createNewFile();
             return file;
         } else {
@@ -371,12 +364,10 @@ public abstract class Register extends DataProvider {
                 }
             }
             return latest;
-
         }
     }
 
     //------------------------------------------------------------------------------------------------------------------
-
 
     private long ticTime = 0;
     protected long tic() {
@@ -384,14 +375,13 @@ public abstract class Register extends DataProvider {
         return this.ticTime;
     }
     protected long indepTic() {
-        return new Date().getTime();
+        return Util.getTime();
     }
     protected long toc(long ticTime) {
-        return new Date().getTime() - ticTime;
+        return Util.getTime() - ticTime;
     }
     protected long toc() {
-        return new Date().getTime() - this.ticTime;
+        return Util.getTime() - this.ticTime;
     }
-
 
 }
