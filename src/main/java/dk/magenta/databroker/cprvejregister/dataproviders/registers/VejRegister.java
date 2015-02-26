@@ -604,7 +604,7 @@ public class VejRegister extends CprSubRegister {
         count = counter.getCount();
         time = this.toc(time);
         this.log.info(count + " LokalitetEntities stored in "+time+" ms (avg " + ((double) time / (double) count) + " ms)");
-        this.registreringInfo.logProcess(this.log);
+        registreringInfo.logProcess(this.log);
     }
 
     private void recursiveSortRoads(AktivVej vej, ArrayList<AktivVej> list) {

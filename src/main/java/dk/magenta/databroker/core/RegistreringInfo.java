@@ -32,8 +32,6 @@ public class RegistreringInfo {
             updateRegistrering = createRegistrering;
         }
 
-        System.out.println(createRegistrering+" "+updateRegistrering);
-
         this.createRegistrering = createRegistrering;
         this.updateRegisterering = updateRegistrering;
         this.inputStream = new CountingInputStream(inputStream);

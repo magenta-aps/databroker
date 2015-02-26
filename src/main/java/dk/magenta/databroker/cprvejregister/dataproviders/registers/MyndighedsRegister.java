@@ -197,7 +197,7 @@ public class MyndighedsRegister extends CprSubRegister {
         int count = counter.getCount();
         time = this.toc(time);
         this.log.info(count + " KommuneEntities stored in " + time + " ms (avg " + ((double)time / (double)count) + " ms)");
-        this.registreringInfo.logProcess(this.log);
+        registreringInfo.logProcess(this.log);
     }
 
     private boolean acceptKommune(int kode, String navn) {

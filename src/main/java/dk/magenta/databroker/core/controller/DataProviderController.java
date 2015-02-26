@@ -217,24 +217,10 @@ public class DataProviderController {
     private ModelAndView processUpload(HttpServletRequest request, DataProviderEntity dataProviderEntity, DataProvider dataProvider) {
         String uuid = dataProviderEntity.getUuid();
         if (dataProvider.wantUpload(dataProviderEntity.getConfiguration()) && this.requestHasDataInFields(request, dataProvider.getUploadFields())) {
-            System.out.println("Processing upload");
-
-            try {
-                for (Part p : request.getParts()) {
-                    System.out.println("B "+p.getName()+": "+p.getSize()); // Parten findes her, men ikke senere
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (ServletException e) {
-                e.printStackTrace();
-            }
-
-
+            this.log.info("Processing upload");
             Thread thread = dataProvider.asyncPush(dataProviderEntity, request, this.transactionManager);
             this.userThreads.put(uuid, thread);
             return this.processingEntity(request, uuid);
-        } else {
-            System.out.println("not processing upload ("+dataProvider.wantUpload(dataProviderEntity.getConfiguration())+" && "+this.requestHasDataInFields(request, dataProvider.getUploadFields())+")");
         }
         return this.redirectToIndex();
     }
