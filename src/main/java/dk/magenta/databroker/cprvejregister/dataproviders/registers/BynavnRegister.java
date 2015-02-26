@@ -140,7 +140,7 @@ public class BynavnRegister extends CprSubRegister {
         counter.printFinalEntriesProcessed();
         int count = counter.getCount();
         this.log.info(count + " LokalitetEntities stored in " + this.toc(time) + " ms (avg " + ((double)time / (double)count) + " ms)");
-
+        this.registreringInfo.logProcess(this.log);
     }
 
     //------------------------------------------------------------------------------------------------------------------

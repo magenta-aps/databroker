@@ -564,7 +564,7 @@ public class VejRegister extends CprSubRegister {
         //this.model.flush();
         counter.printFinalEntriesProcessed();count = counter.getCount();
         count = counter.getCount();
-        this.log.info(count + " VejstykkeEntities stored in "+this.toc(time)+" ms (avg " + ((double)time / (double)count) + " ms)");
+        this.log.info(count + " VejstykkeEntities stored in " + this.toc(time) + " ms (avg " + ((double) time / (double) count) + " ms)");
 
 
 
@@ -581,7 +581,7 @@ public class VejRegister extends CprSubRegister {
         //this.model.flush();
         counter.printFinalEntriesProcessed();
         count = counter.getCount();
-        this.log.info(count + " AdresseEntities stored in " + this.toc(time) + " ms (avg " + ((double)time / (double)count) + " ms)");
+        this.log.info(count + " AdresseEntities stored in " + this.toc(time) + " ms (avg " + ((double) time / (double) count) + " ms)");
 
 
 
@@ -600,6 +600,7 @@ public class VejRegister extends CprSubRegister {
         counter.printFinalEntriesProcessed();
         count = counter.getCount();
         this.log.info(count + " LokalitetEntities stored in "+this.toc(time)+" ms (avg " + ((double)time / (double)count) + " ms)");
+        this.registreringInfo.logProcess(this.log);
     }
 
     private void recursiveSortRoads(AktivVej vej, ArrayList<AktivVej> list) {

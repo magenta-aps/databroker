@@ -30,6 +30,8 @@ public class AdgangsAdresseRepositoryImpl extends RepositoryImplementation<Adgan
 
     private Logger log = Logger.getLogger(AdgangsAdresseRepositoryImpl.class);
 
+
+    // TODO: Kan vi på nogen måde gøre denne metode hurtigere? p.t. kører den på 1-2 ms
     public AdgangsAdresseEntity getByDescriptor(String descriptor) {
         StringList hql = new StringList();
         hql.append("select distinct "+AdgangsAdresseEntity.databaseKey+" from AdgangsAdresseEntity as "+AdgangsAdresseEntity.databaseKey);

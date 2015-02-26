@@ -2,8 +2,6 @@ package dk.magenta.databroker.core;
 
 import dk.magenta.databroker.core.controller.DataProviderController;
 import dk.magenta.databroker.util.Util;
-import dk.magenta.databroker.util.objectcontainers.Pair;
-import org.apache.commons.io.input.CountingInputStream;
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -23,9 +21,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 
 import javax.annotation.PostConstruct;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.Part;
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
@@ -165,47 +161,6 @@ public abstract class DataProvider {
 
     private static String getExtension(String filename) {
         return filename != null ? filename.substring(filename.lastIndexOf('.')+1).toLowerCase() : null;
-    }
-
-    public class NamedInputStream extends FilterInputStream {
-        long knownSize = 0;
-        String basename;
-        String extension;
-
-        public NamedInputStream(InputStream input, String filename) {
-            super(input);
-            this.basename = this.extractBasename(filename);
-            this.extension = "";
-        }
-        public NamedInputStream(InputStream input, String basename, String extension) {
-            super(input);
-            this.basename = basename;
-            this.extension = extension;
-        }
-
-        public String getBasename() {
-            return basename;
-        }
-        public String getExtension() {
-            return this.extension;
-        }
-        public boolean extensionEquals(String extension) {
-            return this.extension != null && this.extension.equalsIgnoreCase(extension);
-        }
-        public long getKnownSize() {
-            return knownSize;
-        }
-        public void setKnownSize(long knownSize) {
-            this.knownSize = knownSize;
-        }
-        private String extractBasename(String filename) {
-            int index = filename.lastIndexOf(".");
-            return index == -1 ? filename : filename.substring(0, index);
-        }
-        private String extractExtension(String filename) {
-            int index = filename.lastIndexOf(".");
-            return index == -1 ? "" : filename.substring(index);
-        }
     }
 
     protected InputStream readUrl(URL url) {

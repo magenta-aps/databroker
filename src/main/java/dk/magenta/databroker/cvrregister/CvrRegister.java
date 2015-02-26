@@ -194,13 +194,13 @@ public class CvrRegister extends Register {
 
 
     @Override
-    protected void importData(InputStream input, RegistreringInfo registreringInfo) {
+    protected void importData(RegistreringInfo registreringInfo) {
         try {
             //this.dawaModel.preloadEnhedsadresseCache();
             //this.dawaModel.preloadVejstykkeCache();
             DefaultHandler handler = new VirksomhedDataHandler(registreringInfo, 50000);
             SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
-            parser.parse(input, handler);
+            parser.parse(registreringInfo.getInputStream(), handler);
             this.generateAddresses(false);
             this.bulkWireReferences();
 
@@ -466,7 +466,7 @@ public class CvrRegister extends Register {
                     }
 
                     createTime = Util.getTime() - time;
-                    this.log.info(companyCount + " production units created in " + createTime + "ms (avg " + ((double) createTime / (double) unitCount) + " ms)");
+                    this.log.info(unitCount + " production units created in " + createTime + "ms (avg " + ((double) createTime / (double) unitCount) + " ms)");
                 }
 
 
@@ -488,7 +488,7 @@ public class CvrRegister extends Register {
                         }
                     }
                     createTime = Util.getTime() - time;
-                    this.log.info(companyCount + " members created in " + createTime + "ms (avg " + ((double) createTime / (double) memberCount) + " ms)");
+                    this.log.info(memberCount + " members created in " + createTime + "ms (avg " + ((double) createTime / (double) memberCount) + " ms)");
                 }
 
 
@@ -612,6 +612,7 @@ public class CvrRegister extends Register {
                 this.currentRun = new CvrRegisterRun();
                 this.recordCount = 0;
                 System.gc();
+                this.registreringInfo.logProcess(CvrRegister.this.log);
             }
             this.parameters.clear();
         }

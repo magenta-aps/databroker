@@ -1,11 +1,11 @@
 package dk.magenta.databroker.register;
 
 import dk.magenta.databroker.core.DataProvider;
+import dk.magenta.databroker.core.NamedInputStream;
 import dk.magenta.databroker.core.RegistreringInfo;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.core.model.DataProviderStorageEntity;
 import dk.magenta.databroker.core.model.DataProviderStorageRepository;
-import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.core.model.oio.RegistreringRepository;
 import dk.magenta.databroker.register.records.Record;
 import dk.magenta.databroker.util.Util;
@@ -86,14 +86,6 @@ public abstract class Register extends DataProvider {
         this.registreringInfo = null;
     }
 
-    protected RegistreringInfo getRegistreringInfo(DataProviderEntity entity) {
-        if (this.registreringInfo == null) {
-            this.registreringInfo = new RegistreringInfo(registreringRepository, entity);
-        }
-        return this.registreringInfo;
-    }
-
-
 
 
     protected abstract void saveRunToDatabase(RegisterRun run, RegistreringInfo registreringInfo);
@@ -167,8 +159,8 @@ public abstract class Register extends DataProvider {
 
 
 
-    protected void importData(InputStream input, RegistreringInfo registreringInfo) {
-        RegisterRun run = this.parse(input);
+    protected void importData(RegistreringInfo registreringInfo) {
+        RegisterRun run = this.parse(registreringInfo.getInputStream());
         this.saveRunToDatabase(run, registreringInfo);
     }
 
@@ -207,7 +199,6 @@ public abstract class Register extends DataProvider {
             File cacheFile = null;
             String checksum;
             NamedInputStream data;
-            RegistreringInfo registreringInfo = new RegistreringInfo(this.registreringRepository, dataProviderEntity);
             try {
                 if (alreadyCached) {
                     cacheFile = this.getCacheFile(false);
@@ -256,31 +247,8 @@ public abstract class Register extends DataProvider {
                         } else {
                             this.log.info("Checksum mismatch; parsing new data into database");
                         }
-                        final CountingInputStream countingInputStream = new CountingInputStream(data);
-                        Thread t = new Thread(){
-                            public void run() {
-                                try {
-                                    while (countingInputStream.available() > 0) {
-                                        long bytesRead = countingInputStream.getByteCount();
-                                        System.err.println("Processed "+bytesRead+" bytes ("+ String.format("%.2f", 100.0 * (double)bytesRead / (double) dataSize)+"%)");
-                                        try {
-                                            Thread.sleep(10000L);
-                                        } catch (InterruptedException e) {
-                                            e.printStackTrace();
-                                            return;
-                                        }
-                                    }
-                                    System.err.println("Processed "+dataSize+" bytes (100%)");
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        };
-                        t.start();
-
-                        this.importData(countingInputStream, registreringInfo);
-
-                        //this.importData(input, dataProviderEntity);
+                        RegistreringInfo registreringInfo = new RegistreringInfo(this.registreringRepository, dataProviderEntity, data);
+                        this.importData(registreringInfo);
                     } else {
                         this.log.info("Checksum match; no need to update database");
                     }
