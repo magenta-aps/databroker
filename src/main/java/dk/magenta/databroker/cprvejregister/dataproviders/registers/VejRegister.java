@@ -542,7 +542,8 @@ public class VejRegister extends CprSubRegister {
                 veje.add(vej);
             }
         }
-        this.log.info("Links created in " + this.toc(time) + " ms (avg \" + ((double)time / (double)count) + \" ms)\"");
+        time = this.toc(time);
+        this.log.info("Links created in " + time + " ms (avg " + ((double) time / (double) count) + " ms)\"");
 
         // Process each AktivVej object, creating database entries
         // We do this in the VejRegisterRun instance because there is some state information
@@ -564,7 +565,8 @@ public class VejRegister extends CprSubRegister {
         //this.model.flush();
         counter.printFinalEntriesProcessed();count = counter.getCount();
         count = counter.getCount();
-        this.log.info(count + " VejstykkeEntities stored in " + this.toc(time) + " ms (avg " + ((double) time / (double) count) + " ms)");
+        time = this.toc(time);
+        this.log.info(count + " VejstykkeEntities stored in " + time + " ms (avg " + ((double) time / (double) count) + " ms)");
 
 
 
@@ -581,7 +583,8 @@ public class VejRegister extends CprSubRegister {
         //this.model.flush();
         counter.printFinalEntriesProcessed();
         count = counter.getCount();
-        this.log.info(count + " AdresseEntities stored in " + this.toc(time) + " ms (avg " + ((double) time / (double) count) + " ms)");
+        time = this.toc(time);
+        this.log.info(count + " AdresseEntities stored in " + time + " ms (avg " + ((double) time / (double) count) + " ms)");
 
 
 
@@ -599,7 +602,8 @@ public class VejRegister extends CprSubRegister {
         //this.model.flush();
         counter.printFinalEntriesProcessed();
         count = counter.getCount();
-        this.log.info(count + " LokalitetEntities stored in "+this.toc(time)+" ms (avg " + ((double)time / (double)count) + " ms)");
+        time = this.toc(time);
+        this.log.info(count + " LokalitetEntities stored in "+time+" ms (avg " + ((double) time / (double) count) + " ms)");
         this.registreringInfo.logProcess(this.log);
     }
 

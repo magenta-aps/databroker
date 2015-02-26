@@ -224,7 +224,9 @@ public class NukissiorfiitRegister extends LineRegister {
         }
 
         counter.printFinalEntriesProcessed();
-        this.log.info("AdresseEntities stored in " + this.toc(time) + " ms");
+        time = this.toc(time);
+        int count = counter.getCount();
+        this.log.info(count + " AdresseEntities stored in " + time + " ms (avg " + ((double) time / (double) count) + " ms)");
         /*
         for (Pair<String, String> success : successes) {
             System.out.println("Genkendt: " + success.getLeft() + " / " + success.getRight());

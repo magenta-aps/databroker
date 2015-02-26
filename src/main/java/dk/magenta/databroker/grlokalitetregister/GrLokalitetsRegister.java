@@ -153,7 +153,9 @@ public class GrLokalitetsRegister extends LineRegister {
              }
          }
          counter.printFinalEntriesProcessed();
-         this.log.info("LokalitetEntities stored in " + this.toc(time) + " ms");
+         time = this.toc(time);
+         int count = counter.getCount();
+         this.log.info(count + " LokalitetEntities stored in " + time + " ms (avg " + ((double) time / (double) count) + " ms)");
     }
 
     //------------------------------------------------------------------------------------------------------------------

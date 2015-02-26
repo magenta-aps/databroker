@@ -1,5 +1,6 @@
 package dk.magenta.databroker.cvr.model.companyunit;
 
+import dk.magenta.databroker.core.model.RepositoryImplementation;
 import dk.magenta.databroker.util.Util;
 import org.apache.log4j.Logger;
 
@@ -17,14 +18,7 @@ interface CompanyUnitRepositoryCustom {
     public void clear();
 }
 
-public class CompanyUnitRepositoryImpl implements CompanyUnitRepositoryCustom {
-
-    private EntityManager entityManager;
-
-    @PersistenceContext
-    public void setEntityManager(EntityManager entityManager){
-        this.entityManager = entityManager;
-    }
+public class CompanyUnitRepositoryImpl extends RepositoryImplementation<CompanyUnitEntity> implements CompanyUnitRepositoryCustom {
 
     private Logger log = Logger.getLogger(CompanyUnitRepositoryImpl.class);
 

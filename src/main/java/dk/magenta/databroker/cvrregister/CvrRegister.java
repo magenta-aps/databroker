@@ -290,10 +290,9 @@ public class CvrRegister extends Register {
             try {
 
                 long time;
-                long createTime = 0;
 
                 if (companyCount > 0) {
-                    time = Util.getTime();
+                    time = this.tic();
 
                     for (VirksomhedRecord virksomhed : cRun.getVirksomheder().getList()) {
                         // Make sure the referenced industries are present in the DB
@@ -343,18 +342,17 @@ public class CvrRegister extends Register {
                         }
                     }
 
-                    createTime = Util.getTime() - time;
-                    this.log.info(companyCount + " companies created in " + createTime + "ms (avg " + ((double) createTime / (double) companyCount) + " ms)");
+                    time = this.toc(time);
+                    this.log.info(companyCount + " companies created in " + time + "ms (avg " + ((double) time / (double) companyCount) + " ms)");
                 }
 
 
 
                 if (unitCount > 0) {
-                    time = Util.getTime();
+                    time = this.tic();
                     int searches = 0;
 
                     for (ProductionUnitRecord unit : cRun.getProductionUnits().getList()) {
-                        long initTime = indepTic();
                         // Make sure the referenced industries are present in the DB
                         this.ensureIndustryInDatabase(unit.getInt("primaryIndustry"), unit.get("primaryIndustryText"));
                         this.ensureIndustryInDatabase(unit.getInt("secondaryIndustry1"), unit.get("secondaryIndustryText1"));
@@ -453,7 +451,6 @@ public class CvrRegister extends Register {
                                     );
                                     //companyUnitEntity.getLatestVersion().setAddressDescriptor(descriptor);
 
-                                    createTime += toc(unitTime);
                                     totalUnits++;
                                     if (totalUnits % 10000 == 0) {
                                         this.cvrModel.flush();
@@ -465,8 +462,8 @@ public class CvrRegister extends Register {
                         }
                     }
 
-                    createTime = Util.getTime() - time;
-                    this.log.info(unitCount + " production units created in " + createTime + "ms (avg " + ((double) createTime / (double) unitCount) + " ms)");
+                    time = this.toc(time);
+                    this.log.info(unitCount + " production units created in " + time + "ms (avg " + ((double) time / (double) unitCount) + " ms)");
                 }
 
 
@@ -487,8 +484,8 @@ public class CvrRegister extends Register {
                             this.cvrModel.flush();
                         }
                     }
-                    createTime = Util.getTime() - time;
-                    this.log.info(memberCount + " members created in " + createTime + "ms (avg " + ((double) createTime / (double) memberCount) + " ms)");
+                    time = this.toc(time);
+                    this.log.info(memberCount + " members created in " + time + "ms (avg " + ((double) time / (double) memberCount) + " ms)");
                 }
 
 

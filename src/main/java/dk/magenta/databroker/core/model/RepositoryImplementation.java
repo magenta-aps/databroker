@@ -21,6 +21,7 @@ public abstract class RepositoryImplementation<T> {
 
     @PersistenceContext(type = PersistenceContextType.EXTENDED)
     public void setEntityManager(EntityManager entityManager){
+        System.out.println("Setting entity manager on: "+this);
         this.entityManager = entityManager;
     }
 
@@ -34,7 +35,8 @@ public abstract class RepositoryImplementation<T> {
     protected Logger log = Logger.getLogger(this.getClass());
 
     protected List<T> query(StringList hql, ConditionList conditions, GlobalCondition globalCondition) {
-        this.log.trace(hql.join(" \n"));
+        this.log.info(hql.join(" \n"));
+        System.out.println(this.entityManager);
         Query q = this.entityManager.createQuery(hql.join(" "));
 
         int offset = 0;
@@ -50,7 +52,7 @@ public abstract class RepositoryImplementation<T> {
         // Put all conditions' parameters into the query
         Map<String, Object> queryParameters = conditions.getParameters();
         for (String key : queryParameters.keySet()) {
-            this.log.trace(key + " = " + queryParameters.get(key));
+            this.log.info(key + " = " + queryParameters.get(key));
             q.setParameter(key, queryParameters.get(key));
         }
         // Run the query and return the results

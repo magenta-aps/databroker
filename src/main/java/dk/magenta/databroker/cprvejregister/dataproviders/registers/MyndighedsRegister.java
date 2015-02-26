@@ -195,7 +195,8 @@ public class MyndighedsRegister extends CprSubRegister {
         }
         counter.printFinalEntriesProcessed();
         int count = counter.getCount();
-        this.log.info(count + " KommuneEntities stored in " + this.toc(time) + " ms (avg " + ((double)time / (double)count) + " ms)");
+        time = this.toc(time);
+        this.log.info(count + " KommuneEntities stored in " + time + " ms (avg " + ((double)time / (double)count) + " ms)");
         this.registreringInfo.logProcess(this.log);
     }
 

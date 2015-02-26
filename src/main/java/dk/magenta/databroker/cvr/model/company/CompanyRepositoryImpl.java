@@ -30,13 +30,6 @@ interface CompanyRepositoryCustom {
 
 public class CompanyRepositoryImpl extends RepositoryImplementation<CompanyEntity> implements CompanyRepositoryCustom {
 
-    private EntityManager entityManager;
-
-    @PersistenceContext(type = PersistenceContextType.EXTENDED)
-    public void setEntityManager(EntityManager entityManager){
-        this.entityManager = entityManager;
-    }
-
     @Override
     public Collection<CompanyEntity> search(SearchParameters parameters) {
 

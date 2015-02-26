@@ -77,7 +77,7 @@ public class RegistreringInfo {
     }
     public void logProcess(Logger log, Level level) {
         long bytesRead = this.getBytesRead();
-        log.log(level, "Processed " + bytesRead + " bytes (" + String.format("%.2f", 100.0 * (double) bytesRead / (double) this.inputSize) + "%)");
+        log.log(level, "Processed " + bytesRead + " bytes (" + String.format("%.2f", 100.0 * (double) bytesRead / (double) this.getInputSize()) + "%)");
     }
 
 }
