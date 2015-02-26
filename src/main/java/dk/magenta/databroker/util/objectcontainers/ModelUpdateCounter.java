@@ -1,5 +1,7 @@
 package dk.magenta.databroker.util.objectcontainers;
 
+import org.apache.log4j.Logger;
+
 import java.util.Date;
 
 /**
@@ -11,6 +13,7 @@ public class ModelUpdateCounter {
     private int chunkItemsProcessed = 0;
     private int inputChunks = 0;
     private int chunkSize = 1000;
+    private Logger log = Logger.getLogger(ModelUpdateCounter.class);
 
     public ModelUpdateCounter(){
         this(DEFAULT_CHUNK_SIZE);
@@ -22,17 +25,29 @@ public class ModelUpdateCounter {
         }
     }
 
-    public void printEntryProcessed() {
+    public void setLog(Logger log) {
+        this.log = log;
+    }
+
+    public void countEntryProcessed() {
         this.chunkItemsProcessed++;
         if (this.chunkItemsProcessed >= this.chunkSize) {
             this.chunkItemsProcessed = this.chunkItemsProcessed - this.chunkSize;
             this.inputChunks++;
-            this.print();
+            this.log();
         }
     }
 
+    public int getCount() {
+        return this.inputChunks * this.chunkSize + this.chunkItemsProcessed;
+    }
+
     private void print() {
-        System.out.println("    " + (this.inputChunks * this.chunkSize + this.chunkItemsProcessed) + " entries processed");
+        System.out.println("    " + this.getCount() + " entries processed");
+    }
+
+    private void log() {
+        this.log.trace("    " + this.getCount() + " entries processed");
     }
 
     public void printFinalEntriesProcessed() {

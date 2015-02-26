@@ -1,7 +1,7 @@
 package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
 import dk.magenta.databroker.core.DataProviderConfiguration;
-import dk.magenta.databroker.core.model.DataProviderEntity;
+import dk.magenta.databroker.core.RegistreringInfo;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.CprRecord;
 import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.dawa.model.RawVej;
@@ -15,8 +15,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.ParseException;
 import java.util.HashSet;
 
@@ -88,11 +86,12 @@ public class BynavnRegister extends CprSubRegister {
     * Database save
     * */
 
-    protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
+    protected void saveRunToDatabase(RegisterRun run, RegistreringInfo registreringInfo) {
 
         this.log.info("Preparatory linking");
         long time = this.indepTic();
         ModelUpdateCounter counter = new ModelUpdateCounter();
+        counter.setLog(this.log);
 
         Level2Container<HashSet<RawVej>> lokalitetData = new Level2Container<HashSet<RawVej>>();
 
@@ -119,7 +118,7 @@ public class BynavnRegister extends CprSubRegister {
                 if (!contains) {
                     veje.add(vej);
                 }
-                counter.printEntryProcessed();
+                counter.countEntryProcessed();
             }
         }
         counter.printFinalEntriesProcessed();
@@ -133,13 +132,15 @@ public class BynavnRegister extends CprSubRegister {
                 HashSet<RawVej> veje = lokalitetData.get(kommuneKode, lokalitetsNavn);
                 this.model.setLokalitet(
                         kommuneKode, lokalitetsNavn, veje,
-                        this.getRegistreringInfo(dataProviderEntity)
+                        registreringInfo
                 );
+                counter.countEntryProcessed();
             }
-            counter.printEntryProcessed();
         }
         counter.printFinalEntriesProcessed();
-        this.log.info("LokalitetEntities stored in "+this.toc(time)+" ms");
+        int count = counter.getCount();
+        this.log.info(count + " LokalitetEntities stored in " + this.toc(time) + " ms (avg " + ((double)time / (double)count) + " ms)");
+
     }
 
     //------------------------------------------------------------------------------------------------------------------

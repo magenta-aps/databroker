@@ -1,7 +1,7 @@
 package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
 import dk.magenta.databroker.core.DataProviderConfiguration;
-import dk.magenta.databroker.core.model.DataProviderEntity;
+import dk.magenta.databroker.core.RegistreringInfo;
 import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.dawa.model.RawVej;
 import dk.magenta.databroker.register.RegisterRun;
@@ -142,10 +142,11 @@ public class PostnummerRegister extends CprSubRegister {
     * Database save
     * */
 
-    protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
+    protected void saveRunToDatabase(RegisterRun run, RegistreringInfo registreringInfo) {
         this.log.info("Storing PostnummerEntities in database");
         long time = this.indepTic();
         ModelUpdateCounter counter = new ModelUpdateCounter();
+        counter.setLog(this.log);
         PostnummerRegisterRun prun = (PostnummerRegisterRun) run;
 
         for (String nummer : prun.getPostnumre().keySet()) {
@@ -165,15 +166,13 @@ public class PostnummerRegister extends CprSubRegister {
                     veje.add(rawVej);
                 }
 
-                model.setPostNummer(
-                        nr, navn, veje,
-                        this.getRegistreringInfo(dataProviderEntity)
-                );
-                counter.printEntryProcessed();
+                model.setPostNummer(nr, navn, veje, registreringInfo);
+                counter.countEntryProcessed();
             }
         }
         counter.printFinalEntriesProcessed();
-        this.log.info("PostnummerEntities stored in " + this.toc(time) + " ms");
+        int count = counter.getCount();
+        this.log.info(count + " PostnummerEntities stored in " + this.toc(time) + " ms (avg " + ((double)time / (double)count) + " ms)");
     }
 
     //------------------------------------------------------------------------------------------------------------------

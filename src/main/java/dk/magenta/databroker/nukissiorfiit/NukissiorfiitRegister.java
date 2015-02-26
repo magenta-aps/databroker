@@ -5,7 +5,6 @@ import dk.magenta.databroker.core.RegistreringInfo;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.dawa.model.SearchParameters;
-import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
 import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
@@ -151,13 +150,12 @@ public class NukissiorfiitRegister extends LineRegister {
 
 
     @Override
-    protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
-
-        RegistreringInfo registreringInfo = this.getRegistreringInfo(dataProviderEntity);
+    protected void saveRunToDatabase(RegisterRun run, RegistreringInfo registreringInfo) {
 
         this.log.info("Preparatory linking");
         long time = this.indepTic();
         ModelUpdateCounter counter = new ModelUpdateCounter();
+        counter.setLog(this.log);
 
         Collection<KommuneEntity> kommuner = this.model.getKommune(new SearchParameters(new String[]{"gl"}, null, null, null, null, null, null, null));
         Level2Container<VejstykkeEntity> vejMap = new Level2Container<VejstykkeEntity>();
@@ -167,7 +165,7 @@ public class NukissiorfiitRegister extends LineRegister {
                 String navn = this.normalize(vej.getLatestVersion().getVejnavn());
                 for (PostNummerEntity post : vej.getLatestVersion().getPostnumre()) {
                     vejMap.put(navn, post.getLatestVersion().getNr(), vej);
-                    counter.printEntryProcessed();
+                    counter.countEntryProcessed();
                 }
             }
         }
@@ -221,7 +219,7 @@ public class NukissiorfiitRegister extends LineRegister {
                     );
                     successes.add(new Pair<String,String>(""+postnr, vejNavn));
                 }
-                counter.printEntryProcessed();
+                counter.countEntryProcessed();
             }
         }
 

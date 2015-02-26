@@ -1,6 +1,7 @@
 package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
 import dk.magenta.databroker.core.DataProviderConfiguration;
+import dk.magenta.databroker.core.RegistreringInfo;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.register.LineRegister;
 import dk.magenta.databroker.register.RegisterRun;
@@ -145,7 +146,7 @@ public class CprRegister extends LineRegister {
     }
 
     @Override
-    protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
+    protected void saveRunToDatabase(RegisterRun run, RegistreringInfo registreringInfo) {
         // Do nothing
     }
 

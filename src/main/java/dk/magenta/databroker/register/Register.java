@@ -80,33 +80,15 @@ public abstract class Register extends DataProvider {
     @SuppressWarnings("SpringJavaAutowiringInspection")
     protected RegistreringRepository registreringRepository;
 
-    protected RegistreringEntity createRegistrering;
-    protected RegistreringEntity updateRegistrering;
-
     protected RegistreringInfo registreringInfo;
 
     protected void clearRegistreringEntities() {
-        createRegistrering = null;
-        updateRegistrering = null;
         this.registreringInfo = null;
-    }
-
-    protected RegistreringEntity getCreateRegistrering(DataProviderEntity entity) {
-        if (this.createRegistrering == null) {
-            this.createRegistrering = registreringRepository.createNew(entity);
-        }
-        return this.createRegistrering;
-    }
-    protected RegistreringEntity getUpdateRegistrering(DataProviderEntity entity) {
-        if (this.updateRegistrering == null) {
-            this.updateRegistrering = registreringRepository.createUpdate(entity);
-        }
-        return this.updateRegistrering;
     }
 
     protected RegistreringInfo getRegistreringInfo(DataProviderEntity entity) {
         if (this.registreringInfo == null) {
-            this.registreringInfo = new RegistreringInfo(registreringRepository.createNew(entity), registreringRepository.createUpdate(entity));
+            this.registreringInfo = new RegistreringInfo(registreringRepository, entity);
         }
         return this.registreringInfo;
     }
@@ -114,7 +96,7 @@ public abstract class Register extends DataProvider {
 
 
 
-    protected abstract void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity);
+    protected abstract void saveRunToDatabase(RegisterRun run, RegistreringInfo registreringInfo);
 
     public void pull(DataProviderEntity dataProviderEntity) {
         this.pull(false, false, dataProviderEntity);
@@ -185,9 +167,9 @@ public abstract class Register extends DataProvider {
 
 
 
-    protected void importData(InputStream input, DataProviderEntity dataProviderEntity) {
+    protected void importData(InputStream input, RegistreringInfo registreringInfo) {
         RegisterRun run = this.parse(input);
-        this.saveRunToDatabase(run, dataProviderEntity);
+        this.saveRunToDatabase(run, registreringInfo);
     }
 
 
@@ -225,6 +207,7 @@ public abstract class Register extends DataProvider {
             File cacheFile = null;
             String checksum;
             NamedInputStream data;
+            RegistreringInfo registreringInfo = new RegistreringInfo(this.registreringRepository, dataProviderEntity);
             try {
                 if (alreadyCached) {
                     cacheFile = this.getCacheFile(false);
@@ -295,7 +278,7 @@ public abstract class Register extends DataProvider {
                         };
                         t.start();
 
-                        this.importData(countingInputStream, dataProviderEntity);
+                        this.importData(countingInputStream, registreringInfo);
 
                         //this.importData(input, dataProviderEntity);
                     } else {

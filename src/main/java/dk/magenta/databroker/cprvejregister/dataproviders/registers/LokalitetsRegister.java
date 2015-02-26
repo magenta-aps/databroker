@@ -1,7 +1,7 @@
 package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
 import dk.magenta.databroker.core.DataProviderConfiguration;
-import dk.magenta.databroker.core.model.DataProviderEntity;
+import dk.magenta.databroker.core.RegistreringInfo;
 import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
@@ -114,10 +114,11 @@ public class LokalitetsRegister extends CprSubRegister {
     @SuppressWarnings("SpringJavaAutowiringInspection")
     private DawaModel model;
 
-    protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
+    protected void saveRunToDatabase(RegisterRun run, RegistreringInfo registreringInfo) {
         this.log.info("Storing LokalitetEntities in database");
         long time = this.indepTic();
         ModelUpdateCounter counter = new ModelUpdateCounter();
+        counter.setLog(this.log);
         LokalitetRegisterRun lrun = (LokalitetRegisterRun) run;
 
         for (Record record : lrun) {
@@ -129,14 +130,13 @@ public class LokalitetsRegister extends CprSubRegister {
                 String husnr = lokalitet.get("husNr");
                 String etage = lokalitet.get("etage");
                 String sidedoer = lokalitet.get("sidedoer");
-                model.setAdresse(kommuneKode, vejKode, husnr, null, etage, sidedoer,
-                        this.getRegistreringInfo(dataProviderEntity)
-                );
-                counter.printEntryProcessed();
+                model.setAdresse(kommuneKode, vejKode, husnr, null, etage, sidedoer, registreringInfo);
+                counter.countEntryProcessed();
             }
         }
         counter.printFinalEntriesProcessed();
-        this.log.info("LokalitetEntities stored in " + this.toc(time) + " ms");
+        int count = counter.getCount();
+        this.log.info(count + " LokalitetEntities stored in " + this.toc(time) + " ms (avg " + ((double)time / (double)count) + " ms)");
     }
 
     //------------------------------------------------------------------------------------------------------------------

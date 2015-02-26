@@ -38,8 +38,6 @@ public class Transaction extends Thread {
         def.setName("CommandLineTransactionDefinition");
         def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
 
-        System.out.println(this.getTxManager());
-
         TransactionStatus status = this.getTxManager().getTransaction(def);
         try {
             this.transaction();

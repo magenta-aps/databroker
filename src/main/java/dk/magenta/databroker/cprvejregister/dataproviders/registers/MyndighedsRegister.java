@@ -1,7 +1,7 @@
 package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
 import dk.magenta.databroker.core.DataProviderConfiguration;
-import dk.magenta.databroker.core.model.DataProviderEntity;
+import dk.magenta.databroker.core.RegistreringInfo;
 import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.util.objectcontainers.Level2Container;
@@ -177,10 +177,11 @@ public class MyndighedsRegister extends CprSubRegister {
     @SuppressWarnings("SpringJavaAutowiringInspection")
     private DawaModel model;
 
-    protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
+    protected void saveRunToDatabase(RegisterRun run, RegistreringInfo registreringInfo) {
         this.log.info("Storing KommuneEntities in database");
         long time = this.indepTic();
         ModelUpdateCounter counter = new ModelUpdateCounter();
+        counter.setLog(this.log);
         MyndighedsRegisterRun mrun = (MyndighedsRegisterRun) run;
         List<Myndighed> kommuner = mrun.getMyndigheder("5");
 
@@ -188,15 +189,13 @@ public class MyndighedsRegister extends CprSubRegister {
             int kommuneKode = kommune.getInt("myndighedsKode");
             String kommuneNavn = kommune.get("myndighedsNavn");
             if (this.acceptKommune(kommuneKode, kommuneNavn)) {
-                model.setKommune(
-                        kommuneKode, kommuneNavn,
-                        this.getRegistreringInfo(dataProviderEntity)
-                );
+                model.setKommune(kommuneKode, kommuneNavn, registreringInfo);
+                counter.countEntryProcessed();
             }
-            counter.printEntryProcessed();
         }
         counter.printFinalEntriesProcessed();
-        this.log.info("KommuneEntities stored in " + this.toc(time) + " ms");
+        int count = counter.getCount();
+        this.log.info(count + " KommuneEntities stored in " + this.toc(time) + " ms (avg " + ((double)time / (double)count) + " ms)");
     }
 
     private boolean acceptKommune(int kode, String navn) {

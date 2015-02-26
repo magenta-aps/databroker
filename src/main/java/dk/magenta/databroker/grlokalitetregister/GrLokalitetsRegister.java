@@ -107,13 +107,12 @@ public class GrLokalitetsRegister extends LineRegister {
     @SuppressWarnings("SpringJavaAutowiringInspection")
     private DawaModel model;
 
-     protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
-
-         RegistreringInfo registreringInfo = this.getRegistreringInfo(dataProviderEntity);
+     protected void saveRunToDatabase(RegisterRun run, RegistreringInfo registreringInfo) {
 
          this.log.info("Preparatory linking");
          long time = this.indepTic();
          ModelUpdateCounter counter = new ModelUpdateCounter();
+         counter.setLog(this.log);
          GrRegisterRun grun = (GrRegisterRun) run;
 
          Level2Container<HashSet<RawVej>> lokalitetData = new Level2Container<HashSet<RawVej>>();
@@ -138,7 +137,7 @@ public class GrLokalitetsRegister extends LineRegister {
              if (!contains) {
                  veje.add(vej);
              }
-             counter.printEntryProcessed();
+             counter.countEntryProcessed();
          }
          counter.printFinalEntriesProcessed();
          this.log.info("Links created in " + this.toc(time) + " ms");
@@ -150,7 +149,7 @@ public class GrLokalitetsRegister extends LineRegister {
              for (String lokalitetsNavn : lokalitetData.get(kommuneKode).keySet()) {
                  HashSet<RawVej> veje = lokalitetData.get(kommuneKode, lokalitetsNavn);
                  this.model.setLokalitet(kommuneKode, lokalitetsNavn, veje, registreringInfo);
-                 counter.printEntryProcessed();
+                 counter.countEntryProcessed();
              }
          }
          counter.printFinalEntriesProcessed();

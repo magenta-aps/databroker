@@ -427,6 +427,9 @@ public class DawaModel {
         if (bnr != null && bnr.isEmpty()) {
             bnr = null;
         }
+        if (husNr == null) {
+            husNr = "";
+        }
         TimeRecorder time = new TimeRecorder();
 
 

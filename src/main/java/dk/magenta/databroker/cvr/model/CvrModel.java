@@ -150,7 +150,7 @@ public class CvrModel {
                                     EnhedsAdresseEntity address, Date addressDate, String phone, String fax, String email,
                                     Date startDate, Date endDate,
                                     boolean advertProtection,
-                                    RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering, List<VirkningEntity> virkninger) {
+                                    RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
 
         CompanyUnitEntity companyUnitEntity = this.companyUnitCache.get(pNummer);
 
@@ -182,10 +182,10 @@ public class CvrModel {
 
         if (companyUnitVersionEntity == null) {
             this.log.trace("Creating initial CompanyUnitVersionEntity");
-            companyUnitVersionEntity = companyUnitEntity.addVersion(createRegistrering, virkninger);
+            companyUnitVersionEntity = companyUnitEntity.addVersion(registreringInfo.getCreateRegistrering(), virkninger);
         } else if (!companyUnitVersionEntity.matches(name, address, addressDate, primaryIndustry, secondaryIndustries, phone, fax, email, advertProtection, startDate, endDate)) {
             this.log.trace("Creating updated CompanyUnitVersionEntity");
-            companyUnitVersionEntity = companyUnitEntity.addVersion(updateRegistrering, virkninger);
+            companyUnitVersionEntity = companyUnitEntity.addVersion(registreringInfo.getUpdateRegisterering(), virkninger);
         } else {
             companyUnitVersionEntity = null;
         }
@@ -256,7 +256,7 @@ public class CvrModel {
     public DeltagerEntity setDeltager(long deltagerNummer, String name, String cvrNummer,
                                             Date ajourDate, Date gyldigDate,
                                             String typeName, String rolleName,
-                                            RegistreringEntity createRegistrering, RegistreringEntity updateRegistrering, List<VirkningEntity> virkninger) {
+                                            RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
 
         DeltagerEntity deltagerEntity = this.getDeltager(deltagerNummer);
 
@@ -274,10 +274,10 @@ public class CvrModel {
 
         if (deltagerVersionEntity == null) {
             this.log.trace("Creating initial DeltagerVersionEntity");
-            deltagerVersionEntity = deltagerEntity.addVersion(createRegistrering, virkninger);
+            deltagerVersionEntity = deltagerEntity.addVersion(registreringInfo.getCreateRegistrering(), virkninger);
         } else if (!deltagerVersionEntity.matches(name, ajourDate, gyldigDate, typeEntity, rolleEntity)) {
             this.log.trace("Creating updated DeltagerVersionEntity");
-            deltagerVersionEntity = deltagerEntity.addVersion(updateRegistrering, virkninger);
+            deltagerVersionEntity = deltagerEntity.addVersion(registreringInfo.getUpdateRegisterering(), virkninger);
         } else {
             deltagerVersionEntity = null;
         }

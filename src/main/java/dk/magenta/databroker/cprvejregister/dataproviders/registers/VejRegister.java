@@ -1,13 +1,12 @@
 package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
 import dk.magenta.databroker.core.DataProviderConfiguration;
-import dk.magenta.databroker.core.model.oio.VirkningEntity;
+import dk.magenta.databroker.core.RegistreringInfo;
 import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.dawa.model.RawVej;
 import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.util.objectcontainers.*;
 
-import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.CprRecord;
 import dk.magenta.databroker.register.records.Record;
 import org.apache.log4j.Logger;
@@ -491,7 +490,7 @@ public class VejRegister extends CprSubRegister {
     * Database save
     * */
 
-    protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
+    protected void saveRunToDatabase(RegisterRun run, RegistreringInfo registreringInfo) {
         long time;
         VejRegisterRun vrun = (VejRegisterRun) run;
         int count = 0;
@@ -543,7 +542,7 @@ public class VejRegister extends CprSubRegister {
                 veje.add(vej);
             }
         }
-        this.log.info("Links created in " + this.toc(time) + " ms");
+        this.log.info("Links created in " + this.toc(time) + " ms (avg \" + ((double)time / (double)count) + \" ms)\"");
 
         // Process each AktivVej object, creating database entries
         // We do this in the VejRegisterRun instance because there is some state information
@@ -552,18 +551,20 @@ public class VejRegister extends CprSubRegister {
         this.log.info("Storing VejstykkeEntities in database");
         time = this.indepTic();
         ModelUpdateCounter counter = new ModelUpdateCounter();
+        counter.setLog(this.log);
 
         for (AktivVej vej : orderedList) {
             this.model.setVejstykke(
                     vej.getInt("kommuneKode"), vej.getInt("vejKode"), vej.get("vejNavn"),
                     vej.get("vejAddresseringsnavn"),
-                    this.getRegistreringInfo(dataProviderEntity)
+                    registreringInfo
             );
-            counter.printEntryProcessed();
+            counter.countEntryProcessed();
         }
         //this.model.flush();
-        counter.printFinalEntriesProcessed();
-        this.log.info("VejstykkeEntities stored in " + this.toc(time) + " ms");
+        counter.printFinalEntriesProcessed();count = counter.getCount();
+        count = counter.getCount();
+        this.log.info(count + " VejstykkeEntities stored in "+this.toc(time)+" ms (avg " + ((double)time / (double)count) + " ms)");
 
 
 
@@ -572,15 +573,16 @@ public class VejRegister extends CprSubRegister {
         counter.reset();
         for (Bolig bolig : vrun.getBoliger()) {
             this.model.setAdresse(
-                    bolig.getInt("kommuneKode"), bolig.getInt("vejKode"), bolig.get("husNr"), null,
-                    bolig.get("etage"), bolig.get("sidedoer"),
-                    this.getRegistreringInfo(dataProviderEntity)
+                    bolig.getInt("kommuneKode"), bolig.getInt("vejKode"), bolig.get("husNr"), null, bolig.get("etage"), bolig.get("sidedoer"),
+                    registreringInfo
             );
-            counter.printEntryProcessed();
+            counter.countEntryProcessed();
         }
         //this.model.flush();
         counter.printFinalEntriesProcessed();
-        this.log.info("AdresseEntities stored in " + this.toc(time) + " ms");
+        count = counter.getCount();
+        this.log.info(count + " AdresseEntities stored in " + this.toc(time) + " ms (avg " + ((double)time / (double)count) + " ms)");
+
 
 
         this.log.info("Storing LokalitetEntities in database");
@@ -590,16 +592,14 @@ public class VejRegister extends CprSubRegister {
         for (int kommuneKode : lokalitetData.intKeySet()) {
             for (String lokalitetsNavn : lokalitetData.get(kommuneKode).keySet()) {
                 HashSet<RawVej> veje = lokalitetData.get(kommuneKode, lokalitetsNavn);
-                this.model.setLokalitet(
-                        kommuneKode, lokalitetsNavn, veje,
-                        this.getRegistreringInfo(dataProviderEntity)
-                );
+                this.model.setLokalitet(kommuneKode, lokalitetsNavn, veje, registreringInfo);
+                counter.countEntryProcessed();
             }
-            counter.printEntryProcessed();
         }
         //this.model.flush();
         counter.printFinalEntriesProcessed();
-        this.log.info("LokalitetEntities stored in "+this.toc(time)+" ms");
+        count = counter.getCount();
+        this.log.info(count + " LokalitetEntities stored in "+this.toc(time)+" ms (avg " + ((double)time / (double)count) + " ms)");
     }
 
     private void recursiveSortRoads(AktivVej vej, ArrayList<AktivVej> list) {

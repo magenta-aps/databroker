@@ -194,11 +194,11 @@ public class CvrRegister extends Register {
 
 
     @Override
-    protected void importData(InputStream input, DataProviderEntity dataProviderEntity) {
+    protected void importData(InputStream input, RegistreringInfo registreringInfo) {
         try {
             //this.dawaModel.preloadEnhedsadresseCache();
             //this.dawaModel.preloadVejstykkeCache();
-            DefaultHandler handler = new VirksomhedDataHandler(dataProviderEntity, 50000);
+            DefaultHandler handler = new VirksomhedDataHandler(registreringInfo, 50000);
             SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
             parser.parse(input, handler);
             this.generateAddresses(false);
@@ -259,13 +259,11 @@ public class CvrRegister extends Register {
 
 
     @Override
-    protected void saveRunToDatabase(RegisterRun run, DataProviderEntity dataProviderEntity) {
+    protected void saveRunToDatabase(RegisterRun run, RegistreringInfo registreringInfo) {
 
         if (run.getClass() == CvrRegisterRun.class) {
 
             this.cvrModel.resetIndustryCache(); // TODO: investigate how much really needs to be reset
-
-            RegistreringInfo registreringInfo = this.getRegistreringInfo(dataProviderEntity);
 
             DefaultTransactionDefinition def = new DefaultTransactionDefinition();
             def.setName("CommandLineTransactionDefinition");
@@ -280,13 +278,13 @@ public class CvrRegister extends Register {
 
             this.log.info("Saving items to database: ");
             if (companyCount > 0) {
-                this.log.info(companyCount + " companies");
+                this.log.info("    " + companyCount + " companies");
             }
             if (unitCount > 0) {
-                this.log.info(unitCount + " production units");
+                this.log.info("    " + unitCount + " production units");
             }
             if (memberCount > 0) {
-                this.log.info(memberCount + " members");
+                this.log.info("    " + memberCount + " members");
             }
 
             try {
@@ -443,16 +441,18 @@ public class CvrRegister extends Register {
                                     this.log.warn("Mismatch on " + kommuneKode + ":" + vejKode + "; cpr names it " + cprNavn + " while cvr names it " + cvrNavn);
                                     misses++;
                                 } else {
-                                    String descriptor = this.addNeededAddress(kommuneKode, vejKode, husnr, etage, sidedoer);
+                                    //String descriptor = this.addNeededAddress(kommuneKode, vejKode, husnr, etage, sidedoer);
+                                    adresse = this.dawaModel.setAdresse(kommuneKode, vejKode, husnr, null, etage, sidedoer, registreringInfo);
                                     long unitTime = this.indepTic();
                                     CompanyUnitEntity companyUnitEntity = this.cvrModel.setCompanyUnit(pNummer, name, cvrNummer,
                                             primaryIndustry, secondaryIndustries,
                                             adresse, addressDate, phone, fax, email,
                                             startDate, endDate,
                                             advertProtection,
-                                            createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>()
+                                            registreringInfo, new ArrayList<VirkningEntity>()
                                     );
-                                    companyUnitEntity.getLatestVersion().setAddressDescriptor(descriptor);
+                                    //companyUnitEntity.getLatestVersion().setAddressDescriptor(descriptor);
+
                                     createTime += toc(unitTime);
                                     totalUnits++;
                                     if (totalUnits % 10000 == 0) {
@@ -481,7 +481,7 @@ public class CvrRegister extends Register {
                         String name = deltager.get("navn");
                         String statusName = deltager.get("status");
                         String rolleName = deltager.get("rolle");
-                        this.cvrModel.setDeltager(deltagerNummer, name, cvrNummer, ajourDate, gyldigDate, typeName, rolleName, createRegistrering, updateRegistrering, new ArrayList<VirkningEntity>());
+                        this.cvrModel.setDeltager(deltagerNummer, name, cvrNummer, ajourDate, gyldigDate, typeName, rolleName, registreringInfo, new ArrayList<VirkningEntity>());
                         totalMembers++;
                         if (totalMembers % 10000 == 0) {
                             this.cvrModel.flush();
@@ -574,7 +574,7 @@ public class CvrRegister extends Register {
     private class VirksomhedDataHandler extends DefaultHandler {
 
         private CvrRegisterRun currentRun;
-        private DataProviderEntity dataProviderEntity;
+        private RegistreringInfo registreringInfo;
         private int chunkSize;
         private Stack<String> tags;
         private boolean inVirksomhed = false;
@@ -588,8 +588,8 @@ public class CvrRegister extends Register {
 
 
 
-        public VirksomhedDataHandler(DataProviderEntity dataProviderEntity, int chunkSize) {
-            this.dataProviderEntity = dataProviderEntity;
+        public VirksomhedDataHandler(RegistreringInfo registreringInfo, int chunkSize) {
+            this.registreringInfo = registreringInfo;
             this.chunkSize = chunkSize;
             this.currentRun = new CvrRegisterRun();
             this.tags = new Stack<String>();
@@ -607,7 +607,7 @@ public class CvrRegister extends Register {
         private void onRecordSave(boolean force) {
             this.recordCount++;
             if (force || this.recordCount >= this.chunkSize) {
-                CvrRegister.this.saveRunToDatabase(this.currentRun, this.dataProviderEntity);
+                CvrRegister.this.saveRunToDatabase(this.currentRun, this.registreringInfo);
                 this.currentRun.clear();
                 this.currentRun = new CvrRegisterRun();
                 this.recordCount = 0;
