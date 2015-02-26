@@ -129,6 +129,7 @@ public class CompanyEntity extends DobbeltHistorikBase<CompanyEntity, CompanyVer
     public JSONObject toFullJSON() {
         JSONObject obj = this.toJSON();
         Collection<CompanyUnitEntity> units = this.units;
+        System.out.println("units size: "+units.size());
         if (units != null && !units.isEmpty()) {
             JSONArray unitArray = new JSONArray();
             for (CompanyUnitEntity unit : units) {

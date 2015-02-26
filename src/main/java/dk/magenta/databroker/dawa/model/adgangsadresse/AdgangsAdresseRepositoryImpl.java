@@ -106,7 +106,7 @@ public class AdgangsAdresseRepositoryImpl extends RepositoryImplementation<Adgan
     public void bulkWireReferences() {
         this.log.info("Updating references between addresses and roads");
         long time = Util.getTime();
-        this.entityManager.createNativeQuery("update dawa_adgangsadresse adresse join dawa_vejstykke vej on adresse.vejstykke_descriptor=vej.descriptor set adresse.vejstykke_id=vej.id").executeUpdate();
+        this.entityManager.createNativeQuery("update dawa_adgangsadresse adresse join dawa_vejstykke vej on adresse.vejstykke_descriptor=vej.descriptor set adresse.vejstykke_id=vej.id where adresse.vejstykke_id is NULL").executeUpdate();
         this.log.info("References updated in "+(Util.getTime()-time)+" ms");
     }
 }
