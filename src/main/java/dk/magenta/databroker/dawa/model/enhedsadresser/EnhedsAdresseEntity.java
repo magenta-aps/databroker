@@ -190,13 +190,13 @@ public class EnhedsAdresseEntity extends DobbeltHistorikBase<EnhedsAdresseEntity
     public static final String databaseKey = "adresse";
     public static Condition etageCondition(SearchParameters parameters) {
         if (parameters.has(Key.ETAGE)) {
-            return RepositoryUtil.whereField(parameters.get(Key.ETAGE), null, databaseKey+".latestVersion.etage");
+            return RepositoryUtil.whereField(parameters.get(Key.ETAGE), null, databaseKey+".etage");
         }
         return null;
     }
     public static Condition doerCondition(SearchParameters parameters) {
         if (parameters.has(Key.DOER)) {
-            return RepositoryUtil.whereField(parameters.get(Key.DOER), null, databaseKey+".latestVersion.doer");
+            return RepositoryUtil.whereField(parameters.get(Key.DOER), null, databaseKey+".doer");
         }
         return null;
     }
