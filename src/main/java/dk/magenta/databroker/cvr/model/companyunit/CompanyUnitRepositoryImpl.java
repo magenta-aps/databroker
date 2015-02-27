@@ -23,10 +23,12 @@ public class CompanyUnitRepositoryImpl extends RepositoryImplementation<CompanyU
     private Logger log = Logger.getLogger(CompanyUnitRepositoryImpl.class);
 
     public void bulkWireReferences() {
+        long time;
         this.log.info("Updating references between units and companies");
-        long time = Util.getTime();
+        time = Util.getTime();
         this.entityManager.createNativeQuery("update cvr_companyunit unit join cvr_company company on unit.cvr_nummer=company.cvr_nummer set unit.company_id=company.id where unit.company_id is NULL").executeUpdate();
         this.log.info("References updated in " + (Util.getTime() - time) + " ms");
+
         this.log.info("Updating references between units and addresses");
         time = Util.getTime();
         this.entityManager.createNativeQuery("update cvr_companyunit_version unit join dawa_enhedsadresse address on unit.address_descriptor=address.descriptor set unit.address_id=address.id where unit.address_id is NULL").executeUpdate();

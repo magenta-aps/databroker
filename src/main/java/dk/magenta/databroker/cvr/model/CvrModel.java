@@ -61,6 +61,13 @@ public class CvrModel {
                                     int primaryIndustryCode, int[] secondaryIndustryCodes, int formCode,
                                     Date startDate, Date endDate,
                                     RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
+        return this.setCompany(cvrKode, name, primaryIndustryCode, secondaryIndustryCodes, formCode, startDate, endDate, null, registreringInfo, virkninger);
+    }
+
+    public CompanyEntity setCompany(String cvrKode, String name,
+        int primaryIndustryCode, int[] secondaryIndustryCodes, int formCode,
+        Date startDate, Date endDate, String primaryAddressDescriptor,
+                RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
 
         CompanyEntity companyEntity = this.getCompany(cvrKode);
 
@@ -91,7 +98,7 @@ public class CvrModel {
         if (companyVersionEntity == null) {
             this.log.trace("Creating initial CompanyVersionEntity");
             companyVersionEntity = companyEntity.addVersion(registreringInfo.getCreateRegistrering(), virkninger);
-        } else if (!companyVersionEntity.matches(name, form, primaryIndustry, secondaryIndustries, startDate, endDate)) {
+        } else if (!companyVersionEntity.matches(name, form, primaryIndustry, secondaryIndustries, startDate, endDate, primaryAddressDescriptor)) {
             this.log.trace("Creating updated CompanyVersionEntity");
             companyVersionEntity = companyEntity.addVersion(registreringInfo.getUpdateRegisterering(), virkninger);
         } else {
@@ -108,6 +115,7 @@ public class CvrModel {
             //companyVersionEntity.setPrimaryUnit(primaryUnit);
             companyVersionEntity.setStartDate(startDate);
             companyVersionEntity.setEndDate(endDate);
+            companyVersionEntity.setPrimaryAddressDescriptor(primaryAddressDescriptor);
 
             this.companyRepository.save(companyEntity);
         }
@@ -153,6 +161,8 @@ public class CvrModel {
                                     RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
 
         CompanyUnitEntity companyUnitEntity = this.companyUnitCache.get(pNummer);
+        //CompanyEntity companyEntity = this.getCompany(cvrNummer);
+        //CompanyVersionEntity companyVersionEntity = companyEntity.getLatestVersion();
 
         if (companyUnitEntity == null) {
             this.log.trace("Creating new CompanyUnitEntity " + pNummer);
