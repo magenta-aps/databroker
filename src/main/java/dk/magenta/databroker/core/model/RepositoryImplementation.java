@@ -37,11 +37,14 @@ public abstract class RepositoryImplementation<T> {
         this.log.trace(hql.join(" \n"));
         Query q = this.entityManager.createQuery(hql.join(" "));
 
-        int offset = 0;
-        int limit = 1000;
+        int offset;
+        int limit;
         if (globalCondition != null) {
             offset = globalCondition.getOffset();
             limit = globalCondition.getLimit();
+        } else {
+            offset = 0;
+            limit = 1000;
         }
 
         q.setFirstResult(offset);
