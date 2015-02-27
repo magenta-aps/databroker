@@ -43,12 +43,13 @@ public class DocumentationController {
 
     @RequestMapping("/doc/vej")
     public ModelAndView veje() {
-        VejstykkeEntity vejstykkeEntity = this.dawaModel.getVejstykke(101, 7064, true);
-
         Map<String, Object> model = new HashMap<String, Object>();
+        VejstykkeEntity vejstykkeEntity = null;
+        try {
+            vejstykkeEntity = this.dawaModel.getVejstykke(101, 7064, true);
+        } catch (Exception e) {}
         model.put("uuid", vejstykkeEntity != null ? vejstykkeEntity.getUuid() : "e9032c69-98bf-4e18-bc94-1a5e5f8901e4");
         model.put("nav","vej");
-
         return new ModelAndView("doc/vej", model);
     }
 
@@ -56,22 +57,23 @@ public class DocumentationController {
     public ModelAndView postnr() {
         Map<String, Object> model = new HashMap<String, Object>();
         model.put("nav","postnr");
-
         return new ModelAndView("doc/postnummer", model);
     }
 
 
     @RequestMapping("/doc/adgangsadresse")
     public ModelAndView adgangsadresse() {
-        SearchParameters parameters = new SearchParameters();
-        parameters.put(Key.LAND, "gl");
-        parameters.put(Key.KOMMUNE, 958);
-        parameters.put(Key.VEJ, 18);
-        parameters.put(Key.HUSNR, 2);
-        Collection<AdgangsAdresseEntity> adgangsAdresseEntities = this.dawaModel.getAdgangsAdresse(parameters);
-        AdgangsAdresseEntity adgangsAdresseEntity = adgangsAdresseEntities.size() > 0 ? adgangsAdresseEntities.iterator().next() : null;
-
         Map<String, Object> model = new HashMap<String, Object>();
+        AdgangsAdresseEntity adgangsAdresseEntity = null;
+        try {
+            SearchParameters parameters = new SearchParameters();
+            parameters.put(Key.LAND, "gl");
+            parameters.put(Key.KOMMUNE, 958);
+            parameters.put(Key.VEJ, 18);
+            parameters.put(Key.HUSNR, 2);
+            Collection<AdgangsAdresseEntity> adgangsAdresseEntities = this.dawaModel.getAdgangsAdresse(parameters);
+            adgangsAdresseEntity = adgangsAdresseEntities.size() > 0 ? adgangsAdresseEntities.iterator().next() : null;
+        } catch (Exception e) {}
         model.put("uuid", adgangsAdresseEntity != null ? adgangsAdresseEntity.getUuid() : "bf37eed9-5f28-4c45-acf6-41c932794a6b");
         model.put("nav","adgangsadresse");
 
@@ -81,16 +83,17 @@ public class DocumentationController {
 
     @RequestMapping("/doc/adresse")
     public ModelAndView adresse() {
-        SearchParameters parameters = new SearchParameters();
-        parameters.put(Key.KOMMUNE, 330);
-        parameters.put(Key.VEJ, 779);
-        parameters.put(Key.HUSNR, 35);
-        parameters.put(Key.ETAGE, 2);
-
-        Collection<EnhedsAdresseEntity> enhedsAdresseEntities = this.dawaModel.getEnhedsAdresse(parameters);
-        EnhedsAdresseEntity enhedsAdresseEntity = enhedsAdresseEntities.size() > 0 ? enhedsAdresseEntities.iterator().next() : null;
-
         Map<String, Object> model = new HashMap<String, Object>();
+        EnhedsAdresseEntity enhedsAdresseEntity = null;
+        try {
+            SearchParameters parameters = new SearchParameters();
+            parameters.put(Key.KOMMUNE, 330);
+            parameters.put(Key.VEJ, 779);
+            parameters.put(Key.HUSNR, 35);
+            parameters.put(Key.ETAGE, 2);
+            Collection<EnhedsAdresseEntity> enhedsAdresseEntities = this.dawaModel.getEnhedsAdresse(parameters);
+            enhedsAdresseEntity = enhedsAdresseEntities.size() > 0 ? enhedsAdresseEntities.iterator().next() : null;
+        } catch (Exception e) {}
         model.put("uuid", enhedsAdresseEntity != null ? enhedsAdresseEntity.getUuid() : "dd308d33-a60f-4506-b410-4397b038d20c");
         model.put("nav","adresse");
 
@@ -100,10 +103,12 @@ public class DocumentationController {
 
     @RequestMapping("/doc/lokalitet")
     public ModelAndView lokalitet() {
-        Collection<LokalitetEntity> lokalitetEntities = this.dawaModel.getLokalitet(new SearchParameters(null, null, null, new String[]{"Nuuk"}, null, null, null, null, null));
-        LokalitetEntity lokalitetEntity = lokalitetEntities.size() > 0 ? lokalitetEntities.iterator().next() : null;
-
         Map<String, Object> model = new HashMap<String, Object>();
+        LokalitetEntity lokalitetEntity = null;
+        try {
+            Collection<LokalitetEntity> lokalitetEntities = this.dawaModel.getLokalitet(new SearchParameters(null, null, null, new String[]{"Nuuk"}, null, null, null, null, null));
+            lokalitetEntity = lokalitetEntities.size() > 0 ? lokalitetEntities.iterator().next() : null;
+        } catch (Exception e) {}
         model.put("uuid", lokalitetEntity != null ? lokalitetEntity.getUuid() : "d718816e-d054-4cd4-85ec-85f50e5a6779");
         model.put("nav","lokalitet");
 
