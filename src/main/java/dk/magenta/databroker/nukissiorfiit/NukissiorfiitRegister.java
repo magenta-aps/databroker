@@ -139,6 +139,9 @@ public class NukissiorfiitRegister extends Register {
         this.model.resetAllCaches();
         HashSet<Pair<String,String>> failures = new HashSet<Pair<String, String>>();
         HashSet<Pair<String,String>> successes = new HashSet<Pair<String, String>>();
+
+        Level2Container<VejstykkeEntity> guessedRoads = new Level2Container<VejstykkeEntity>();
+
         for (Record r : run) {
             if (r instanceof NukissiorfiitRecord) {
                 NukissiorfiitRecord record = (NukissiorfiitRecord) r;
@@ -159,6 +162,33 @@ public class NukissiorfiitRegister extends Register {
                         }
                     }
                 }
+
+
+                if (vejstykkeEntity == null) {
+                    if (vejNavn.length() > 3) {
+                        vejstykkeEntity = guessedRoads.get(postnr, vejNavn);
+
+                        if (vejstykkeEntity == null) {
+                            String longestWord = this.longestWord(vejNavn);
+                            SearchParameters parameters = new SearchParameters();
+                            parameters.put(Key.LAND, "gl");
+                            parameters.put(Key.POST, postnr);
+                            parameters.put(Key.VEJ, "*" + longestWord + "*");
+
+                            Collection<VejstykkeEntity> guesses = this.model.getVejstykke(parameters, false);
+                            System.out.println("Not found: "+postnr+" / "+vejNavn);
+                            if (guesses.size() == 1) {
+                                VejstykkeEntity guess = guesses.iterator().next();
+                                System.out.println("    Guessing by longest word: " + longestWord);
+                                System.out.println("    Guess: " + guess.getLatestVersion().getVejnavn());
+
+                                vejstykkeEntity = guess;
+                                guessedRoads.put(postnr, vejNavn, guess);
+                            }
+                        }
+                    }
+                }
+
 
                 if (vejstykkeEntity == null) {
                     failures.add(new Pair<String, String>(""+postnr, vejNavn));
@@ -185,7 +215,7 @@ public class NukissiorfiitRegister extends Register {
         for (Pair<String, String> success : successes) {
             System.out.println("Genkendt: " + success.getLeft() + " / " + success.getRight());
         }
-
+/*
         for (Pair<String, String> failure : failures) {
             String vejnavn = failure.getRight();
 
@@ -202,23 +232,24 @@ public class NukissiorfiitRegister extends Register {
                 if (guesses.size() > 0) {
                     //System.out.println("  Search for "+this.longestWord(vejnavn));
 
-                    //if (guesses.size() == 1) {
-                        /*for (VejstykkeEntity guess : guesses) {
+                    if (guesses.size() == 1) {
+                        for (VejstykkeEntity guess : guesses) {
                             System.out.println("---------------------------------");
                             System.out.println("not found: "+failure.getLeft()+" : "+vejnavn + "("+this.normalize(vejnavn,true)+")");
                             System.out.println("Guessing by longest word: "+this.longestWord(vejnavn));
                             System.out.println("Single Guess: " + guess.getLatestVersion().getVejnavn()+"/"+guess.getLatestVersion().getVejadresseringsnavn() + "("+this.normalize(guess.getLatestVersion().getVejnavn(), true)+")"+(vejMap.get(this.normalize(guess.getLatestVersion().getVejnavn()))==null ? "NOT found":"found"));
-                        }*/
-                    //} else {
+
+                        }
+                    } else {
                         for (VejstykkeEntity guess : guesses) {
                             for (PostNummerEntity postNummerEntity : guess.getLatestVersion().getPostnumre()) {
                                 System.out.println("    gæt: " + postNummerEntity.getLatestVersion().getNr() + " / " + guess.getLatestVersion().getVejnavn());
                             }
                         }
-                    //}
+                    }
                 }
             }
-        }
+        }*/
     }
 
     private String ignoredSuffixes = "\\b(aqquser(na)?)|(aqqulaa)|(avquserna)|(avquta+t?)|(aqquta+t?)|(aqqut*)|(aq+)|([av]vq)|(kujalleq)$";
