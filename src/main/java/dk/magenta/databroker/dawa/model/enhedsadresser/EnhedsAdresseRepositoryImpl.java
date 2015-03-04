@@ -21,6 +21,7 @@ import java.util.Collection;
 
 interface EnhedsAdresseRepositoryCustom {
     public Collection<EnhedsAdresseEntity> search(SearchParameters parameters);
+    public EnhedsAdresseEntity getByDescriptor(String descriptor);
     public void clear();
 }
 

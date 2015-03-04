@@ -140,7 +140,10 @@ public class CompanyUnitEntity extends DobbeltHistorikBase<CompanyUnitEntity, Co
         obj.put("startDate", latestVersion.getStartDate());
         obj.put("endDate", latestVersion.getEndDate());
 
-        obj.put("address", latestVersion.getAddress().toJSON());
+        EnhedsAdresseEntity enhedsAdresseEntity = latestVersion.getAddress();
+        if (enhedsAdresseEntity != null) {
+            obj.put("address", latestVersion.getAddress().toJSON());
+        }
         obj.put("primaryIndustry", latestVersion.getPrimaryIndustry().toJSON());
         Collection<IndustryEntity> secondaryIndustries = latestVersion.getSecondaryIndustries();
         if (secondaryIndustries != null && !secondaryIndustries.isEmpty()) {
