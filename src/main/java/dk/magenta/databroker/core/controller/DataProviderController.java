@@ -34,6 +34,8 @@ public class DataProviderController {
     private HashMap<String, Thread> cronThreads;
     private Logger log;
 
+    private final boolean BLOCK_CHANGES_ON_RUNNING = true; // Should a running import block all registers from importing?
+
     public DataProviderController() {
         this.userThreads = new HashMap<String, Thread>();
         this.cronThreads = new HashMap<String, Thread>();
@@ -46,6 +48,22 @@ public class DataProviderController {
             this.updateCronScheduling(dataProviderEntity);
         }
     }*/
+
+
+    private boolean isImportRunning() {
+        for (String key : this.userThreads.keySet()) {
+            if (this.userThreads.get(key).isAlive()) {
+                return true;
+            }
+        }
+        for (String key : this.cronThreads.keySet()) {
+            if (this.cronThreads.get(key).isAlive()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     @Autowired
     @SuppressWarnings("SpringJavaAutowiringInspection")
@@ -89,6 +107,7 @@ public class DataProviderController {
     @RequestMapping("/dataproviders/")
     public ModelAndView index(HttpServletRequest request) {
         this.logRequest(request);
+        boolean blockImport = BLOCK_CHANGES_ON_RUNNING && this.isImportRunning();
         Map<String, Object> model = new HashMap<String, Object>();
         model.put("dataproviderEntities", dataProviderRegistry.getDataProviderEntities());
         Map<String, HashMap<String, String>> providerInfo = new HashMap<String, HashMap<String, String>>();
@@ -97,6 +116,7 @@ public class DataProviderController {
             info.put("status", this.getProviderStatus(dataProviderEntity));
             providerInfo.put(dataProviderEntity.getUuid(), info);
         }
+        model.put("blockImport", blockImport);
         model.put("dataproviderInfo", providerInfo);
         return new ModelAndView("dataproviders/index", model);
     }
@@ -120,6 +140,7 @@ public class DataProviderController {
 
     private ModelAndView edit(HttpServletRequest request) {
         this.logRequest(request);
+        boolean blockImport = BLOCK_CHANGES_ON_RUNNING && this.isImportRunning();
 
         Map<String, String[]> params = request.getParameterMap();
         String uuid = request.getParameter("uuid");
@@ -210,6 +231,7 @@ public class DataProviderController {
         Map<String, Object> model = new HashMap<String, Object>();
         model.put("values", values);
         model.put("action", action);
+        model.put("blockImport", blockImport);
 
         model.put("dataproviders", this.getDataProviderData());
         return new ModelAndView("dataproviders/edit", model);
@@ -217,7 +239,8 @@ public class DataProviderController {
 
     private ModelAndView processUpload(HttpServletRequest request, DataProviderEntity dataProviderEntity, DataProvider dataProvider) {
         String uuid = dataProviderEntity.getUuid();
-        if (dataProvider.wantUpload(dataProviderEntity.getConfiguration()) && this.requestHasDataInFields(request, dataProvider.getUploadFields())) {
+        boolean blockImport = BLOCK_CHANGES_ON_RUNNING && this.isImportRunning();
+        if (!blockImport && dataProvider.wantUpload(dataProviderEntity.getConfiguration()) && this.requestHasDataInFields(request, dataProvider.getUploadFields())) {
             this.log.info("Processing upload");
             //this.transactionManager.setJpaDialect(new CustomJpaDialect());
             Thread thread = dataProvider.asyncPush(dataProviderEntity, request, this.transactionManager);
@@ -345,6 +368,8 @@ public class DataProviderController {
             model.put("status", this.getProviderStatus(dataProviderEntity));
             model.put("uuid", uuid);
         }
+        boolean blockImport = BLOCK_CHANGES_ON_RUNNING && this.isImportRunning();
+        model.put("blockImport", blockImport);
         return new ModelAndView(new MappingJackson2JsonView(), model);
     }
 

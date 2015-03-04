@@ -53,32 +53,42 @@
                     var deleteButton = $("#" + uuid + "_delete");
                     var pullButton = $("#" + uuid + "_pull");
                     if (provider.status != obj.state || force) {
+                        var canEdit = false,
+                            canDelete = false,
+                            canPull = false;
                         switch (obj.status) {
                             case "ENABLED":
                                 statusField.text(statusText.enabled);
-                                editButton.removeClass("disabled");
-                                deleteButton.removeClass("disabled");
-                                pullButton.removeClass("disabled");
+                                canEdit = true;
+                                canDelete = true;
+                                canPull = true;
                                 break;
                             case "DISABLED":
                                 statusField.text(statusText.disabled);
-                                editButton.removeClass("disabled");
-                                deleteButton.removeClass("disabled");
-                                pullButton.addClass("disabled");
+                                canEdit = true;
+                                canDelete = true;
+                                canPull = false;
                                 break;
                             case "RUNNING":
                                 statusField.text(statusText.running);
-                                editButton.addClass("disabled");
-                                deleteButton.addClass("disabled");
-                                pullButton.addClass("disabled");
+                                canEdit = false;
+                                canDelete = false;
+                                canPull = false;
                                 break;
                             case "PAUSED":
                                 statusField.text(statusText.paused);
-                                editButton.addClass("disabled");
-                                deleteButton.addClass("disabled");
-                                pullButton.addClass("disabled");
+                                canEdit = false;
+                                canDelete = false;
+                                canPull = false;
                                 break;
                         }
+                        if (obj.blockImport) {
+                            canPull = false;
+                        }
+                        editButton.toggleClass("disabled", !canEdit);
+                        deleteButton.toggleClass("disabled", !canDelete);
+                        pullButton.toggleClass("disabled", !canPull);
+
                         provider.status = obj.status;
                     }
                 }

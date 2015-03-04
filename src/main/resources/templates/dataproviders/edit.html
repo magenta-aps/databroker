@@ -9,6 +9,7 @@
     <script th:inline="javascript">
       window.providerData = [[${dataproviders}]];
       window.values = [[${values}]];
+      window.blockImport = [[${blockImport}]];
     </script>
 
     <script type="text/javascript">
@@ -57,6 +58,9 @@
               });
               tmp.find("select").selectpicker({width:"auto"});
 
+              if (window.blockImport) {
+                tmp.find(".disable-when-importing").attr("disabled", "disabled");
+              }
               container.empty();
               tmp.appendTo(container);
             }});
