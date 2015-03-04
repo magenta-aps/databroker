@@ -3,6 +3,7 @@ package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 import dk.magenta.databroker.core.DataProviderConfiguration;
 import dk.magenta.databroker.core.RegistreringInfo;
 import dk.magenta.databroker.core.model.DataProviderEntity;
+import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.register.LineRegister;
 import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.util.objectcontainers.Pair;
@@ -41,7 +42,7 @@ public class CprRegister extends LineRegister {
             this.dataProviderEntity = dataProviderEntity;
             this.input = input;
             this.deleteFiles = deleteFiles;
-            this.transactionTemplate = new TransactionTemplate(transactionManager);;
+            this.transactionTemplate = new TransactionTemplate(transactionManager);
         }
 
         public void run() {
@@ -71,9 +72,12 @@ public class CprRegister extends LineRegister {
                             }
                         }
                     }
+                    CprRegister.this.dawaModel.flush();
                     return null;
                 }
             });
+
+            System.out.println("Push complete");
         }
     }
 
@@ -101,6 +105,7 @@ public class CprRegister extends LineRegister {
                     for (CprSubRegister subRegister : registers) {
                         subRegister.pull(true, true, dataProviderEntity);
                     }
+                    CprRegister.this.dawaModel.flush();
                     return null;
                 }
             });
@@ -128,6 +133,10 @@ public class CprRegister extends LineRegister {
     @SuppressWarnings("SpringJavaAutowiringInspection")
     private BynavnRegister bynavnRegister;
 
+
+    @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
+    private DawaModel dawaModel;
 
     private List<CprSubRegister> subRegisters;
 

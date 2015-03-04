@@ -22,6 +22,7 @@ import dk.magenta.databroker.cvr.model.industry.IndustryEntity;
 import dk.magenta.databroker.cvr.model.industry.IndustryRepository;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseEntity;
+import dk.magenta.databroker.util.TimeRecorder;
 import dk.magenta.databroker.util.cache.Level1Cache;
 import dk.magenta.databroker.util.objectcontainers.Level1Container;
 import org.apache.log4j.Logger;
@@ -61,16 +62,19 @@ public class CvrModel {
                                     int primaryIndustryCode, int[] secondaryIndustryCodes, int formCode,
                                     Date startDate, Date endDate,
                                     RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
-        return this.setCompany(cvrKode, name, primaryIndustryCode, secondaryIndustryCodes, formCode, startDate, endDate, null, registreringInfo, virkninger);
+        return this.setCompany(cvrKode, name, primaryIndustryCode, secondaryIndustryCodes, formCode, startDate, endDate, 0, registreringInfo, virkninger);
     }
 
     public CompanyEntity setCompany(String cvrKode, String name,
         int primaryIndustryCode, int[] secondaryIndustryCodes, int formCode,
-        Date startDate, Date endDate, String primaryAddressDescriptor,
+        Date startDate, Date endDate, long primaryAddressDescriptor,
                 RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
 
-        CompanyEntity companyEntity = this.getCompany(cvrKode);
+        TimeRecorder time = new TimeRecorder();
 
+        CompanyEntity companyEntity = this.getCompany(cvrKode, true);
+
+        time.record();
         if (name == null) {
             name = "";
         }
@@ -84,6 +88,7 @@ public class CvrModel {
             companyEntity.setCvrNummer(cvrKode);
             this.companyCache.put(companyEntity);
         }
+        time.record();
 
         FormEntity form = this.getFormEntity(formCode);
 
@@ -92,6 +97,7 @@ public class CvrModel {
         for (int secondaryIndustryCode : secondaryIndustryCodes) {
             secondaryIndustries.add(this.getIndustryEntity(secondaryIndustryCode));
         }
+        time.record();
 
         CompanyVersionEntity companyVersionEntity = companyEntity.getLatestVersion();
 
@@ -104,6 +110,7 @@ public class CvrModel {
         } else {
             companyVersionEntity = null;
         }
+        time.record();
 
         if (companyVersionEntity != null) {
             companyVersionEntity.setName(name);
@@ -119,12 +126,17 @@ public class CvrModel {
 
             this.companyRepository.save(companyEntity);
         }
+        time.record();
+        //System.out.println(time);
         return companyEntity;
     }
 
-    public CompanyEntity getCompany(String cvrNummer) {
-        return this.companyCache.get(cvrNummer);
-        //return this.companyRepository.getByCvrNummer(cvrNummer);
+    public CompanyEntity getCompany(String cvrNummer, boolean noCache) {
+        if (noCache) {
+            return this.companyRepository.getByCvrNummer(cvrNummer);
+        } else {
+            return this.companyCache.get(cvrNummer);
+        }
     }
 
     public Collection<CompanyEntity> getCompany(SearchParameters parameters) {
@@ -155,7 +167,8 @@ public class CvrModel {
 
     public CompanyUnitEntity setCompanyUnit(long pNummer, String name, String cvrNummer,
                                     int primaryIndustryCode, int[] secondaryIndustryCodes,
-                                    EnhedsAdresseEntity address, Date addressDate, String phone, String fax, String email,
+                                    EnhedsAdresseEntity address, Date addressDate, String addressDescriptor,
+                                    String phone, String fax, String email,
                                     Date startDate, Date endDate,
                                     boolean advertProtection,
                                     RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
@@ -205,6 +218,7 @@ public class CvrModel {
             companyUnitVersionEntity.setName(name);
             companyUnitVersionEntity.setAddress(address);
             companyUnitVersionEntity.setAddressDate(addressDate);
+            companyUnitVersionEntity.setAddressDescriptor(addressDescriptor);
             companyUnitVersionEntity.setPrimaryIndustry(primaryIndustry);
             for (IndustryEntity industryEntity : secondaryIndustries) {
                 companyUnitVersionEntity.addSecondaryIndustry(industryEntity);

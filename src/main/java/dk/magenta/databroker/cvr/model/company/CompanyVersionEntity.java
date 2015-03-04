@@ -75,13 +75,13 @@ public class CompanyVersionEntity extends DobbeltHistorikVersion<CompanyEntity, 
 
     @Column(length = 25)
     @Index(name = "primaryAddressDescriptorIndex")
-    private String primaryAddressDescriptor;
+    private long primaryAddressDescriptor;
 
-    public String getPrimaryAddressDescriptor() {
+    public long getPrimaryAddressDescriptor() {
         return this.primaryAddressDescriptor;
     }
 
-    public void setPrimaryAddressDescriptor(String primaryAddressDescriptor) {
+    public void setPrimaryAddressDescriptor(long primaryAddressDescriptor) {
         this.primaryAddressDescriptor = primaryAddressDescriptor;
     }
 
@@ -175,7 +175,7 @@ public class CompanyVersionEntity extends DobbeltHistorikVersion<CompanyEntity, 
 
     //----------------------------------------------------
 
-    public boolean matches(String name, FormEntity form, IndustryEntity primaryIndustry, Set<IndustryEntity> secondaryIndustries, Date startDate, Date endDate, String primaryAddressDescriptor) {
+    public boolean matches(String name, FormEntity form, IndustryEntity primaryIndustry, Set<IndustryEntity> secondaryIndustries, Date startDate, Date endDate, long primaryAddressDescriptor) {
         return Util.compare(this.name, name) &&
                 Util.compare(this.form, form) &&
                 Util.compare(this.primaryIndustry, primaryIndustry) &&

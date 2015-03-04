@@ -10,6 +10,7 @@ import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
 import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.register.conditions.ConditionList;
+import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.util.objectcontainers.StringList;
 
 import javax.persistence.EntityManager;
@@ -25,6 +26,7 @@ import java.util.Map;
 interface CompanyRepositoryCustom {
     public Collection<CompanyEntity> search(SearchParameters parameters);
     public void clear();
+    public CompanyEntity getByCvrNummer(String cvrNummer);
 }
 
 
@@ -94,6 +96,19 @@ public class CompanyRepositoryImpl extends RepositoryImplementation<CompanyEntit
             this.entityManager.flush();
             this.entityManager.clear();
         }
+    }
+
+
+    public CompanyEntity getByCvrNummer(String cvrNummer) {
+        final GlobalCondition singleResultCondition = new GlobalCondition(null,null,0,1);
+        StringList hql = new StringList();
+        hql.append("select distinct "+CompanyEntity.databaseKey+" from CompanyEntity as "+CompanyEntity.databaseKey);
+        ConditionList conditions = new ConditionList();
+        conditions.addCondition(CompanyEntity.cvrCondition(cvrNummer));
+        hql.append("where");
+        hql.append(conditions.getWhere());
+        Collection<CompanyEntity> companyEntities = this.query(hql, conditions, singleResultCondition);
+        return companyEntities.size() > 0 ? companyEntities.iterator().next() : null;
     }
 }
 

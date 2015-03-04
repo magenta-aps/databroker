@@ -25,7 +25,7 @@ public interface VejstykkeRepository extends JpaRepository<VejstykkeEntity, Long
     * To be implemented in interface implementation
     * */
     public Collection<VejstykkeEntity> search(SearchParameters parameters);
-    public VejstykkeEntity getByDescriptor(String descriptor);
+    public VejstykkeEntity getByDescriptor(int descriptor);
     public void clear();
 
 }

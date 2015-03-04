@@ -52,4 +52,14 @@ public abstract class Util {
     public static long getTime() {
         return new Date().getTime();
     }
+
+    public static long stringHash(String str) {
+        long hash = 0;
+        if (str != null) {
+            for (int i=0; i<str.length(); i++) {
+                hash = (hash << 8) + str.codePointAt(i);
+            }
+        }
+        return hash;
+    }
 }

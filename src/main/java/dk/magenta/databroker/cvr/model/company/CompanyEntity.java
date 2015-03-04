@@ -149,6 +149,9 @@ public class CompanyEntity extends DobbeltHistorikBase<CompanyEntity, CompanyVer
         }
         return null;
     }
+    public static Condition cvrCondition(String cvrNummer) {
+        return RepositoryUtil.whereField(cvrNummer, null, databaseKey+".cvrNummer");
+    }
     public static Condition virksomhedCondition(SearchParameters parameters) {
         if (parameters.has(Key.VIRKSOMHED)) {
             return RepositoryUtil.whereField(parameters.get(Key.VIRKSOMHED), null, databaseKey+".latestVersion.name");

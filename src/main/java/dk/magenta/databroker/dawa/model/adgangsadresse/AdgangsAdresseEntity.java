@@ -131,13 +131,13 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
     //----------------------------------------------------
 
     @Column
-    private String vejstykkeDescriptor;
+    private int vejstykkeDescriptor;
 
-    public String getVejstykkeDescriptor() {
+    public int getVejstykkeDescriptor() {
         return vejstykkeDescriptor;
     }
 
-    public void setVejstykkeDescriptor(String vejstykkeDescriptor) {
+    public void setVejstykkeDescriptor(int vejstykkeDescriptor) {
         this.vejstykkeDescriptor = vejstykkeDescriptor;
     }
 
@@ -165,29 +165,41 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
 
     //----------------------------------------------------
 
-    @Column
+    @Column(length = 20)
     @Index(name="descriptorIndex")
-    private String descriptor;
+    private long descriptor;
 
-    public String getDescriptor() {
+    public long getDescriptor() {
         return descriptor;
     }
 
-    public void setDescriptor(String descriptor) {
+    public void setDescriptor(long descriptor) {
         this.descriptor = descriptor;
     }
 
-    public static String generateDescriptor(int kommuneKode, int vejKode, String husNr) {
-        return kommuneKode+":"+vejKode+":"+Util.emptyIfNull(husNr).toLowerCase();
+    public static long generateDescriptor(int kommuneKode, int vejKode, String husNr) {
+        // kommunekode: max 1000: 10 bits
+        // vejkode: max: 16384: 14 bits
+        // husnr: max 5 chars: 40 bits
+        // kkkkkkkk kkvvvvvv vvvvvvvv hhhhhhhh hhhhhhhh hhhhhhhh hhhhhhhh hhhhhhhh
+        return ((long)kommuneKode << 54) | ((long)vejKode << 40) | hashHusnr(husNr);
+    }
+
+    public static long hashHusnr(String husnr) {
+        if (husnr.length() > 5) {
+            throw new IllegalArgumentException("we don't accept husnumre longer than 5 chars: "+husnr);
+        }
+        return Util.stringHash(Util.emptyIfNull(husnr).toLowerCase());
     }
 
     public void generateDescriptor() {
         VejstykkeEntity vejstykkeEntity = this.getVejstykke();
         if (vejstykkeEntity != null) {
             KommuneEntity kommuneEntity = vejstykkeEntity.getKommune();
-            this.setDescriptor(generateDescriptor(kommuneEntity.getKode(), vejstykkeEntity.getKode(), this.getHusnr()));
-        } else if (this.vejstykkeDescriptor != null) {
-            this.setDescriptor(this.vejstykkeDescriptor+":"+Util.emptyIfNull(this.getHusnr()).toLowerCase());
+            long descriptor = generateDescriptor(kommuneEntity.getKode(), vejstykkeEntity.getKode(), this.getHusnr());
+            this.setDescriptor(descriptor);
+        } else if (this.vejstykkeDescriptor != 0) {
+            this.setDescriptor(((long)this.vejstykkeDescriptor << 40) | hashHusnr(husnr));
         }
     }
 
@@ -289,8 +301,8 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
         }
         return null;
     }
-    public static Condition descriptorCondition(String descriptor) {
-        return RepositoryUtil.whereField(descriptor, null, databaseKey+".descriptor");
+    public static Condition descriptorCondition(long descriptor) {
+        return RepositoryUtil.whereField(descriptor, databaseKey+".descriptor", null);
     }
     public static String joinVej() {
         return databaseKey+".vejstykke as "+VejstykkeEntity.databaseKey;

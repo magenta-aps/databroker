@@ -74,6 +74,7 @@ public class CompanyUnitVersionEntity extends DobbeltHistorikVersion<CompanyUnit
     //----------------------------------------------------
 
     @Column(nullable = true)
+    @Index(name = "addressDescriptorIndex")
     private String addressDescriptor;
 
     public String getAddressDescriptor() {

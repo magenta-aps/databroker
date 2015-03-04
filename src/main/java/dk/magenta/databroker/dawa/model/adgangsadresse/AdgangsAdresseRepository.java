@@ -43,7 +43,7 @@ public interface AdgangsAdresseRepository extends JpaRepository<AdgangsAdresseEn
     * To be implemented in interface implementation
     * */
     public Collection<AdgangsAdresseEntity> search(SearchParameters parameters);
-    public AdgangsAdresseEntity getByDescriptor(String descriptor);
+    public AdgangsAdresseEntity getByDescriptor(long descriptor);
     public void bulkWireReferences();
     public void clear();
 

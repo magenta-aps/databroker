@@ -5,6 +5,8 @@ import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.cvr.model.company.CompanyEntity;
 import dk.magenta.databroker.cvr.model.industry.IndustryEntity;
 import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseEntity;
+import dk.magenta.databroker.register.RepositoryUtil;
+import dk.magenta.databroker.register.conditions.Condition;
 import dk.magenta.databroker.service.rest.SearchService;
 import dk.magenta.databroker.util.cache.Cacheable;
 import org.hibernate.annotations.Index;
@@ -157,6 +159,10 @@ public class CompanyUnitEntity extends DobbeltHistorikBase<CompanyUnitEntity, Co
 
     public static String joinEnhedsAdresse() {
         return databaseKey+".latestVersion.address as "+EnhedsAdresseEntity.databaseKey;
+    }
+
+    public static Condition pnoCondition(long pno) {
+        return RepositoryUtil.whereField(pno, databaseKey + ".pno", null);
     }
 
     @Override

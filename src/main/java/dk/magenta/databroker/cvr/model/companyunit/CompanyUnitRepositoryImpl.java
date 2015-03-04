@@ -1,12 +1,13 @@
 package dk.magenta.databroker.cvr.model.companyunit;
 
 import dk.magenta.databroker.core.model.RepositoryImplementation;
+import dk.magenta.databroker.register.conditions.ConditionList;
+import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.util.Util;
+import dk.magenta.databroker.util.objectcontainers.StringList;
 import org.apache.log4j.Logger;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
+import java.util.Collection;
 
 /**
  * Created by lars on 02-02-15.
@@ -16,6 +17,7 @@ import javax.persistence.Query;
 interface CompanyUnitRepositoryCustom {
     public void bulkWireReferences();
     public void clear();
+    public CompanyUnitEntity getByPno(long pno);
 }
 
 public class CompanyUnitRepositoryImpl extends RepositoryImplementation<CompanyUnitEntity> implements CompanyUnitRepositoryCustom {
@@ -40,6 +42,19 @@ public class CompanyUnitRepositoryImpl extends RepositoryImplementation<CompanyU
             this.entityManager.flush();
             this.entityManager.clear();
         }
+    }
+
+
+    public CompanyUnitEntity getByPno(long pno) {
+        final GlobalCondition singleResultCondition = new GlobalCondition(null,null,0,1);
+        StringList hql = new StringList();
+        hql.append("select distinct "+CompanyUnitEntity.databaseKey+" from CompanyUnitEntity as "+CompanyUnitEntity.databaseKey);
+        ConditionList conditions = new ConditionList();
+        conditions.addCondition(CompanyUnitEntity.pnoCondition(pno));
+        hql.append("where");
+        hql.append(conditions.getWhere());
+        Collection<CompanyUnitEntity> companyUnitEntities = this.query(hql, conditions, singleResultCondition);
+        return companyUnitEntities.size() > 0 ? companyUnitEntities.iterator().next() : null;
     }
 
 }
