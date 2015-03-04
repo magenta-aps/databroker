@@ -305,33 +305,37 @@ public class DataProviderController {
     @RequestMapping("/dataproviders/pull")
     public ModelAndView pullEntity(HttpServletRequest request) {
         this.logRequest(request);
-        // Do something
-        String uuid = request.getParameter("uuid");
-        String submit = request.getParameter("submit");
 
-        if (uuid != null) {
-            DataProviderEntity dataProviderEntity = this.dataProviderRegistry.getDataProviderEntity(uuid);
-            if (dataProviderEntity != null) {
-                Thread t = this.userThreads.get(uuid);
-                if (t != null && t.getState() != Thread.State.TERMINATED) {
-                    // Thread is already running
-                    return this.processingEntity(request, uuid);
-                } else {
-                    if (submit != null) {
-                        if (submit.equals("ok")) {
-                            this.log.trace("Pulling DataproviderEntity "+dataProviderEntity.getUuid()+" ("+dataProviderEntity.getClass().getSimpleName()+")");
-                            DataProvider dataProvider = dataProviderEntity.getDataProvider();
-                            Thread thread = dataProvider.asyncPull(dataProviderEntity, this.transactionManager);
-                            this.userThreads.put(uuid, thread);
-                            return this.processingEntity(request, uuid);
-                        } else {
-                            return this.redirectToIndex();
-                        }
+        boolean blockImport = BLOCK_CHANGES_ON_RUNNING && this.isImportRunning();
+
+        if (!blockImport) {
+            String uuid = request.getParameter("uuid");
+            String submit = request.getParameter("submit");
+
+            if (uuid != null) {
+                DataProviderEntity dataProviderEntity = this.dataProviderRegistry.getDataProviderEntity(uuid);
+                if (dataProviderEntity != null) {
+                    Thread t = this.userThreads.get(uuid);
+                    if (t != null && t.getState() != Thread.State.TERMINATED) {
+                        // Thread is already running
+                        return this.processingEntity(request, uuid);
                     } else {
-                        Map<String, Object> model = new HashMap<String, Object>();
-                        model.put("name", dataProviderEntity.getName());
-                        model.put("uuid", uuid);
-                        return new ModelAndView("dataproviders/preprocessing", model);
+                        if (submit != null) {
+                            if (submit.equals("ok")) {
+                                this.log.trace("Pulling DataproviderEntity "+dataProviderEntity.getUuid()+" ("+dataProviderEntity.getClass().getSimpleName()+")");
+                                DataProvider dataProvider = dataProviderEntity.getDataProvider();
+                                Thread thread = dataProvider.asyncPull(dataProviderEntity, this.transactionManager);
+                                this.userThreads.put(uuid, thread);
+                                return this.processingEntity(request, uuid);
+                            } else {
+                                return this.redirectToIndex();
+                            }
+                        } else {
+                            Map<String, Object> model = new HashMap<String, Object>();
+                            model.put("name", dataProviderEntity.getName());
+                            model.put("uuid", uuid);
+                            return new ModelAndView("dataproviders/preprocessing", model);
+                        }
                     }
                 }
             }
