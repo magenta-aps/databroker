@@ -528,7 +528,7 @@ public class DawaModel {
         addressTimeRecorder.add(time);
         addressCount++;
         if (addressCount % 1000 == 0) {
-            System.out.println(addressCount+": "+addressTimeRecorder);
+            //System.out.println(addressCount+": "+addressTimeRecorder);
             addressTimeRecorder = new TimeRecorder();
             //this.adgangsAdresseRepository.flush();
             //this.enhedsAdresseRepository.flush();
