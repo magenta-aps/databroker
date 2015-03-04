@@ -1,6 +1,9 @@
 package dk.magenta.databroker.cvr.model.company;
 
-import dk.magenta.databroker.cvr.model.form.FormEntity;
+import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitVersionEntity;
+import dk.magenta.databroker.cvr.model.deltager.DeltagerVersionEntity;
+import dk.magenta.databroker.cvr.model.embeddable.*;
+import dk.magenta.databroker.cvr.model.form.CompanyFormEntity;
 import dk.magenta.databroker.util.Util;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikVersion;
 import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitEntity;
@@ -18,17 +21,28 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "cvr_company_version")
+@org.hibernate.annotations.Table(
+        appliesTo = "cvr_company_version",
+        indexes = {
+                @Index(name = "locationAddressDescriptorIndex", columnNames = {"locationAddressDescriptor"}),
+                @Index(name = "postalAddressDescriptorIndex", columnNames = {"postalAddressDescriptor"}),
+        }
+)
 public class CompanyVersionEntity extends DobbeltHistorikVersion<CompanyEntity, CompanyVersionEntity> {
 
     public CompanyVersionEntity() {
-        this.units = new ArrayList<CompanyUnitEntity>();
-        this.secondaryIndustries = new ArrayList<IndustryEntity>();
+        this.unitVersions = new ArrayList<CompanyUnitVersionEntity>();
+        this.companyInfo = new CompanyInfo();
+        this.creditInformation = new ValidFromField();
+        this.participants = new ArrayList<DeltagerVersionEntity>();
     }
 
     public CompanyVersionEntity(CompanyEntity entity) {
         super(entity);
-        this.units = new ArrayList<CompanyUnitEntity>();
-        this.secondaryIndustries = new ArrayList<IndustryEntity>();
+        this.unitVersions = new ArrayList<CompanyUnitVersionEntity>();
+        this.companyInfo = new CompanyInfo();
+        this.creditInformation = new ValidFromField();
+        this.participants = new ArrayList<DeltagerVersionEntity>();
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -49,11 +63,15 @@ public class CompanyVersionEntity extends DobbeltHistorikVersion<CompanyEntity, 
     //------------------------------------------------------------------------------------------------------------------
     /* Domain specific fields */
 
-    @OneToMany(mappedBy = "company")
-    private Collection<CompanyUnitEntity> units;
+    @OneToMany(mappedBy = "companyVersion")
+    private Collection<CompanyUnitVersionEntity> unitVersions;
 
-    public Collection<CompanyUnitEntity> getCompanyUnits() {
-        return units;
+    public Collection<CompanyUnitVersionEntity> getUnitVersions() {
+        return unitVersions;
+    }
+
+    public void setUnitVersions(Collection<CompanyUnitVersionEntity> unitVersions) {
+        this.unitVersions = unitVersions;
     }
 
     //----------------------------------------------------
@@ -66,124 +84,85 @@ public class CompanyVersionEntity extends DobbeltHistorikVersion<CompanyEntity, 
     }
 
     public void setPrimaryUnit(CompanyUnitEntity primaryUnit) {
-        if (this.units.contains(primaryUnit)) {
+        if (this.unitVersions.contains(primaryUnit)) {
             this.primaryUnit = primaryUnit;
         }
     }
 
     //----------------------------------------------------
 
-    @Column(length = 25)
-    @Index(name = "primaryAddressDescriptorIndex")
-    private String primaryAddressDescriptor;
+    private CompanyInfo companyInfo;
 
-    public String getPrimaryAddressDescriptor() {
-        return this.primaryAddressDescriptor;
+    public CompanyInfo getCompanyInfo() {
+        return companyInfo;
     }
 
-    public void setPrimaryAddressDescriptor(String primaryAddressDescriptor) {
-        this.primaryAddressDescriptor = primaryAddressDescriptor;
-    }
-
-    //----------------------------------------------------
-
-    @Column
-    @Index(name = "nameIndex")
-    private String name;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public void setCompanyInfo(CompanyInfo companyInfo) {
+        this.companyInfo = companyInfo;
     }
 
     //----------------------------------------------------
 
     @ManyToOne
-    private IndustryEntity primaryIndustry;
+    private CompanyFormEntity form;
 
-    public IndustryEntity getPrimaryIndustry() {
-        return primaryIndustry;
-    }
-
-    public void setPrimaryIndustry(IndustryEntity primaryIndustry) {
-        this.primaryIndustry = primaryIndustry;
-    }
-    //----------------------------------------------------
-
-    @ManyToOne
-    private FormEntity form;
-
-    public FormEntity getForm() {
+    public CompanyFormEntity getForm() {
         return form;
     }
 
-    public void setForm(FormEntity form) {
+    public void setForm(CompanyFormEntity form) {
         this.form = form;
     }
 
     //----------------------------------------------------
 
-    @ManyToMany
-    private Collection<IndustryEntity> secondaryIndustries;
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "validFrom", column = @Column(name = "creditInformationValidFrom")),
+            @AttributeOverride(name = "text", column = @Column(name = "creditInformation"))
+    })
+    private ValidFromField creditInformation;
 
-    public Collection<IndustryEntity> getSecondaryIndustries() {
-        return secondaryIndustries;
+    public ValidFromField getCreditInformation() {
+        return creditInformation;
     }
 
-    public void addSecondaryIndustry(IndustryEntity secondaryIndustry) {
-        if (!this.hasSecondaryIndustry(secondaryIndustry)) {
-            this.secondaryIndustries.add(secondaryIndustry);
-        }
-    }
-    public void removeSecondaryIndustry(IndustryEntity secondaryIndustry) {
-        if (this.hasSecondaryIndustry(secondaryIndustry)) {
-            this.secondaryIndustries.remove(secondaryIndustry);
-        }
-    }
-    public boolean hasSecondaryIndustry(IndustryEntity secondaryIndustry) {
-        return this.secondaryIndustries.contains(secondaryIndustry);
+    public void setCreditInformation(ValidFromField creditInformation) {
+        this.creditInformation = creditInformation;
     }
 
     //----------------------------------------------------
 
-    @Column(nullable = true)
-    private Date startDate;
+    @OneToMany(mappedBy = "companyVersion")
+    private Collection<DeltagerVersionEntity> participants;
 
-    public Date getStartDate() {
-        return startDate;
+    public Collection<DeltagerVersionEntity> getParticipants() {
+        return participants;
     }
 
-    public void setStartDate(Date startDate) {
-        this.startDate = startDate;
-    }
-
-    //----------------------------------------------------
-
-    @Column(nullable = true)
-    private Date endDate;
-
-    public Date getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
+    public void setParticipants(Collection<DeltagerVersionEntity> participants) {
+        this.participants = participants;
     }
 
     //----------------------------------------------------
 
-    public boolean matches(String name, FormEntity form, IndustryEntity primaryIndustry, Set<IndustryEntity> secondaryIndustries, Date startDate, Date endDate, String primaryAddressDescriptor) {
-        return Util.compare(this.name, name) &&
+    public boolean matches(
+            String name,
+            CompanyFormEntity form,
+            IndustryEntity primaryIndustry,
+            Set<IndustryEntity> secondaryIndustries,
+            Date startDate,
+            Date endDate,
+            String primaryAddressDescriptor) {
+        return Util.compare(this.companyInfo.getName(), name) &&
                 Util.compare(this.form, form) &&
-                Util.compare(this.primaryIndustry, primaryIndustry) &&
-                Util.compare(this.secondaryIndustries, secondaryIndustries) &&
-                Util.compare(this.units, units) &&
-                Util.compare(this.startDate, startDate) &&
-                Util.compare(this.endDate, endDate) &&
-                Util.compare(this.primaryAddressDescriptor, primaryAddressDescriptor);
+                Util.compare(this.companyInfo.getPrimaryIndustry(), primaryIndustry) &&
+                Util.compare(this.companyInfo.getSecondaryIndustries(), secondaryIndustries) &&
+                Util.compare(this.unitVersions, unitVersions) &&
+                Util.compare(this.companyInfo.getLifeCycle().getStartDate(), startDate) &&
+                Util.compare(this.companyInfo.getLifeCycle().getEndDate(), endDate) &&
+                // TODO: Compare both location and postal address?
+                Util.compare(this.companyInfo.getLocationAddress().getDescriptor(), primaryAddressDescriptor);
     }
 
 

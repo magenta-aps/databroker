@@ -1,0 +1,197 @@
+var adressetype = [
+    {
+        "gyldigFra": "date",
+        "vejnavn": "varchar(40)",
+        "vejkode": "unsigned int(4)",
+        "husnummerFra": "unsigned int(3)",
+        "husnummerTil": "unsigned int(3)",
+        "bogstavFra": "char(1)",
+        "bogstavtil": "char(1)",
+        "etage": "unsigned int(2)",
+        "sidedoer": "varchar(4)",
+        "postnr": "unsigned int(4)",
+        "postdistrikt": "varchar(25)",
+        "bynavn": "varchar(34)",
+        "kommune": {
+            "kode": "unsigned int(2)",
+            "tekst": "varchar(50)"
+        },
+        "postboks": "unsigned int(4)",
+        "coNavn": "varchar(40)",
+        "adresseFritekst": "varchar(238)"
+    }
+];
+
+var branchetype = [
+    {
+        "gyldigFra": "date",
+        "kode": "varchar(6)",
+        "tekst": "varchar(130)"
+    }
+];
+
+var virksomhed = {
+    "modifikationsstatus": "string",
+    "cvrnr": "unsigned int(10)",
+    "livsforloeb": [
+        {
+            "startdato": "date",
+            "slutdato": "date"
+        }
+    ],
+    "ajourfoeringsdato": "date",
+    "reklamebeskyttelse": "boolean",
+    "navn": [
+        {
+            "gyldigFra": "date",
+            "tekst": "varchar(300)"
+        }
+    ],
+    "beliggenhedsadresse": adressetype,
+    "postadresse": adressetype,
+    "virksomhedsform": [
+        {
+            "kode": "unsigned int(3)",
+            "tekst": "varchar(210)",
+            "ansvarligDataleverandoer": "varchar(4)"
+        }
+    ]
+    "hovedbranche": branchetype,
+    "bibranche1": branchetype,
+    "bibranche2": branchetype,
+    "bibranche3": branchetype,
+    "telefonnummer": [
+        {
+            "gyldigFra": "date",
+            "kontaktoplysning": "varchar(12)"
+        }
+    ],
+    "telefax": [
+        {
+            "gyldigFra": "date",
+            "kontaktoplysning": "varchar(12)"
+        }
+    ],
+    "email": [
+        {
+            "gyldigFra": "date",
+            "kontaktoplysning": "varchar(250)"
+        }
+    ],
+    "kreditoplysninger": [
+        {
+            "gyldigFra": "date",
+            "kontaktoplysning": "varchar(150)"
+        }
+    ],
+    "aarsbeskaeftigelse": [
+        {
+            "aar": "unsigned int(4)",
+            "antalAnsatte": "unsigned int(6)",
+            "antalAnsatteInterval": "varchar(300)",
+            "antalAarsvaerk": "unsigned int(6)",
+            "antalAarsvaerkInterval": "varchar(300)",
+            "antalInclEjere": "unsigned int(6)",
+            "antalInclEjereInterval": "varchar(300)"
+        }
+    ];
+    "kvartalsbeskaeftigelse": [
+        {
+            "aar": "unsigned int(4)",
+            "kvartal": "unsigned int(1)",
+            "antalAnsatte": "unsigned int(6)",
+            "antalAnsatteInterval": "varchar(300)"
+        }
+    ]
+    "produktionsenheder": "one-to-many('cvr_productionsenhed')",
+    "deltagere": [
+        {
+            "gyldigFra": "date",
+            "deltager": "ref-to-cvr_deltager"
+        }
+    ],
+}
+
+var produktionsenhed = {
+    "modifikationsstatus": "string",
+    "pnr": "unsigned int(10)",
+    "livsforloeb": [
+        {
+            "startdato": "date",
+            "slutdato": "date"
+        }
+    ],
+    "ajourfoeringsdato": "date",
+    "virksomhed": [
+        "gyldigFra": "date",
+        "virksomhed": "ref-to-cvr_virksomhed"
+    ],
+    "reklamebeskyttelse": "boolean",
+    "navn": "string",
+    "beliggenhedsadresse": adressetype,
+    "postadresse": adressetype,
+    "hovedbranche": branchetype,
+    "bibranche1": branchetype,
+    "bibranche2": branchetype,
+    "bibranche3": branchetype,
+    "telefonnummer": [
+        {
+            "gyldigFra": "date",
+            "kontaktoplysning": "varchar(12)"
+        }
+    ],
+    "telefax": [
+        {
+            "gyldigFra": "date",
+            "kontaktoplysning": "varchar(12)"
+        }
+    ],
+    "email": [
+        {
+            "gyldigFra": "date",
+            "kontaktoplysning": "varchar(250)"
+        }
+    ],
+    "aarsbeskaeftigelse": [
+        {
+            "aar": "unsigned int(4)",
+            "antalAnsatte": "unsigned int(6)",
+            "antalAnsatteInterval": "varchar(300)",
+            "antalAarsvaerk": "unsigned int(6)",
+            "antalAarsvaerkInterval": "varchar(300)",
+            "antalInclEjere": "unsigned int(6)",
+            "antalInclEjereInterval": "varchar(300)"
+        }
+    ];
+    "kvartalsbeskaeftigelse": [
+        {
+            "aar": "unsigned int(4)",
+            "kvartal": "unsigned int(1)",
+            "antalAnsatte": "unsigned int(6)",
+            "antalAnsatteInterval": "varchar(300)"
+        }
+    ],
+    "hovedafdeling": "boolean",
+    "deltagere": [
+        {
+            "gyldigFra": "date",
+            "deltager": "ref-to-cvr_deltager"
+        }
+    ]
+}
+
+var deltager = {
+    "modifikationsstatus": "string",
+    "deltagernummer": "unsigned int(10)", /* Unique key? */
+    "ajourfoeringsdato": "date",
+    "deltagelseGyldigFra": "date",
+    "cvrnr": "nullable-ref-to-cvr_virksomhed",
+    "pnr": "nullable-ref-to-cvr_produktionsenhed",
+    "oplysninger": [
+        "deltagertype": "varchar(20)",
+        "id": "unsigned int(10)", /* Unique key? */,
+        "navn": "varchar(300)",
+        "personstatus": "varchar(145)"
+    ],
+    "rolle": "varchar(30)"
+}

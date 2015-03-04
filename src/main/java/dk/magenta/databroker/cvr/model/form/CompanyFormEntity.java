@@ -16,9 +16,9 @@ import javax.xml.soap.SOAPEnvelope;
  */
 @Entity
 @Table(name = "cvr_form")
-public class FormEntity implements OutputFormattable {
+public class CompanyFormEntity implements OutputFormattable {
 
-    public FormEntity() {
+    public CompanyFormEntity() {
     }
 
     //----------------------------------------------------
@@ -48,6 +48,17 @@ public class FormEntity implements OutputFormattable {
 
     public void setCode(int code) {
         this.code = code;
+    }
+
+    @Column
+    private String responsibleDatesource;
+
+    public String getResponsibleDatesource() {
+        return responsibleDatesource;
+    }
+
+    public void setResponsibleDatesource(String responsibleDatesource) {
+        this.responsibleDatesource = responsibleDatesource;
     }
 
     //----------------------------------------------------

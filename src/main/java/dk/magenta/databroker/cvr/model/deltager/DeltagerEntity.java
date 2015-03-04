@@ -26,18 +26,6 @@ public class DeltagerEntity extends DobbeltHistorikBase<DeltagerEntity, Deltager
 
     //------------------------------------------------------------------------------------------------------------------
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, optional = true)
-    private CompanyEntity company;
-
-    public CompanyEntity getCompany() {
-        return company;
-    }
-
-    public void setCompany(CompanyEntity company) {
-        this.company = company;
-    }
-
-
     @Column
     private String cvrNummer;
 
@@ -123,8 +111,17 @@ public class DeltagerEntity extends DobbeltHistorikBase<DeltagerEntity, Deltager
     }
 
     public JSONObject toJSON() {
+        return this.toJSON(this.latestVersion);
+    }
+
+    public JSONObject toJSON(DeltagerVersionEntity version) {
         JSONObject obj = super.toJSON();
-        obj.put("deltagerNummer",this.deltagerNummer);
+
+        obj.put("participantNumber", this.deltagerNummer);
+        obj.put("name", version.getName());
+        obj.put("validFrom", version.getValidFrom());
+        obj.put("role", version.getRolle().toJSON());
+        obj.put("type", version.getType().toJSON());
 
         return obj;
     }

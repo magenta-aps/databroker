@@ -3,6 +3,8 @@ package dk.magenta.databroker.cvr.model.company;
 import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitEntity;
+import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitVersionEntity;
+import dk.magenta.databroker.cvr.model.deltager.DeltagerVersionEntity;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.register.RepositoryUtil;
@@ -97,18 +99,6 @@ public class CompanyEntity extends DobbeltHistorikBase<CompanyEntity, CompanyVer
         this.cvrNummer = cvrNummer;
     }
 
-
-    @OneToMany(mappedBy = "company")
-    private Collection<CompanyUnitEntity> units;
-
-    public Collection<CompanyUnitEntity> getUnits() {
-        return this.units;
-    }
-
-    public void setUnits(Collection<CompanyUnitEntity> units) {
-        this.units = units;
-    }
-
     //------------------------------------------------------------------------------------------------------------------
 
     @Override
@@ -118,23 +108,35 @@ public class CompanyEntity extends DobbeltHistorikBase<CompanyEntity, CompanyVer
 
     @Override
     public JSONObject toJSON() {
+        return this.toJSON(this.latestVersion);
+    }
+
+    public JSONObject toJSON(CompanyVersionEntity version) {
         JSONObject obj = super.toJSON();
-        obj.put("name", this.latestVersion.getName());
         obj.put("cvrnr", this.getCvrNummer());
         obj.put("href", SearchService.getCompanyBaseUrl() + "/" + this.getCvrNummer());
+        version.getCompanyInfo().addToJSONObject(obj);
         return obj;
     }
 
     @Override
     public JSONObject toFullJSON() {
         JSONObject obj = this.toJSON();
-        Collection<CompanyUnitEntity> units = this.units;
+        Collection<CompanyUnitVersionEntity> units = this.latestVersion.getUnitVersions();
         if (units != null && !units.isEmpty()) {
             JSONArray unitArray = new JSONArray();
-            for (CompanyUnitEntity unit : units) {
-                unitArray.put(unit.toJSON());
+            for (CompanyUnitVersionEntity unit : units) {
+                unitArray.put(unit.getEntity().toJSON(unit));
             }
             obj.put("units", unitArray);
+        }
+        Collection<DeltagerVersionEntity> participants = this.latestVersion.getParticipants();
+        if (participants != null && !participants.isEmpty()) {
+            JSONArray participantArray = new JSONArray();
+            for (DeltagerVersionEntity participant : participants) {
+                participantArray.put(participant.getEntity().toJSON(participant));
+            }
+            obj.put("participants", participantArray);
         }
         return obj;
     }

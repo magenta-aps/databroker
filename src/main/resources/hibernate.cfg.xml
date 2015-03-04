@@ -51,7 +51,11 @@
         <mapping class="dk.magenta.databroker.cvr.model.company.CompanyVersionEntity"/>
         <mapping class="dk.magenta.databroker.cvr.model.companyunit.CompanyUnitEntity"/>
         <mapping class="dk.magenta.databroker.cvr.model.companyunit.CompanyUnitVersionEntity"/>
-        <mapping class="dk.magenta.databroker.cvr.model.form.FormEntity"/>
+        <mapping class="dk.magenta.databroker.cvr.model.deltager.DeltagerEntity"/>
+        <mapping class="dk.magenta.databroker.cvr.model.deltager.DeltagerVersionEntity"/>
+        <mapping class="dk.magenta.databroker.cvr.model.deltager.rolle.RolleEntity"/>
+        <mapping class="dk.magenta.databroker.cvr.model.deltager.type.TypeEntity"/>
+        <mapping class="dk.magenta.databroker.cvr.model.form.CompanyFormEntity"/>
         <mapping class="dk.magenta.databroker.cvr.model.industry.IndustryEntity"/>
 
 

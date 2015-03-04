@@ -1,7 +1,6 @@
 package dk.magenta.databroker.cvr.model;
 
 import dk.magenta.databroker.core.RegistreringInfo;
-import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.core.model.oio.VirkningEntity;
 import dk.magenta.databroker.cvr.model.company.CompanyEntity;
 import dk.magenta.databroker.cvr.model.company.CompanyRepository;
@@ -16,8 +15,9 @@ import dk.magenta.databroker.cvr.model.deltager.rolle.RolleEntity;
 import dk.magenta.databroker.cvr.model.deltager.rolle.RolleRepository;
 import dk.magenta.databroker.cvr.model.deltager.type.TypeEntity;
 import dk.magenta.databroker.cvr.model.deltager.type.TypeRepository;
-import dk.magenta.databroker.cvr.model.form.FormEntity;
-import dk.magenta.databroker.cvr.model.form.FormRepository;
+import dk.magenta.databroker.cvr.model.embeddable.CompanyInfo;
+import dk.magenta.databroker.cvr.model.form.CompanyFormEntity;
+import dk.magenta.databroker.cvr.model.form.CompanyFormRepository;
 import dk.magenta.databroker.cvr.model.industry.IndustryEntity;
 import dk.magenta.databroker.cvr.model.industry.IndustryRepository;
 import dk.magenta.databroker.dawa.model.SearchParameters;
@@ -85,7 +85,7 @@ public class CvrModel {
             this.companyCache.put(companyEntity);
         }
 
-        FormEntity form = this.getFormEntity(formCode);
+        CompanyFormEntity form = this.getFormEntity(formCode);
 
         IndustryEntity primaryIndustry = this.getIndustryEntity(primaryIndustryCode);
         HashSet<IndustryEntity> secondaryIndustries = new HashSet<IndustryEntity>();
@@ -106,16 +106,17 @@ public class CvrModel {
         }
 
         if (companyVersionEntity != null) {
-            companyVersionEntity.setName(name);
+            CompanyInfo cInfo = companyVersionEntity.getCompanyInfo();
+            cInfo.setName(name);
             companyVersionEntity.setForm(form);
-            companyVersionEntity.setPrimaryIndustry(primaryIndustry);
+            cInfo.setPrimaryIndustry(primaryIndustry);
             for (IndustryEntity industryEntity : secondaryIndustries) {
-                companyVersionEntity.addSecondaryIndustry(industryEntity);
+                cInfo.addSecondaryIndustry(industryEntity);
             }
             //companyVersionEntity.setPrimaryUnit(primaryUnit);
-            companyVersionEntity.setStartDate(startDate);
-            companyVersionEntity.setEndDate(endDate);
-            companyVersionEntity.setPrimaryAddressDescriptor(primaryAddressDescriptor);
+            cInfo.getLifeCycle().setStartDate(startDate);
+            cInfo.getLifeCycle().setEndDate(endDate);
+            cInfo.getLocationAddress().setDescriptor(primaryAddressDescriptor);
 
             this.companyRepository.save(companyEntity);
         }
@@ -161,14 +162,14 @@ public class CvrModel {
                                     RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
 
         CompanyUnitEntity companyUnitEntity = this.companyUnitCache.get(pNummer);
-        //CompanyEntity companyEntity = this.getCompany(cvrNummer);
+        //CompanyEntity companyEntity = this.getCompanyVersion(cvrNummer);
         //CompanyVersionEntity companyVersionEntity = companyEntity.getLatestVersion();
 
         if (companyUnitEntity == null) {
             this.log.trace("Creating new CompanyUnitEntity " + pNummer);
             companyUnitEntity = new CompanyUnitEntity();
             companyUnitEntity.setPNO(pNummer);
-            //companyUnitEntity.setCompany(company);
+            //companyUnitEntity.setCompanyVersion(company);
             companyUnitEntity.setCvrNummer(cvrNummer);
             //this.putCompanyUnitCache(companyUnitEntity);
         }
@@ -202,19 +203,20 @@ public class CvrModel {
 
 
         if (companyUnitVersionEntity != null) {
-            companyUnitVersionEntity.setName(name);
-            companyUnitVersionEntity.setAddress(address);
-            companyUnitVersionEntity.setAddressDate(addressDate);
-            companyUnitVersionEntity.setPrimaryIndustry(primaryIndustry);
+            CompanyInfo cInfo = companyUnitVersionEntity.getCompanyInfo();
+            cInfo.setName(name);
+            cInfo.getLocationAddress().setEnhedsAdresse(address);
+            cInfo.getLocationAddress().setValidFrom(addressDate);
+            cInfo.setPrimaryIndustry(primaryIndustry);
             for (IndustryEntity industryEntity : secondaryIndustries) {
-                companyUnitVersionEntity.addSecondaryIndustry(industryEntity);
+                cInfo.addSecondaryIndustry(industryEntity);
             }
-            companyUnitVersionEntity.setAdvertProtection(advertProtection);
-            companyUnitVersionEntity.setStartDate(startDate);
-            companyUnitVersionEntity.setEndDate(endDate);
-            companyUnitVersionEntity.setPhone(phone);
-            companyUnitVersionEntity.setFax(fax);
-            companyUnitVersionEntity.setEmail(email);
+            cInfo.setAdvertProtection(advertProtection);
+            cInfo.getLifeCycle().setStartDate(startDate);
+            cInfo.getLifeCycle().setEndDate(endDate);
+            cInfo.getTelephoneNumber().setText(phone);
+            cInfo.getTelefaxNumber().setText(fax);
+            cInfo.getEmail().setText(email);
             this.companyUnitRepository.save(companyUnitEntity);
         }
 
@@ -402,50 +404,50 @@ public class CvrModel {
 
     @Autowired
     @SuppressWarnings("SpringJavaAutowiringInspection")
-    private FormRepository formRepository;
+    private CompanyFormRepository companyFormRepository;
 
-    public FormEntity setForm(int code, String name) {
+    public CompanyFormEntity setForm(int code, String name) {
         return this.setForm(code, name, false);
     }
-    public FormEntity setForm(int code, String name, boolean noUpdate) {
-        FormEntity formEntity = this.getFormCache().get(code);
+    public CompanyFormEntity setForm(int code, String name, boolean noUpdate) {
+        CompanyFormEntity companyFormEntity = this.getFormCache().get(code);
         boolean created = false;
-        if (formEntity == null) {
-            formEntity = new FormEntity();
-            formEntity.setCode(code);
+        if (companyFormEntity == null) {
+            companyFormEntity = new CompanyFormEntity();
+            companyFormEntity.setCode(code);
             created = true;
         }
         if (created ||
                 (name != null && !name.isEmpty() &&
-                        ((formEntity.getName() == null) || !(noUpdate || formEntity.getName().equals(name)))
+                        ((companyFormEntity.getName() == null) || !(noUpdate || companyFormEntity.getName().equals(name)))
                 )) {
-            formEntity.setName(name);
-            this.formRepository.save(formEntity);
-            this.putFormCache(formEntity);
+            companyFormEntity.setName(name);
+            this.companyFormRepository.save(companyFormEntity);
+            this.putFormCache(companyFormEntity);
         }
-        return formEntity;
+        return companyFormEntity;
     }
 
-    public FormEntity getFormEntity(int code) {
+    public CompanyFormEntity getFormEntity(int code) {
         return this.getFormCache().get(code);
         //return this.industryRepository.getByCode(code);
     }
 
     //--------------------------------------------------
 
-    private Level1Container<FormEntity> formCache;
-    private Level1Container<FormEntity> getFormCache() {
+    private Level1Container<CompanyFormEntity> formCache;
+    private Level1Container<CompanyFormEntity> getFormCache() {
         if (this.formCache == null) {
-            this.formCache = new Level1Container<FormEntity>();
-            for (FormEntity item : this.formRepository.findAll()) {
+            this.formCache = new Level1Container<CompanyFormEntity>();
+            for (CompanyFormEntity item : this.companyFormRepository.findAll()) {
                 this.putFormCache(item);
             }
         }
         return this.formCache;
     }
-    private void putFormCache(FormEntity item) {
+    private void putFormCache(CompanyFormEntity item) {
         if (this.formCache == null) {
-            this.formCache = new Level1Container<FormEntity>();
+            this.formCache = new Level1Container<CompanyFormEntity>();
         }
         this.formCache.put(item.getCode(), item);
     }

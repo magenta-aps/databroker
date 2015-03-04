@@ -1,0 +1,554 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified"
+	elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:tns="http://cvr.dk/report"
+	targetNamespace="http://cvr.dk/report"
+	
+	>
+
+	<xs:simpleType name="long8">
+		<xs:restriction base="xs:long">
+			<xs:maxInclusive value="99999999" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="long10">
+		<xs:restriction base="xs:long">
+			<xs:maxInclusive value="9999999999" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="int6">
+		<xs:restriction base="xs:int">
+			<xs:maxInclusive value="999999" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="short3">
+		<xs:restriction base="xs:short">
+			<xs:maxInclusive value="999" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="short4">
+		<xs:restriction base="xs:short">
+			<xs:maxInclusive value="9999" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="short1">
+		<xs:restriction base="xs:short">
+			<xs:maxInclusive value="9" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="AdresseType">
+		<xs:sequence>
+			<xs:element type="xs:date" name="gyldigFra" minOccurs="0" />
+			<xs:element name="vejnavn" nillable="true" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="40" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element type="tns:short4" name="vejkode" nillable="true"
+				minOccurs="0" /><!-- Number(10) -->
+			<xs:element type="tns:short3" name="husnummerFra" nillable="true"
+				minOccurs="0" /><!-- Number(10) -->
+			<xs:element type="tns:short3" name="husnummerTil" nillable="true"
+				minOccurs="0" /><!-- Number(10) -->
+			<xs:element name="bogstavFra" nillable="true" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="1" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="bogstavTil" nillable="true" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="1" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="etage" nillable="true" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="2" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="sidedoer" nillable="true" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="4" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element type="tns:short4" name="postnr" nillable="true"
+				minOccurs="0" /><!-- Number(10) -->
+			<xs:element name="postdistrikt" nillable="true" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="25" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="bynavn" nillable="true" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="34" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="kommune" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element type="tns:short3" name="kode" minOccurs="0" nillable="true"/><!-- 
+							Number(3) -->
+						<xs:element name="tekst" minOccurs="0">
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:maxLength value="50" />
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element type="tns:short4" name="postboks" nillable="true"
+				minOccurs="0" /><!-- Number(10) -->
+			<xs:element name="coNavn" nillable="true" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="40" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="adresseFritekst" nillable="true"
+				minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="238" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="BrancheType">
+		<xs:sequence>
+			<xs:element type="xs:date" name="gyldigFra" minOccurs="0" />
+			<xs:element type="tns:int6" name="kode" minOccurs="0" nillable="true"/><!-- Number(6) -->
+			<xs:element name="tekst" minOccurs="0" >
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="130" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="LivsforloebType">
+		<xs:sequence>
+			<xs:element type="xs:date" name="startdato" minOccurs="0" />
+			<xs:element type="xs:date" name="ophoersdato" minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="EmailType">
+		<xs:sequence>
+			<xs:element type="xs:date" name="gyldigFra" minOccurs="0" />
+			<xs:element name="kontaktoplysning" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="250" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="TelefonnummerType">
+		<xs:sequence>
+			<xs:element type="xs:date" name="gyldigFra" minOccurs="0" />
+			<xs:element name="kontaktoplysning" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="12" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="TelefaxnummerType">
+		<xs:sequence>
+			<xs:element type="xs:date" name="gyldigFra" minOccurs="0" />
+			<xs:element name="kontaktoplysning" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="12" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+
+	<xs:complexType name="NavnType">
+		<xs:sequence>
+			<xs:element type="xs:date" name="gyldigFra" minOccurs="0" />
+			<xs:element name="tekst" nillable="true" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="300" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="KvartalAntalAnsatteType">
+		<xs:sequence>
+			<xs:element type="tns:short4" name="aar" minOccurs="0" /><!-- Number(4) -->
+			<xs:element type="tns:short1" name="kvartal" minOccurs="0" /><!-- 
+				Number(1) -->
+			<xs:element type="tns:int6" name="antalAnsatte" nillable="true"
+				minOccurs="0" /><!-- Number(6) -->
+			<xs:element name="antalAnsatteInterval" nillable="true" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="300" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>	
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="AarAntalAnsatteType">
+		<xs:sequence>
+			<xs:element type="tns:short4" name="aar" minOccurs="0" /><!-- Number(4) -->
+			<xs:element type="tns:int6" name="antalAnsatte" nillable="true"
+				minOccurs="0" /><!-- Number(6) -->
+			<xs:element name="antalAnsatteInterval" nillable="true" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="300" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element type="tns:int6" name="antalAarsvaerk" nillable="true"
+				minOccurs="0" /><!-- Number(6) -->
+			<xs:element name="antalAarsvaerkInterval" nillable="true" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="300" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element type="tns:int6" name="antalInclEjere" nillable="true"
+				minOccurs="0" /><!-- Number(6) -->
+			<xs:element name="antalInclEjereInterval" nillable="true" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="300" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:simpleType name="ModifikationstatusType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="ny" />
+			<xs:enumeration value="modificeret" />
+			<xs:enumeration value="fjernet" />
+			<xs:enumeration value="umodificeret" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="DeltagertypeType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="person" />
+			<xs:enumeration value="virksomhed" />
+			<xs:enumeration value="andenDeltager" />
+			<xs:enumeration value="produktionsenhed" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:element name="report">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="virksomheder" nillable="true"
+					minOccurs="0">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="virksomhed" nillable="true"
+								minOccurs="0" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element type="tns:ModifikationstatusType" name="modifikationsstatus" />
+										<xs:element type="tns:long8" name="cvrnr" /><!-- Number(10) -->
+										<xs:element type="tns:LivsforloebType" name="livsforloeb"
+											nillable="true" minOccurs="0" />
+										<xs:element type="xs:date" name="ajourfoeringsdato" nillable="true" />
+										<xs:element type="xs:boolean" name="reklamebeskyttelse"
+											minOccurs="0" />
+										<xs:element type="tns:NavnType" name="navn" nillable="true"
+											minOccurs="0" />
+										<xs:element type="tns:AdresseType" name="beliggenhedsadresse"
+											nillable="true" minOccurs="0" />
+										<xs:element type="tns:AdresseType" name="postadresse"
+											nillable="true" minOccurs="0" />
+										<xs:element name="virksomhedsform" nillable="true"
+											minOccurs="0">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element type="xs:date" name="gyldigFra"
+														minOccurs="0" />
+													<xs:element type="tns:short3" name="kode" minOccurs="0"/><!-- Number(3) -->
+													<xs:element name="tekst" minOccurs="0">
+														<xs:simpleType>
+															<xs:restriction base="xs:string">
+																<xs:maxLength value="210" />
+															</xs:restriction>
+														</xs:simpleType>
+													</xs:element>
+													<xs:element name="ansvarligDataleverandoer"
+														nillable="true" minOccurs="0">
+														<xs:simpleType>
+															<xs:restriction base="xs:string">
+																<xs:maxLength value="4" />
+															</xs:restriction>
+														</xs:simpleType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element type="tns:BrancheType" name="hovedbranche"
+											nillable="true" minOccurs="0" />
+										<xs:element type="tns:BrancheType" name="bibranche1"
+											nillable="true" minOccurs="0" />
+										<xs:element type="tns:BrancheType" name="bibranche2"
+											nillable="true" minOccurs="0" />
+										<xs:element type="tns:BrancheType" name="bibranche3"
+											nillable="true" minOccurs="0" />
+										<xs:element type="tns:TelefonnummerType" name="telefonnummer"
+											nillable="true" minOccurs="0" />
+										<xs:element type="tns:TelefaxnummerType" name="telefax"
+											nillable="true" minOccurs="0" />
+										<xs:element type="tns:EmailType" name="email"
+											nillable="true" minOccurs="0" />
+										<xs:element name="kreditoplysninger" nillable="true"
+											minOccurs="0">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="kreditoplysning" nillable="true"
+														minOccurs="0" maxOccurs="unbounded">
+									
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element type="xs:date" name="gyldigFra" minOccurs="0" />
+																<xs:element name="tekst" minOccurs="0">
+																	<xs:simpleType>
+																		<xs:restriction base="xs:string">
+																			<xs:maxLength value="150" />
+																		</xs:restriction>
+																	</xs:simpleType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element type="tns:AarAntalAnsatteType" name="aarsbeskaeftigelse"
+											nillable="true" minOccurs="0" />
+										<xs:element type="tns:KvartalAntalAnsatteType" name="kvartalsbeskaeftigelse"
+											nillable="true" minOccurs="0" />
+										<xs:element name="produktionsenheder" nillable="true">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="produktionsenhed" minOccurs="0"
+														maxOccurs="unbounded">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element type="xs:date" name="gyldigFra"
+																	minOccurs="0" />
+																<xs:element type="tns:long10" name="pnr" /><!-- Number(10) -->
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="deltagere" nillable="true">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="deltager" minOccurs="0"
+														maxOccurs="unbounded">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element type="xs:date" name="gyldigFra"
+																	minOccurs="0" />
+																<xs:element type="tns:long10" name="deltagernummer" /><!-- 
+																	Number(10) -->
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="produktionsenheder" nillable="true"
+					minOccurs="0">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="produktionsenhed" nillable="true"
+								minOccurs="0" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element type="tns:ModifikationstatusType" name="modifikationsstatus"
+											/>
+										<xs:element type="tns:long10" name="pnr" /><!-- Number(10) -->
+										<xs:element type="tns:LivsforloebType" name="livsforloeb"
+											nillable="true" minOccurs="0" />
+										<xs:element type="xs:date" name="ajourfoeringsdato" nillable="true"
+											 />
+										<xs:element name="virksomhed" nillable="true">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="virksomhed" minOccurs="0"
+														maxOccurs="unbounded">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element type="xs:date" name="gyldigFra"
+																	minOccurs="0"/>
+																<xs:element type="tns:long8" name="cvrnr"
+																	minOccurs="0" maxOccurs="unbounded" /><!-- Number(10) -->
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element type="xs:boolean" name="reklamebeskyttelse"
+											minOccurs="0" />
+										<xs:element type="tns:NavnType" name="navn" nillable="true"
+											minOccurs="0" />
+										<xs:element type="tns:AdresseType" name="beliggenhedsadresse"
+											nillable="true" minOccurs="0" />
+										<xs:element type="tns:AdresseType" name="postadresse"
+											nillable="true" minOccurs="0" />
+										<xs:element type="tns:BrancheType" name="hovedbranche"
+											nillable="true" minOccurs="0" />
+										<xs:element type="tns:BrancheType" name="bibranche1"
+											nillable="true" minOccurs="0" />
+										<xs:element type="tns:BrancheType" name="bibranche2"
+											nillable="true" minOccurs="0" />
+										<xs:element type="tns:BrancheType" name="bibranche3"
+											nillable="true" minOccurs="0" />
+										<xs:element type="tns:TelefonnummerType" name="telefonnummer"
+											nillable="true" minOccurs="0" />
+										<xs:element type="tns:TelefaxnummerType" name="telefax"
+											nillable="true" minOccurs="0" />
+										<xs:element type="tns:EmailType" name="email"
+											nillable="true" minOccurs="0" />
+										<xs:element type="tns:AarAntalAnsatteType" name="aarsbeskaeftigelse"
+											nillable="true" minOccurs="0" />
+										<xs:element type="tns:KvartalAntalAnsatteType" name="kvartalsbeskaeftigelse"
+											nillable="true" minOccurs="0" />
+										<xs:element type="xs:boolean" name="hovedafdeling"
+											nillable="true" minOccurs="0" />
+										<xs:element name="deltagere" nillable="true">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="deltager" minOccurs="0"
+														maxOccurs="unbounded">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element type="xs:date" name="gyldigFra"
+																	minOccurs="0" />
+																<xs:element type="tns:long10" name="deltagernummer" /><!-- 
+																	Number(10) -->
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="deltagere" nillable="true" minOccurs="0">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="deltager" nillable="true" minOccurs="0"
+								maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element type="tns:ModifikationstatusType" name="modifikationsstatus"
+											/>
+										<xs:element type="tns:long10" name="deltagernummer"
+											nillable="true" /><!-- Number(10) -->
+										<xs:element type="xs:date" name="ajourfoeringsdato"
+											nillable="true" />
+										<xs:element type="xs:date" name="deltagelseGyldigFra"
+											minOccurs="0" />
+										<xs:element type="tns:long8" name="cvrnr" nillable="true"
+											minOccurs="0" /><!-- Number(10) -->
+										<xs:element type="tns:long10" name="pnr" nillable="true"
+											minOccurs="0" /><!-- Number(10) -->
+										<xs:element name="oplysninger" nillable="true"
+											minOccurs="0">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element type="tns:DeltagertypeType" name="deltagertype" />
+													<xs:element type="tns:long10" name="id" nillable="true"
+														minOccurs="0" /><!-- Number(10) -->
+													<xs:element name="navn" nillable="true"
+														minOccurs="0">
+														<xs:simpleType>
+															<xs:restriction base="xs:string">
+																<xs:maxLength value="300" />
+															</xs:restriction>
+														</xs:simpleType>
+													</xs:element>
+													<xs:element name="personstatus" nillable="true" minOccurs="0">
+														<xs:simpleType>
+															<xs:restriction base="xs:string">
+																<xs:maxLength value="145" />
+															</xs:restriction>
+														</xs:simpleType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="rolle" nillable="true" minOccurs="0">
+											<xs:simpleType>
+												<xs:restriction base="xs:string">
+													<xs:maxLength value="30" />
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

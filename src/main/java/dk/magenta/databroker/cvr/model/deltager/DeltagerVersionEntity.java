@@ -1,6 +1,8 @@
 package dk.magenta.databroker.cvr.model.deltager;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikVersion;
+import dk.magenta.databroker.cvr.model.company.CompanyVersionEntity;
+import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitVersionEntity;
 import dk.magenta.databroker.cvr.model.deltager.rolle.RolleEntity;
 import dk.magenta.databroker.cvr.model.deltager.type.TypeEntity;
 import dk.magenta.databroker.util.Util;
@@ -40,6 +42,37 @@ public class DeltagerVersionEntity extends DobbeltHistorikVersion<DeltagerEntity
     //------------------------------------------------------------------------------------------------------------------
     /* Domain specific fields */
 
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, optional = true)
+    private CompanyVersionEntity companyVersion;
+
+    public CompanyVersionEntity getCompanyVersion() {
+        return companyVersion;
+    }
+
+    public void setCompanyVersion(CompanyVersionEntity companyVersion) {
+        this.companyVersion = companyVersion;
+    }
+
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, optional = true)
+    private CompanyUnitVersionEntity companyUnitVersion;
+
+    public CompanyUnitVersionEntity getCompanyUnitVersion() {
+        return companyUnitVersion;
+    }
+
+    public void setCompanyUnitVersion(CompanyUnitVersionEntity companyUnit) {
+        this.companyUnitVersion = companyUnit;
+    }
+
+    private Date validFrom;
+
+    public Date getValidFrom() {
+        return validFrom;
+    }
+
+    public void setValidFrom(Date validFrom) {
+        this.validFrom = validFrom;
+    }
 
     @Column(nullable = true)
     private String name;
