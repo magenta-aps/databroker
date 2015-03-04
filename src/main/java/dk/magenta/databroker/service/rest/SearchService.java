@@ -346,7 +346,7 @@ public class SearchService {
     public String company(@PathParam("cvrnr") String cvrnr,
                             @QueryParam("format") String formatStr) {
         Format fmt = this.getFormat(formatStr);
-        OutputFormattable lokalitetEntity = this.cvrModel.getCompany(cvrnr);
+        OutputFormattable lokalitetEntity = this.cvrModel.getCompany(cvrnr, true);
         if (lokalitetEntity != null) {
             return this.format(lokalitetEntity, fmt);
         } else {

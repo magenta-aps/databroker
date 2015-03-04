@@ -18,4 +18,5 @@ public interface EnhedsAdresseRepository extends JpaRepository<EnhedsAdresseEnti
     * */
     public Collection<EnhedsAdresseEntity> search(SearchParameters parameters);
     public void clear();
+    public EnhedsAdresseEntity getByDescriptor(String descriptor);
 }

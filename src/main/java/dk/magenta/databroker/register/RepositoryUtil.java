@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
  */
 public abstract class RepositoryUtil {
 
-    private static final Pattern onlyDigits = Pattern.compile("^\\*?\\d+\\*?$"); // Match a string containing only digits and optional leading and/or trailing wildcards
+    private static final Pattern onlyDigits = Pattern.compile("^\\*?\\-?\\d+\\*?$"); // Match a string containing only digits and optional leading and/or trailing wildcards
     private static final Pattern hasWildcard = Pattern.compile("^.*\\*.*$"); // Match a string that contains a wildcard
     private static final String surroundingWildcards = "^\\*+|\\*+$"; // For replacement; finds any series of leading or trailing wildcards
     private static final Pattern negated = Pattern.compile("^!.+$");
@@ -28,6 +28,13 @@ public abstract class RepositoryUtil {
     // If the search parameter contains letters and no wildcards, we want to search for that specific value (e.g. WHERE [nameKey] = [search])
     // If the search parameter contains letters and wildcards, we want to search for a partial match (e.g. WHERE [nameKey] = %[search]%)
 
+    public static Condition whereField(int search, String digitKey, String nameKey) {
+        return whereField((Object)search, digitKey, nameKey);
+    }
+    public static Condition whereField(long search, String digitKey, String nameKey) {
+        return whereField((Object)search, digitKey, nameKey);
+    }
+
     public static Condition whereField(String[] search, String digitKey, String nameKey) {
         ConditionList conditionList = new ConditionList(ConditionList.Operator.OR);
         for (String s : search) {
@@ -36,31 +43,43 @@ public abstract class RepositoryUtil {
         return conditionList;
     }
     public static Condition whereField(String search, String digitKey, String nameKey) {
+        return whereField((Object)search, digitKey, nameKey);
+    }
+    private static Condition whereField(Object search, String digitKey, String nameKey) {
         if (search == null) { // Should never happen
             throw new IllegalArgumentException("Parameter 'search' must not be null");
         }
-        boolean wildcardPresent = hasWildcard.matcher(search).matches();
-        boolean negate = negated.matcher(search).matches();
-        search = search.replaceAll(leadingNegator, "");
-        boolean digits = onlyDigits.matcher(search).matches();
+        String strSearch = search.toString();
+        boolean wildcardPresent = hasWildcard.matcher(strSearch).matches();
+        boolean negate = negated.matcher(strSearch).matches();
+        strSearch = strSearch.replaceAll(leadingNegator, "");
+        boolean digits = onlyDigits.matcher(strSearch).matches();
         if (wildcardPresent) {
-            search = search.replaceAll(surroundingWildcards, "%");
+            strSearch = strSearch.replaceAll(surroundingWildcards, "%");
         }
 
         if (digitKey != null && digits) {
+            if (search instanceof String) {
+                search = Integer.parseInt(""+search, 10);
+            }
             if (wildcardPresent) {
-                return new SingleCondition("cast(" + digitKey + " as string)", negate ? NOT_LIKE : LIKE, search);
+                //System.out.println(1);
+                return new SingleCondition("cast(" + digitKey + " as string)", negate ? NOT_LIKE : LIKE, strSearch);
             } else {
-                return new SingleCondition(digitKey, negate ? NOT_EQUALS : EQUALS, Integer.parseInt(search, 10));
+                //System.out.println(2);
+                return new SingleCondition(digitKey, negate ? NOT_EQUALS : EQUALS, search);
             }
         } else {
             if (nameKey == null) {
+                System.out.println(search+" "+strSearch+" "+digitKey+" "+nameKey);
                 throw new IllegalArgumentException("Parameter 'nameKey' must not be null when 'digitKey' is null or search contains non-digits");
             }
             if (wildcardPresent) {
-                return new SingleCondition(nameKey, negate ? NOT_LIKE : LIKE, search);
+                //System.out.println(3);
+                return new SingleCondition(nameKey, negate ? NOT_LIKE : LIKE, strSearch);
             } else {
-                return new SingleCondition(nameKey, negate ? NOT_EQUALS : EQUALS, search);
+                //System.out.println(4);
+                return new SingleCondition(nameKey, negate ? NOT_EQUALS : EQUALS, strSearch);
             }
         }
     }

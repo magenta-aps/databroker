@@ -48,6 +48,9 @@ public class Level2Cache<T extends Cacheable> extends Level2Container<T> {
     }
 
     public void reset() {
+        for (String key : this.keySet()) {
+            this.get(key).clear();
+        }
         this.clear();
         this.loaded = false;
     }

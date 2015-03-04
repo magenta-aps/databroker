@@ -17,13 +17,13 @@ import java.util.Collection;
  */
 interface VejstykkeRepositoryCustom {
     public Collection<VejstykkeEntity> search(SearchParameters parameters);
-    public VejstykkeEntity getByDescriptor(String descriptor);
+    public VejstykkeEntity getByDescriptor(int descriptor);
     public void clear();
 }
 
 public class VejstykkeRepositoryImpl extends RepositoryImplementation<VejstykkeEntity> implements VejstykkeRepositoryCustom {
 
-    public VejstykkeEntity getByDescriptor(String descriptor) {
+    public VejstykkeEntity getByDescriptor(int descriptor) {
         StringList hql = new StringList();
         hql.append("select distinct "+VejstykkeEntity.databaseKey+" from VejstykkeEntity as "+VejstykkeEntity.databaseKey);
         ConditionList conditions = new ConditionList();

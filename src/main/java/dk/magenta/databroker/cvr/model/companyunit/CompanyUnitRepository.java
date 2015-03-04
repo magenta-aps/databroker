@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface CompanyUnitRepository extends JpaRepository<CompanyUnitEntity, Long> {
 
     public CompanyUnitEntity getByUuid(String uuid);
-    public CompanyUnitEntity getByPno(long pno);
 
 
     /*
@@ -17,4 +16,5 @@ public interface CompanyUnitRepository extends JpaRepository<CompanyUnitEntity, 
     //public Collection<CompanyEntity> search(SearchParameters parameters, boolean printQuery);
     public void bulkWireReferences();
     public void clear();
+    public CompanyUnitEntity getByPno(long pno);
 }

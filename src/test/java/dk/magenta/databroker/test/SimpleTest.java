@@ -3,6 +3,7 @@ package dk.magenta.databroker.test;
 import dk.magenta.databroker.Application;
 import dk.magenta.databroker.core.testmodel.TestAddressRepository;
 import dk.magenta.databroker.core.testmodel.TestAddressEntity;
+import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseEntity;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,25 +18,37 @@ import static org.junit.Assert.assertEquals;
 @SpringApplicationConfiguration(classes = Application.class)
 public class SimpleTest {
 
-    //@SuppressWarnings("SpringJavaAutowiringInspection")
-    @Autowired
-    private TestAddressRepository addressRepository;
-
-
     @Test
-    public void testOle() {
+    public void test() {
 
-        TestAddressEntity ad = new TestAddressEntity();
-        ad.setStreetName("My street");
-        ad.setNumber(10);
-        ad.setZipCode(8000);
-System.out.println(addressRepository);
-        addressRepository.save(ad);
 
-        TestAddressEntity ads = addressRepository.findAll().get(0);
+        //printCalculation(860, 4631, "131");
+        //printCalculation(860, 4631, "111");
+        printCalculation(210, 702, "34");
 
-        assertEquals( ads.getZipCode(), ad.getZipCode() );
+    }
 
+    //210:702:34 => 880983860
+
+    private void printCalculation(int kommunekode, int vejkode, String husnr) {
+        long husnrhash = AdgangsAdresseEntity.hashHusnr("111");
+        printBinary((long)kommunekode << 54);
+        printBinary((long)vejkode << 40);
+        printBinary(husnrhash);
+        long descriptor = ((long)kommunekode << 54) | ((long)vejkode << 40) | husnrhash;
+        System.out.println("----------------------------------------------------------------");
+        printBinary(descriptor);
+        System.out.println(descriptor);
+    }
+
+
+    private String printBinary(long data) {
+        String s = "";
+        for (int i=63; i>=0; i--) {
+            s += (data >> i) & 0x01;
+        }
+        System.out.println(s);
+        return s;
     }
 
 

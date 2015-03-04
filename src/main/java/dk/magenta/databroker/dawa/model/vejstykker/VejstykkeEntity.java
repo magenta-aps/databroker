@@ -101,7 +101,7 @@ public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, Vejsty
 
     //----------------------------------------------------
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private KommuneEntity kommune;
 
     public KommuneEntity getKommune() {
@@ -116,18 +116,21 @@ public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, Vejsty
 
     @Column
     @Index(name = "descriptorIndex")
-    private String descriptor;
+    private int descriptor;
 
-    public String getDescriptor() {
+    public int getDescriptor() {
         return descriptor;
     }
 
-    public void setDescriptor(String descriptor) {
+    public void setDescriptor(int descriptor) {
         this.descriptor = descriptor;
     }
 
-    public static String generateDescriptor(int kommuneKode, int vejKode) {
-        return kommuneKode+":"+vejKode;
+    // kommunekode: max 1000: 10 bits
+    // vejkode: max: 16384: 14 bits
+    // 00000000 kkkkkkkk kkvvvvvv vvvvvvvv
+    public static int generateDescriptor(int kommuneKode, int vejKode) {
+        return (kommuneKode << 14) | (vejKode);
     }
 
     public void generateDescriptor() {
@@ -200,8 +203,8 @@ public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, Vejsty
         }
         return null;
     }
-    public static Condition descriptorCondition(String descriptor) {
-        return RepositoryUtil.whereField(descriptor, null, databaseKey+".descriptor");
+    public static Condition descriptorCondition(int descriptor) {
+        return RepositoryUtil.whereField(descriptor, databaseKey+".descriptor", null);
     }
     public static String joinKommune() {
         return databaseKey+".kommune as "+KommuneEntity.databaseKey;

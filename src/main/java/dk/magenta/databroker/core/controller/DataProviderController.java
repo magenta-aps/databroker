@@ -6,6 +6,7 @@ import dk.magenta.databroker.core.DataProviderRegistry;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Controller;
@@ -48,7 +49,7 @@ public class DataProviderController {
 
     @Autowired
     @SuppressWarnings("SpringJavaAutowiringInspection")
-    private PlatformTransactionManager transactionManager;
+    private JpaTransactionManager transactionManager;
 
     @Autowired
     @SuppressWarnings("SpringJavaAutowiringInspection")
@@ -218,6 +219,7 @@ public class DataProviderController {
         String uuid = dataProviderEntity.getUuid();
         if (dataProvider.wantUpload(dataProviderEntity.getConfiguration()) && this.requestHasDataInFields(request, dataProvider.getUploadFields())) {
             this.log.info("Processing upload");
+            //this.transactionManager.setJpaDialect(new CustomJpaDialect());
             Thread thread = dataProvider.asyncPush(dataProviderEntity, request, this.transactionManager);
             this.userThreads.put(uuid, thread);
             return this.processingEntity(request, uuid);

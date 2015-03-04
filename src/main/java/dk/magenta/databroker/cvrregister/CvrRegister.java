@@ -43,6 +43,10 @@ import java.util.*;
 @Component
 public class CvrRegister extends Register {
 
+    private static final boolean REQUIRE_ROAD_EXIST = false;
+    private static final boolean USE_NEARBY_ROAD_CODES = false;
+
+
     private class CvrRecord extends Record {
         private ListHash<String> hash;
         public CvrRecord(ListHash<String> hash) {
@@ -207,7 +211,7 @@ public class CvrRegister extends Register {
             SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
             parser.parse(registreringInfo.getInputStream(), handler);
             //this.generateAddresses(false);
-            this.bulkWireReferences();
+            //this.bulkWireReferences();
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
         } catch (SAXException e) {
@@ -429,59 +433,72 @@ public class CvrRegister extends Register {
                                     this.log.warn("Road " + kommuneKode + ":" + vejKode + " not found");
                                 } else {
                                     this.log.warn("Road " + kommuneKode + ":" + vejKode + " not found; cvr names it " + vejNavn);
-                                    SearchParameters searchParameters = new SearchParameters();
-                                    searchParameters.put(SearchParameters.Key.KOMMUNE, kommuneKode);
-                                    searchParameters.put(SearchParameters.Key.VEJ, vejNavn);
-                                    Collection<VejstykkeEntity> candidates = this.dawaModel.getVejstykke(searchParameters);
-                                    if (candidates.size() == 1) {
-                                        VejstykkeEntity candidate = candidates.iterator().next();
-                                        if (Math.abs(candidate.getKode() - vejKode) < 4) {
-                                            this.log.trace("Using " + kommuneKode + ":" + candidate.getKode() + " for " + vejNavn + ", because " + kommuneKode + ":" + vejKode + "was not found");
-                                            vejKode = candidate.getKode();
-                                            vej = candidate;
+                                    if (USE_NEARBY_ROAD_CODES) {
+                                        SearchParameters searchParameters = new SearchParameters();
+                                        searchParameters.put(SearchParameters.Key.KOMMUNE, kommuneKode);
+                                        searchParameters.put(SearchParameters.Key.VEJ, vejNavn);
+                                        Collection<VejstykkeEntity> candidates = this.dawaModel.getVejstykke(searchParameters);
+                                        if (candidates.size() == 1) {
+                                            VejstykkeEntity candidate = candidates.iterator().next();
+                                            if (Math.abs(candidate.getKode() - vejKode) < 4) {
+                                                this.log.trace("Using " + kommuneKode + ":" + candidate.getKode() + " for " + vejNavn + ", because " + kommuneKode + ":" + vejKode + "was not found");
+                                                vejKode = candidate.getKode();
+                                                vej = candidate;
+                                            }
                                         }
                                     }
                                 }
                             }
-                            recorder.record();
-                            if (vej != null) {
-                                String cprNavn = this.normalizeVejnavn(vej.getLatestVersion().getVejnavn());
-                                String cvrNavn = this.normalizeVejnavn(vejNavn);
-                                if (!Util.compareNormalized(cprNavn, cvrNavn)) {
-                                    this.log.warn("Mismatch on " + kommuneKode + ":" + vejKode + "; cpr names it " + cprNavn + " while cvr names it " + cvrNavn);
-                                    misses++;
-                                } else {
-                                    //String descriptor = this.addNeededAddress(kommuneKode, vejKode, husnr, etage, sidedoer);
-                                    adresse = this.dawaModel.setAdresse(kommuneKode, vejKode, husnr, null, etage, sidedoer, registreringInfo);
-                                    recorder.record();
-                                    long unitTime = this.indepTic();
-                                    CompanyUnitEntity companyUnitEntity = this.cvrModel.setCompanyUnit(pNummer, name, cvrNummer,
-                                            primaryIndustry, secondaryIndustries,
-                                            adresse, addressDate, phone, fax, email,
-                                            startDate, endDate,
-                                            advertProtection,
-                                            registreringInfo, new ArrayList<VirkningEntity>()
-                                    );
-                                    recorder.record();
-                                    //companyUnitEntity.getLatestVersion().setAddressDescriptor(descriptor);
 
-                                    totalUnits++;
-                                    if (totalUnits % 10000 == 0) {
-                                        this.cvrModel.flush();
+                            boolean doAddUnit = false;
+                            // REQUIRE_ROAD_EXIST
+                            recorder.record();
+
+                            if (REQUIRE_ROAD_EXIST) {
+                                if (vej != null) {
+                                    String cprNavn = this.normalizeVejnavn(vej.getLatestVersion().getVejnavn());
+                                    String cvrNavn = this.normalizeVejnavn(vejNavn);
+                                    if (!Util.compareNormalized(cprNavn, cvrNavn)) {
+                                        this.log.warn("Mismatch on " + kommuneKode + ":" + vejKode + "; cpr names it " + cprNavn + " while cvr names it " + cvrNavn);
+                                        misses++;
+                                    } else {
+                                        doAddUnit = true;
                                     }
+                                } else {
+                                    misses++;
                                 }
                             } else {
-                                misses++;
+                                doAddUnit = true;
                             }
 
-                            sumTime.add(recorder);
+                            if (doAddUnit) {
+                                String addressDescriptor = this.addNeededAddress(kommuneKode, vejKode, husnr, etage, sidedoer);
+                                //adresse = this.dawaModel.setAdresse(kommuneKode, vejKode, husnr, null, etage, sidedoer, registreringInfo, new ArrayList<VirkningEntity>(), false, true);
+                                recorder.record();
+                                long unitTime = this.indepTic();
+                                CompanyUnitEntity companyUnitEntity = this.cvrModel.setCompanyUnit(pNummer, name, cvrNummer,
+                                        primaryIndustry, secondaryIndustries,
+                                        adresse, addressDate, addressDescriptor,
+                                        phone, fax, email,
+                                        startDate, endDate,
+                                        advertProtection,
+                                        registreringInfo, new ArrayList<VirkningEntity>()
+                                );
+                                recorder.record();
+                                //companyUnitEntity.getLatestVersion().setAddressDescriptor(addressDescriptor);
 
+                                totalUnits++;
+                                if (totalUnits % 10000 == 0) {
+                                    this.cvrModel.flush();
+                                }
+
+                            }
+                            sumTime.add(recorder);
                         }
                     }
 
                     time = this.toc(time);
                     this.log.info(unitCount + " production units created in " + time + "ms (avg " + ((double) time / (double) unitCount) + " ms)");
-                    System.out.println(sumTime);
                 }
 
 
@@ -508,6 +525,7 @@ public class CvrRegister extends Register {
 
 
                 this.cvrModel.flushCompanies();
+                this.dawaModel.flush();
 
                 this.txManager.commit(status);
             }
@@ -533,6 +551,9 @@ public class CvrRegister extends Register {
     }
 
     private void generateAddresses(boolean bulkwire) {
+        int created = 0;
+
+
         this.dawaModel.resetAllCaches();
         DefaultTransactionDefinition def = new DefaultTransactionDefinition();
         def.setName("CommandLineTransactionDefinition");
@@ -549,17 +570,39 @@ public class CvrRegister extends Register {
                     String etage = parts[3];
                     String doer = parts[4];
                     this.dawaModel.setAdresse(kommuneKode, vejKode, husNr, null, etage, doer,
-                            registreringInfo, new ArrayList<VirkningEntity>(), bulkwire);
+                            registreringInfo, new ArrayList<VirkningEntity>(), bulkwire, true);
+                    created++;
                 } catch (ArrayIndexOutOfBoundsException e) {
                 }
+
+                if (created >= 50000) {
+                    created = 0;
+                    this.dawaModel.flush();
+                    this.txManager.commit(status);
+                    if (bulkwire) {
+                        status = this.txManager.getTransaction(def);
+                        this.dawaModel.bulkwireAdresser();
+                        this.txManager.commit(status);
+                    }
+                    def = new DefaultTransactionDefinition();
+                    def.setName("CommandLineTransactionDefinition");
+                    def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+                    status = this.txManager.getTransaction(def);
+                }
+
+
             }
         }
+        this.dawaModel.flush();
         this.txManager.commit(status);
         if (bulkwire) {
             status = this.txManager.getTransaction(def);
             this.dawaModel.bulkwireAdresser();
             this.txManager.commit(status);
         }
+
+
+
     }
 
     private Date parseDate(String date) {

@@ -153,8 +153,10 @@ public class CompanyVersionEntity extends DobbeltHistorikVersion<CompanyEntity, 
             Set<IndustryEntity> secondaryIndustries,
             Date startDate,
             Date endDate,
-            String primaryAddressDescriptor) {
-        return Util.compare(this.companyInfo.getName(), name) &&
+            String primaryAddressDescriptor
+    ) {
+        CompanyInfo cInfo = this.getCompanyInfo();
+        return Util.compare(cInfo.getName(), name) &&
                 Util.compare(this.form, form) &&
                 Util.compare(this.companyInfo.getPrimaryIndustry(), primaryIndustry) &&
                 Util.compare(this.companyInfo.getSecondaryIndustries(), secondaryIndustries) &&

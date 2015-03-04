@@ -23,7 +23,7 @@ interface AdgangsAdresseRepositoryCustom {
     public Collection<AdgangsAdresseEntity> search(SearchParameters parameters);
     public void bulkWireReferences();
     public void clear();
-    public AdgangsAdresseEntity getByDescriptor(String descriptor);
+    public AdgangsAdresseEntity getByDescriptor(long descriptor);
 }
 
 public class AdgangsAdresseRepositoryImpl extends RepositoryImplementation<AdgangsAdresseEntity> implements AdgangsAdresseRepositoryCustom {
@@ -32,7 +32,7 @@ public class AdgangsAdresseRepositoryImpl extends RepositoryImplementation<Adgan
 
 
     // TODO: Kan vi på nogen måde gøre denne metode hurtigere? p.t. kører den på 1-3 ms
-    public AdgangsAdresseEntity getByDescriptor(String descriptor) {
+    public AdgangsAdresseEntity getByDescriptor(long descriptor) {
         final GlobalCondition singleResultCondition = new GlobalCondition(null,null,0,1);
         StringList hql = new StringList();
         hql.append("select distinct "+AdgangsAdresseEntity.databaseKey+" from AdgangsAdresseEntity as "+AdgangsAdresseEntity.databaseKey);
@@ -41,6 +41,7 @@ public class AdgangsAdresseRepositoryImpl extends RepositoryImplementation<Adgan
         hql.append("where");
         hql.append(conditions.getWhere());
         Collection<AdgangsAdresseEntity> adgangsAdresseEntities = this.query(hql, conditions, singleResultCondition);
+        //System.out.println("Found "+adgangsAdresseEntities.size()+" candidates for descriptor "+descriptor);
         return adgangsAdresseEntities.size() > 0 ? adgangsAdresseEntities.iterator().next() : null;
     }
 
