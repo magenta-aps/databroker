@@ -194,7 +194,7 @@ public class CompanyInfo {
 
     //----------------------------------------------------
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @ManyToOne(optional = true, fetch = FetchType.EAGER)
     private IndustryEntity primaryIndustry;
 
     public IndustryEntity getPrimaryIndustry() {

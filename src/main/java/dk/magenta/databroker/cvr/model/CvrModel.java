@@ -60,14 +60,14 @@ public class CvrModel {
 
     public CompanyEntity setCompany(String cvrKode, String name,
                                     int primaryIndustryCode, int[] secondaryIndustryCodes, int formCode,
-                                    Date startDate, Date endDate,
+                                    Date startDate, Date endDate, Date ajourDate,
                                     RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
-        return this.setCompany(cvrKode, name, primaryIndustryCode, secondaryIndustryCodes, formCode, startDate, endDate, null, registreringInfo, virkninger);
+        return this.setCompany(cvrKode, name, primaryIndustryCode, secondaryIndustryCodes, formCode, startDate, endDate, ajourDate, null, registreringInfo, virkninger);
     }
 
     public CompanyEntity setCompany(String cvrKode, String name,
         int primaryIndustryCode, int[] secondaryIndustryCodes, int formCode,
-        Date startDate, Date endDate, String primaryAddressDescriptor,
+        Date startDate, Date endDate, Date ajourDate, String primaryAddressDescriptor,
                 RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
 
         TimeRecorder time = new TimeRecorder();
@@ -124,7 +124,7 @@ public class CvrModel {
             cInfo.getLifeCycle().setStartDate(startDate);
             cInfo.getLifeCycle().setEndDate(endDate);
             cInfo.getLocationAddress().setDescriptor(primaryAddressDescriptor);
-
+            cInfo.setUpdateDate(ajourDate);
             this.companyRepository.save(companyEntity);
         }
         time.record();

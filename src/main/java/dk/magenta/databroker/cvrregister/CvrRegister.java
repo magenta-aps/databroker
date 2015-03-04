@@ -74,6 +74,7 @@ public class CvrRegister extends Register {
             this.obtain("secondaryIndustry3", "bibranche3/kode");
             this.obtain("startDate", "livsforloeb/startdato");
             this.obtain("endDate", "livsforloeb/slutdato");
+            this.obtain("ajourDate", "ajourfoeringsdato");
             this.obtain("kommunekode", "beliggenhedsadresse/kommune/kode");
             this.obtain("vejkode", "beliggenhedsadresse/vejkode");
             this.obtain("husnummerFra", "beliggenhedsadresse/husnummerFra");
@@ -319,6 +320,7 @@ public class CvrRegister extends Register {
 
                         Date startDate = this.parseDate(virksomhed.get("startDate"));
                         Date endDate = this.parseDate(virksomhed.get("endDate"));
+                        Date ajourDate = this.parseDate(virksomhed.get("ajourDate"));
 
                         int vejkode = virksomhed.getInt("vejkode");
                         int kommunekode = virksomhed.getInt("kommunekode");
@@ -348,7 +350,7 @@ public class CvrRegister extends Register {
 
                         this.cvrModel.setCompany(cvrNummer, name,
                                 primaryIndustry, secondaryIndustries, form,
-                                startDate, endDate,
+                                startDate, endDate, ajourDate,
                                 registreringInfo, new ArrayList<VirkningEntity>());
                         totalCompanies++;
 
