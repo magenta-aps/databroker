@@ -44,6 +44,19 @@ public class EnhedsAdresseVersionEntity
 
     //----------------------------------------------------
 
+    @Column
+    private String kaldenavn;
+
+    public String getKaldenavn() {
+        return kaldenavn;
+    }
+
+    public void setKaldenavn(String kaldenavn) {
+        this.kaldenavn = kaldenavn;
+    }
+
+    //----------------------------------------------------
+
     // TODO: type?
     private String objekttype;
 
@@ -55,4 +68,9 @@ public class EnhedsAdresseVersionEntity
         this.objekttype = objekttype;
     }
 
+    //----------------------------------------------------
+
+    public boolean matches(String kaldenavn) {
+        return (kaldenavn == null || Util.compare(this.kaldenavn, kaldenavn));
+    }
 }

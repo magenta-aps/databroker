@@ -157,6 +157,9 @@ public class EnhedsAdresseEntity extends DobbeltHistorikBase<EnhedsAdresseEntity
         obj.put("id", this.getUuid());
         obj.put("etage", this.getEtage());
         obj.put("sidedoer", this.getDoer());
+        if (this.latestVersion.getKaldenavn() != null) {
+            obj.put("kaldenavn", this.latestVersion.getKaldenavn());
+        }
         obj.put("href", SearchService.getEnhedsAdresseBaseUrl()+"/"+this.getUuid());
         return obj;
     }

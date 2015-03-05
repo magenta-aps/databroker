@@ -106,6 +106,7 @@ public class CprRegister extends LineRegister {
                         subRegister.pull(true, true, dataProviderEntity);
                     }
                     CprRegister.this.dawaModel.flush();
+                    CprRegister.this.dawaModel.onTransactionEnd();
                     return null;
                 }
             });

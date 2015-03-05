@@ -128,6 +128,6 @@ public class VejstykkeVersionEntity extends DobbeltHistorikVersion<VejstykkeEnti
     //-----------------------------------------------------
 
     public boolean matches(String vejnavn, String vejAddresseringsnavn) {
-        return Util.compare(this.vejnavn, vejnavn) && Util.compare(this.vejadresseringsnavn, vejAddresseringsnavn);
+        return Util.compare(this.vejnavn, vejnavn);// && Util.compare(this.vejadresseringsnavn, vejAddresseringsnavn);
     }
 }

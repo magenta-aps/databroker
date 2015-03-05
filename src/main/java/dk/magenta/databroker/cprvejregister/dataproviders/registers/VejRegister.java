@@ -512,6 +512,7 @@ public class VejRegister extends CprSubRegister {
                     if (otherVej != null) {
                         vej.addConnection(otherVej);
                         otherVej.addConnection(vej);
+                        count++;
                     }
                 }
             }
@@ -541,6 +542,7 @@ public class VejRegister extends CprSubRegister {
             }
             if (!contains) {
                 veje.add(vej);
+                count++;
             }
         }
         time = this.toc(time);
@@ -564,7 +566,7 @@ public class VejRegister extends CprSubRegister {
             counter.countEntryProcessed();
         }
         //this.model.flush();
-        counter.printFinalEntriesProcessed();count = counter.getCount();
+        counter.printFinalEntriesProcessed();
         count = counter.getCount();
         time = this.toc(time);
         this.log.info(count + " VejstykkeEntities stored in " + time + " ms (avg " + ((double) time / (double) count) + " ms)");

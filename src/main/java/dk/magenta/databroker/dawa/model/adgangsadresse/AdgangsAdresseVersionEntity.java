@@ -250,19 +250,6 @@ public class AdgangsAdresseVersionEntity
 
     //----------------------------------------------------
 
-    @Column
-    private String kaldenavn;
-
-    public String getKaldenavn() {
-        return kaldenavn;
-    }
-
-    public void setKaldenavn(String kaldenavn) {
-        this.kaldenavn = kaldenavn;
-    }
-
-    //----------------------------------------------------
-
     @ManyToOne(optional = true)
     private PostNummerEntity postnummer;
 
@@ -274,9 +261,4 @@ public class AdgangsAdresseVersionEntity
         this.postnummer = postnummer;
     }
 
-
-
-    public boolean matches(String kaldenavn) {
-        return (kaldenavn == null || Util.compare(this.kaldenavn, kaldenavn));
-    }
 }

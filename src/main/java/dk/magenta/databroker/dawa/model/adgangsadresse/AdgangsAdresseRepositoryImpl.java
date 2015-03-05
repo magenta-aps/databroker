@@ -42,7 +42,10 @@ public class AdgangsAdresseRepositoryImpl extends RepositoryImplementation<Adgan
         hql.append(conditions.getWhere());
         Collection<AdgangsAdresseEntity> adgangsAdresseEntities = this.query(hql, conditions, singleResultCondition);
         //System.out.println("Found "+adgangsAdresseEntities.size()+" candidates for descriptor "+descriptor);
-        return adgangsAdresseEntities.size() > 0 ? adgangsAdresseEntities.iterator().next() : null;
+        if (adgangsAdresseEntities != null && adgangsAdresseEntities.size() > 0) {
+            return adgangsAdresseEntities.iterator().next();
+        }
+        return null;
     }
 
     @Override

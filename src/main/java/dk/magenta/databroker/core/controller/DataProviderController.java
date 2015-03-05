@@ -1,5 +1,6 @@
 package dk.magenta.databroker.core.controller;
 
+import dk.magenta.databroker.core.CustomJpaDialect;
 import dk.magenta.databroker.core.DataProvider;
 import dk.magenta.databroker.core.DataProviderConfiguration;
 import dk.magenta.databroker.core.DataProviderRegistry;

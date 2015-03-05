@@ -59,6 +59,9 @@ public abstract class RepositoryUtil {
         }
 
         if (digitKey != null && digits) {
+            if (search instanceof String) {
+                search = Integer.parseInt(""+search, 10);
+            }
             if (wildcardPresent) {
                 //System.out.println(1);
                 return new SingleCondition("cast(" + digitKey + " as string)", negate ? NOT_LIKE : LIKE, strSearch);

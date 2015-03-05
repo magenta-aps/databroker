@@ -49,12 +49,15 @@ public class CvrRegister extends Register {
 
     private class CvrRecord extends Record {
         private ListHash<String> hash;
+
         public CvrRecord(ListHash<String> hash) {
             this.hash = hash;
         }
+
         protected void obtain(String key, String path) {
             this.put(key, this.hash.getFirst(path));
         }
+
         protected List<String> getList(String path) {
             return this.hash.get(path);
         }
@@ -120,7 +123,7 @@ public class CvrRegister extends Register {
             this.obtain("phone", "telefonnummer/kontaktoplysning");
             this.obtain("fax", "telefax/kontaktoplysning");
             this.obtain("email", "email/kontaktoplysning");
-            this.obtain("isPrimary","hovedafdeling");
+            this.obtain("isPrimary", "hovedafdeling");
 
             /*if (this.get("kommunekode") == null || this.get("kommunekode").isEmpty()) {
                 System.err.println(productionunitHash);
@@ -146,6 +149,7 @@ public class CvrRegister extends Register {
         private Level1Container<VirksomhedRecord> virksomheder;
         private Level1Container<ProductionUnitRecord> productionUnits;
         private Level1Container<DeltagerRecord> deltagere;
+
         public CvrRegisterRun() {
             super();
             this.virksomheder = new Level1Container<VirksomhedRecord>();
@@ -157,23 +161,29 @@ public class CvrRegister extends Register {
             this.virksomheder.put(virksomhed.get("cvrNummer"), virksomhed);
             return this.add((Record) virksomhed);
         }
+
         public boolean add(ProductionUnitRecord productionUnit) {
             this.productionUnits.put(productionUnit.get("pNummer"), productionUnit);
             return this.add((Record) productionUnit);
         }
+
         public boolean add(DeltagerRecord deltager) {
             this.deltagere.put(deltager.get("nummer"), deltager);
             return this.add((Record) deltager);
         }
+
         public Level1Container<VirksomhedRecord> getVirksomheder() {
             return this.virksomheder;
         }
+
         public Level1Container<ProductionUnitRecord> getProductionUnits() {
             return this.productionUnits;
         }
+
         public Level1Container<DeltagerRecord> getDeltagere() {
             return this.deltagere;
         }
+
         public void clear() {
             this.virksomheder.clear();
             this.productionUnits.clear();
@@ -228,6 +238,7 @@ public class CvrRegister extends Register {
             this.cvrModel.setIndustry(code, text, true);
         }
     }
+
     private void ensureFormInDatabase(int code, String text) {
         if (code > 0) {
             this.cvrModel.setForm(code, text, true);
@@ -235,10 +246,44 @@ public class CvrRegister extends Register {
     }
 
 
-
     @Autowired
     @SuppressWarnings("SpringJavaAutowiringInspection")
     private PlatformTransactionManager txManager;
+
+
+
+    private TransactionStatus transactionStatus;
+    private void beginTransaction() {
+        if (this.transactionStatus == null) {
+            DefaultTransactionDefinition def = new DefaultTransactionDefinition();
+            def.setName("CommandLineTransactionDefinition");
+            def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+            this.transactionStatus = this.txManager.getTransaction(def);
+        } else {
+            //throw new Exception("Transaction not ended, cannot start new transaction");
+            this.log.error("Transaction not ended, cannot start new transaction");
+        }
+    }
+
+    private void endTransaction() {
+        if (this.transactionStatus != null) {
+            this.txManager.commit(this.transactionStatus);
+            this.dawaModel.onTransactionEnd();
+            this.transactionStatus = null;
+        } else {
+            this.log.error("Transaction not started, cannot end transaction");
+        }
+    }
+
+    private void rollbackTransaction() {
+        if (this.transactionStatus != null) {
+            this.txManager.rollback(this.transactionStatus);
+        }
+    }
+
+
+
+
 
 
     @Override
@@ -275,10 +320,7 @@ public class CvrRegister extends Register {
 
             this.cvrModel.resetIndustryCache(); // TODO: investigate how much really needs to be reset
 
-            DefaultTransactionDefinition def = new DefaultTransactionDefinition();
-            def.setName("CommandLineTransactionDefinition");
-            def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
-            TransactionStatus status = this.txManager.getTransaction(def);
+            this.beginTransaction();
 
             CvrRegisterRun cRun = (CvrRegisterRun) run;
             int companyCount = cRun.getVirksomheder().size();
@@ -424,13 +466,10 @@ public class CvrRegister extends Register {
                         Date addressDate = this.parseDate(unit.get("adresseDato"));
                         String postnr = unit.get("postnr");
 
-                        //System.out.println("initial moves done in "+toc(initTime));
-
                         if (kommuneKode > 0 && vejKode > 0) {
                             TimeRecorder recorder = new TimeRecorder();
-                            VejstykkeEntity vej = this.dawaModel.getVejstykke(kommuneKode, vejKode, false);
+                            VejstykkeEntity vej = this.dawaModel.getVejstykke(kommuneKode, vejKode);
                             recorder.record();
-                            //System.out.println("vej found in "+toc(vejTime)+" ms");
 
                             if (vej == null) {
                                 if (vejNavn == null || vejNavn.isEmpty()) {
@@ -455,6 +494,7 @@ public class CvrRegister extends Register {
                             }
 
                             boolean doAddUnit = false;
+
                             recorder.record();
 
                             if (REQUIRE_ROAD_EXIST) {
@@ -478,7 +518,6 @@ public class CvrRegister extends Register {
                                 String addressDescriptor = this.addNeededAddress(kommuneKode, vejKode, husnr, etage, sidedoer);
                                 //adresse = this.dawaModel.setAdresse(kommuneKode, vejKode, husnr, null, etage, sidedoer, registreringInfo, new ArrayList<VirkningEntity>(), false, true);
                                 recorder.record();
-                                long unitTime = this.indepTic();
                                 CompanyUnitEntity companyUnitEntity = this.cvrModel.setCompanyUnit(pNummer, name, cvrNummer,
                                         primaryIndustry, secondaryIndustries,
                                         adresse, addressDate, addressDescriptor,
@@ -529,13 +568,12 @@ public class CvrRegister extends Register {
 
                 this.cvrModel.flushCompanies();
                 this.dawaModel.flush();
-
-                this.txManager.commit(status);
+                this.endTransaction();
             }
             catch (Exception ex) {
                 this.log.error("Transaction failed: "+ex.getMessage());
                 ex.printStackTrace();
-                this.txManager.rollback(status);
+                this.rollbackTransaction();
                 return;
             }
             this.log.info("Transaction completed (" + totalCompanies + " companies, " + totalUnits + " units and " + totalMembers + " members)");
@@ -543,14 +581,17 @@ public class CvrRegister extends Register {
         }
     }
 
-    private void bulkWireReferences() {
+    private void bulkwireReferences() {
         this.dawaModel.resetAllCaches();
-        DefaultTransactionDefinition def = new DefaultTransactionDefinition();
-        def.setName("CommandLineTransactionDefinition");
-        def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
-        TransactionStatus status = this.txManager.getTransaction(def);
+        this.beginTransaction();
         this.cvrModel.bulkWireReferences();
-        this.txManager.commit(status);
+        this.endTransaction();
+    }
+
+    private void bulkwireAdresses() {
+        this.beginTransaction();
+        this.dawaModel.bulkwireAdresser();
+        this.endTransaction();
     }
 
     private void generateAddresses(boolean bulkwire) {
@@ -558,10 +599,7 @@ public class CvrRegister extends Register {
 
 
         this.dawaModel.resetAllCaches();
-        DefaultTransactionDefinition def = new DefaultTransactionDefinition();
-        def.setName("CommandLineTransactionDefinition");
-        def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
-        TransactionStatus status = this.txManager.getTransaction(def);
+        this.beginTransaction();
         this.log.info("Adding " + this.generatedAddresses.size() + " addresses");
         for (String descriptor : this.generatedAddresses.keySet()) {
             if (this.generatedAddresses.get(descriptor) == false) {
@@ -581,27 +619,21 @@ public class CvrRegister extends Register {
                 if (created >= 50000) {
                     created = 0;
                     this.dawaModel.flush();
-                    this.txManager.commit(status);
+                    this.endTransaction();
                     if (bulkwire) {
-                        status = this.txManager.getTransaction(def);
-                        this.dawaModel.bulkwireAdresser();
-                        this.txManager.commit(status);
+                        this.bulkwireAdresses();
                     }
-                    def = new DefaultTransactionDefinition();
-                    def.setName("CommandLineTransactionDefinition");
-                    def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
-                    status = this.txManager.getTransaction(def);
+                    this.beginTransaction();
+
                 }
 
 
             }
         }
         this.dawaModel.flush();
-        this.txManager.commit(status);
+        this.endTransaction();
         if (bulkwire) {
-            status = this.txManager.getTransaction(def);
-            this.dawaModel.bulkwireAdresser();
-            this.txManager.commit(status);
+            this.bulkwireAdresses();
         }
 
 

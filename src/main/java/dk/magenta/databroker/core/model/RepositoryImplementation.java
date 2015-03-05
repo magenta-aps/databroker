@@ -70,8 +70,9 @@ public abstract class RepositoryImplementation<T> {
             System.out.println(hql.join(" "));
             for (String key : queryParameters.keySet()) {
                 Object value = queryParameters.get(key);
-                this.log.trace(key + " = " + value);
+                System.out.println(key + " = " + value);
             }
+            e.printStackTrace();
         }
         return null;
     }
