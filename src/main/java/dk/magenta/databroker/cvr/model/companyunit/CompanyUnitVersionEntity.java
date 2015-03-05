@@ -96,12 +96,25 @@ public class CompanyUnitVersionEntity extends DobbeltHistorikVersion<CompanyUnit
         this.participants = participants;
     }
 
+
+    //----------------------------------------------------
+
+    private boolean isPrimaryUnit;
+
+    public boolean isPrimaryUnit() {
+        return isPrimaryUnit;
+    }
+
+    public void setPrimaryUnit(boolean isPrimaryUnit) {
+        this.isPrimaryUnit = isPrimaryUnit;
+    }
+
     //----------------------------------------------------
 
 
     public boolean matches(String name, EnhedsAdresseEntity address, Date addressDate,
                            IndustryEntity primaryIndustry, List<IndustryEntity> secondaryIndustries,
-                           String phone, String fax, String email,
+                           String phone, String fax, String email, boolean isPrimaryUnit,
                            boolean advertProtection,
                            Date startDate, Date endDate) {
         return Util.compare(this.companyInfo.getName(), name) &&
@@ -112,6 +125,7 @@ public class CompanyUnitVersionEntity extends DobbeltHistorikVersion<CompanyUnit
                 Util.compare(this.companyInfo.getTelephoneNumber(), phone) &&
                 Util.compare(this.companyInfo.getTelefaxNumber(), fax) &&
                 Util.compare(this.companyInfo.getEmail(), email) &&
+                Util.compare(this.isPrimaryUnit, isPrimaryUnit) &&
                 Util.compare(this.companyInfo.hasAdvertProtection(), advertProtection) &&
                 Util.compare(this.companyInfo.getLifeCycle().getStartDate(), startDate) &&
                 Util.compare(this.companyInfo.getLifeCycle().getEndDate(), endDate);

@@ -120,6 +120,7 @@ public class CvrRegister extends Register {
             this.obtain("phone", "telefonnummer/kontaktoplysning");
             this.obtain("fax", "telefax/kontaktoplysning");
             this.obtain("email", "email/kontaktoplysning");
+            this.obtain("isPrimary","hovedafdeling");
 
             /*if (this.get("kommunekode") == null || this.get("kommunekode").isEmpty()) {
                 System.err.println(productionunitHash);
@@ -385,7 +386,8 @@ public class CvrRegister extends Register {
                         String email = unit.get("email");
                         Date startDate = this.parseDate(unit.get("startDate"));
                         Date endDate = this.parseDate(unit.get("endDate"));
-                        boolean advertProtection = unit.getInt("advertProtection") == 1;
+                        boolean advertProtection = unit.getBoolean("advertProtection");
+                        boolean isPrimaryUnit = unit.getBoolean("isPrimary");
 
                         int primaryIndustry = unit.getInt("primaryIndustry");
                         if (primaryIndustry == 0) {
@@ -453,7 +455,6 @@ public class CvrRegister extends Register {
                             }
 
                             boolean doAddUnit = false;
-                            // REQUIRE_ROAD_EXIST
                             recorder.record();
 
                             if (REQUIRE_ROAD_EXIST) {
@@ -481,7 +482,7 @@ public class CvrRegister extends Register {
                                 CompanyUnitEntity companyUnitEntity = this.cvrModel.setCompanyUnit(pNummer, name, cvrNummer,
                                         primaryIndustry, secondaryIndustries,
                                         adresse, addressDate, addressDescriptor,
-                                        phone, fax, email,
+                                        phone, fax, email, isPrimaryUnit,
                                         startDate, endDate,
                                         advertProtection,
                                         registreringInfo, new ArrayList<VirkningEntity>()

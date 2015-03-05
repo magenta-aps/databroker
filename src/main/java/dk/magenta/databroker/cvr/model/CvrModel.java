@@ -31,6 +31,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManagerFactory;
+import java.sql.Time;
 import java.util.*;
 
 /**
@@ -64,6 +65,9 @@ public class CvrModel {
                                     RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
         return this.setCompany(cvrKode, name, primaryIndustryCode, secondaryIndustryCodes, formCode, startDate, endDate, ajourDate, null, registreringInfo, virkninger);
     }
+
+    private int companiesCreated = 0;
+    private TimeRecorder companyRecorder = new TimeRecorder();
 
     public CompanyEntity setCompany(String cvrKode, String name,
         int primaryIndustryCode, int[] secondaryIndustryCodes, int formCode,
@@ -128,7 +132,15 @@ public class CvrModel {
             this.companyRepository.save(companyEntity);
         }
         time.record();
-        //System.out.println(time);
+
+        companiesCreated++;
+        companyRecorder.add(time);
+
+        if (companiesCreated > 10000) {
+            System.out.println(companyRecorder);
+            companyRecorder = new TimeRecorder();
+            companiesCreated = 0;
+        }
         return companyEntity;
     }
 
@@ -160,6 +172,8 @@ public class CvrModel {
     }
 
     //------------------------------------------------------------------------------------------------------------------
+    private int unitsCreated = 0;
+    private TimeRecorder unitRecorder = new TimeRecorder();
 
 
     @Autowired
@@ -169,12 +183,14 @@ public class CvrModel {
     public CompanyUnitEntity setCompanyUnit(long pNummer, String name, String cvrNummer,
                                     int primaryIndustryCode, int[] secondaryIndustryCodes,
                                     EnhedsAdresseEntity address, Date addressDate, String addressDescriptor,
-                                    String phone, String fax, String email,
+                                    String phone, String fax, String email, boolean isPrimaryUnit,
                                     Date startDate, Date endDate,
                                     boolean advertProtection,
                                     RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
+        TimeRecorder time = new TimeRecorder();
 
         CompanyUnitEntity companyUnitEntity = this.companyUnitCache.get(pNummer);
+        time.record();
         //CompanyEntity companyEntity = this.getCompanyVersion(cvrNummer);
         //CompanyVersionEntity companyVersionEntity = companyEntity.getLatestVersion();
 
@@ -186,6 +202,7 @@ public class CvrModel {
             companyUnitEntity.setCvrNummer(cvrNummer);
             //this.putCompanyUnitCache(companyUnitEntity);
         }
+        time.record();
 
         /*
         if (company != null && companyUnitEntity != null &&
@@ -201,18 +218,21 @@ public class CvrModel {
         for (int secondaryIndustryCode : secondaryIndustryCodes) {
             secondaryIndustries.add(this.getIndustryEntity(secondaryIndustryCode));
         }
+        time.record();
 
         CompanyUnitVersionEntity companyUnitVersionEntity = companyUnitEntity.getLatestVersion();
 
+        time.record();
         if (companyUnitVersionEntity == null) {
             this.log.trace("Creating initial CompanyUnitVersionEntity");
             companyUnitVersionEntity = companyUnitEntity.addVersion(registreringInfo.getCreateRegistrering(), virkninger);
-        } else if (!companyUnitVersionEntity.matches(name, address, addressDate, primaryIndustry, secondaryIndustries, phone, fax, email, advertProtection, startDate, endDate)) {
+        } else if (!companyUnitVersionEntity.matches(name, address, addressDate, primaryIndustry, secondaryIndustries, phone, fax, email, isPrimaryUnit, advertProtection, startDate, endDate)) {
             this.log.trace("Creating updated CompanyUnitVersionEntity");
             companyUnitVersionEntity = companyUnitEntity.addVersion(registreringInfo.getUpdateRegisterering(), virkninger);
         } else {
             companyUnitVersionEntity = null;
         }
+        time.record();
 
 
         if (companyUnitVersionEntity != null) {
@@ -231,7 +251,18 @@ public class CvrModel {
             cInfo.getTelephoneNumber().setText(phone);
             cInfo.getTelefaxNumber().setText(fax);
             cInfo.getEmail().setText(email);
+            companyUnitVersionEntity.setPrimaryUnit(isPrimaryUnit);
             this.companyUnitRepository.save(companyUnitEntity);
+        }
+
+        time.record();
+        unitsCreated++;
+        unitRecorder.add(time);
+
+        if (unitsCreated > 10000) {
+            System.out.println(unitRecorder);
+            unitRecorder = new TimeRecorder();
+            unitsCreated = 0;
         }
 
         return companyUnitEntity;

@@ -62,6 +62,11 @@ public abstract class Record extends HashMap<String, String> {
             return 0;
         }
     }
+
+    public boolean getBoolean(String key) {
+        return this.getInt(key) == 1;
+    }
+
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
         obj.put("type", this.getRecordClass());

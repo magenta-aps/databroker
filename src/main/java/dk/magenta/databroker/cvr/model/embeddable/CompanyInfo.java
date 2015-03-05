@@ -29,7 +29,7 @@ public class CompanyInfo {
 
     //-----------------------------------------------------------
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Date updateDate;
 
     public Date getUpdateDate() {
