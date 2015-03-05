@@ -46,7 +46,7 @@ public class DocumentationController {
         Map<String, Object> model = new HashMap<String, Object>();
         VejstykkeEntity vejstykkeEntity = null;
         try {
-            vejstykkeEntity = this.dawaModel.getVejstykke(101, 7064, true);
+            vejstykkeEntity = this.dawaModel.getVejstykke(101, 7064);
         } catch (Exception e) {}
         model.put("uuid", vejstykkeEntity != null ? vejstykkeEntity.getUuid() : "e9032c69-98bf-4e18-bc94-1a5e5f8901e4");
         model.put("nav","vej");

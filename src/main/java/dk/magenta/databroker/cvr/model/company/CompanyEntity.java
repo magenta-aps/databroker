@@ -156,7 +156,7 @@ public class CompanyEntity extends DobbeltHistorikBase<CompanyEntity, CompanyVer
     }
     public static Condition virksomhedCondition(SearchParameters parameters) {
         if (parameters.has(Key.VIRKSOMHED)) {
-            return RepositoryUtil.whereField(parameters.get(Key.VIRKSOMHED), null, databaseKey+".latestVersion.name");
+            return RepositoryUtil.whereField(parameters.get(Key.VIRKSOMHED), null, databaseKey+".latestVersion.companyInfo.name");
         }
         return null;
     }

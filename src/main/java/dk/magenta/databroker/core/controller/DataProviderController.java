@@ -1,6 +1,5 @@
 package dk.magenta.databroker.core.controller;
 
-import dk.magenta.databroker.core.CustomJpaDialect;
 import dk.magenta.databroker.core.DataProvider;
 import dk.magenta.databroker.core.DataProviderConfiguration;
 import dk.magenta.databroker.core.DataProviderRegistry;
@@ -11,7 +10,6 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
