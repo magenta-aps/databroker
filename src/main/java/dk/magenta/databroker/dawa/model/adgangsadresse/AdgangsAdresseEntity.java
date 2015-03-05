@@ -276,6 +276,10 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
             obj.put("postnumre", postnumre);
         }
 
+        if (this.latestVersion.getKaldenavn() != null) {
+            obj.put("kaldenavn", this.latestVersion.getKaldenavn());
+        }
+
         if (!this.enhedsAdresser.isEmpty()) {
             JSONArray enhedsAdresser = new JSONArray();
             for (EnhedsAdresseEntity enhedsAdresseEntity : this.getEnhedsAdresser()) {

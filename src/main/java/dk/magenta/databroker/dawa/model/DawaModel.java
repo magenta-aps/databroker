@@ -82,6 +82,7 @@ public class DawaModel {
         this.postNummerCache.reset();
         this.adgangsAdresseCache.reset();
         this.enhedsAdresseCache.reset();
+        this.transactionEnhedsAdresseCache.clear();
         System.out.println("FLUSHING");
     }
 
@@ -420,15 +421,19 @@ public class DawaModel {
 
     public EnhedsAdresseEntity setAdresse(int kommuneKode, int vejKode, String husNr, String bnr, String etage, String doer,
                                            RegistreringInfo registreringInfo) {
-        return this.setAdresse(kommuneKode, vejKode, husNr, bnr, etage, doer, registreringInfo, new ArrayList<VirkningEntity>(), false, false);
+        return this.setAdresse(kommuneKode, vejKode, husNr, bnr, etage, doer, null, registreringInfo, new ArrayList<VirkningEntity>(), false, false);
     }
 
 
     private int addressCount = 0;
     private TimeRecorder addressTimeRecorder = new TimeRecorder();
 
-    public EnhedsAdresseEntity setAdresse(int kommuneKode, int vejKode, String husNr, String bnr, String etage, String doer,
+    public EnhedsAdresseEntity setAdresse(int kommuneKode, int vejKode, String husNr, String bnr, String etage, String doer, String kaldenavn,
                                           RegistreringInfo registreringInfo, List<VirkningEntity> virkninger, boolean deferWiring, boolean noFlush) {
+
+        /*if (kaldenavn != null) {
+            System.out.println(kaldenavn);
+        }*/
 
         AdgangsAdresseEntity adgangsAdresseEntity = null;
         EnhedsAdresseEntity enhedsAdresseEntity = null;
@@ -448,98 +453,86 @@ public class DawaModel {
         TimeRecorder time = new TimeRecorder();
 
 
-        //if (vejstykkeEntity == null) {
-        //    System.err.println("Vejstykke " + kommuneKode + ":" + vejKode + " not found");
-        //} else {
+        adgangsAdresseEntity = this.getAdgangsAdresse(kommuneKode, vejKode, husNr, false);
 
-            /*Collection<AdgangsAdresseEntity> adgangsAdresseEntities = vejstykkeEntity.getAdgangsAdresser();
-            if (adgangsAdresseEntities != null) {
-                for (AdgangsAdresseEntity a : adgangsAdresseEntities) {
-                    if (husNr != null && husNr.equals(a.getHusnr()) && (bnr==null || bnr.equals(a.getBnr()))) {
-                        adgangsAdresseEntity = a;
-                    }
-                }
-            }*/
-            adgangsAdresseEntity = this.getAdgangsAdresse(kommuneKode, vejKode, husNr, false);
+        time.record();
 
-            time.record();
+        if (adgangsAdresseEntity == null) {
+            //System.out.println("didn't find adgangsadresse " + kommuneKode + ":" + vejKode + ":" + husNr + ", creating");
 
-            if (adgangsAdresseEntity == null) {
-                //System.out.println("didn't find adgangsadresse "+kommuneKode+":"+vejKode+":"+husNr+", creating");
-                adgangsAdresseEntity = new AdgangsAdresseEntity();
-                if (deferWiring) {
-                    adgangsAdresseEntity.setVejstykkeDescriptor(VejstykkeEntity.generateDescriptor(kommuneKode, vejKode));
-                } else {
-                    VejstykkeEntity vejstykkeEntity = this.getVejstykke(kommuneKode, vejKode, false);
-                    if (vejstykkeEntity == null) {
-                        this.log.warn("Not adding address " + husNr + " on road " + kommuneKode + ":" + vejKode + "; road not found");
-                        return null;
-                    }
-                    adgangsAdresseEntity.setVejstykke(vejstykkeEntity);
-                }
-                adgangsAdresseEntity.setHusnr(husNr);
-                adgangsAdresseEntity.setBnr(bnr);
-                adgangsAdresseEntity.generateDescriptor();
-                this.log.trace("Creating new AdgangsAdresseEntity");
+            adgangsAdresseEntity = new AdgangsAdresseEntity();
+            if (deferWiring) {
+                adgangsAdresseEntity.setVejstykkeDescriptor(VejstykkeEntity.generateDescriptor(kommuneKode, vejKode));
             } else {
-                //System.out.println("Did find adgangsadresse "+kommuneKode+":"+vejKode+":"+husNr);
-            }
-
-            time.record();
-
-            AdgangsAdresseVersionEntity adgangsAdresseVersionEntity = adgangsAdresseEntity.getLatestVersion();
-            if (adgangsAdresseVersionEntity == null) {
-                adgangsAdresseVersionEntity = adgangsAdresseEntity.addVersion(registreringInfo.getCreateRegistrering(), virkninger);
-                this.log.trace("Creating initial AdgangsAdresseVersionEntity");
-            } else if (false /* anything changed? */) {
-                this.log.trace("Creating updated AdgangsAdresseVersionEntity");
-                adgangsAdresseVersionEntity = adgangsAdresseEntity.addVersion(registreringInfo.getUpdateRegisterering(), virkninger);
-            } else {
-                adgangsAdresseVersionEntity = null;
-            }
-            time.record();
-
-
-            if (adgangsAdresseVersionEntity != null) {
-                adgangsAdresseEntity.setLatestVersion(adgangsAdresseVersionEntity);
-                this.adgangsAdresseRepository.save(adgangsAdresseEntity);
-                this.adgangsAdresseCache.put(kommuneKode, vejKode, husNr, adgangsAdresseEntity);
-            }
-            time.record();
-
-
-            for (EnhedsAdresseEntity e : adgangsAdresseEntity.getEnhedsAdresser()) {
-                if (Util.compare(e.getEtage(), etage) && Util.compare(e.getDoer(), doer)) {
-                    enhedsAdresseEntity = e;
+                VejstykkeEntity vejstykkeEntity = this.getVejstykke(kommuneKode, vejKode, false);
+                if (vejstykkeEntity == null) {
+                    this.log.warn("Not adding address " + husNr + " on road " + kommuneKode + ":" + vejKode + "; road not found");
+                    return null;
                 }
+                adgangsAdresseEntity.setVejstykke(vejstykkeEntity);
             }
-            time.record();
-            if (enhedsAdresseEntity == null) {
-                enhedsAdresseEntity = new EnhedsAdresseEntity();
-                enhedsAdresseEntity.setAdgangsadresse(adgangsAdresseEntity);
+            adgangsAdresseEntity.setHusnr(husNr);
+            adgangsAdresseEntity.setBnr(bnr);
+            adgangsAdresseEntity.generateDescriptor();
+            this.log.trace("Creating new AdgangsAdresseEntity");
+        } else {
+            //System.out.println("Did find adgangsadresse "+kommuneKode+":"+vejKode+":"+husNr);
+        }
 
-                enhedsAdresseEntity.setEtage(etage);
-                enhedsAdresseEntity.setDoer(doer);
-                enhedsAdresseEntity.setDescriptor(enhedsAdresseEntity.generateDescriptor(kommuneKode, vejKode, husNr, etage, doer));
-                this.log.trace("Creating new EnhedsAdresseEntity");
-            }
-            time.record();
+        time.record();
 
-            EnhedsAdresseVersionEntity enhedsAdresseVersionEntity = enhedsAdresseEntity.getLatestVersion();
-            if (enhedsAdresseVersionEntity == null) {
-                enhedsAdresseVersionEntity = enhedsAdresseEntity.addVersion(registreringInfo.getCreateRegistrering(), virkninger);
-                this.log.trace("Creating initial EnhedsAdresseVersionEntity");
-            } else if (false) {
-                enhedsAdresseVersionEntity = enhedsAdresseEntity.addVersion(registreringInfo.getUpdateRegisterering(), virkninger);
-                this.log.trace("Creating updated EnhedsAdresseVersionEntity");
-            } else {
-                enhedsAdresseVersionEntity = null;
-            }
-            time.record();
+        AdgangsAdresseVersionEntity adgangsAdresseVersionEntity = adgangsAdresseEntity.getLatestVersion();
+        if (adgangsAdresseVersionEntity == null) {
+            adgangsAdresseVersionEntity = adgangsAdresseEntity.addVersion(registreringInfo.getCreateRegistrering(), virkninger);
+            this.log.trace("Creating initial AdgangsAdresseVersionEntity");
+        } else if (!adgangsAdresseVersionEntity.matches(kaldenavn)) {
+            this.log.trace("Creating updated AdgangsAdresseVersionEntity");
+            adgangsAdresseVersionEntity = adgangsAdresseEntity.addVersion(registreringInfo.getUpdateRegisterering(), virkninger);
+        } else {
+            adgangsAdresseVersionEntity = null;
+        }
+        time.record();
 
-            if (enhedsAdresseVersionEntity != null) {
-                this.enhedsAdresseRepository.save(enhedsAdresseEntity);
-            }
+
+        if (adgangsAdresseVersionEntity != null) {
+            adgangsAdresseEntity.setLatestVersion(adgangsAdresseVersionEntity);
+            adgangsAdresseVersionEntity.setKaldenavn(kaldenavn);
+            this.adgangsAdresseRepository.save(adgangsAdresseEntity);
+            this.adgangsAdresseCache.put(kommuneKode, vejKode, husNr, adgangsAdresseEntity);
+        }
+        time.record();
+
+
+        enhedsAdresseEntity = this.getEnhedsAdresse(kommuneKode, vejKode, husNr, etage, doer);
+
+        time.record();
+        if (enhedsAdresseEntity == null) {
+            enhedsAdresseEntity = new EnhedsAdresseEntity();
+            enhedsAdresseEntity.setAdgangsadresse(adgangsAdresseEntity);
+
+            enhedsAdresseEntity.setEtage(etage);
+            enhedsAdresseEntity.setDoer(doer);
+            enhedsAdresseEntity.setDescriptor(enhedsAdresseEntity.generateDescriptor(kommuneKode, vejKode, husNr, etage, doer));
+            this.log.trace("Creating new EnhedsAdresseEntity");
+        }
+        time.record();
+
+        EnhedsAdresseVersionEntity enhedsAdresseVersionEntity = enhedsAdresseEntity.getLatestVersion();
+        if (enhedsAdresseVersionEntity == null) {
+            enhedsAdresseVersionEntity = enhedsAdresseEntity.addVersion(registreringInfo.getCreateRegistrering(), virkninger);
+            this.log.trace("Creating initial EnhedsAdresseVersionEntity");
+        } else if (false) {
+            enhedsAdresseVersionEntity = enhedsAdresseEntity.addVersion(registreringInfo.getUpdateRegisterering(), virkninger);
+            this.log.trace("Creating updated EnhedsAdresseVersionEntity");
+        } else {
+            enhedsAdresseVersionEntity = null;
+        }
+        time.record();
+
+        if (enhedsAdresseVersionEntity != null) {
+            this.putEnhedsAdresse(kommuneKode, vejKode, husNr, enhedsAdresseEntity);
+            this.enhedsAdresseRepository.save(enhedsAdresseEntity);
+        }
 
 
         this.itemAdded(noFlush);
@@ -591,8 +584,18 @@ public class DawaModel {
         return (enhedsAdresseEntities == null || enhedsAdresseEntities.isEmpty()) ? null : enhedsAdresseEntities.iterator().next();
     }
 
+    private Level4Container<EnhedsAdresseEntity> transactionEnhedsAdresseCache = new Level4Container<EnhedsAdresseEntity>();
+
     public EnhedsAdresseEntity getEnhedsAdresse(int kommuneKode, int vejKode, String husnr, String etage, String doer) {
-        return this.enhedsAdresseCache.get(kommuneKode, vejKode, husnr, EnhedsAdresseEntity.getFinalIdentifier(etage, doer));
+        //return this.enhedsAdresseCache.get(kommuneKode, vejKode, husnr, EnhedsAdresseEntity.getFinalIdentifier(etage, doer));
+        EnhedsAdresseEntity enhedsAdresseEntity = this.transactionEnhedsAdresseCache.get(kommuneKode, vejKode, husnr, EnhedsAdresseEntity.getFinalIdentifier(etage, doer));
+        if (enhedsAdresseEntity == null) {
+            enhedsAdresseEntity = this.enhedsAdresseRepository.getByDescriptor(EnhedsAdresseEntity.generateDescriptor(kommuneKode, vejKode, husnr, etage, doer));
+        }
+        return enhedsAdresseEntity;
+    }
+    private void putEnhedsAdresse(int kommuneKode, int vejKode, String husnr, EnhedsAdresseEntity enhedsAdresseEntity) {
+        this.transactionEnhedsAdresseCache.put(kommuneKode, vejKode, husnr, EnhedsAdresseEntity.getFinalIdentifier(enhedsAdresseEntity.getEtage(), enhedsAdresseEntity.getDoer()), enhedsAdresseEntity);
     }
 
 

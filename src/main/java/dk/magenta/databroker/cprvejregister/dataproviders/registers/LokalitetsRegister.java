@@ -2,6 +2,7 @@ package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
 import dk.magenta.databroker.core.DataProviderConfiguration;
 import dk.magenta.databroker.core.RegistreringInfo;
+import dk.magenta.databroker.core.model.oio.VirkningEntity;
 import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.cprvejregister.dataproviders.records.*;
@@ -14,6 +15,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 
 /**
  * Created by lars on 04-11-14.
@@ -130,7 +132,8 @@ public class LokalitetsRegister extends CprSubRegister {
                 String husnr = lokalitet.get("husNr");
                 String etage = lokalitet.get("etage");
                 String sidedoer = lokalitet.get("sidedoer");
-                model.setAdresse(kommuneKode, vejKode, husnr, null, etage, sidedoer, registreringInfo);
+                String kaldenavn = lokalitet.get("lokalitet"); // Vi kan ikke nødvendigvis stole på denne; i nogle entries er det et bygningsnavn (f.eks. "møllegården"), mens i andre et landsby- eller bygdnavn
+                model.setAdresse(kommuneKode, vejKode, husnr, null, etage, sidedoer, kaldenavn, registreringInfo, new ArrayList<VirkningEntity>(), false, false);
                 counter.countEntryProcessed();
             }
         }

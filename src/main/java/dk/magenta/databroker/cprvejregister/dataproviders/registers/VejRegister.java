@@ -2,6 +2,7 @@ package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
 import dk.magenta.databroker.core.DataProviderConfiguration;
 import dk.magenta.databroker.core.RegistreringInfo;
+import dk.magenta.databroker.core.model.oio.VirkningEntity;
 import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.dawa.model.RawVej;
 import dk.magenta.databroker.register.RegisterRun;
@@ -575,8 +576,8 @@ public class VejRegister extends CprSubRegister {
         counter.reset();
         for (Bolig bolig : vrun.getBoliger()) {
             this.model.setAdresse(
-                    bolig.getInt("kommuneKode"), bolig.getInt("vejKode"), bolig.get("husNr"), null, bolig.get("etage"), bolig.get("sidedoer"),
-                    registreringInfo
+                    bolig.getInt("kommuneKode"), bolig.getInt("vejKode"), bolig.get("husNr"), null, bolig.get("etage"), bolig.get("sidedoer"), bolig.get("lokalitet"),
+                    registreringInfo, new ArrayList<VirkningEntity>(), false, false
             );
             counter.countEntryProcessed();
         }

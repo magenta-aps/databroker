@@ -572,7 +572,7 @@ public class CvrRegister extends Register {
                     String husNr = parts[2];
                     String etage = parts[3];
                     String doer = parts[4];
-                    this.dawaModel.setAdresse(kommuneKode, vejKode, husNr, null, etage, doer,
+                    this.dawaModel.setAdresse(kommuneKode, vejKode, husNr, null, etage, doer, null,
                             registreringInfo, new ArrayList<VirkningEntity>(), bulkwire, true);
                     created++;
                 } catch (ArrayIndexOutOfBoundsException e) {
