@@ -15,15 +15,10 @@ public interface LokalitetRepository extends JpaRepository<LokalitetEntity, Long
     public LokalitetEntity getByUuid(String uuid);
 
 
-    @Query("select lokalitet from LokalitetEntity lokalitet " +
-            "join lokalitet.kommune kommune " +
-            "where kommune.kode = :kommunekode " +
-            "and lokalitet.navn = :navn")
-    public LokalitetEntity getByKommunekodeAndLokalitetsnavn(@Param("kommunekode") int kommuneKode, @Param("navn") String lokalitetsnavn);
-
     /*
     * To be implemented in interface implementation
     * */
+    public LokalitetEntity getByKommunekodeAndLokalitetsnavn(int kommuneKode, String lokalitetsnavn);
     public Collection<LokalitetEntity> search(SearchParameters parameters);
     public void clear();
 }

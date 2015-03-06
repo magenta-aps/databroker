@@ -161,6 +161,10 @@ public class KommuneEntity extends TemaBase implements Cacheable {
         return null;
     }
 
+    public static Condition kommuneCondition(int kommuneKode) {
+        return RepositoryUtil.whereField(kommuneKode, databaseKey+".kode", null);
+    }
+
     public static Condition landCondition(SearchParameters parameters) {
         if (parameters.has(Key.LAND)) {
             return RepositoryUtil.whereFieldLand(parameters.get(Key.LAND));

@@ -7,6 +7,7 @@ import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
 import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.register.conditions.ConditionList;
+import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.util.objectcontainers.StringList;
 
 import java.util.Collection;
@@ -17,6 +18,7 @@ import java.util.Collection;
 
 interface LokalitetRepositoryCustom {
     public Collection<LokalitetEntity> search(SearchParameters parameters);
+    public LokalitetEntity getByKommunekodeAndLokalitetsnavn(int kommuneKode, String lokalitetsnavn);
     public void clear();
 }
 
@@ -74,5 +76,21 @@ public class LokalitetRepositoryImpl extends RepositoryImplementation<LokalitetE
         hql.append("order by "+LokalitetEntity.databaseKey+".navn");
 
         return this.query(hql, conditions, parameters.getGlobalCondition());
+    }
+
+    public LokalitetEntity getByKommunekodeAndLokalitetsnavn(int kommuneKode, String lokalitetsnavn) {
+        final GlobalCondition singleResultCondition = new GlobalCondition(null,null,0,1);
+        StringList hql = new StringList();
+        hql.append("select distinct "+LokalitetEntity.databaseKey+" from LokalitetEntity as "+LokalitetEntity.databaseKey);
+        StringList join = new StringList();
+        ConditionList conditions = new ConditionList();
+        conditions.addCondition(LokalitetEntity.lokalitetCondition(lokalitetsnavn));
+        join.append(LokalitetEntity.joinVej());
+        join.append(VejstykkeEntity.joinKommune());
+        conditions.addCondition(KommuneEntity.kommuneCondition(kommuneKode));
+        hql.append("where");
+        hql.append(conditions.getWhere());
+        Collection<LokalitetEntity> lokalitetEntities = this.query(hql, conditions, singleResultCondition);
+        return lokalitetEntities.size() > 0 ? lokalitetEntities.iterator().next() : null;
     }
 }

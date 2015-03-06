@@ -117,6 +117,11 @@ public class LokalitetEntity extends UniqueBase implements OutputFormattable, Ca
         return null;
     }
 
+    public static Condition lokalitetCondition(String lokalitetsNavn) {
+        return RepositoryUtil.whereField(lokalitetsNavn, null, databaseKey+".navn");
+
+    }
+
     public static String joinVej() {
         return databaseKey+".vejstykkeVersioner.entity as "+ VejstykkeEntity.databaseKey;
     }
