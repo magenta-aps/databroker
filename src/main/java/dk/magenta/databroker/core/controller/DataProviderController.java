@@ -255,14 +255,16 @@ public class DataProviderController {
     }
 
     private boolean requestHasDataInFields(HttpServletRequest request, List<String> fields) {
-        for (String uploadField : fields) {
-            try {
-                Part uploadPart = request.getPart(uploadField);
-                if (uploadPart != null && uploadPart.getSize() > 0) {
-                    return true;
+        if (fields != null) {
+            for (String uploadField : fields) {
+                try {
+                    Part uploadPart = request.getPart(uploadField);
+                    if (uploadPart != null && uploadPart.getSize() > 0) {
+                        return true;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
         }
         return false;

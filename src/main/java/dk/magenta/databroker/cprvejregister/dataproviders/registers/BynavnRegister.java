@@ -89,7 +89,7 @@ public class BynavnRegister extends CprSubRegister {
     protected void saveRunToDatabase(RegisterRun run, RegistreringInfo registreringInfo) {
 
         this.log.info("Preparatory linking");
-        long time = this.indepTic();
+        double time = this.indepTic();
         ModelUpdateCounter counter = new ModelUpdateCounter();
         counter.setLog(this.log);
 
@@ -139,8 +139,8 @@ public class BynavnRegister extends CprSubRegister {
         }
         counter.printFinalEntriesProcessed();
         int count = counter.getCount();
-        this.toc(time);
-        this.log.info(count + " LokalitetEntities stored in " + time + " ms (avg " + ((double)time / (double)count) + " ms)");
+        time = this.toc(time);
+        this.log.info(count + " LokalitetEntities stored in " + time + " ms (avg " + (time / (double)count) + " ms)");
         registreringInfo.logProcess(this.log);
     }
 

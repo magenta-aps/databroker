@@ -492,7 +492,7 @@ public class VejRegister extends CprSubRegister {
     * */
 
     protected void saveRunToDatabase(RegisterRun run, RegistreringInfo registreringInfo) {
-        long time;
+        double time;
         VejRegisterRun vrun = (VejRegisterRun) run;
         int count = 0;
 
@@ -546,7 +546,7 @@ public class VejRegister extends CprSubRegister {
             }
         }
         time = this.toc(time);
-        this.log.info("Links created in " + time + " ms (avg " + ((double) time / (double) count) + " ms)");
+        this.log.info(count + " links created in " + time + " ms (avg " + (time / (double) count) + " ms)");
 
         // Process each AktivVej object, creating database entries
         // We do this in the VejRegisterRun instance because there is some state information
@@ -569,7 +569,7 @@ public class VejRegister extends CprSubRegister {
         counter.printFinalEntriesProcessed();
         count = counter.getCount();
         time = this.toc(time);
-        this.log.info(count + " VejstykkeEntities stored in " + time + " ms (avg " + ((double) time / (double) count) + " ms)");
+        this.log.info(count + " VejstykkeEntities stored in " + time + " ms (avg " + (time / (double) count) + " ms)");
 
 
 
@@ -587,7 +587,7 @@ public class VejRegister extends CprSubRegister {
         counter.printFinalEntriesProcessed();
         count = counter.getCount();
         time = this.toc(time);
-        this.log.info(count + " AdresseEntities stored in " + time + " ms (avg " + ((double) time / (double) count) + " ms)");
+        this.log.info(count + " AdresseEntities stored in " + time + " ms (avg " + (time / (double) count) + " ms)");
 
 
 
@@ -606,7 +606,7 @@ public class VejRegister extends CprSubRegister {
         counter.printFinalEntriesProcessed();
         count = counter.getCount();
         time = this.toc(time);
-        this.log.info(count + " LokalitetEntities stored in "+time+" ms (avg " + ((double) time / (double) count) + " ms)");
+        this.log.info(count + " LokalitetEntities stored in "+time+" ms (avg " + (time / (double) count) + " ms)");
         registreringInfo.logProcess(this.log);
     }
 

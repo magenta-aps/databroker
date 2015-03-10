@@ -59,29 +59,21 @@ public abstract class RepositoryUtil {
         }
 
         if (digitKey != null && digits) {
-            if (search instanceof String) {
-                search = Integer.parseInt(""+search, 10);
-            }
             if (wildcardPresent) {
-                //System.out.println(1);
                 return new SingleCondition("cast(" + digitKey + " as string)", negate ? NOT_LIKE : LIKE, strSearch);
             } else {
                 if (search instanceof String) {
                     search = Integer.parseInt(""+search, 10);
                 }
-                //System.out.println(2);
                 return new SingleCondition(digitKey, negate ? NOT_EQUALS : EQUALS, search);
             }
         } else {
             if (nameKey == null) {
-                System.out.println(search+" "+strSearch+" "+digitKey+" "+nameKey);
-                throw new IllegalArgumentException("Parameter 'nameKey' must not be null when 'digitKey' is null or search contains non-digits");
+                throw new IllegalArgumentException("Parameter 'nameKey' must not be null when 'digitKey' is null or search contains non-digits (search: "+search+", strSearch: "+strSearch+", digitKey: "+digitKey+", nameKey: "+nameKey+")");
             }
             if (wildcardPresent) {
-                //System.out.println(3);
                 return new SingleCondition(nameKey, negate ? NOT_LIKE : LIKE, strSearch);
             } else {
-                //System.out.println(4);
                 return new SingleCondition(nameKey, negate ? NOT_EQUALS : EQUALS, strSearch);
             }
         }

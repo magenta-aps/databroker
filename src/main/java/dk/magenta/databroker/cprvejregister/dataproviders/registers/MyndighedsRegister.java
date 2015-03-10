@@ -179,7 +179,7 @@ public class MyndighedsRegister extends CprSubRegister {
 
     protected void saveRunToDatabase(RegisterRun run, RegistreringInfo registreringInfo) {
         this.log.info("Storing KommuneEntities in database");
-        long time = this.indepTic();
+        double time = this.indepTic();
         ModelUpdateCounter counter = new ModelUpdateCounter();
         counter.setLog(this.log);
         MyndighedsRegisterRun mrun = (MyndighedsRegisterRun) run;
@@ -196,7 +196,7 @@ public class MyndighedsRegister extends CprSubRegister {
         counter.printFinalEntriesProcessed();
         int count = counter.getCount();
         time = this.toc(time);
-        this.log.info(count + " KommuneEntities stored in " + time + " ms (avg " + ((double)time / (double)count) + " ms)");
+        this.log.info(count + " KommuneEntities stored in " + time + " ms (avg " + (time / (double)count) + " ms)");
         registreringInfo.logProcess(this.log);
     }
 

@@ -43,7 +43,7 @@ public abstract class LineRegister extends Register {
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputstream, encoding.toUpperCase()));
 
             this.log.info("Reading data");
-            long time = this.tic();
+            double time = this.tic();
             int i = 0, j = 0;
 
             RegisterRun run = this.createRun();
@@ -72,7 +72,9 @@ public abstract class LineRegister extends Register {
                 }
             }
             this.log.trace("    parsed " + (j * 100000 + i) + " lines");
-            this.log.info("Parse complete (" + run.size() + " usable entries found) in " + this.toc(time) + " ms");
+            time = this.toc(time);
+            int count = run.size();
+            this.log.info("Parse complete (" + count + " usable entries found) in " + time + " ms " + (count > 0 ? ("(avg " + (time / (double) count) + " ms)") : ""));
             return run;
 
         } catch (MalformedURLException e) {

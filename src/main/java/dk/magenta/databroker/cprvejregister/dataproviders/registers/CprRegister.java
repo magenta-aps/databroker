@@ -7,6 +7,7 @@ import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.register.LineRegister;
 import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.util.objectcontainers.Pair;
+import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -36,6 +37,7 @@ public class CprRegister extends LineRegister {
         private DataProviderEntity dataProviderEntity;
         private List<Pair<CprSubRegister, File>> input;
         boolean deleteFiles;
+        Logger log = Logger.getLogger(this.getClass());
 
         private TransactionTemplate transactionTemplate;
 
@@ -51,6 +53,7 @@ public class CprRegister extends LineRegister {
             final DataProviderEntity dataProviderEntity = this.dataProviderEntity;
             final List<Pair<CprSubRegister, File>> input = this.input;
             final boolean deleteFiles = this.deleteFiles;
+            this.log.info("Beginning push");
             this.transactionTemplate.execute(new TransactionCallback() {
                 // the code in this method executes in a transactional context
                 public Object doInTransaction(TransactionStatus status) {
@@ -78,7 +81,7 @@ public class CprRegister extends LineRegister {
                 }
             });
 
-            System.out.println("Push complete");
+            this.log.info("Push complete");
         }
     }
 
@@ -249,8 +252,8 @@ public class CprRegister extends LineRegister {
     @Override
     public boolean wantCronUpdate(DataProviderConfiguration oldConfiguration, DataProviderConfiguration newConfiguration) {
         String cronField = "cron";
-        List<String> oldCronValue = oldConfiguration.get(cronField);
-        List<String> newCronValue = newConfiguration.get(cronField);
+        List<String> oldCronValue = (oldConfiguration != null) ? oldConfiguration.get(cronField) : null;
+        List<String> newCronValue =  (newConfiguration != null) ? newConfiguration.get(cronField) : null;
         if (oldCronValue == null && newCronValue != null) {
             return true;
         }

@@ -12,20 +12,13 @@ import java.util.Collection;
  */
 public interface VejstykkeRepository extends JpaRepository<VejstykkeEntity, Long> {
 
-    @Query("select vej from VejstykkeEntity vej " +
-            "join vej.kommune kommune " +
-            "where kommune.kode = :kommunekode " +
-            "and vej.kode = :vejkode")
-    public VejstykkeEntity getByKommunekodeAndVejkode(@Param("kommunekode") int kommunekode, @Param("vejkode") int vejkode);
-
     public VejstykkeEntity getByUuid(String uuid);
-
 
     /*
     * To be implemented in interface implementation
     * */
     public Collection<VejstykkeEntity> search(SearchParameters parameters);
-    public VejstykkeEntity getByDescriptor(int descriptor);
+    public VejstykkeEntity getByDesc(int descriptor);
     public void clear();
 
 }

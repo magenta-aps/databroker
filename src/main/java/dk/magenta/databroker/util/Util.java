@@ -52,8 +52,8 @@ public abstract class Util {
         return compare(Util.normalizeString(str1), Util.normalizeString(str2));
     }
 
-    public static long getTime() {
-        return new Date().getTime();
+    public static double getTime() {
+        return 0.000001 * (double)System.nanoTime();
     }
 
     public static long stringHash(String str) {

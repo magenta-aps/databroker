@@ -26,7 +26,7 @@ import java.util.Map;
 interface CompanyRepositoryCustom {
     public Collection<CompanyEntity> search(SearchParameters parameters);
     public void clear();
-    public CompanyEntity getByCvrNummer(String cvrNummer);
+    public CompanyEntity getByCvr(String cvrNummer);
 }
 
 
@@ -99,7 +99,7 @@ public class CompanyRepositoryImpl extends RepositoryImplementation<CompanyEntit
     }
 
 
-    public CompanyEntity getByCvrNummer(String cvrNummer) {
+    public CompanyEntity getByCvr(String cvrNummer) {
         StringList hql = new StringList();
         hql.append("select distinct "+CompanyEntity.databaseKey+" from CompanyEntity as "+CompanyEntity.databaseKey);
         ConditionList conditions = new ConditionList();

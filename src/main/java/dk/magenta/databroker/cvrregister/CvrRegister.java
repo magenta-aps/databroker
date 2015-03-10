@@ -219,7 +219,7 @@ public class CvrRegister extends Register {
     @Override
     protected void importData(RegistreringInfo registreringInfo) {
         try {
-            DefaultHandler handler = new VirksomhedDataHandler(registreringInfo, 50000);
+            DefaultHandler handler = new VirksomhedDataHandler(registreringInfo, 10000);
             SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
             parser.parse(registreringInfo.getInputStream(), handler);
             //this.generateAddresses(false);
@@ -340,7 +340,7 @@ public class CvrRegister extends Register {
 
             try {
 
-                long time;
+                double time;
 
                 if (companyCount > 0) {
                     time = this.tic();
@@ -403,7 +403,7 @@ public class CvrRegister extends Register {
                     }
 
                     time = this.toc(time);
-                    this.log.info(companyCount + " companies created in " + time + "ms (avg " + ((double) time / (double) companyCount) + " ms)");
+                    this.log.info(companyCount + " companies created in " + time + "ms (avg " + (time / (double) companyCount) + " ms)");
                 }
 
 
@@ -540,8 +540,7 @@ public class CvrRegister extends Register {
                     }
 
                     time = this.toc(time);
-                    this.log.info(unitCount + " production units created in " + time + "ms (avg " + ((double) time / (double) unitCount) + " ms)");
-                    System.out.println("50000 units processed: "+sumTime);
+                    this.log.info(unitCount + " production units created in " + time + "ms (avg " + (time / (double) unitCount) + " ms) " + sumTime);
                 }
 
 

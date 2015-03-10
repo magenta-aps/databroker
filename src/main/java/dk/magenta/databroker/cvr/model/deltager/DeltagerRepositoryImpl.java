@@ -30,7 +30,7 @@ public class DeltagerRepositoryImpl implements DeltagerRepositoryCustom {
 
     public void bulkWireReferences() {
         this.log.info("Updating references between members and companies");
-        long time = Util.getTime();
+        double time = Util.getTime();
         this.entityManager.createNativeQuery("update cvr_deltager deltager inner join cvr_company company on deltager.cvr_nummer=company.cvr_nummer set deltager.company_id=company.id where deltager.company_id is NULL").executeUpdate();
         this.log.info("References updated in "+(Util.getTime()-time)+" ms");
     }

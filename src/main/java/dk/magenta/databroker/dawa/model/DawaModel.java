@@ -205,9 +205,10 @@ public class DawaModel {
     public VejstykkeEntity getVejstykke(int kommuneKode, int vejKode) {
         VejstykkeEntity vejstykkeEntity = this.transactionVejstykkeCache.get(kommuneKode, vejKode);
         if (vejstykkeEntity == null) {
-            vejstykkeEntity = this.vejstykkeRepository.getByDescriptor(VejstykkeEntity.generateDescriptor(kommuneKode, vejKode));
+            vejstykkeEntity = this.vejstykkeRepository.getByDesc(VejstykkeEntity.generateDescriptor(kommuneKode, vejKode));
             if (vejstykkeEntity != null) {
-                this.putVejstykke(vejstykkeEntity);
+                //this.putVejstykke(vejstykkeEntity);
+                this.transactionVejstykkeCache.put(kommuneKode, vejKode, vejstykkeEntity);
             }
         }
         return vejstykkeEntity;

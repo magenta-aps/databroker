@@ -165,8 +165,6 @@ public abstract class Register extends DataProvider {
         CorrectionCollectionEntity correctionCollectionEntity = registreringInfo.getDataProviderEntity().getCorrections();
         if (correctionCollectionEntity != null) {
             correctionCollectionEntity.correctRecords(run);
-        } else {
-            System.out.println("correctionCollectionEntity is null for "+this);
         }
 
         this.saveRunToDatabase(run, registreringInfo);
@@ -342,18 +340,18 @@ public abstract class Register extends DataProvider {
 
     //------------------------------------------------------------------------------------------------------------------
 
-    private long ticTime = 0;
-    protected long tic() {
+    private double ticTime = 0;
+    protected double tic() {
         this.ticTime = this.indepTic();
         return this.ticTime;
     }
-    protected long indepTic() {
+    protected double indepTic() {
         return Util.getTime();
     }
-    protected long toc(long ticTime) {
+    protected double toc(double ticTime) {
         return Util.getTime() - ticTime;
     }
-    protected long toc() {
+    protected double toc() {
         return Util.getTime() - this.ticTime;
     }
 

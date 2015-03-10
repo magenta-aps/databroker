@@ -11,7 +11,7 @@ import java.util.Collection;
 public interface CompanyRepository extends JpaRepository<CompanyEntity, Long> {
 
     public CompanyEntity getByUuid(String uuid);
-    public CompanyEntity getByCvrNummer(String cvrNummer);
+    public CompanyEntity getByCvr(String cvrNummer);
     public Collection<CompanyEntity> search(SearchParameters parameters);
     public void clear();
 }

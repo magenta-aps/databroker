@@ -31,7 +31,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManagerFactory;
-import java.sql.Time;
 import java.util.*;
 
 /**
@@ -146,7 +145,7 @@ public class CvrModel {
 
     public CompanyEntity getCompany(String cvrNummer, boolean noCache) {
         if (noCache) {
-            return this.companyRepository.getByCvrNummer(cvrNummer);
+            return this.companyRepository.getByCvr(cvrNummer);
         } else {
             return this.companyCache.get(cvrNummer);
         }

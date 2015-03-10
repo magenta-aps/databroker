@@ -55,6 +55,13 @@ public class NukissiorfiitRegister extends LineRegister {
         return this.ctx.getResource("classpath:/data/nukissiorfiit.csv");
     }
 
+    public List<String> getUploadFields() {
+        ArrayList<String> list = new ArrayList<String>();
+        list.add("sourceUpload");
+        return list;
+    }
+
+
     @Override
     protected String getEncoding() {
         return "UTF-8";
@@ -153,7 +160,7 @@ public class NukissiorfiitRegister extends LineRegister {
     protected void saveRunToDatabase(RegisterRun run, RegistreringInfo registreringInfo) {
 
         this.log.info("Preparatory linking");
-        long time = this.indepTic();
+        double time = this.indepTic();
         ModelUpdateCounter counter = new ModelUpdateCounter();
         counter.setLog(this.log);
 
@@ -226,7 +233,7 @@ public class NukissiorfiitRegister extends LineRegister {
         counter.printFinalEntriesProcessed();
         time = this.toc(time);
         int count = counter.getCount();
-        this.log.info(count + " AdresseEntities stored in " + time + " ms (avg " + ((double) time / (double) count) + " ms)");
+        this.log.info(count + " AdresseEntities stored in " + time + " ms (avg " + (time / (double) count) + " ms)");
         /*
         for (Pair<String, String> success : successes) {
             System.out.println("Genkendt: " + success.getLeft() + " / " + success.getRight());
