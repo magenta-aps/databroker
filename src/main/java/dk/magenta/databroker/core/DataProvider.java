@@ -335,15 +335,9 @@ public abstract class DataProvider {
     public boolean wantUpload(DataProviderConfiguration configuration) {
         return false;
     }
-    public boolean wantUpload(String configuration) {
-        return this.wantUpload(new DataProviderConfiguration(configuration));
-    }
 
     public boolean wantCronUpdate(DataProviderConfiguration oldConfiguration, DataProviderConfiguration newConfiguration) {
         return false;
-    }
-    public boolean wantCronUpdate(String oldConfiguration, String newConfiguration) {
-        return this.wantCronUpdate(new DataProviderConfiguration(oldConfiguration), new DataProviderConfiguration(newConfiguration));
     }
 
     public String getCronExpression(DataProviderConfiguration configuration) {

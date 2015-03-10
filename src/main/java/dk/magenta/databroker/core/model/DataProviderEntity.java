@@ -99,12 +99,23 @@ public class DataProviderEntity {
 
     @Basic
     @Column(name = "configuration", nullable = true, insertable = true, updatable = true, length = 10000)
-    public String getConfiguration() {
+    private String getConfiguration() {
         return configuration;
     }
 
-    public void setConfiguration(String configuration) {
+    private void setConfiguration(String configuration) {
         this.configuration = configuration;
+    }
+
+
+    @Transient
+    public DataProviderConfiguration getConfig() {
+        return new DataProviderConfiguration(this.getConfiguration());
+    }
+
+    @Transient
+    public void setConfig(DataProviderConfiguration config) {
+        this.setConfiguration(config.toString());
     }
 
 
@@ -184,7 +195,7 @@ public class DataProviderEntity {
     }
 
     public boolean canPull() {
-        return this.getDataProvider().canPull(new DataProviderConfiguration(this.getConfiguration()));
+        return this.getDataProvider().canPull(this.getConfig());
     }
 
     /**************************************************************************************

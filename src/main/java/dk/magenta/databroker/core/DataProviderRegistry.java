@@ -74,8 +74,7 @@ public class DataProviderRegistry {
             entity.setName(name);
             entity.setPriority(1);
 
-            DataProviderConfiguration configuration = new DataProviderConfiguration(parameters);
-            entity.setConfiguration(configuration.toString());
+            entity.setConfig(new DataProviderConfiguration(parameters));
 
             this.dataProviderRepository.save(entity);
         }
@@ -97,7 +96,7 @@ public class DataProviderRegistry {
         boolean updated = false;
         if (entity != null) {
             try {
-                DataProviderConfiguration configuration = new DataProviderConfiguration(entity.getConfiguration());
+                DataProviderConfiguration configuration = entity.getConfig();
                 for (String key : parameters.keySet()) {
                     if (configuration.update(key, parameters.get(key))) {
                         updated = true;
@@ -121,8 +120,8 @@ public class DataProviderRegistry {
     }
 
     public boolean updateDataProviderEntity(DataProviderEntity dataProviderEntity, DataProviderConfiguration dataProviderConfiguration) {
-        if (!(new DataProviderConfiguration(dataProviderEntity.getConfiguration()).equals(dataProviderConfiguration))) {
-            dataProviderEntity.setConfiguration(dataProviderConfiguration.toString());
+        if (!(dataProviderEntity.getConfig().equals(dataProviderConfiguration))) {
+            dataProviderEntity.setConfig(dataProviderConfiguration);
             this.dataProviderRepository.save(dataProviderEntity);
             return true;
         }
@@ -130,8 +129,7 @@ public class DataProviderRegistry {
     }
 
     public Map<String, String[]> getDataProviderEntityValues(DataProviderEntity dataProviderEntity) {
-        DataProviderConfiguration configuration = new DataProviderConfiguration(dataProviderEntity.getConfiguration());
-        return configuration.toArrayMap();
+        return dataProviderEntity.getConfig().toArrayMap();
     }
 
     public DataProviderEntity getDataProviderEntity(String uuid) {

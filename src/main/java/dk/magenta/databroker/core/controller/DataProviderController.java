@@ -188,11 +188,11 @@ public class DataProviderController {
                 String name = request.getParameter("name");
 
                 DataProvider dataProvider = dataProviderEntity.getDataProvider();
-                String oldConfiguration = dataProviderEntity.getConfiguration();
+                DataProviderConfiguration oldConfiguration = dataProviderEntity.getConfig();
                 boolean wasActive = dataProviderEntity.getActive();
                 boolean updated = this.dataProviderRegistry.updateDataProviderEntity(dataProviderEntity, valueMap, name, active);
                 if (updated) {
-                    if (wasActive != active || (active && dataProvider.wantCronUpdate(oldConfiguration, dataProviderEntity.getConfiguration()))) {
+                    if (wasActive != active || (active && dataProvider.wantCronUpdate(oldConfiguration, dataProviderEntity.getConfig()))) {
                         this.updateCronScheduling(dataProviderEntity);
                     }
                 }
@@ -209,7 +209,7 @@ public class DataProviderController {
                 boolean active = "active".equals(request.getParameter("active"));
                 dataProviderEntity = this.dataProviderRegistry.createDataProviderEntity(providerType, valueMap, active);
                 DataProvider dataProvider = dataProviderEntity.getDataProvider();
-                if (active && dataProvider.wantCronUpdate(null, dataProviderEntity.getConfiguration())) {
+                if (active && dataProvider.wantCronUpdate(null, dataProviderEntity.getConfig())) {
                     this.updateCronScheduling(dataProviderEntity);
                 }
 
@@ -244,7 +244,7 @@ public class DataProviderController {
     private ModelAndView processUpload(HttpServletRequest request, DataProviderEntity dataProviderEntity, DataProvider dataProvider) {
         String uuid = dataProviderEntity.getUuid();
         boolean blockImport = BLOCK_CHANGES_ON_RUNNING && this.isImportRunning();
-        if (!blockImport && dataProvider.wantUpload(dataProviderEntity.getConfiguration()) && this.requestHasDataInFields(request, dataProvider.getUploadFields())) {
+        if (!blockImport && dataProvider.wantUpload(dataProviderEntity.getConfig()) && this.requestHasDataInFields(request, dataProvider.getUploadFields())) {
             this.log.info("Processing upload");
             //this.transactionManager.setJpaDialect(new CustomJpaDialect());
             Thread thread = dataProvider.asyncPush(dataProviderEntity, request, this.transactionManager);
@@ -432,7 +432,7 @@ public class DataProviderController {
         }
         if (entity.getActive()) {
             DataProvider dataProvider = entity.getDataProvider();
-            DataProviderConfiguration dataProviderConfiguration = new DataProviderConfiguration(entity.getConfiguration());
+            DataProviderConfiguration dataProviderConfiguration = entity.getConfig();
             String cronExpression = dataProvider.getCronExpression(dataProviderConfiguration);
             if (cronExpression != null) {
                 Thread task = entity.getDataProvider().asyncPull(entity, this.transactionManager, false);
