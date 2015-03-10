@@ -3,6 +3,7 @@ package dk.magenta.databroker.correction;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.register.records.Record;
 import dk.magenta.databroker.util.Util;
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.springframework.core.io.Resource;
 
@@ -23,6 +24,10 @@ public class CorrectionCollectionEntity {
     public CorrectionCollectionEntity() {
         this.correctionEntities = new ArrayList<CorrectionEntity>();
     }
+
+
+    @Transient
+    private Logger log = Logger.getLogger(CorrectionCollectionEntity.class);
 
 
     @Id
@@ -106,10 +111,11 @@ public class CorrectionCollectionEntity {
     public boolean correctRecord(Record record) {
         List<CorrectionEntity> corrections = this.getApplicableCorrections(record);
         if (corrections != null && corrections.size() > 0) {
-            System.out.println("There are "+corrections.size()+" corrections");
+            this.log.trace("There are " + corrections.size() + " corrections to record " + record.toJSON().toString());
             for (CorrectionEntity correction : corrections) {
                 correction.apply(record);
             }
+            this.log.trace("Record changed to " + record.toJSON().toString());
             return true;
         }
         return false;
