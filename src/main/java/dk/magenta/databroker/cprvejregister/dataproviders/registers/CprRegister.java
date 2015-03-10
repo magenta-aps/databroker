@@ -9,6 +9,7 @@ import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.util.objectcontainers.Pair;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
@@ -294,5 +295,14 @@ public class CprRegister extends LineRegister {
 
     protected RegisterRun createRun(){
         return new RegisterRun();
+    }
+
+
+
+
+    public void loadCorrectionSeed(DataProviderEntity dataProviderEntity) {
+        for (CprSubRegister subRegister : this.subRegisters) {
+            subRegister.loadCorrectionSeed(dataProviderEntity);
+        }
     }
 }

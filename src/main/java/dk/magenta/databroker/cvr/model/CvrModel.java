@@ -260,7 +260,7 @@ public class CvrModel {
         unitRecorder.add(time);
 
         if (unitsCreated > 10000) {
-            System.out.println(unitRecorder);
+            System.out.println("10000 units added: "+unitRecorder);
             unitRecorder = new TimeRecorder();
             unitsCreated = 0;
         }

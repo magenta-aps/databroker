@@ -1,0 +1,13 @@
+[
+  {
+    "prereq": {
+      "type": "001",
+      "kommuneKode": 955,
+      "vejKode": 15
+    },
+    "correction": {
+      "vejNavn": "Alluitsup Paa"
+    }
+  }
+
+]

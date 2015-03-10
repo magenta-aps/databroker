@@ -112,13 +112,21 @@ public class DataProviderRegistry {
                     updated = true;
                 }
                 if (updated) {
-                    entity.setConfiguration(configuration.toString());
-                    this.dataProviderRepository.save(entity);
+                    this.updateDataProviderEntity(entity, configuration);
                 }
             } catch (JSONException e) {
             }
         }
         return updated;
+    }
+
+    public boolean updateDataProviderEntity(DataProviderEntity dataProviderEntity, DataProviderConfiguration dataProviderConfiguration) {
+        if (!(new DataProviderConfiguration(dataProviderEntity.getConfiguration()).equals(dataProviderConfiguration))) {
+            dataProviderEntity.setConfiguration(dataProviderConfiguration.toString());
+            this.dataProviderRepository.save(dataProviderEntity);
+            return true;
+        }
+        return false;
     }
 
     public Map<String, String[]> getDataProviderEntityValues(DataProviderEntity dataProviderEntity) {
@@ -132,5 +140,9 @@ public class DataProviderRegistry {
 
     public void deleteDataProviderEntity(DataProviderEntity entity) {
         this.dataProviderRepository.delete(entity);
+    }
+
+    public void saveDataProviderEntity(DataProviderEntity dataProviderEntity) {
+        this.dataProviderRepository.save(dataProviderEntity);
     }
 }

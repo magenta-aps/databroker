@@ -94,4 +94,38 @@ public class DataProviderConfiguration extends HashMap<String, List<String>> {
     private String[] listToArray(List<String> values) {
         return values.toArray(new String[values.size()]);
     }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof DataProviderConfiguration)) {
+            return false;
+        }
+        DataProviderConfiguration other = (DataProviderConfiguration) o;
+        if (!this.keySet().equals(other.keySet())) {
+            return false;
+        }
+        for (String key : this.keySet()) {
+            if (!this.get(key).equals(other.get(key))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public String getString(String key) {
+        List<String> values = this.get(key);
+        return values != null && !values.isEmpty() ? values.get(0) : null;
+    }
+
+    public int getInt(String key, int fallback) {
+        String value = this.getString(key);
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return fallback;
+        }
+    }
+
+    public int getInt(String key) {
+        return this.getInt(key, 0);
+    }
 }

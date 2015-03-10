@@ -28,6 +28,13 @@
         <mapping class="dk.magenta.databroker.core.model.UpdateLogEntryEntity"/>
         <mapping class="dk.magenta.databroker.core.model.UpdateTypeEntity"/>
 
+        <!-- correction -->
+
+        <mapping class="dk.magenta.databroker.correction.CorrectionCollectionEntity"/>
+        <mapping class="dk.magenta.databroker.correction.CorrectionEntity"/>
+        <mapping class="dk.magenta.databroker.correction.CorrectionKvPEntity"/>
+
+
         <!-- dawa-adresser -->
         <mapping class="dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseEntity"/>
         <mapping class="dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseVersionEntity"/>

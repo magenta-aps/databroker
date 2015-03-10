@@ -5,7 +5,9 @@ import dk.magenta.databroker.core.DataProviderConfiguration;
 import dk.magenta.databroker.core.DataProviderRegistry;
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.core.model.oio.RegistreringRepository;
+import dk.magenta.databroker.correction.CorrectionCollectionEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpRequest;
 
 import javax.persistence.*;
@@ -25,6 +27,10 @@ public class DataProviderEntity {
     private Integer priority;
     private String configuration;
     private Collection<UpdateLogEntryEntity> updateLogEntries;
+
+
+    private CorrectionCollectionEntity corrections;
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -99,6 +105,16 @@ public class DataProviderEntity {
 
     public void setConfiguration(String configuration) {
         this.configuration = configuration;
+    }
+
+
+    @OneToOne
+    public CorrectionCollectionEntity getCorrections() {
+        return corrections;
+    }
+
+    public void setCorrections(CorrectionCollectionEntity corrections) {
+        this.corrections = corrections;
     }
 
     @Override
@@ -178,4 +194,5 @@ public class DataProviderEntity {
     public String fetchShortType() {
         return this.type.substring(this.type.lastIndexOf('.')+1);
     }
+
 }

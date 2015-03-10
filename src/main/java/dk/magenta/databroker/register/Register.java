@@ -7,10 +7,10 @@ import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.core.model.DataProviderStorageEntity;
 import dk.magenta.databroker.core.model.DataProviderStorageRepository;
 import dk.magenta.databroker.core.model.oio.RegistreringRepository;
+import dk.magenta.databroker.correction.CorrectionCollectionEntity;
 import dk.magenta.databroker.register.records.Record;
 import dk.magenta.databroker.util.Util;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.input.CountingInputStream;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -158,9 +158,17 @@ public abstract class Register extends DataProvider {
 
 
 
-
     protected void importData(RegistreringInfo registreringInfo) {
         RegisterRun run = this.parse(registreringInfo.getInputStream());
+
+
+        CorrectionCollectionEntity correctionCollectionEntity = registreringInfo.getDataProviderEntity().getCorrections();
+        if (correctionCollectionEntity != null) {
+            correctionCollectionEntity.correctRecords(run);
+        } else {
+            System.out.println("correctionCollectionEntity is null for "+this);
+        }
+
         this.saveRunToDatabase(run, registreringInfo);
     }
 

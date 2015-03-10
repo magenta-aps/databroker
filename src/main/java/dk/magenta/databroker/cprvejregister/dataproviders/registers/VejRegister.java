@@ -546,7 +546,7 @@ public class VejRegister extends CprSubRegister {
             }
         }
         time = this.toc(time);
-        this.log.info("Links created in " + time + " ms (avg " + ((double) time / (double) count) + " ms)\"");
+        this.log.info("Links created in " + time + " ms (avg " + ((double) time / (double) count) + " ms)");
 
         // Process each AktivVej object, creating database entries
         // We do this in the VejRegisterRun instance because there is some state information
@@ -642,5 +642,10 @@ public class VejRegister extends CprSubRegister {
         JSONObject config = new JSONObject();
         config.put(this.getSourceUrlFieldName(),"https://cpr.dk/media/152096/vejregister_hele_landet_pr_150101.zip");
         return new DataProviderConfiguration(config);
+    }
+
+    @Override
+    public Resource getCorrectionSeed() {
+        return this.ctx.getResource("classpath:/data/corrections/vejCorrections.json");
     }
 }

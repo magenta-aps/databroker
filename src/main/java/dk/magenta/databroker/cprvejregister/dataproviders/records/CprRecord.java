@@ -21,10 +21,10 @@ public abstract class CprRecord extends Record {
         }
         this.setVisited(false);
         this.line = line;
-        String type = substr(line, 1, 3);
+        this.obtain("type", 1, 3, false);
         String thisType = this.getRecordType();
-        if (!type.equals(thisType)) {
-            throw new ParseException("Invalid recordtype "+type+" for class "+this.getClass().getName()+", was expecting the input to begin with "+thisType+". Input was "+line+".", 0);
+        if (!this.get("type").equals(thisType)) {
+            throw new ParseException("Invalid recordtype "+this.get("type")+" for class "+this.getClass().getName()+", was expecting the input to begin with "+thisType+". Input was "+line+".", 0);
         }
     }
 
@@ -33,7 +33,15 @@ public abstract class CprRecord extends Record {
     }
 
     protected void obtain(String key, int position, int length) {
-        this.put(key, leadingZero.matcher(this.substr(this.line, position, length)).replaceFirst(""));
+        this.obtain(key, position, length, true);
+    }
+
+    protected void obtain(String key, int position, int length, boolean truncateLeadingZeroes) {
+        String value = this.substr(this.line, position, length);
+        if (truncateLeadingZeroes) {
+            value = leadingZero.matcher(value).replaceFirst("");
+        }
+        this.put(key, value);
     }
 
     protected void clean() {

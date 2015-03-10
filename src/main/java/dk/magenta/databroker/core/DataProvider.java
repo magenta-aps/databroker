@@ -1,6 +1,8 @@
 package dk.magenta.databroker.core;
 
 import dk.magenta.databroker.core.controller.DataProviderController;
+import dk.magenta.databroker.correction.CorrectionCollectionEntity;
+import dk.magenta.databroker.correction.CorrectionCollectionRepository;
 import dk.magenta.databroker.util.Util;
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -350,6 +352,42 @@ public abstract class DataProvider {
 
     public boolean canPull(DataProviderConfiguration configuration) {
         return false;
+    }
+
+    public Resource getCorrectionSeed() {
+        return null;
+    }
+
+
+    @Autowired
+    CorrectionCollectionRepository correctionCollectionRepository;
+
+    public void loadCorrectionSeed(DataProviderEntity dataProviderEntity) {
+        Resource resource = this.getCorrectionSeed();
+        if (resource != null) {
+
+            CorrectionCollectionEntity correctionCollectionEntity = null;
+            String subregister = this.getClass().getSimpleName();
+
+            Collection<CorrectionCollectionEntity> matches = this.correctionCollectionRepository.getByFoobar(dataProviderEntity, subregister);
+            if (matches != null && !matches.isEmpty()) {
+                correctionCollectionEntity = matches.iterator().next();
+            }
+
+            if (correctionCollectionEntity == null) {
+                correctionCollectionEntity = new CorrectionCollectionEntity();
+                correctionCollectionEntity.setDataProviderEntity(dataProviderEntity);
+                correctionCollectionEntity.setSubregister(subregister);
+            }
+            try {
+                correctionCollectionEntity.loadFromJSON(resource);
+                correctionCollectionRepository.save(correctionCollectionEntity);
+                dataProviderEntity.setCorrections(correctionCollectionEntity);
+                this.dataProviderController.saveDataProviderEntity(dataProviderEntity);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }

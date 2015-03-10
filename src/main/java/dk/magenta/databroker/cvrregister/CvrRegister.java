@@ -541,6 +541,7 @@ public class CvrRegister extends Register {
 
                     time = this.toc(time);
                     this.log.info(unitCount + " production units created in " + time + "ms (avg " + ((double) time / (double) unitCount) + " ms)");
+                    System.out.println("50000 units processed: "+sumTime);
                 }
 
 

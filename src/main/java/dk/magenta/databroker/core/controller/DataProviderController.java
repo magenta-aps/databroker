@@ -5,6 +5,7 @@ import dk.magenta.databroker.core.DataProviderConfiguration;
 import dk.magenta.databroker.core.DataProviderRegistry;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import org.apache.log4j.Logger;
+import org.apache.tomcat.util.http.fileupload.FileUploadBase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.scheduling.TaskScheduler;
@@ -92,13 +93,13 @@ public class DataProviderController {
                 if (parts != null && parts.size() > 0) {
                     this.log.trace("Parts: ");
                     for (Part p : request.getParts()) {
-                        this.log.trace(p.getName() + ": " + p.getContentType() + ", "+ p.getSize()+" bytes"); // Parten findes her, men ikke senere
+                        this.log.trace(p.getName() + ": " + p.getContentType() + ", " + p.getSize() + " bytes");
                     }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (ServletException e) {
-                e.printStackTrace();
+                // Do nothing
             }
         }
     }
@@ -211,6 +212,10 @@ public class DataProviderController {
                 if (active && dataProvider.wantCronUpdate(null, dataProviderEntity.getConfiguration())) {
                     this.updateCronScheduling(dataProviderEntity);
                 }
+
+                dataProvider.loadCorrectionSeed(dataProviderEntity);
+
+
                 return processUpload(request, dataProviderEntity, dataProvider);
             }
             action = "new";
@@ -442,5 +447,15 @@ public class DataProviderController {
         for (DataProviderEntity dataProviderEntity : this.dataProviderRegistry.getDataProviderEntities(dataProvider)) {
             this.updateCronScheduling(dataProviderEntity);
         }
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    public boolean updateDataproviderConfiguration(DataProviderEntity dataProviderEntity, DataProviderConfiguration dataProviderConfiguration) {
+        return this.dataProviderRegistry.updateDataProviderEntity(dataProviderEntity, dataProviderConfiguration);
+    }
+
+    public void saveDataProviderEntity(DataProviderEntity dataProviderEntity) {
+        this.dataProviderRegistry.saveDataProviderEntity(dataProviderEntity);
     }
 }

@@ -1,5 +1,8 @@
 package dk.magenta.databroker.util;
 
+import org.apache.commons.io.IOUtils;
+
+import java.io.*;
 import java.text.Normalizer;
 import java.util.Date;
 
@@ -61,5 +64,11 @@ public abstract class Util {
             }
         }
         return hash;
+    }
+
+    public static String readInputStream(InputStream inputStream) throws IOException {
+        StringWriter sw = new StringWriter();
+        IOUtils.copy(inputStream, sw, "UTF-8");
+        return sw.toString();
     }
 }

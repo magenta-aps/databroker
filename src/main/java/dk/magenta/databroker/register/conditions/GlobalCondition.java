@@ -101,4 +101,6 @@ public class GlobalCondition {
         }
         return conditions;
     }
+
+    public static GlobalCondition singleCondition = new GlobalCondition(null, null, 0, 1);
 }
