@@ -30,7 +30,7 @@ public class VejstykkeRepositoryImpl extends RepositoryImplementation<VejstykkeE
         conditions.addCondition(VejstykkeEntity.descriptorCondition(descriptor));
         hql.append("where");
         hql.append(conditions.getWhere());
-        Collection<VejstykkeEntity> vejstykkeEntities = this.query(hql, conditions, new GlobalCondition(null,null,0,1));
+        Collection<VejstykkeEntity> vejstykkeEntities = this.query(hql, conditions, GlobalCondition.singleCondition);
         return vejstykkeEntities.size() > 0 ? vejstykkeEntities.iterator().next() : null;
     }
 

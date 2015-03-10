@@ -34,7 +34,7 @@ public class EnhedsAdresseRepositoryImpl extends RepositoryImplementation<Enheds
         conditions.addCondition(EnhedsAdresseEntity.descriptorCondition(descriptor));
         hql.append("where");
         hql.append(conditions.getWhere());
-        Collection<EnhedsAdresseEntity> enhedsAdresseEntities = this.query(hql, conditions, new GlobalCondition(null,null,0,1));
+        Collection<EnhedsAdresseEntity> enhedsAdresseEntities = this.query(hql, conditions, GlobalCondition.singleCondition);
         return enhedsAdresseEntities.size() > 0 ? enhedsAdresseEntities.iterator().next() : null;
     }
 

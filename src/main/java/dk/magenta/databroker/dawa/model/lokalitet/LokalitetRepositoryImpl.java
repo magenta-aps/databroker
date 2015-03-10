@@ -79,7 +79,6 @@ public class LokalitetRepositoryImpl extends RepositoryImplementation<LokalitetE
     }
 
     public LokalitetEntity getByKommunekodeAndLokalitetsnavn(int kommuneKode, String lokalitetsnavn) {
-        final GlobalCondition singleResultCondition = new GlobalCondition(null,null,0,1);
         StringList hql = new StringList();
         hql.append("select distinct "+LokalitetEntity.databaseKey+" from LokalitetEntity as "+LokalitetEntity.databaseKey);
         StringList join = new StringList();
@@ -90,7 +89,7 @@ public class LokalitetRepositoryImpl extends RepositoryImplementation<LokalitetE
         conditions.addCondition(KommuneEntity.kommuneCondition(kommuneKode));
         hql.append("where");
         hql.append(conditions.getWhere());
-        Collection<LokalitetEntity> lokalitetEntities = this.query(hql, conditions, singleResultCondition);
+        Collection<LokalitetEntity> lokalitetEntities = this.query(hql, conditions, GlobalCondition.singleCondition);
         return lokalitetEntities.size() > 0 ? lokalitetEntities.iterator().next() : null;
     }
 }

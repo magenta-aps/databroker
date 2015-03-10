@@ -33,14 +33,13 @@ public class AdgangsAdresseRepositoryImpl extends RepositoryImplementation<Adgan
 
     // TODO: Kan vi på nogen måde gøre denne metode hurtigere? p.t. kører den på 1-3 ms
     public AdgangsAdresseEntity getByDescriptor(long descriptor) {
-        final GlobalCondition singleResultCondition = new GlobalCondition(null,null,0,1);
         StringList hql = new StringList();
         hql.append("select distinct "+AdgangsAdresseEntity.databaseKey+" from AdgangsAdresseEntity as "+AdgangsAdresseEntity.databaseKey);
         ConditionList conditions = new ConditionList();
         conditions.addCondition(AdgangsAdresseEntity.descriptorCondition(descriptor));
         hql.append("where");
         hql.append(conditions.getWhere());
-        Collection<AdgangsAdresseEntity> adgangsAdresseEntities = this.query(hql, conditions, singleResultCondition);
+        Collection<AdgangsAdresseEntity> adgangsAdresseEntities = this.query(hql, conditions, GlobalCondition.singleCondition);
         //System.out.println("Found "+adgangsAdresseEntities.size()+" candidates for descriptor "+descriptor);
         if (adgangsAdresseEntities != null && adgangsAdresseEntities.size() > 0) {
             return adgangsAdresseEntities.iterator().next();

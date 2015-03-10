@@ -46,14 +46,13 @@ public class CompanyUnitRepositoryImpl extends RepositoryImplementation<CompanyU
 
 
     public CompanyUnitEntity getByPno(long pno) {
-        final GlobalCondition singleResultCondition = new GlobalCondition(null,null,0,1);
         StringList hql = new StringList();
         hql.append("select distinct "+CompanyUnitEntity.databaseKey+" from CompanyUnitEntity as "+CompanyUnitEntity.databaseKey);
         ConditionList conditions = new ConditionList();
         conditions.addCondition(CompanyUnitEntity.pnoCondition(pno));
         hql.append("where");
         hql.append(conditions.getWhere());
-        Collection<CompanyUnitEntity> companyUnitEntities = this.query(hql, conditions, singleResultCondition);
+        Collection<CompanyUnitEntity> companyUnitEntities = this.query(hql, conditions, GlobalCondition.singleCondition);
         return companyUnitEntities.size() > 0 ? companyUnitEntities.iterator().next() : null;
     }
 

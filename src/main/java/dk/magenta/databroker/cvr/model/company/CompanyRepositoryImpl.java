@@ -100,14 +100,13 @@ public class CompanyRepositoryImpl extends RepositoryImplementation<CompanyEntit
 
 
     public CompanyEntity getByCvrNummer(String cvrNummer) {
-        final GlobalCondition singleResultCondition = new GlobalCondition(null,null,0,1);
         StringList hql = new StringList();
         hql.append("select distinct "+CompanyEntity.databaseKey+" from CompanyEntity as "+CompanyEntity.databaseKey);
         ConditionList conditions = new ConditionList();
         conditions.addCondition(CompanyEntity.cvrCondition(cvrNummer));
         hql.append("where");
         hql.append(conditions.getWhere());
-        Collection<CompanyEntity> companyEntities = this.query(hql, conditions, singleResultCondition);
+        Collection<CompanyEntity> companyEntities = this.query(hql, conditions, GlobalCondition.singleCondition);
         return companyEntities.size() > 0 ? companyEntities.iterator().next() : null;
     }
 }
