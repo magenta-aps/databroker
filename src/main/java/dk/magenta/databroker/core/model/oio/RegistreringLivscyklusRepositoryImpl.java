@@ -1,27 +1,26 @@
 package dk.magenta.databroker.core.model.oio;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import dk.magenta.databroker.core.model.RepositoryImplementation;
+
+import javax.persistence.Query;
+import java.util.List;
 
 interface RegistreringLivscyklusRepositoryCustom {
-    public RegistreringLivscyklusEntity findOrCreateByStatus(RegistreringLivscyklusStatus status);
-
+    public RegistreringLivscyklusEntity getByNavn(String navn);
+    public void clear();
 }
 
-public class RegistreringLivscyklusRepositoryImpl implements RegistreringLivscyklusRepositoryCustom {
-    @Autowired
-    private RegistreringLivscyklusRepository baseRepo;
+public class RegistreringLivscyklusRepositoryImpl extends RepositoryImplementation<RegistreringLivscyklusEntity> implements RegistreringLivscyklusRepositoryCustom {
 
-    private RegistreringLivscyklusEntity findOrCreateByNavn(String navn) {
-        RegistreringLivscyklusEntity result = baseRepo.getByNavn(navn);
-        if(result == null) {
-            result = new RegistreringLivscyklusEntity(navn);
-            baseRepo.save(result);
-        }
-        return result;
+    public RegistreringLivscyklusEntity getByNavn(String navn) {
+        Query q = this.entityManager.createQuery("select livscyklus from RegistreringLivscyklusEntity livscyklus where livscyklus.navn = :navn");
+        q.setParameter("navn", navn);
+        q.setMaxResults(1);
+        List<RegistreringLivscyklusEntity> results = q.getResultList();
+        return results != null && !results.isEmpty() ? results.iterator().next() : null;
     }
 
-    @Override
-    public RegistreringLivscyklusEntity findOrCreateByStatus(RegistreringLivscyklusStatus status) {
-        return this.findOrCreateByNavn(status.toString());
+    public void clear() {
+        this.entityManager.clear();
     }
 }

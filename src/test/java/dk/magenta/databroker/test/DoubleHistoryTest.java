@@ -3,6 +3,7 @@ package dk.magenta.databroker.test;
 import dk.magenta.databroker.Application;
 import dk.magenta.databroker.core.DataProvider;
 import dk.magenta.databroker.core.model.DataProviderEntity;
+import dk.magenta.databroker.core.model.RegistreringManager;
 import dk.magenta.databroker.core.model.oio.*;
 import dk.magenta.databroker.jubk.JubkDataProvider;
 import dk.magenta.databroker.jubk.model.JubkEntity;
@@ -33,7 +34,11 @@ public class DoubleHistoryTest {
     @Autowired
     VirkningRepository virkRepo;
     @Autowired
-    RegistreringRepository regRepo;
+    RegistreringManager registreringManager;
+    @Autowired
+    RegistreringRepository registreringRepository;
+    @Autowired
+    RegistreringLivscyklusRepository registreringLivscyklusRepository;
 
     @Test
     // Creates a JubkEntity and adds a registration with two "virkninger" to it
@@ -43,8 +48,7 @@ public class DoubleHistoryTest {
         dpEntity.setUuid(UUID.randomUUID().toString());
 
 
-        RegistreringEntity oioReg = regRepo.createNew(dpEntity, "Test");
-        regRepo.save(oioReg);
+        RegistreringEntity oioReg = registreringManager.createNewRegistrering(registreringRepository, registreringLivscyklusRepository, dpEntity, "Test");
 
         List<VirkningEntity> virkninger = new ArrayList<VirkningEntity>();
         UUID virkningSourceUUID = UUID.randomUUID();

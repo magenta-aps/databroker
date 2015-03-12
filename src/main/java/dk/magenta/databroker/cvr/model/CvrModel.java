@@ -73,9 +73,11 @@ public class CvrModel {
         Date startDate, Date endDate, Date ajourDate, String primaryAddressDescriptor,
                 RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
 
+        boolean useCache = false;
+
         TimeRecorder time = new TimeRecorder();
 
-        CompanyEntity companyEntity = this.getCompany(cvrKode, true);
+        CompanyEntity companyEntity = this.getCompany(cvrKode, !useCache);
 
         time.record();
         if (name == null) {
@@ -89,7 +91,9 @@ public class CvrModel {
             this.log.trace("Creating new CompanyEntity " + cvrKode);
             companyEntity = new CompanyEntity();
             companyEntity.setCvrNummer(cvrKode);
-            this.companyCache.put(companyEntity);
+            if (useCache) {
+                this.putCompany(companyEntity);
+            }
         }
         time.record();
 
@@ -108,7 +112,7 @@ public class CvrModel {
             this.log.trace("Creating initial CompanyVersionEntity");
             companyVersionEntity = companyEntity.addVersion(registreringInfo.getCreateRegistrering(), virkninger);
         } else if (!companyVersionEntity.matches(name, form, primaryIndustry, secondaryIndustries, startDate, endDate, primaryAddressDescriptor)) {
-            this.log.trace("Creating updated CompanyVersionEntity");
+            this.log.trace("Creating updated CompanyVersionEntity " + registreringInfo.getUpdateRegisterering().getAktoerUUID());
             companyVersionEntity = companyEntity.addVersion(registreringInfo.getUpdateRegisterering(), virkninger);
         } else {
             companyVersionEntity = null;
@@ -129,6 +133,8 @@ public class CvrModel {
             cInfo.getLocationAddress().setDescriptor(primaryAddressDescriptor);
             cInfo.setUpdateDate(ajourDate);
             this.companyRepository.save(companyEntity);
+
+            this.addKnownCvrNumber(cvrKode);
         }
         time.record();
 
@@ -143,16 +149,59 @@ public class CvrModel {
         return companyEntity;
     }
 
-    public CompanyEntity getCompany(String cvrNummer, boolean noCache) {
-        if (noCache) {
-            return this.companyRepository.getByCvr(cvrNummer);
-        } else {
-            return this.companyCache.get(cvrNummer);
+
+
+
+
+
+    private HashSet<String> knownCvrNumbers = null;
+    private void addKnownCvrNumber(String cvr) {
+        if (knownCvrNumbers == null) {
+            this.findKnownCvrNumbers();
         }
+        this.knownCvrNumbers.add(cvr);
+    }
+
+    private boolean hasKnownCvr(String cvr) {
+        if (knownCvrNumbers == null) {
+            this.findKnownCvrNumbers();
+        }
+        return this.knownCvrNumbers.contains(cvr);
+    }
+
+    private void findKnownCvrNumbers() {
+        Collection<String> list = this.companyRepository.getCvrNumbers();
+        this.knownCvrNumbers = new HashSet<String>(list);
+    }
+
+
+
+
+
+
+
+    public CompanyEntity getCompany(String cvrNummer, boolean noCache) {
+        CompanyEntity companyEntity = null;
+        if (this.hasKnownCvr(cvrNummer)) {
+            if (!noCache) {
+                companyEntity = this.companyCache.get(cvrNummer);
+            }
+            if (companyEntity == null) {
+                companyEntity = this.companyRepository.getByCvr(cvrNummer);
+                if (!noCache) {
+                    this.putCompany(companyEntity);
+                }
+            }
+        }
+        return companyEntity;
     }
 
     public Collection<CompanyEntity> getCompany(SearchParameters parameters) {
         return this.companyRepository.search(parameters);
+    }
+
+    public void putCompany(CompanyEntity companyEntity) {
+        this.companyCache.put(companyEntity);
     }
 
     public void flushCompanies() {
@@ -198,7 +247,7 @@ public class CvrModel {
             companyUnitEntity = new CompanyUnitEntity();
             companyUnitEntity.setPNO(pNummer);
             //companyUnitEntity.setCompanyVersion(company);
-            companyUnitEntity.setCvrNummer(cvrNummer);
+            //companyUnitEntity.setCvrNummer(cvrNummer);
             //this.putCompanyUnitCache(companyUnitEntity);
         }
         time.record();
@@ -225,7 +274,7 @@ public class CvrModel {
         if (companyUnitVersionEntity == null) {
             this.log.trace("Creating initial CompanyUnitVersionEntity");
             companyUnitVersionEntity = companyUnitEntity.addVersion(registreringInfo.getCreateRegistrering(), virkninger);
-        } else if (!companyUnitVersionEntity.matches(name, address, addressDate, primaryIndustry, secondaryIndustries, phone, fax, email, isPrimaryUnit, advertProtection, startDate, endDate)) {
+        } else if (!companyUnitVersionEntity.matches(name, cvrNummer, address, addressDate, primaryIndustry, secondaryIndustries, phone, fax, email, isPrimaryUnit, advertProtection, startDate, endDate)) {
             this.log.trace("Creating updated CompanyUnitVersionEntity");
             companyUnitVersionEntity = companyUnitEntity.addVersion(registreringInfo.getUpdateRegisterering(), virkninger);
         } else {
@@ -251,6 +300,7 @@ public class CvrModel {
             cInfo.getTelefaxNumber().setText(fax);
             cInfo.getEmail().setText(email);
             companyUnitVersionEntity.setPrimaryUnit(isPrimaryUnit);
+            companyUnitVersionEntity.setCvrNummer(cvrNummer);
             this.companyUnitRepository.save(companyUnitEntity);
         }
 

@@ -38,17 +38,19 @@ import java.util.zip.ZipInputStream;
  */
 public abstract class DataProvider {
 
+
+    @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
+    protected PlatformTransactionManager txManager;
+
+
     private class DataProviderPusher extends Thread {
         private DataProviderEntity dataProviderEntity;
-        private HttpServletRequest request;
         private File uploadData;
-
         private TransactionTemplate transactionTemplate;
-
 
         public DataProviderPusher(DataProviderEntity dataProviderEntity, HttpServletRequest request, PlatformTransactionManager transactionManager) {
             this.dataProviderEntity = dataProviderEntity;
-            this.request = request;
             try {
                 this.uploadData = File.createTempFile(dataProviderEntity.getUuid(), "tmp");
                 this.uploadData.deleteOnExit();
@@ -63,18 +65,18 @@ public abstract class DataProvider {
         public void run() {
             final DataProviderEntity dataProviderEntity = this.dataProviderEntity;
 
-            this.transactionTemplate.execute(new TransactionCallback() {
+            //System.out.println("Starting push in transaction");
+            //this.transactionTemplate.execute(new TransactionCallback() {
                 // the code in this method executes in a transactional context
-                public Object doInTransaction(TransactionStatus status) {
-                    System.out.println("Running in transaction");
+            //    public Object doInTransaction(TransactionStatus status) {
                     try {
-                        DataProvider.this.handlePush(true, dataProviderEntity, new FileInputStream(DataProviderPusher.this.uploadData));
+            DataProvider.this.handlePush(true, dataProviderEntity, new FileInputStream(DataProviderPusher.this.uploadData));
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     }
-                    return null;
-                }
-            });
+            //        return null;
+            //    }
+            //});
             this.uploadData.delete();
         }
     }
@@ -141,14 +143,14 @@ public abstract class DataProvider {
         throw new NotImplementedException();
     }
 
-    public Thread asyncPush(DataProviderEntity dataProviderEntity, HttpServletRequest request, PlatformTransactionManager transactionManager) {
-        Thread thread = new DataProviderPusher(dataProviderEntity, request, transactionManager);
+    public Thread asyncPush(DataProviderEntity dataProviderEntity, HttpServletRequest request) {
+        Thread thread = new DataProviderPusher(dataProviderEntity, request, this.txManager);
         thread.start();
         return thread;
     }
 
-    public Thread asyncPull(DataProviderEntity dataProviderEntity, PlatformTransactionManager transactionManager) {
-        return this.asyncPull(dataProviderEntity, transactionManager, true);
+    public Thread asyncPull(DataProviderEntity dataProviderEntity) {
+        return this.asyncPull(dataProviderEntity, this.txManager, true);
     }
     public Thread asyncPull(DataProviderEntity dataProviderEntity, PlatformTransactionManager transactionManager, boolean runNow) {
         Thread thread = new DataProviderPuller(dataProviderEntity, transactionManager);

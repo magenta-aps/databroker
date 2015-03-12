@@ -5,7 +5,6 @@ import dk.magenta.databroker.core.DataProviderConfiguration;
 import dk.magenta.databroker.core.DataProviderRegistry;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import org.apache.log4j.Logger;
-import org.apache.tomcat.util.http.fileupload.FileUploadBase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.scheduling.TaskScheduler;
@@ -212,10 +211,7 @@ public class DataProviderController {
                 if (active && dataProvider.wantCronUpdate(null, dataProviderEntity.getConfig())) {
                     this.updateCronScheduling(dataProviderEntity);
                 }
-
                 dataProvider.loadCorrectionSeed(dataProviderEntity);
-
-
                 return processUpload(request, dataProviderEntity, dataProvider);
             }
             action = "new";
@@ -247,7 +243,8 @@ public class DataProviderController {
         if (!blockImport && dataProvider.wantUpload(dataProviderEntity.getConfig()) && this.requestHasDataInFields(request, dataProvider.getUploadFields())) {
             this.log.info("Processing upload");
             //this.transactionManager.setJpaDialect(new CustomJpaDialect());
-            Thread thread = dataProvider.asyncPush(dataProviderEntity, request, this.transactionManager);
+            Thread thread = dataProvider.asyncPush(dataProviderEntity, request);
+
             this.userThreads.put(uuid, thread);
             return this.processingEntity(request, uuid);
         }
@@ -330,7 +327,7 @@ public class DataProviderController {
                             if (submit.equals("ok")) {
                                 this.log.trace("Pulling DataproviderEntity "+dataProviderEntity.getUuid()+" ("+dataProviderEntity.getClass().getSimpleName()+")");
                                 DataProvider dataProvider = dataProviderEntity.getDataProvider();
-                                Thread thread = dataProvider.asyncPull(dataProviderEntity, this.transactionManager);
+                                Thread thread = dataProvider.asyncPull(dataProviderEntity);
                                 this.userThreads.put(uuid, thread);
                                 return this.processingEntity(request, uuid);
                             } else {

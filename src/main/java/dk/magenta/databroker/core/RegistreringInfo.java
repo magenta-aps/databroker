@@ -1,7 +1,9 @@
 package dk.magenta.databroker.core;
 
 import dk.magenta.databroker.core.model.DataProviderEntity;
+import dk.magenta.databroker.core.model.RegistreringManager;
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
+import dk.magenta.databroker.core.model.oio.RegistreringLivscyklusRepository;
 import dk.magenta.databroker.core.model.oio.RegistreringRepository;
 import org.apache.commons.io.input.CountingInputStream;
 import org.apache.log4j.Level;
@@ -19,10 +21,10 @@ public class RegistreringInfo {
     private CountingInputStream inputStream;
     private long inputSize;
 
-    public RegistreringInfo(RegistreringRepository registreringRepository, DataProviderEntity dataProviderEntity, NamedInputStream inputStream) {
+    public RegistreringInfo(RegistreringRepository regRepo, RegistreringLivscyklusRepository lsRepo, RegistreringManager registreringManager, DataProviderEntity dataProviderEntity, NamedInputStream inputStream) {
         this.dataProviderEntity = dataProviderEntity;
-        RegistreringEntity createRegistrering = registreringRepository.createNew(dataProviderEntity);
-        RegistreringEntity updateRegistrering = registreringRepository.createUpdate(dataProviderEntity);
+        RegistreringEntity createRegistrering = registreringManager.createNewRegistrering(regRepo, lsRepo, dataProviderEntity);
+        RegistreringEntity updateRegistrering = registreringManager.createUpdateRegistrering(regRepo, lsRepo, dataProviderEntity);
 
         if (createRegistrering == null && updateRegistrering == null) {
             System.err.println("Both registrations are null; cannot create RegistreringInfo object");

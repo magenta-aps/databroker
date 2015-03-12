@@ -51,16 +51,19 @@ public abstract class RepositoryImplementation<T> {
         q.setMaxResults(limit);
 
         // Put all conditions' parameters into the query
-        Map<String, Object> queryParameters = conditions.getParameters();
-        for (String key : queryParameters.keySet()) {
-            Object value = queryParameters.get(key);
-            this.log.trace(key + " = " + value);
-            if (value.getClass() == Long.class) {
-                q.setParameter(key, (Long) value);
-            } else if (value.getClass() == Integer.class) {
-                q.setParameter(key, (Integer) value);
-            } else {
-                q.setParameter(key, value);
+        Map<String, Object> queryParameters = null;
+        if (conditions != null) {
+            queryParameters = conditions.getParameters();
+            for (String key : queryParameters.keySet()) {
+                Object value = queryParameters.get(key);
+                this.log.trace(key + " = " + value);
+                if (value.getClass() == Long.class) {
+                    q.setParameter(key, (Long) value);
+                } else if (value.getClass() == Integer.class) {
+                    q.setParameter(key, (Integer) value);
+                } else {
+                    q.setParameter(key, value);
+                }
             }
         }
         // Run the query and return the results
@@ -68,9 +71,11 @@ public abstract class RepositoryImplementation<T> {
             return (List<T>) q.getResultList();
         } catch (Exception e) {
             System.out.println(hql.join(" "));
-            for (String key : queryParameters.keySet()) {
-                Object value = queryParameters.get(key);
-                System.out.println(key + " = " + value);
+            if (queryParameters != null) {
+                for (String key : queryParameters.keySet()) {
+                    Object value = queryParameters.get(key);
+                    System.out.println(key + " = " + value);
+                }
             }
             e.printStackTrace();
         }

@@ -11,6 +11,7 @@ import java.util.Date;
 public class TimeRecorder {
     private double time;
     private ArrayList<Double> record;
+    private int added = 1;
 
     public TimeRecorder() {
         this.record = new ArrayList<Double>();
@@ -28,7 +29,7 @@ public class TimeRecorder {
         for (double time : this.record) {
             s.append(String.format("%.2f", time));
         }
-        return "["+s.join(",")+"]";
+        return "["+s.join("; ")+"]";
     }
 
     public void add(TimeRecorder otherRecord) {
@@ -43,9 +44,14 @@ public class TimeRecorder {
                 this.record.add(sum);
             }
         }
+        this.added += otherRecord.added;
     }
 
     private double getTime() {
         return Util.getTime();
+    }
+
+    public int getAdded() {
+        return added;
     }
 }

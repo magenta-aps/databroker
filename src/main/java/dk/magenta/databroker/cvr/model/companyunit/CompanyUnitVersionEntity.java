@@ -85,6 +85,19 @@ public class CompanyUnitVersionEntity extends DobbeltHistorikVersion<CompanyUnit
 
     //------------------------------------------------------
 
+    @Column
+    private String cvrNummer;
+
+    public String getCvrNummer() {
+        return cvrNummer;
+    }
+
+    public void setCvrNummer(String cvrNummer) {
+        this.cvrNummer = cvrNummer;
+    }
+
+    //------------------------------------------------------
+
     @OneToMany(mappedBy = "companyUnitVersion")
     private Collection<DeltagerVersionEntity> participants;
 
@@ -112,12 +125,13 @@ public class CompanyUnitVersionEntity extends DobbeltHistorikVersion<CompanyUnit
     //----------------------------------------------------
 
 
-    public boolean matches(String name, EnhedsAdresseEntity address, Date addressDate,
+    public boolean matches(String name, String cvrNummer, EnhedsAdresseEntity address, Date addressDate,
                            IndustryEntity primaryIndustry, List<IndustryEntity> secondaryIndustries,
                            String phone, String fax, String email, boolean isPrimaryUnit,
                            boolean advertProtection,
                            Date startDate, Date endDate) {
         return Util.compare(this.companyInfo.getName(), name) &&
+                Util.compare(this.cvrNummer, cvrNummer) &&
                 this.companyInfo.getLocationAddress().getEnhedsAdresse().equals(address) &&
                 Util.compare(this.companyInfo.getLocationAddress().getValidFrom(), addressDate) &&
                 this.companyInfo.getPrimaryIndustry().equals(primaryIndustry) &&

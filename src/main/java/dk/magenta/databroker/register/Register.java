@@ -6,6 +6,8 @@ import dk.magenta.databroker.core.RegistreringInfo;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.core.model.DataProviderStorageEntity;
 import dk.magenta.databroker.core.model.DataProviderStorageRepository;
+import dk.magenta.databroker.core.model.RegistreringManager;
+import dk.magenta.databroker.core.model.oio.RegistreringLivscyklusRepository;
 import dk.magenta.databroker.core.model.oio.RegistreringRepository;
 import dk.magenta.databroker.correction.CorrectionCollectionEntity;
 import dk.magenta.databroker.register.records.Record;
@@ -16,7 +18,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.ServletException;
@@ -88,6 +92,29 @@ public abstract class Register extends DataProvider {
 
 
 
+
+    @Autowired
+    private RegistreringLivscyklusRepository registreringLivscyklusRepository;
+
+    @Autowired
+    private RegistreringManager registreringManager;
+
+    private RegistreringInfo createRegistreringsInfo(DataProviderEntity dataProviderEntity, NamedInputStream data) {
+        this.beginTransaction();
+        RegistreringInfo registreringInfo = new RegistreringInfo(this.registreringRepository, this.registreringLivscyklusRepository, this.registreringManager, dataProviderEntity, data);
+        this.endTransaction();
+        return registreringInfo;
+    }
+
+
+
+
+
+
+
+
+
+
     protected abstract void saveRunToDatabase(RegisterRun run, RegistreringInfo registreringInfo);
 
     public void pull(DataProviderEntity dataProviderEntity) {
@@ -141,7 +168,50 @@ public abstract class Register extends DataProvider {
         }
     }
 
-    @Transactional
+
+
+    private TransactionStatus transactionStatus;
+    protected void beginTransaction() {
+        if (this.transactionStatus == null) {
+            DefaultTransactionDefinition def = new DefaultTransactionDefinition();
+            def.setName("CommandLineTransactionDefinition");
+            def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+            this.transactionStatus = this.txManager.getTransaction(def);
+            System.out.println("Beginning transaction");
+        } else {
+            //throw new Exception("Transaction not ended, cannot start new transaction");
+            this.log.error("Transaction not ended, cannot start new transaction");
+        }
+    }
+
+    protected void endTransaction() {
+        if (this.transactionStatus != null) {
+            this.txManager.commit(this.transactionStatus);
+            this.onTransactionEnd();
+            this.transactionStatus = null;
+            System.out.println("Ending transaction");
+        } else {
+            this.log.error("Transaction not started, cannot end transaction");
+        }
+    }
+
+    protected void rollbackTransaction() {
+        if (this.transactionStatus != null) {
+            this.txManager.rollback(this.transactionStatus);
+            this.onTransactionRollback();
+            this.transactionStatus = null;
+        }
+    }
+
+    protected void onTransactionEnd() {
+        // Override me
+    }
+
+    protected void onTransactionRollback() {
+        // Override me
+    }
+
+    //@Transactional
     @Override
     public void handlePush(boolean forceParse, DataProviderEntity dataProviderEntity, InputStream input) {
         this.clearRegistreringEntities();
@@ -154,7 +224,6 @@ public abstract class Register extends DataProvider {
         }
         System.gc();
     }
-
 
 
 
@@ -253,7 +322,9 @@ public abstract class Register extends DataProvider {
                         } else {
                             this.log.info("Checksum mismatch; parsing new data into database");
                         }
-                        RegistreringInfo registreringInfo = new RegistreringInfo(this.registreringRepository, dataProviderEntity, data);
+                        RegistreringInfo registreringInfo = createRegistreringsInfo(dataProviderEntity, data);
+                        //RegistreringInfo registreringInfo = this.createRegistreringsInfo(this.registreringRepository, dataProviderEntity, data);
+
                         this.importData(registreringInfo);
                     } else {
                         this.log.info("Checksum match; no need to update database");

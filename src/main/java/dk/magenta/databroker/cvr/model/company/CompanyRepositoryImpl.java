@@ -13,12 +13,9 @@ import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.util.objectcontainers.StringList;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceContextType;
-import javax.persistence.Query;
+import javax.persistence.*;
 import java.util.Collection;
-import java.util.Map;
+import java.util.List;
 
 /**
  * Created by lars on 27-01-15.
@@ -27,6 +24,7 @@ interface CompanyRepositoryCustom {
     public Collection<CompanyEntity> search(SearchParameters parameters);
     public void clear();
     public CompanyEntity getByCvr(String cvrNummer);
+    public List<String> getCvrNumbers();
 }
 
 
@@ -109,7 +107,11 @@ public class CompanyRepositoryImpl extends RepositoryImplementation<CompanyEntit
         Collection<CompanyEntity> companyEntities = this.query(hql, conditions, GlobalCondition.singleCondition);
         return companyEntities.size() > 0 ? companyEntities.iterator().next() : null;
     }
+
+
+
+    public List<String> getCvrNumbers() {
+        Query q = this.entityManager.createQuery("select " + CompanyEntity.databaseKey + ".cvrNummer from CompanyEntity as " + CompanyEntity.databaseKey);
+                return q.getResultList();
+    }
 }
-
-
-

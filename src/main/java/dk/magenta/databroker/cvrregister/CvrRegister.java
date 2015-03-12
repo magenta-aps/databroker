@@ -208,7 +208,7 @@ public class CvrRegister extends Register {
     private ConfigurableApplicationContext ctx;
 
     public Resource getRecordResource() {
-        return this.ctx.getResource("classpath:/data/cvrRegister.zip");
+        return this.ctx.getResource("classpath:/data/cvrDelta.zip");
     }
 
     public void pull(boolean forceFetch, boolean forceParse, DataProviderEntity dataProviderEntity) {
@@ -223,7 +223,8 @@ public class CvrRegister extends Register {
             SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
             parser.parse(registreringInfo.getInputStream(), handler);
             //this.generateAddresses(false);
-            //this.bulkWireReferences();
+            //this.bulkwireReferences();
+            //this.bulkwireAdresses();
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
         } catch (SAXException e) {
@@ -246,42 +247,9 @@ public class CvrRegister extends Register {
     }
 
 
-    @Autowired
-    @SuppressWarnings("SpringJavaAutowiringInspection")
-    private PlatformTransactionManager txManager;
-
-
-
-    private TransactionStatus transactionStatus;
-    private void beginTransaction() {
-        if (this.transactionStatus == null) {
-            DefaultTransactionDefinition def = new DefaultTransactionDefinition();
-            def.setName("CommandLineTransactionDefinition");
-            def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
-            this.transactionStatus = this.txManager.getTransaction(def);
-        } else {
-            //throw new Exception("Transaction not ended, cannot start new transaction");
-            this.log.error("Transaction not ended, cannot start new transaction");
-        }
+    protected void onTransactionEnd() {
+        this.dawaModel.onTransactionEnd();
     }
-
-    private void endTransaction() {
-        if (this.transactionStatus != null) {
-            this.txManager.commit(this.transactionStatus);
-            this.dawaModel.onTransactionEnd();
-            this.transactionStatus = null;
-        } else {
-            this.log.error("Transaction not started, cannot end transaction");
-        }
-    }
-
-    private void rollbackTransaction() {
-        if (this.transactionStatus != null) {
-            this.txManager.rollback(this.transactionStatus);
-        }
-    }
-
-
 
 
 
@@ -320,7 +288,7 @@ public class CvrRegister extends Register {
 
             this.cvrModel.resetIndustryCache(); // TODO: investigate how much really needs to be reset
 
-            this.beginTransaction();
+            //this.beginTransaction();
 
             CvrRegisterRun cRun = (CvrRegisterRun) run;
             int companyCount = cRun.getVirksomheder().size();
@@ -389,7 +357,8 @@ public class CvrRegister extends Register {
                         }
                         int[] secondaryIndustries = new int[secondaryIndustriesList.size()];
                         int i = 0;
-                        for (Iterator<Integer> iIter = secondaryIndustriesList.iterator(); iIter.hasNext(); secondaryIndustries[i++] = iIter.next());
+                        for (Iterator<Integer> iIter = secondaryIndustriesList.iterator(); iIter.hasNext(); secondaryIndustries[i++] = iIter.next())
+                            ;
 
                         this.cvrModel.setCompany(cvrNummer, name,
                                 primaryIndustry, secondaryIndustries, form,
@@ -397,9 +366,11 @@ public class CvrRegister extends Register {
                                 registreringInfo, new ArrayList<VirkningEntity>());
                         totalCompanies++;
 
-                        if (totalCompanies % 10000 == 0) {
-                            this.cvrModel.flush();
-                        }
+                        //if (totalCompanies % 10000 == 0) {
+                        //System.out.println("flushing");
+                        //    this.cvrModel.flush();
+                        //System.out.println("flushed");
+                        //}
                     }
 
                     time = this.toc(time);
@@ -407,12 +378,12 @@ public class CvrRegister extends Register {
                 }
 
 
-
                 if (unitCount > 0) {
                     time = this.tic();
                     TimeRecorder sumTime = new TimeRecorder();
 
                     for (ProductionUnitRecord unit : cRun.getProductionUnits().getList()) {
+                        this.beginTransaction();
                         // Make sure the referenced industries are present in the DB
                         this.ensureIndustryInDatabase(unit.getInt("primaryIndustry"), unit.get("primaryIndustryText"));
                         this.ensureIndustryInDatabase(unit.getInt("secondaryIndustry1"), unit.get("secondaryIndustryText1"));
@@ -536,6 +507,7 @@ public class CvrRegister extends Register {
 
                             }
                             sumTime.add(recorder);
+                            this.endTransaction();
                         }
                     }
 
@@ -562,18 +534,17 @@ public class CvrRegister extends Register {
                         }
                     }
                     time = this.toc(time);
-                    this.log.info(memberCount + " members created in " + time + "ms (avg " + ((double) time / (double) memberCount) + " ms)");
+                    this.log.info(memberCount + " members created in " + time + "ms (avg " + (time / (double) memberCount) + " ms)");
                 }
 
-
-                this.cvrModel.flushCompanies();
-                this.dawaModel.flush();
-                this.endTransaction();
+                //this.cvrModel.flushCompanies();
+                //this.dawaModel.flush();
+                //this.endTransaction();
             }
             catch (Exception ex) {
                 this.log.error("Transaction failed: "+ex.getMessage());
                 ex.printStackTrace();
-                this.rollbackTransaction();
+                //this.rollbackTransaction();
                 return;
             }
             this.log.info("Transaction completed (" + totalCompanies + " companies, " + totalUnits + " units and " + totalMembers + " members)");
@@ -583,9 +554,9 @@ public class CvrRegister extends Register {
 
     private void bulkwireReferences() {
         this.dawaModel.resetAllCaches();
-        this.beginTransaction();
+        //this.beginTransaction();
         this.cvrModel.bulkWireReferences();
-        this.endTransaction();
+        //this.endTransaction();
     }
 
     private void bulkwireAdresses() {
@@ -599,7 +570,7 @@ public class CvrRegister extends Register {
 
 
         this.dawaModel.resetAllCaches();
-        this.beginTransaction();
+        //this.beginTransaction();
         this.log.info("Adding " + this.generatedAddresses.size() + " addresses");
         for (String descriptor : this.generatedAddresses.keySet()) {
             if (this.generatedAddresses.get(descriptor) == false) {
@@ -615,7 +586,7 @@ public class CvrRegister extends Register {
                     created++;
                 } catch (ArrayIndexOutOfBoundsException e) {
                 }
-
+/*
                 if (created >= 50000) {
                     created = 0;
                     this.dawaModel.flush();
@@ -626,12 +597,12 @@ public class CvrRegister extends Register {
                     this.beginTransaction();
 
                 }
-
+*/
 
             }
         }
         this.dawaModel.flush();
-        this.endTransaction();
+        //this.endTransaction();
         if (bulkwire) {
             this.bulkwireAdresses();
         }
