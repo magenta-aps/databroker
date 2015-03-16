@@ -132,7 +132,7 @@ public class CompanyUnitVersionEntity extends DobbeltHistorikVersion<CompanyUnit
                            Date startDate, Date endDate) {
         return Util.compare(this.companyInfo.getName(), name) &&
                 Util.compare(this.cvrNummer, cvrNummer) &&
-                this.companyInfo.getLocationAddress().getEnhedsAdresse().equals(address) &&
+                Util.compare(this.companyInfo.getLocationAddress().getEnhedsAdresse(),address) &&
                 Util.compare(this.companyInfo.getLocationAddress().getValidFrom(), addressDate) &&
                 this.companyInfo.getPrimaryIndustry().equals(primaryIndustry) &&
                 Util.compare(this.companyInfo.getSecondaryIndustries(), secondaryIndustries) &&

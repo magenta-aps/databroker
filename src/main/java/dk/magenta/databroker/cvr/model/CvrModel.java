@@ -47,6 +47,7 @@ public class CvrModel {
         this.companyRepository.clear();
         this.companyUnitRepository.clear();
         this.deltagerRepository.clear();
+        this.industryRepository.clear();
         this.entityManagerFactory.getCache().evictAll();
     }
 
@@ -65,7 +66,6 @@ public class CvrModel {
         return this.setCompany(cvrKode, name, primaryIndustryCode, secondaryIndustryCodes, formCode, startDate, endDate, ajourDate, null, registreringInfo, virkninger);
     }
 
-    private int companiesCreated = 0;
     private TimeRecorder companyRecorder = new TimeRecorder();
 
     public CompanyEntity setCompany(String cvrKode, String name,
@@ -76,7 +76,6 @@ public class CvrModel {
         boolean useCache = false;
 
         TimeRecorder time = new TimeRecorder();
-
         CompanyEntity companyEntity = this.getCompany(cvrKode, !useCache);
 
         time.record();
@@ -120,36 +119,42 @@ public class CvrModel {
         time.record();
 
         if (companyVersionEntity != null) {
+            time.record();
             CompanyInfo cInfo = companyVersionEntity.getCompanyInfo();
             cInfo.setName(name);
             companyVersionEntity.setForm(form);
             cInfo.setPrimaryIndustry(primaryIndustry);
+            time.record();
             for (IndustryEntity industryEntity : secondaryIndustries) {
                 cInfo.addSecondaryIndustry(industryEntity);
             }
             //companyVersionEntity.setPrimaryUnit(primaryUnit);
+            time.record();
             cInfo.getLifeCycle().setStartDate(startDate);
             cInfo.getLifeCycle().setEndDate(endDate);
             cInfo.getLocationAddress().setDescriptor(primaryAddressDescriptor);
             cInfo.setUpdateDate(ajourDate);
             this.companyRepository.save(companyEntity);
+            time.record();
 
             this.addKnownCvrNumber(cvrKode);
+            time.record();
         }
-        time.record();
 
-        companiesCreated++;
         companyRecorder.add(time);
 
-        if (companiesCreated > 10000) {
-            System.out.println(companyRecorder);
-            companyRecorder = new TimeRecorder();
-            companiesCreated = 0;
-        }
+        this.companyRepository.clear();
+
         return companyEntity;
     }
 
 
+    public TimeRecorder getCompanyTimer() {
+        return this.companyRecorder;
+    }
+    public void resetCompanyTimer() {
+        this.companyRecorder.reset();
+    }
 
 
 
@@ -170,15 +175,8 @@ public class CvrModel {
     }
 
     private void findKnownCvrNumbers() {
-        Collection<String> list = this.companyRepository.getCvrNumbers();
-        this.knownCvrNumbers = new HashSet<String>(list);
+        this.knownCvrNumbers = new HashSet<String>(this.companyRepository.getCvrNumbers());
     }
-
-
-
-
-
-
 
     public CompanyEntity getCompany(String cvrNummer, boolean noCache) {
         CompanyEntity companyEntity = null;
@@ -204,14 +202,6 @@ public class CvrModel {
         this.companyCache.put(companyEntity);
     }
 
-    public void flushCompanies() {
-        this.companyRepository.clear();
-        this.companyUnitRepository.clear();
-        this.deltagerRepository.clear();
-    }
-
-    //--------------------------------------------------
-
     private Level1Cache<CompanyEntity> companyCache;
 
     @PostConstruct
@@ -219,10 +209,26 @@ public class CvrModel {
         this.companyCache = new Level1Cache<CompanyEntity>(this.companyRepository);
     }
 
-    //------------------------------------------------------------------------------------------------------------------
-    private int unitsCreated = 0;
-    private TimeRecorder unitRecorder = new TimeRecorder();
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    //------------------------------------------------------------------------------------------------------------------
+    private TimeRecorder unitRecorder = new TimeRecorder();
 
     @Autowired
     @SuppressWarnings("SpringJavaAutowiringInspection")
@@ -237,7 +243,7 @@ public class CvrModel {
                                     RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
         TimeRecorder time = new TimeRecorder();
 
-        CompanyUnitEntity companyUnitEntity = this.companyUnitCache.get(pNummer);
+        CompanyUnitEntity companyUnitEntity = this.getCompanyUnit(pNummer, true);
         time.record();
         //CompanyEntity companyEntity = this.getCompanyVersion(cvrNummer);
         //CompanyVersionEntity companyVersionEntity = companyEntity.getLatestVersion();
@@ -246,8 +252,6 @@ public class CvrModel {
             this.log.trace("Creating new CompanyUnitEntity " + pNummer);
             companyUnitEntity = new CompanyUnitEntity();
             companyUnitEntity.setPNO(pNummer);
-            //companyUnitEntity.setCompanyVersion(company);
-            //companyUnitEntity.setCvrNummer(cvrNummer);
             //this.putCompanyUnitCache(companyUnitEntity);
         }
         time.record();
@@ -302,35 +306,31 @@ public class CvrModel {
             companyUnitVersionEntity.setPrimaryUnit(isPrimaryUnit);
             companyUnitVersionEntity.setCvrNummer(cvrNummer);
             this.companyUnitRepository.save(companyUnitEntity);
+            this.addKnownUnitNumber(pNummer);
         }
 
         time.record();
-        unitsCreated++;
         unitRecorder.add(time);
-
-        if (unitsCreated > 10000) {
-            System.out.println("10000 units added: "+unitRecorder);
-            unitRecorder = new TimeRecorder();
-            unitsCreated = 0;
-        }
+        this.companyUnitRepository.clear();
 
         return companyUnitEntity;
     }
 
-    public CompanyUnitEntity getCompanyUnit(long pNummer) {
-        CompanyUnitEntity companyUnitEntity = this.companyUnitCache.get(pNummer);
-        if (companyUnitEntity != null) {
-            return companyUnitEntity;
-        } else {
-            companyUnitEntity = this.companyUnitRepository.getByPno(pNummer);
-            if (companyUnitEntity != null) {
-                this.companyUnitCache.put(pNummer, companyUnitEntity);
+    public CompanyUnitEntity getCompanyUnit(long pNummer, boolean noCache) {
+        CompanyUnitEntity companyUnitEntity = null;
+        if (this.hasKnownUnitNumber(pNummer)) {
+            if (!noCache) {
+                companyUnitEntity = this.companyUnitCache.get(pNummer);
             }
-            return companyUnitEntity;
+            if (companyUnitEntity == null) {
+                companyUnitEntity = this.companyUnitRepository.getByPno(pNummer);
+                if (!noCache) {
+                    this.companyUnitCache.put(companyUnitEntity);
+                }
+            }
         }
+        return companyUnitEntity;
     }
-
-    //--------------------------------------------------
 
     private Level1Cache<CompanyUnitEntity> companyUnitCache;
 
@@ -339,6 +339,32 @@ public class CvrModel {
         this.companyUnitCache = new Level1Cache<CompanyUnitEntity>(this.companyUnitRepository);
     }
 
+    private HashSet<Long> knownUnitNumbers = null;
+    private void addKnownUnitNumber(long number) {
+        if (this.knownUnitNumbers == null) {
+            this.findKnownUnitNumbers();
+        }
+        this.knownUnitNumbers.add(number);
+    }
+
+    private boolean hasKnownUnitNumber(long number) {
+        if (this.knownUnitNumbers == null) {
+            this.findKnownUnitNumbers();
+        }
+        return this.knownUnitNumbers.contains(number);
+    }
+
+    private void findKnownUnitNumbers() {
+        this.knownUnitNumbers = new HashSet<Long>(this.companyUnitRepository.getUnitNumbers());
+    }
+
+    public TimeRecorder getUnitTimer() {
+        return unitRecorder;
+    }
+
+    public void resetUnitTimer() {
+        this.unitRecorder.reset();
+    }
 
 
 
@@ -352,19 +378,27 @@ public class CvrModel {
 
 
 
-    //------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+//------------------------------------------------------------------------------------------------------------------
 
 
     @Autowired
     @SuppressWarnings("SpringJavaAutowiringInspection")
     private DeltagerRepository deltagerRepository;
 
+    private TimeRecorder deltagerRecorder = new TimeRecorder();
+
     public DeltagerEntity setDeltager(long deltagerNummer, String name, String cvrNummer,
                                             Date ajourDate, Date gyldigDate,
                                             String typeName, String rolleName,
                                             RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
-
-        DeltagerEntity deltagerEntity = this.getDeltager(deltagerNummer);
+        TimeRecorder time = new TimeRecorder();
+        DeltagerEntity deltagerEntity = this.getDeltager(deltagerNummer, true);
+        time.record();
 
         if (deltagerEntity == null) {
             this.log.trace("Creating new DeltagerEntity " + deltagerNummer);
@@ -372,21 +406,24 @@ public class CvrModel {
             deltagerEntity.setDeltagerNummer(deltagerNummer);
             deltagerEntity.setCvrNummer(cvrNummer);
         }
+        time.record();
 
         TypeEntity typeEntity = this.setType(typeName);
         RolleEntity rolleEntity = this.setRolle(rolleName);
 
         DeltagerVersionEntity deltagerVersionEntity = deltagerEntity.getLatestVersion();
 
+        time.record();
         if (deltagerVersionEntity == null) {
-            this.log.trace("Creating initial DeltagerVersionEntity");
+            this.log.trace("Creating initial DeltagerVersionEntity for " + deltagerNummer);
             deltagerVersionEntity = deltagerEntity.addVersion(registreringInfo.getCreateRegistrering(), virkninger);
         } else if (!deltagerVersionEntity.matches(name, ajourDate, gyldigDate, typeEntity, rolleEntity)) {
-            this.log.trace("Creating updated DeltagerVersionEntity");
+            this.log.trace("Creating updated DeltagerVersionEntity for " + deltagerNummer);
             deltagerVersionEntity = deltagerEntity.addVersion(registreringInfo.getUpdateRegisterering(), virkninger);
         } else {
             deltagerVersionEntity = null;
         }
+        time.record();
 
         if (deltagerVersionEntity != null) {
             deltagerVersionEntity.setName(name);
@@ -395,25 +432,29 @@ public class CvrModel {
             deltagerVersionEntity.setType(typeEntity);
             deltagerVersionEntity.setRolle(rolleEntity);
             this.deltagerRepository.save(deltagerEntity);
-            this.deltagerCache.put(deltagerEntity);
+            //this.deltagerCache.put(deltagerEntity);
+            this.addKnownDeltagerNumber(deltagerNummer);
         }
-
+        time.record();
+        this.deltagerRecorder.add(time);
+        this.deltagerRepository.clear();
         return deltagerEntity;
     }
 
-    public DeltagerEntity getDeltager(long deltagerNummer) {
-        return this.deltagerCache.get(deltagerNummer);
-        //return this.deltagerRepository.getByDeltagerNummer(deltagerNummer);
-        /*CompanyUnitEntity companyUnitEntity = this.companyUnitCache.get(pNummer);
-        if (companyUnitEntity != null) {
-            return companyUnitEntity;
-        } else {
-            companyUnitEntity = this.companyUnitRepository.getByPno(pNummer);
-            if (companyUnitEntity != null) {
-                this.companyUnitCache.put(pNummer, companyUnitEntity);
+    public DeltagerEntity getDeltager(long deltagerNummer, boolean noCache) {
+        DeltagerEntity deltagerEntity = null;
+        if (this.hasKnownDeltagerNumber(deltagerNummer)) {
+            if (!noCache) {
+                deltagerEntity = this.deltagerCache.get(deltagerNummer);
             }
-            return companyUnitEntity;
-        }*/
+            if (deltagerEntity == null) {
+                deltagerEntity = this.deltagerRepository.getByDeltagerNummer(deltagerNummer);
+                if (!noCache) {
+                    this.deltagerCache.put(deltagerEntity);
+                }
+            }
+        }
+        return deltagerEntity;
     }
 
     private Level1Cache<DeltagerEntity> deltagerCache;
@@ -425,6 +466,34 @@ public class CvrModel {
 
 
 
+
+    private HashSet<Long> knownDeltagerNumbers = null;
+    private void addKnownDeltagerNumber(long number) {
+        if (knownDeltagerNumbers == null) {
+            this.findKnownDeltagerNumbers();
+        }
+        this.knownDeltagerNumbers.add(number);
+    }
+
+    private boolean hasKnownDeltagerNumber(long number) {
+        if (knownDeltagerNumbers == null) {
+            this.findKnownDeltagerNumbers();
+        }
+        return this.knownDeltagerNumbers.contains(number);
+    }
+
+    private void findKnownDeltagerNumbers() {
+        this.knownDeltagerNumbers = new HashSet<Long>(this.deltagerRepository.getDeltagerNumbers());
+    }
+
+
+    public TimeRecorder getDeltagerTimer() {
+        return deltagerRecorder;
+    }
+
+    public void resetDeltagerTimer() {
+        this.deltagerRecorder.reset();
+    }
 
 
 

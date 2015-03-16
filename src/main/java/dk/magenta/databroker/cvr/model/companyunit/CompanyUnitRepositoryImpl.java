@@ -7,7 +7,9 @@ import dk.magenta.databroker.util.Util;
 import dk.magenta.databroker.util.objectcontainers.StringList;
 import org.apache.log4j.Logger;
 
+import javax.persistence.Query;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Created by lars on 02-02-15.
@@ -18,6 +20,7 @@ interface CompanyUnitRepositoryCustom {
     public void bulkWireReferences();
     public void clear();
     public CompanyUnitEntity getByPno(long pno);
+    public List<Long> getUnitNumbers();
 }
 
 public class CompanyUnitRepositoryImpl extends RepositoryImplementation<CompanyUnitEntity> implements CompanyUnitRepositoryCustom {
@@ -47,14 +50,6 @@ public class CompanyUnitRepositoryImpl extends RepositoryImplementation<CompanyU
         this.log.info("References updated in "+(Util.getTime() - time)+" ms");
     }
 
-    public void clear() {
-        if (this.entityManager != null) {
-            this.entityManager.flush();
-            this.entityManager.clear();
-        }
-    }
-
-
     public CompanyUnitEntity getByPno(long pno) {
         StringList hql = new StringList();
         hql.append("select distinct "+CompanyUnitEntity.databaseKey+" from CompanyUnitEntity as "+CompanyUnitEntity.databaseKey);
@@ -64,6 +59,12 @@ public class CompanyUnitRepositoryImpl extends RepositoryImplementation<CompanyU
         hql.append(conditions.getWhere());
         Collection<CompanyUnitEntity> companyUnitEntities = this.query(hql, conditions, GlobalCondition.singleCondition);
         return companyUnitEntities.size() > 0 ? companyUnitEntities.iterator().next() : null;
+    }
+
+
+    public List<Long> getUnitNumbers() {
+        Query q = this.entityManager.createQuery("select " + CompanyUnitEntity.databaseKey + ".pno from CompanyUnitEntity as " + CompanyUnitEntity.databaseKey);
+        return q.getResultList();
     }
 
 }

@@ -48,11 +48,12 @@ public abstract class DataProvider {
         private DataProviderEntity dataProviderEntity;
         private File uploadData;
         private TransactionTemplate transactionTemplate;
+        private Logger log = Logger.getLogger(DataProviderPusher.class);
 
         public DataProviderPusher(DataProviderEntity dataProviderEntity, HttpServletRequest request, PlatformTransactionManager transactionManager) {
             this.dataProviderEntity = dataProviderEntity;
             try {
-                this.uploadData = File.createTempFile(dataProviderEntity.getUuid(), "tmp");
+                this.uploadData = File.createTempFile(dataProviderEntity.getUuid(), ".tmp");
                 this.uploadData.deleteOnExit();
                 InputStream data = DataProvider.this.getUploadStream(request);
                 Files.copy(data, this.uploadData.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -63,20 +64,22 @@ public abstract class DataProvider {
         }
         @Override
         public void run() {
+
             final DataProviderEntity dataProviderEntity = this.dataProviderEntity;
 
-            //System.out.println("Starting push in transaction");
-            //this.transactionTemplate.execute(new TransactionCallback() {
+            this.transactionTemplate.execute(new TransactionCallback() {
                 // the code in this method executes in a transactional context
-            //    public Object doInTransaction(TransactionStatus status) {
+                public Object doInTransaction(TransactionStatus status) {
                     try {
-            DataProvider.this.handlePush(true, dataProviderEntity, new FileInputStream(DataProviderPusher.this.uploadData));
+                        DataProvider.this.handlePush(true, dataProviderEntity, new FileInputStream(DataProviderPusher.this.uploadData));
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     }
-            //        return null;
-            //    }
-            //});
+                    log.info("Ending transaction");
+                    return null;
+                }
+            });
+            log.info("Ended transaction");
             this.uploadData.delete();
         }
     }
@@ -150,10 +153,10 @@ public abstract class DataProvider {
     }
 
     public Thread asyncPull(DataProviderEntity dataProviderEntity) {
-        return this.asyncPull(dataProviderEntity, this.txManager, true);
+        return this.asyncPull(dataProviderEntity, true);
     }
-    public Thread asyncPull(DataProviderEntity dataProviderEntity, PlatformTransactionManager transactionManager, boolean runNow) {
-        Thread thread = new DataProviderPuller(dataProviderEntity, transactionManager);
+    public Thread asyncPull(DataProviderEntity dataProviderEntity, boolean runNow) {
+        Thread thread = new DataProviderPuller(dataProviderEntity, this.txManager);
         if (runNow) {
             thread.start();
         }

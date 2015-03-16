@@ -4,6 +4,7 @@ import dk.magenta.databroker.core.model.oio.*;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
+import java.util.HashMap;
 
 /**
  * Created by lars on 12-03-15.
@@ -12,12 +13,16 @@ import java.sql.Timestamp;
 public class RegistreringManager {
 
     private RegistreringEntity createRegistrering(RegistreringRepository regRepo, RegistreringLivscyklusRepository lsRepo, DataProviderEntity sourceDataProvider, String note, RegistreringLivscyklusStatus status) {
+
+        RegistreringLivscyklusEntity livscyklusEntity = this.findOrCreateLivscyklusByStatus(lsRepo, status);
+
         RegistreringEntity result = new RegistreringEntity(
                 new Timestamp(System.currentTimeMillis()),
                 sourceDataProvider.getUuid(),
                 note
         );
-        result.setLivscyklus(this.findOrCreateLivscyklusByStatus(lsRepo, status));
+        result.setLivscyklus(livscyklusEntity);
+
         regRepo.saveAndFlush(result);
         return result;
     }
@@ -48,12 +53,18 @@ public class RegistreringManager {
     }
 */
 
+    private HashMap<String, RegistreringLivscyklusEntity> created = new HashMap<String, RegistreringLivscyklusEntity>();
+
     private RegistreringLivscyklusEntity findOrCreateLivscyklusByNavn(RegistreringLivscyklusRepository lsRepo, String navn) {
-        RegistreringLivscyklusEntity result = lsRepo.getByNavn(navn);
-        if(result == null) {
-            result = new RegistreringLivscyklusEntity(navn);
-            lsRepo.save(result);
+                    RegistreringLivscyklusEntity result = lsRepo.getByNavn(navn);
+        if (result == null) {
+            result = this.created.get(navn);
         }
+        if (result == null) {
+            result = new RegistreringLivscyklusEntity(navn);
+            this.created.put(navn, result);
+        }
+        lsRepo.save(result);
         return result;
     }
 

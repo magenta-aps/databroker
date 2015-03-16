@@ -4,6 +4,7 @@ import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.util.objectcontainers.StringList;
 import org.apache.log4j.Logger;
+import org.hibernate.Session;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -24,7 +25,12 @@ public abstract class RepositoryImplementation<T> {
         this.entityManager = entityManager;
     }
 
+    public Session getSession() {
+        return (Session) this.entityManager.getDelegate();
+    }
+
     public void clear() {
+        this.getSession().clear();
         if (this.entityManager != null) {
             this.entityManager.flush();
             this.entityManager.clear();

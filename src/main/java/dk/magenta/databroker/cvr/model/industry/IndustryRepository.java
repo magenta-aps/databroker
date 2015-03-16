@@ -9,4 +9,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface IndustryRepository extends JpaRepository<IndustryEntity, Long> {
     public IndustryEntity getByCode(int code);
     public IndustryEntity getByName(String name);
+    public void clear();
 }

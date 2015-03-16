@@ -100,9 +100,7 @@ public abstract class Register extends DataProvider {
     private RegistreringManager registreringManager;
 
     private RegistreringInfo createRegistreringsInfo(DataProviderEntity dataProviderEntity, NamedInputStream data) {
-        this.beginTransaction();
         RegistreringInfo registreringInfo = new RegistreringInfo(this.registreringRepository, this.registreringLivscyklusRepository, this.registreringManager, dataProviderEntity, data);
-        this.endTransaction();
         return registreringInfo;
     }
 
@@ -115,7 +113,7 @@ public abstract class Register extends DataProvider {
 
 
 
-    protected abstract void saveRunToDatabase(RegisterRun run, RegistreringInfo registreringInfo);
+    protected abstract void saveRunToDatabase(RegisterRun run, RegistreringInfo registreringInfo) throws Exception;
 
     public void pull(DataProviderEntity dataProviderEntity) {
         this.pull(false, false, dataProviderEntity);
@@ -177,7 +175,7 @@ public abstract class Register extends DataProvider {
             def.setName("CommandLineTransactionDefinition");
             def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
             this.transactionStatus = this.txManager.getTransaction(def);
-            System.out.println("Beginning transaction");
+            System.out.println("Beginning transaction " + this.transactionStatus.hashCode());
         } else {
             //throw new Exception("Transaction not ended, cannot start new transaction");
             this.log.error("Transaction not ended, cannot start new transaction");
@@ -188,8 +186,8 @@ public abstract class Register extends DataProvider {
         if (this.transactionStatus != null) {
             this.txManager.commit(this.transactionStatus);
             this.onTransactionEnd();
+            System.out.println("Ending transaction " + this.transactionStatus.hashCode());
             this.transactionStatus = null;
-            System.out.println("Ending transaction");
         } else {
             this.log.error("Transaction not started, cannot end transaction");
         }
@@ -236,7 +234,11 @@ public abstract class Register extends DataProvider {
             correctionCollectionEntity.correctRecords(run);
         }
 
-        this.saveRunToDatabase(run, registreringInfo);
+        try {
+            this.saveRunToDatabase(run, registreringInfo);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -350,8 +352,10 @@ public abstract class Register extends DataProvider {
         try {
             Part uploadPart = request.getPart(this.getUploadPartName());
             if (uploadPart != null && uploadPart.getSize() > 0) {
-                this.log.info("Receiving " + uploadPart.getSize() + " byte upload from part " + this.getUploadPartName());
+                this.log.info("Receiving " + uploadPart.getSize() + " byte upload from part " + this.getUploadPartName() + " in " + this.getClass().getSimpleName());
                 input = uploadPart.getInputStream();
+            } else {
+                this.log.error("No bytes in upload part "+this.getUploadPartName() + " in " + this.getClass().getSimpleName());
             }
         } catch (IOException e) {
             e.printStackTrace();

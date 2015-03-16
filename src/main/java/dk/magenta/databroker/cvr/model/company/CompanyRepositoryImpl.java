@@ -89,14 +89,6 @@ public class CompanyRepositoryImpl extends RepositoryImplementation<CompanyEntit
         return this.query(hql, conditions, parameters.getGlobalCondition());
     }
 
-    public void clear() {
-        if (this.entityManager != null) {
-            this.entityManager.flush();
-            this.entityManager.clear();
-        }
-    }
-
-
     public CompanyEntity getByCvr(String cvrNummer) {
         StringList hql = new StringList();
         hql.append("select distinct "+CompanyEntity.databaseKey+" from CompanyEntity as "+CompanyEntity.databaseKey);
@@ -112,6 +104,6 @@ public class CompanyRepositoryImpl extends RepositoryImplementation<CompanyEntit
 
     public List<String> getCvrNumbers() {
         Query q = this.entityManager.createQuery("select " + CompanyEntity.databaseKey + ".cvrNummer from CompanyEntity as " + CompanyEntity.databaseKey);
-                return q.getResultList();
+        return q.getResultList();
     }
 }

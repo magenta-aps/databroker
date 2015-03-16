@@ -1,11 +1,14 @@
 package dk.magenta.databroker.cvr.model.deltager;
 
+import dk.magenta.databroker.core.model.RepositoryImplementation;
+import dk.magenta.databroker.register.conditions.ConditionList;
+import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.util.Util;
+import dk.magenta.databroker.util.objectcontainers.StringList;
 import org.apache.log4j.Logger;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import java.util.List;
 
 /**
  * Created by lars on 02-02-15.
@@ -15,18 +18,13 @@ import javax.persistence.Query;
 interface DeltagerRepositoryCustom {
     public void bulkWireReferences();
     public void clear();
+    public DeltagerEntity getByDeltagerNummer(long deltagernummer);
+    public List<Long> getDeltagerNumbers();
 }
 
-public class DeltagerRepositoryImpl implements DeltagerRepositoryCustom {
-
-    private EntityManager entityManager;
+public class DeltagerRepositoryImpl extends RepositoryImplementation<DeltagerEntity> implements DeltagerRepositoryCustom {
 
     private Logger log = Logger.getLogger(DeltagerRepositoryImpl.class);
-
-    @PersistenceContext
-    public void setEntityManager(EntityManager entityManager){
-        this.entityManager = entityManager;
-    }
 
     public void bulkWireReferences() {
         this.log.info("Updating references between members and companies");
@@ -35,11 +33,19 @@ public class DeltagerRepositoryImpl implements DeltagerRepositoryCustom {
         this.log.info("References updated in "+(Util.getTime()-time)+" ms");
     }
 
-    public void clear() {
-        if (this.entityManager != null) {
-            this.entityManager.flush();
-            this.entityManager.clear();
-        }
+    public DeltagerEntity getByDeltagerNummer(long deltagernummer) {
+        StringList hql = new StringList();
+        hql.append("select "+DeltagerEntity.databaseKey+" from DeltagerEntity "+DeltagerEntity.databaseKey+" where ");
+        ConditionList conditions = new ConditionList();
+        conditions.addCondition(DeltagerEntity.nummerCondition(deltagernummer));
+        hql.append(conditions.getWhere());
+        List<DeltagerEntity> items = this.query(hql, conditions, GlobalCondition.singleCondition);
+        return items != null && !items.isEmpty() ? items.iterator().next() : null;
+    }
+
+    public List<Long> getDeltagerNumbers() {
+        Query q = this.entityManager.createQuery("select " + DeltagerEntity.databaseKey + ".deltagerNummer from DeltagerEntity as " + DeltagerEntity.databaseKey);
+        return q.getResultList();
     }
 
 }

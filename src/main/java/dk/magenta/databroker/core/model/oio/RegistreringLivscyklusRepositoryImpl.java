@@ -1,6 +1,7 @@
 package dk.magenta.databroker.core.model.oio;
 
 import dk.magenta.databroker.core.model.RepositoryImplementation;
+import org.hibernate.Session;
 
 import javax.persistence.Query;
 import java.util.List;
@@ -18,9 +19,5 @@ public class RegistreringLivscyklusRepositoryImpl extends RepositoryImplementati
         q.setMaxResults(1);
         List<RegistreringLivscyklusEntity> results = q.getResultList();
         return results != null && !results.isEmpty() ? results.iterator().next() : null;
-    }
-
-    public void clear() {
-        this.entityManager.clear();
     }
 }

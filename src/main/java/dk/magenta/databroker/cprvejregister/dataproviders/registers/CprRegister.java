@@ -181,18 +181,18 @@ public class CprRegister extends LineRegister {
     }
 
 
-    public Thread asyncPush(DataProviderEntity dataProviderEntity, HttpServletRequest request, PlatformTransactionManager transactionManager) {
+    public Thread asyncPush(DataProviderEntity dataProviderEntity, HttpServletRequest request) {
         List<Pair<CprSubRegister, File>> list = new ArrayList<Pair<CprSubRegister, File>>();
         for (CprSubRegister cprSubRegister : this.subRegisters) {
             list.add(new Pair<CprSubRegister, File>(cprSubRegister, this.getTempUploadFile(cprSubRegister, request)));
         }
-        Thread thread = new CprPusher(dataProviderEntity, list, true, transactionManager);
+        Thread thread = new CprPusher(dataProviderEntity, list, true, this.txManager);
         thread.start();
         return thread;
     }
 
-    public Thread asyncPull(DataProviderEntity dataProviderEntity, PlatformTransactionManager transactionManager, boolean runNow) {
-        Thread thread = new CprPuller(dataProviderEntity, this.subRegisters, transactionManager);
+    public Thread asyncPull(DataProviderEntity dataProviderEntity, boolean runNow) {
+        Thread thread = new CprPuller(dataProviderEntity, this.subRegisters, this.txManager);
         if (runNow) {
             thread.start();
         }

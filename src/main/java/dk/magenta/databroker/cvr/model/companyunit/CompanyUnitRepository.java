@@ -2,6 +2,8 @@ package dk.magenta.databroker.cvr.model.companyunit;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 /**
  * Created by lars on 19-12-14.
  */
@@ -17,4 +19,6 @@ public interface CompanyUnitRepository extends JpaRepository<CompanyUnitEntity, 
     public void bulkWireReferences();
     public void clear();
     public CompanyUnitEntity getByPno(long pno);
+    public List<Long> getUnitNumbers();
+
 }

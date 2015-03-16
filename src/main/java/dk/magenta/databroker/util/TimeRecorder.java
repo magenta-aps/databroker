@@ -3,7 +3,6 @@ package dk.magenta.databroker.util;
 import dk.magenta.databroker.util.objectcontainers.StringList;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 /**
  * Created by lars on 20-02-15.
@@ -53,5 +52,18 @@ public class TimeRecorder {
 
     public int getAdded() {
         return added;
+    }
+
+    public double sum() {
+        double sum = 0;
+        for (Double item : this.record) {
+            sum += item;
+        }
+        return sum;
+    }
+
+    public void reset() {
+        this.record.clear();
+        this.added = 0;
     }
 }
