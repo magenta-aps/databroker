@@ -96,7 +96,6 @@ public class CorrectionCollectionEntity {
         ArrayList<CorrectionEntity> list = new ArrayList<CorrectionEntity>();
         for (CorrectionEntity correction : this.correctionEntities) {
             if (correction.matches(record)) {
-                System.out.println(correction.getPrerequisites()+" <=> "+record.toJSON());
                 list.add(correction);
             }
         }

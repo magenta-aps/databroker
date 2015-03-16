@@ -19,11 +19,13 @@ import dk.magenta.databroker.dawa.model.temaer.KommuneRepository;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeRepository;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeVersionEntity;
+import dk.magenta.databroker.util.cache.Level2Cache;
 import dk.magenta.databroker.util.objectcontainers.*;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.EntityManagerFactory;
 import java.util.*;
 
@@ -154,13 +156,13 @@ public class DawaModel {
     public VejstykkeEntity setVejstykke(int kommuneKode, int vejKode, String vejNavn, String vejAddresseringsnavn,
                                         RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
 
-                //VejstykkeEntity vejstykkeEntity = this.vejstykkeRepository.getByKommunekodeAndVejkode(kommuneKode, vejKode);
+        //VejstykkeEntity vejstykkeEntity = this.vejstykkeRepository.getByKommunekodeAndVejkode(kommuneKode, vejKode);
         VejstykkeEntity vejstykkeEntity = this.getVejstykke(kommuneKode, vejKode);
         //VejstykkeEntity vejstykkeEntity = this.vejstykkeCache.get(kommuneKode, vejKode);
         if (vejstykkeEntity == null) {
             KommuneEntity kommuneEntity = this.getKommune(kommuneKode);
             if (kommuneEntity == null) {
-                this.log.warn("Unable to create vej " + kommuneKode+":"+vejKode + " (" + vejNavn + "); Kommune with kode " + kommuneKode + " not found. (There are " + this.kommuneRepository.count() + " KommuneEntities in the table)");
+                this.log.warn("Unable to create vej " + kommuneKode + ":" + vejKode + " (" + vejNavn + "); Kommune with kode " + kommuneKode + " not found. (There are " + this.kommuneRepository.count() + " KommuneEntities in the table)");
                 return null;
             }
             this.log.trace("Creating new VejstykkeEntity " + kommuneKode + ":" + vejKode);
@@ -201,21 +203,43 @@ public class DawaModel {
     * */
 
     private Level2Container<VejstykkeEntity> transactionVejstykkeCache = new Level2Container<VejstykkeEntity>();
+    private Level2Container<VejstykkeEntity> preloadVejstykkeCache;
+
+    @PostConstruct
+    private void loadVejstykkeCache() {
+        this.preloadVejstykkeCache = new Level2Cache<VejstykkeEntity>(this.vejstykkeRepository);
+    }
+
+    TimeRecorder vejRecorder = new TimeRecorder();
+
 
     public VejstykkeEntity getVejstykke(int kommuneKode, int vejKode) {
-        VejstykkeEntity vejstykkeEntity = this.transactionVejstykkeCache.get(kommuneKode, vejKode);
+        TimeRecorder v = new TimeRecorder();
+        //VejstykkeEntity vejstykkeEntity = this.transactionVejstykkeCache.get(kommuneKode, vejKode);
+        VejstykkeEntity vejstykkeEntity = this.preloadVejstykkeCache.get(kommuneKode, vejKode);
+        v.record();
         if (vejstykkeEntity == null) {
             vejstykkeEntity = this.vejstykkeRepository.getByDesc(VejstykkeEntity.generateDescriptor(kommuneKode, vejKode));
+            v.record();
             if (vejstykkeEntity != null) {
                 //this.putVejstykke(vejstykkeEntity);
-                this.transactionVejstykkeCache.put(kommuneKode, vejKode, vejstykkeEntity);
+                //this.transactionVejstykkeCache.put(kommuneKode, vejKode, vejstykkeEntity);
+                this.preloadVejstykkeCache.put(kommuneKode, vejKode, vejstykkeEntity);
             }
+            v.record();
         }
+        vejRecorder.add(v);
+        if (vejRecorder.getAdded() > 10000) {
+            this.log.trace("vejRecorder timing: "+vejRecorder);
+            vejRecorder = new TimeRecorder();
+        }
+
         return vejstykkeEntity;
     }
 
     private void putVejstykke(VejstykkeEntity vejstykkeEntity) {
-        this.transactionVejstykkeCache.put(vejstykkeEntity.getKommune().getKode(), vejstykkeEntity.getKode(), vejstykkeEntity);
+        //this.transactionVejstykkeCache.put(vejstykkeEntity.getKommune().getKode(), vejstykkeEntity.getKode(), vejstykkeEntity);
+        this.preloadVejstykkeCache.put(vejstykkeEntity.getKommune().getKode(), vejstykkeEntity.getKode(), vejstykkeEntity);
     }
 
     public Collection<VejstykkeEntity> getVejstykke(SearchParameters parameters) {
@@ -442,7 +466,8 @@ public class DawaModel {
             } else {
                 VejstykkeEntity vejstykkeEntity = this.getVejstykke(kommuneKode, vejKode);
                 if (vejstykkeEntity == null) {
-                    this.log.warn("Not adding address " + husNr + " on road " + kommuneKode + ":" + vejKode + "; road not found (vejstykkecache size: "+this.transactionVejstykkeCache.totalSize()+")");
+                    //this.log.warn("Not adding address " + husNr + " on road " + kommuneKode + ":" + vejKode + "; road not found (vejstykkecache size: "+this.transactionVejstykkeCache.totalSize()+")");
+                    this.log.warn("Not adding address " + husNr + " on road " + kommuneKode + ":" + vejKode + "; road not found (vejstykkecache size: "+this.preloadVejstykkeCache.totalSize()+")");
                     return null;
                 }
                 adgangsAdresseEntity.setVejstykke(vejstykkeEntity);

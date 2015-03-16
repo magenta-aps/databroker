@@ -41,6 +41,12 @@ public class DataProviderController {
         this.log = Logger.getLogger(DataProviderController.class);
     }
 
+    private HashMap<String, Object> getModel() {
+        HashMap<String, Object> model = new HashMap<String, Object>();
+        model.put("nav","dataprovider");
+        return model;
+    }
+
     /*@PostConstruct
     public void postConstruct() {
         for (DataProviderEntity dataProviderEntity : this.dataProviderRegistry.getDataProviderEntities()) {
@@ -107,7 +113,7 @@ public class DataProviderController {
     public ModelAndView index(HttpServletRequest request) {
         this.logRequest(request);
         boolean blockImport = BLOCK_CHANGES_ON_RUNNING && this.isImportRunning();
-        Map<String, Object> model = new HashMap<String, Object>();
+        Map<String, Object> model = this.getModel();
         model.put("dataproviderEntities", dataProviderRegistry.getDataProviderEntities());
         Map<String, HashMap<String, String>> providerInfo = new HashMap<String, HashMap<String, String>>();
         for (DataProviderEntity dataProviderEntity : dataProviderRegistry.getDataProviderEntities()) {
@@ -228,7 +234,7 @@ public class DataProviderController {
             values.put("active", new String[]{"active"});
         }
 
-        Map<String, Object> model = new HashMap<String, Object>();
+        Map<String, Object> model = this.getModel();
         model.put("values", values);
         model.put("action", action);
         model.put("blockImport", blockImport);
@@ -276,7 +282,8 @@ public class DataProviderController {
             data.put("template", dataProvider.getTemplatePath());
             DataProviderConfiguration configuration = dataProvider.getDefaultConfiguration();
             data.put("values", configuration != null ? configuration.toArrayMap() : new DataProviderConfiguration());
-            providerData.put(dataProvider.getClass().getCanonicalName(), data);
+            data.put("label", dataProvider.getClass().getSimpleName());
+            providerData.put(dataProvider.getClass().getName(), data);
         }
         return providerData;
     }
@@ -297,7 +304,7 @@ public class DataProviderController {
                     }
                     return this.redirectToIndex();
                 }
-                Map<String, Object> model = new HashMap<String, Object>();
+                Map<String, Object> model = this.getModel();
                 model.put("name", dataProviderEntity.getName());
                 return new ModelAndView("dataproviders/delete", model);
             }
@@ -334,7 +341,7 @@ public class DataProviderController {
                                 return this.redirectToIndex();
                             }
                         } else {
-                            Map<String, Object> model = new HashMap<String, Object>();
+                            Map<String, Object> model = this.getModel();
                             model.put("name", dataProviderEntity.getName());
                             model.put("uuid", uuid);
                             return new ModelAndView("dataproviders/preprocessing", model);
@@ -355,7 +362,7 @@ public class DataProviderController {
     }
 
     public ModelAndView processingEntity(HttpServletRequest request, String uuid) {
-        /*HashMap<String, Object> model = new HashMap<String, Object>();
+        /*HashMap<String, Object> model = this.getModel();
         HashMap<String, Object> data = new HashMap<String, Object>();
         data.put("uuid", uuid);
         data.put("name", this.dataProviderRegistry.getDataProviderEntity(uuid).getName());
@@ -434,7 +441,7 @@ public class DataProviderController {
             DataProviderConfiguration dataProviderConfiguration = entity.getConfig();
             String cronExpression = dataProvider.getCronExpression(dataProviderConfiguration);
             if (cronExpression != null) {
-                Thread task = entity.getDataProvider().asyncPull(entity, this.transactionManager, false);
+                Thread task = entity.getDataProvider().asyncPull(entity, false);
                 this.cronThreads.put(entity.getUuid(), task);
                 ScheduledFuture scheduledTask = this.scheduler.schedule(task, new CronTrigger(cronExpression));
                 this.sheduledTasks.put(entity, scheduledTask);

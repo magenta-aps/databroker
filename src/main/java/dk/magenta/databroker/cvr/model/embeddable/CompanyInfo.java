@@ -192,6 +192,10 @@ public class CompanyInfo {
         this.email = email;
     }
 
+    public String getEmailText() {
+        return this.email != null ? this.email.getText() : null;
+    }
+
     //----------------------------------------------------
 
     @ManyToOne(optional = true, fetch = FetchType.EAGER)
@@ -273,7 +277,7 @@ public class CompanyInfo {
     public void addToJSONObject(JSONObject obj) {
         obj.put("advertProtection", this.hasAdvertProtection());
         obj.put("name",this.getName());
-        obj.put("email",this.getEmail());
+        obj.put("email",this.getEmailText());
         obj.put("phone",this.getTelefaxNumber());
         obj.put("fax",this.getTelefaxNumber());
 
