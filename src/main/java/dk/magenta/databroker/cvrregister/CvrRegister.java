@@ -215,7 +215,9 @@ public class CvrRegister extends Register {
     @Override
     protected void importData(RegistreringInfo registreringInfo) {
         try {
-            DefaultHandler handler = new VirksomhedDataHandler(registreringInfo, 10000);
+            int chunkSize = 1000;//(int) (registreringInfo.getInputSize() / 50000L);
+            //System.out.println("chunkSize: "+chunkSize);
+            DefaultHandler handler = new VirksomhedDataHandler(registreringInfo, chunkSize);
             SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
             parser.parse(registreringInfo.getInputStream(), handler);
             //this.generateAddresses(false);

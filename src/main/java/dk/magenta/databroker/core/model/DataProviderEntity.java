@@ -3,6 +3,7 @@ package dk.magenta.databroker.core.model;
 import dk.magenta.databroker.core.DataProvider;
 import dk.magenta.databroker.core.DataProviderConfiguration;
 import dk.magenta.databroker.core.DataProviderRegistry;
+import dk.magenta.databroker.core.RegistreringInfo;
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.core.model.oio.RegistreringRepository;
 import dk.magenta.databroker.correction.CorrectionCollectionEntity;
@@ -185,6 +186,23 @@ public class DataProviderEntity {
         this.dataProvider = dataProvider;
     }
 
+
+    @Transient
+    private RegistreringInfo registreringInfo;
+
+    @Transient
+    public RegistreringInfo getRegistreringInfo() {
+        if(registreringInfo == null) {
+            registreringInfo = RegistreringInfo.getRegistreringInfo(this);
+        }
+        return registreringInfo;
+    }
+
+    @Transient
+    public void setRegistreringInfo(RegistreringInfo registreringInfo) {
+        System.out.println("Setting registreringInfo to " + registreringInfo);
+        this.registreringInfo = registreringInfo;
+    }
 
     /**************************************************************************************
      * Proxy-methods DataProvider implementations                                         *

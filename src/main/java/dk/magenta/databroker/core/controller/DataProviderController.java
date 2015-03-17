@@ -3,6 +3,7 @@ package dk.magenta.databroker.core.controller;
 import dk.magenta.databroker.core.DataProvider;
 import dk.magenta.databroker.core.DataProviderConfiguration;
 import dk.magenta.databroker.core.DataProviderRegistry;
+import dk.magenta.databroker.core.RegistreringInfo;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -379,8 +380,12 @@ public class DataProviderController {
         String uuid = request.getParameter("uuid");
         DataProviderEntity dataProviderEntity = this.dataProviderRegistry.getDataProviderEntity(uuid);
         if (dataProviderEntity != null) {
+            RegistreringInfo registreringInfo = dataProviderEntity.getRegistreringInfo();
             model.put("status", this.getProviderStatus(dataProviderEntity));
             model.put("uuid", uuid);
+            if (registreringInfo != null) {
+                model.put("progress", registreringInfo.getProgress());
+            }
         }
         boolean blockImport = BLOCK_CHANGES_ON_RUNNING && this.isImportRunning();
         model.put("blockImport", blockImport);

@@ -70,7 +70,11 @@
                                 canPull = false;
                                 break;
                             case "RUNNING":
-                                statusField.text(statusText.running);
+                                var text = statusText.running;
+                                if (typeof(obj.progress) == "number") {
+                                    text += " - " + (100 * obj.progress).toFixed(2) + "%";
+                                }
+                                statusField.text(text);
                                 canEdit = false;
                                 canDelete = false;
                                 canPull = false;

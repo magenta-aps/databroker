@@ -10,6 +10,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import java.io.InputStream;
+import java.util.HashMap;
 
 /**
  * Created by lars on 25-02-15.
@@ -20,6 +21,9 @@ public class RegistreringInfo {
     private DataProviderEntity dataProviderEntity;
     private CountingInputStream inputStream;
     private long inputSize;
+    private double progress = 0;
+
+    private static HashMap<String, RegistreringInfo> registreringInfoHashMap = new HashMap<String, RegistreringInfo>();
 
     public RegistreringInfo(RegistreringRepository regRepo, RegistreringLivscyklusRepository lsRepo, RegistreringManager registreringManager, DataProviderEntity dataProviderEntity, NamedInputStream inputStream) {
         this.dataProviderEntity = dataProviderEntity;
@@ -38,6 +42,8 @@ public class RegistreringInfo {
         this.updateRegisterering = updateRegistrering;
         this.inputStream = new CountingInputStream(inputStream);
         this.inputSize = inputStream.getKnownSize();
+        dataProviderEntity.setRegistreringInfo(this);
+        registreringInfoHashMap.put(dataProviderEntity.getUuid(), this);
     }
 
     public DataProviderEntity getDataProviderEntity() {
@@ -77,7 +83,29 @@ public class RegistreringInfo {
     }
     public void logProcess(Logger log, Level level) {
         long bytesRead = this.getBytesRead();
-        log.log(level, "Processed " + bytesRead + " bytes (" + String.format("%.2f", 100.0 * (double) bytesRead / (double) this.getInputSize()) + "%)");
+        String pct = "";
+        if (this.getInputSize() > 0) {
+            this.progress = (double) bytesRead / (double) this.getInputSize();
+            pct = " (" + String.format("%.2f", 100.0 * this.progress) + "%)";
+        }
+        log.log(level, "Processed " + bytesRead + " of " + this.getInputSize() + " bytes" + pct);
     }
 
+    public void clear() {
+        if (this.dataProviderEntity.getRegistreringInfo() == this) {
+            this.dataProviderEntity.setRegistreringInfo(null);
+        }
+    }
+
+    public double getProgress() {
+        return this.progress;
+    }
+
+    public static RegistreringInfo getRegistreringInfo(String uuid) {
+        return registreringInfoHashMap.get(uuid);
+    }
+
+    public static RegistreringInfo getRegistreringInfo(DataProviderEntity dataProviderEntity) {
+        return getRegistreringInfo(dataProviderEntity.getUuid());
+    }
 }

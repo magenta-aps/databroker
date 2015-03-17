@@ -303,9 +303,8 @@ public abstract class Register extends DataProvider {
                     if (this.isZipStream(data)) {
                         data.close();
                         // Re-read from cache
-                        data = this.readCache(cacheFile);
                         // We have a zipped file, get the contained data
-                        data = this.unzip(data);
+                        data = this.unzip(cacheFile);
                         if (data == null) {
                             data = this.readCache(cacheFile);
                         }
@@ -324,10 +323,9 @@ public abstract class Register extends DataProvider {
                         } else {
                             this.log.info("Checksum mismatch; parsing new data into database");
                         }
-                        RegistreringInfo registreringInfo = createRegistreringsInfo(dataProviderEntity, data);
-                        //RegistreringInfo registreringInfo = this.createRegistreringsInfo(this.registreringRepository, dataProviderEntity, data);
-
+                        RegistreringInfo registreringInfo = this.createRegistreringsInfo(dataProviderEntity, data);
                         this.importData(registreringInfo);
+                        registreringInfo.clear();
                     } else {
                         this.log.info("Checksum match; no need to update database");
                     }

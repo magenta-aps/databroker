@@ -30,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 
@@ -181,10 +182,14 @@ public abstract class DataProvider {
         return null;
     }
 
-    protected InputStream readFile(File file) {
+    protected NamedInputStream readFile(File file) {
         if (file.canRead()) {
             try {
-                return this.read(file.getAbsolutePath(), new FileInputStream(file));
+                if (getExtension(file.getAbsolutePath()).equals("zip")) {
+                    return this.unzip(file);
+                } else {
+                    return this.read(file.getAbsolutePath(), new FileInputStream(file));
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -238,6 +243,22 @@ public abstract class DataProvider {
             if (extension != null && Util.inArray(acceptedExtensions, extension)) {
                 this.log.info("Unzipping entry " + entry.getName() + " (" + entry.getSize() + " bytes)");
                 NamedInputStream output = new NamedInputStream(zinput, entry.getName());
+                output.setKnownSize(entry.getSize());
+                return output;
+            }
+        }
+        return null;
+    }
+
+    protected NamedInputStream unzip(File input) throws IOException {
+        ZipFile zipfile = new ZipFile(input);
+        Enumeration<? extends ZipEntry> entries = zipfile.entries();
+        while (entries.hasMoreElements()) {
+            ZipEntry entry = entries.nextElement();
+            String extension = getExtension(entry.getName());
+            if (extension != null && Util.inArray(acceptedExtensions, extension)) {
+                this.log.info("Unzipping entry " + entry.getName() + " (" + entry.getSize() + " bytes)");
+                NamedInputStream output = new NamedInputStream(zipfile.getInputStream(entry), entry.getName());
                 output.setKnownSize(entry.getSize());
                 return output;
             }
