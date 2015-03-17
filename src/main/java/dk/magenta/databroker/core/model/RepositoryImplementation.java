@@ -26,11 +26,18 @@ public abstract class RepositoryImplementation<T> {
     }
 
     public Session getSession() {
-        return (Session) this.entityManager.getDelegate();
+        if (this.entityManager != null) {
+            return (Session) this.entityManager.getDelegate();
+        }
+        return null;
     }
 
     public void clear() {
-        this.getSession().clear();
+        Session session = this.getSession();
+        if (session != null) {
+            //session.flush();
+            session.clear();
+        }
         if (this.entityManager != null) {
             this.entityManager.flush();
             this.entityManager.clear();

@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public class Level1Cache<T extends Cacheable> extends Level1Container<T> {
     private JpaRepository<T, Long> repository;
     private boolean loaded;
-    private Thread thread = null;
 
     public Level1Cache(JpaRepository<T, Long> repository) {
         this.repository = repository;
