@@ -200,7 +200,6 @@ public class DataProviderEntity {
 
     @Transient
     public void setRegistreringInfo(RegistreringInfo registreringInfo) {
-        System.out.println("Setting registreringInfo to " + registreringInfo);
         this.registreringInfo = registreringInfo;
     }
 

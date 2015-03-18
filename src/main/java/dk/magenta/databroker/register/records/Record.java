@@ -23,7 +23,6 @@ public abstract class Record extends HashMap<String, String> {
         this.visited = false;
     }
 
-
     public String getRecordType() {
         return null;
     }
@@ -66,6 +65,12 @@ public abstract class Record extends HashMap<String, String> {
     public boolean getBoolean(String key) {
         return this.getInt(key) == 1;
     }
+
+    public Character getChar(String key) {
+        String value = this.get(key);
+        return value != null && !value.isEmpty() ? value.charAt(0) : null;
+    }
+
 
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();

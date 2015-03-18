@@ -1,5 +1,6 @@
 package dk.magenta.databroker.cvr.model.embeddable;
 
+import dk.magenta.databroker.util.Util;
 import org.json.JSONObject;
 
 import javax.persistence.Column;
@@ -96,9 +97,12 @@ public class QuarterlyEmployeeNumbers {
 
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
-
-        obj.put("year", this.year);
-        obj.put("quarter", this.quarter);
+        if (this.year > 0) {
+            obj.put("year", this.year);
+        }
+        if (this.quarter > 0) {
+            obj.put("quarter", this.quarter);
+        }
 
         if(this.employees != 0)
             obj.put("numberOfEmployees", this.employees);
@@ -114,5 +118,24 @@ public class QuarterlyEmployeeNumbers {
             obj.put("includingOwnersInterval", this.includingOwnersInterval);
 
         return obj;
+    }
+
+
+    public boolean equals(Object otherObject) {
+        if (otherObject == null || otherObject.getClass() != QuarterlyEmployeeNumbers.class) {
+            return false;
+        }
+        return this.equals((QuarterlyEmployeeNumbers) otherObject);
+    }
+    public boolean equals(QuarterlyEmployeeNumbers otherQuarterlyEmployeeNumbers) {
+        return
+                Util.compare(this.quarter, otherQuarterlyEmployeeNumbers.getQuarter()) &&
+                Util.compare(this.year, otherQuarterlyEmployeeNumbers.getYear()) &&
+                Util.compare(this.employees, otherQuarterlyEmployeeNumbers.getEmployees()) &&
+                Util.compare(this.fullTimeEquivalent, otherQuarterlyEmployeeNumbers.getFullTimeEquivalent()) &&
+                Util.compare(this.includingOwners, otherQuarterlyEmployeeNumbers.getIncludingOwners()) &&
+                Util.compare(this.employeesInterval, otherQuarterlyEmployeeNumbers.getEmployeesInterval()) &&
+                Util.compare(this.fullTimeEquivalentInterval, otherQuarterlyEmployeeNumbers.getFullTimeEquivalentInterval()) &&
+                Util.compare(this.includingOwnersInterval, otherQuarterlyEmployeeNumbers.getIncludingOwnersInterval());
     }
 }

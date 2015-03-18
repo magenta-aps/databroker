@@ -1,6 +1,7 @@
 package dk.magenta.databroker.cvr.model.form;
 
 import dk.magenta.databroker.core.model.OutputFormattable;
+import dk.magenta.databroker.util.Util;
 import org.hibernate.annotations.Index;
 import org.json.JSONObject;
 
@@ -88,5 +89,18 @@ public class CompanyFormEntity implements OutputFormattable {
     @Override
     public SOAPElement toFullXML(SOAPElement parent, SOAPEnvelope envelope) {
         return null;
+    }
+
+    public boolean equals(Object otherObject) {
+        if (otherObject == null || otherObject.getClass() != CompanyFormEntity.class) {
+            return false;
+        }
+        return this.equals((CompanyFormEntity) otherObject);
+    }
+
+    public boolean equals(CompanyFormEntity otherCompanyFormEntity) {
+        return this.code == otherCompanyFormEntity.getCode() &&
+                Util.compare(this.name, otherCompanyFormEntity.getName()) &&
+                Util.compare(this.responsibleDatesource, otherCompanyFormEntity.getResponsibleDatesource());
     }
 }

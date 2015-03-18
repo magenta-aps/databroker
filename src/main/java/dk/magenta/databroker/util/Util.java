@@ -4,6 +4,7 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 import java.text.Normalizer;
+import java.util.Collection;
 import java.util.Date;
 
 /**
@@ -12,19 +13,47 @@ import java.util.Date;
 public abstract class Util {
 
     public static boolean compare(int a, int b) {
-        return a == b;
+        boolean answer = a == b;
+        //if (!answer) System.out.println("int mismatch on "+a+" vs "+b);
+        return answer;
     }
 
     public static boolean compare(String a, String b) {
-        return a == null ? (b == null) : a.equals(b);
+        boolean answer = a == null ? (b == null) : a.equals(b);
+        //if (!answer) System.out.println("string mismatch on "+a+" vs "+b);
+        return answer;
     }
 
     public static boolean compare(Object a, Object b) {
-        return a == null ? (b == null) : a.equals(b);
+        boolean answer = a == null ? (b == null) : a.equals(b);
+        //if (!answer) System.out.println("object mismatch on "+a+" ("+(a!=null ? a.getClass().getSimpleName() : null)+") vs "+b+" ("+(b!=null ? b.getClass().getSimpleName() : null)+")");
+        return answer;
+    }
+
+    public static boolean compare(Collection a, Collection b) {
+        if (a == null || b == null) {
+            //System.out.println("collection mismatch on "+a+" vs "+b);
+            return a == b;
+        } else if (a.size() != b.size()) {
+            //System.out.println("collection mismatch on "+a+" vs "+b);
+            return false;
+        } else {
+            boolean answer = a.containsAll(b) && b.containsAll(a);
+            //if (!answer) System.out.println("collection mismatch on "+a+" vs "+b);
+            return answer;
+        }
     }
 
     public static boolean compare(Date a, Date b) {
-        return a == null ? (b == null) : a.equals(b);
+        boolean answer = a == null ? (b == null) : a.compareTo(b)==0;
+        //if (!answer) System.out.println("date mismatch on "+a.getTime()+" vs "+b.getTime());
+        return answer;
+    }
+
+    public static boolean compare(char a, char b) {
+        boolean answer = a == b;
+        //if (!answer) System.out.println("char mismatch on "+a+" vs "+b);
+        return answer;
     }
 
     public static boolean inArray(String[] array, String item) {

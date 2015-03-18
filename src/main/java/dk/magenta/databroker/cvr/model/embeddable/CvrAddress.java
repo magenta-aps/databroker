@@ -1,7 +1,7 @@
 package dk.magenta.databroker.cvr.model.embeddable;
 
 import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseEntity;
-import org.hibernate.annotations.Index;
+import dk.magenta.databroker.util.Util;
 import org.json.JSONObject;
 
 import javax.persistence.Column;
@@ -43,8 +43,8 @@ public class CvrAddress {
     private Character letterTo;
 
     @Column
-    // "etage": "unsigned int(2)",
-    private int floor;
+    // "etage": "varchar(2)",
+    private String floor;
 
     @Column
     // "sidedoer": "varchar(4)",
@@ -138,11 +138,11 @@ public class CvrAddress {
         this.letterTo = bogstavTil;
     }
 
-    public int getFloor() {
+    public String getFloor() {
         return floor;
     }
 
-    public void setFloor(int floor) {
+    public void setFloor(String floor) {
         this.floor = floor;
     }
 
@@ -253,7 +253,7 @@ public class CvrAddress {
             int housenumberTo,
             Character letterFrom,
             Character letterTo,
-            int floor,
+            String floor,
             String sideOrDoor,
             int postalCode,
             String postalDistrict,
@@ -283,22 +283,34 @@ public class CvrAddress {
         this.coName = coName;
         this.freetextAddress = freetextAddress;
         this.enhedsAdresse = enhedsAdresse;
+
+        this.descriptor = EnhedsAdresseEntity.generateDescriptor(municipalityCode, roadCode, housenumberFrom, letterFrom, floor, sideOrDoor);
     }
 
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
         obj.put("validFrom", this.validFrom);
         obj.put("roadName", this.roadName);
-        obj.put("housenumberFrom", this.housenumberFrom);
-        obj.put("housenumberTo", this.housenumberTo);
+        if (this.housenumberFrom > 0) {
+            obj.put("housenumberFrom", this.housenumberFrom);
+        }
+        if (this.housenumberTo > 0) {
+            obj.put("housenumberTo", this.housenumberTo);
+        }
         obj.put("letterTo", this.letterTo);
         obj.put("floor", this.floor);
         obj.put("sideOrDoor", this.sideOrDoor);
-        obj.put("postalCode", this.postalCode);
+        if (this.postalCode > 0) {
+            obj.put("postalCode", this.postalCode);
+        }
         obj.put("postalDistrict", this.postalDistrict);
-        obj.put("municipalityCode", this.municipalityCode);
+        if (this.municipalityCode > 0) {
+            obj.put("municipalityCode", this.municipalityCode);
+        }
         obj.put("municipalityText", this.municipalityText);
-        obj.put("postBox", this.postBox);
+        if (this.postBox > 0) {
+            obj.put("postBox", this.postBox);
+        }
         obj.put("coName", this.coName);
         obj.put("freetextAddress", this.freetextAddress);
         obj.put("validFrom", this.validFrom);
@@ -308,5 +320,31 @@ public class CvrAddress {
             obj.put("cprAddress", this.enhedsAdresse.toJSON());
         }
         return obj;
+    }
+
+
+    public boolean equals(Object otherObject) {
+        if (otherObject == null || otherObject.getClass() != CvrAddress.class) {
+            return false;
+        }
+        return this.equals((CvrAddress) otherObject);
+    }
+    public boolean equals(CvrAddress otherCvrAddress) {
+        return Util.compare(this.cityName, otherCvrAddress.getCityName()) &&
+                Util.compare(this.coName, otherCvrAddress.getCoName()) &&
+                Util.compare(this.floor, otherCvrAddress.getFloor()) &&
+                Util.compare(this.freetextAddress, otherCvrAddress.getFreetextAddress()) &&
+                Util.compare(this.housenumberFrom, otherCvrAddress.getHousenumberFrom()) &&
+                Util.compare(this.housenumberTo, otherCvrAddress.getHousenumberTo()) &&
+                Util.compare(this.letterFrom, otherCvrAddress.getLetterFrom()) &&
+                Util.compare(this.letterTo, otherCvrAddress.getLetterTo()) &&
+                Util.compare(this.municipalityCode, otherCvrAddress.getMunicipalityCode()) &&
+                Util.compare(this.postalCode, otherCvrAddress.getPostalCode()) &&
+                Util.compare(this.postalDistrict, otherCvrAddress.getPostalDistrict()) &&
+                Util.compare(this.postBox, otherCvrAddress.getPostBox()) &&
+                Util.compare(this.roadCode, otherCvrAddress.getRoadCode()) &&
+                Util.compare(this.roadName, otherCvrAddress.getRoadName()) &&
+                Util.compare(this.sideOrDoor, otherCvrAddress.getSideOrDoor()) &&
+                Util.compare(this.validFrom, otherCvrAddress.getValidFrom());
     }
 }

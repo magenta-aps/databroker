@@ -4,7 +4,9 @@ import dk.magenta.databroker.core.model.oio.DobbeltHistorikVersion;
 import dk.magenta.databroker.cvr.model.company.CompanyVersionEntity;
 import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitVersionEntity;
 import dk.magenta.databroker.cvr.model.deltager.rolle.RolleEntity;
+import dk.magenta.databroker.cvr.model.deltager.status.StatusEntity;
 import dk.magenta.databroker.cvr.model.deltager.type.TypeEntity;
+import dk.magenta.databroker.cvr.model.embeddable.CvrAddress;
 import dk.magenta.databroker.util.Util;
 
 import javax.persistence.*;
@@ -139,12 +141,66 @@ public class DeltagerVersionEntity extends DobbeltHistorikVersion<DeltagerEntity
 
     //----------------------------------------------------
 
-    public boolean matches(String name, Date ajourDate, Date gyldigDate, TypeEntity type, RolleEntity rolle) {
+    @ManyToOne(optional = true)
+    private StatusEntity status;
+
+    public StatusEntity getStatus() {
+        return status;
+    }
+
+    public void setStatus(StatusEntity status) {
+        this.status = status;
+    }
+
+    //----------------------------------------------------
+
+
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name="validFrom", column = @Column(name = "locationAddressValidFrom")),
+            @AttributeOverride(name="roadName", column = @Column(name = "locationAddressRoadName")),
+            @AttributeOverride(name="roadCode", column = @Column(name = "locationAddressRoadCode")),
+            @AttributeOverride(name="housenumberFrom", column = @Column(name = "locationAddressHouseNumberFrom")),
+            @AttributeOverride(name="housenumberTo", column = @Column(name = "locationAddressHouseNumberTo")),
+            @AttributeOverride(name="letterFrom", column = @Column(name = "locationAddressLetterFrom")),
+            @AttributeOverride(name="letterTo", column = @Column(name = "locationAddressLetterTo")),
+            @AttributeOverride(name="floor", column = @Column(name = "locationAddressFloor")),
+            @AttributeOverride(name="sideOrDoor", column = @Column(name = "locationAddressSideOrDoor")),
+            @AttributeOverride(name="postalCode", column = @Column(name = "locationAddressPostalCode")),
+            @AttributeOverride(name="postalDistrict", column = @Column(name = "locationAddressPostalDistrict")),
+            @AttributeOverride(name="cityName", column = @Column(name = "locationAddressCityName")),
+            @AttributeOverride(name="municipalityCode", column = @Column(name = "locationAddressMunicipalityCode")),
+            @AttributeOverride(name="municipalityText", column = @Column(name = "locationAddressMunicipalityText")),
+            @AttributeOverride(name="postBox", column = @Column(name = "locationAddressPostbox")),
+            @AttributeOverride(name="coName", column = @Column(name = "locationAddressCoName")),
+            @AttributeOverride(name="freetextAddress", column = @Column(name = "locationAddressFreetext")),
+            @AttributeOverride(name="descriptor", column = @Column(name = "locationAddressDescriptor")),
+    })
+    @AssociationOverrides({
+            @AssociationOverride(name="enhedsAdresse", joinColumns = @JoinColumn(name = "locationAddressEnhedsAdresse")),
+
+    })
+    private CvrAddress locationAddress;
+
+    public CvrAddress getLocationAddress() {
+        return locationAddress;
+    }
+
+    public void setLocationAddress(CvrAddress locationAddress) {
+        this.locationAddress = locationAddress;
+    }
+
+
+    //----------------------------------------------------
+
+    public boolean matches(String name, Date ajourDate, Date gyldigDate, TypeEntity type, RolleEntity rolle, StatusEntity status, CvrAddress locationAddress) {
         return Util.compare(this.name, name) &&
                 Util.compare(this.ajourDate, ajourDate) &&
                 Util.compare(this.gyldigDate, gyldigDate) &&
                 Util.compare(this.type, type) &&
-                Util.compare(this.rolle, rolle);
+                Util.compare(this.rolle, rolle) &&
+                Util.compare(this.status, status) &&
+                Util.compare(this.locationAddress, locationAddress);
     }
 
 }

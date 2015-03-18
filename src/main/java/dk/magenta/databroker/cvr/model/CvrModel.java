@@ -13,9 +13,12 @@ import dk.magenta.databroker.cvr.model.deltager.DeltagerRepository;
 import dk.magenta.databroker.cvr.model.deltager.DeltagerVersionEntity;
 import dk.magenta.databroker.cvr.model.deltager.rolle.RolleEntity;
 import dk.magenta.databroker.cvr.model.deltager.rolle.RolleRepository;
+import dk.magenta.databroker.cvr.model.deltager.status.StatusEntity;
+import dk.magenta.databroker.cvr.model.deltager.status.StatusRepository;
 import dk.magenta.databroker.cvr.model.deltager.type.TypeEntity;
 import dk.magenta.databroker.cvr.model.deltager.type.TypeRepository;
 import dk.magenta.databroker.cvr.model.embeddable.CompanyInfo;
+import dk.magenta.databroker.cvr.model.embeddable.CvrAddress;
 import dk.magenta.databroker.cvr.model.form.CompanyFormEntity;
 import dk.magenta.databroker.cvr.model.form.CompanyFormRepository;
 import dk.magenta.databroker.cvr.model.industry.IndustryEntity;
@@ -59,29 +62,25 @@ public class CvrModel {
     @SuppressWarnings("SpringJavaAutowiringInspection")
     private CompanyRepository companyRepository;
 
-    public CompanyEntity setCompany(String cvrKode, String name,
-                                    int primaryIndustryCode, int[] secondaryIndustryCodes, int formCode,
-                                    Date startDate, Date endDate, Date ajourDate,
-                                    RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
-        return this.setCompany(cvrKode, name, primaryIndustryCode, secondaryIndustryCodes, formCode, startDate, endDate, ajourDate, null, registreringInfo, virkninger);
-    }
-
     private TimeRecorder companyRecorder = new TimeRecorder();
 
-    public CompanyEntity setCompany(String cvrKode, String name,
-        int primaryIndustryCode, int[] secondaryIndustryCodes, int formCode,
-        Date startDate, Date endDate, Date ajourDate, String primaryAddressDescriptor,
+    public CompanyEntity setCompany(String cvrKode,
+        int formCode,
+        CompanyInfo companyInfo,
                 RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
 
         boolean useCache = false;
+
+        companyInfo.setPrimaryIndustry(this.getIndustryEntity(companyInfo.getPrimaryIndustryCode()));
+        for (int secondaryIndustryCode : companyInfo.getSecondaryIndustryCodes()) {
+            companyInfo.addSecondaryIndustry(this.getIndustryEntity(secondaryIndustryCode));
+        }
+
 
         TimeRecorder time = new TimeRecorder();
         CompanyEntity companyEntity = this.getCompany(cvrKode, !useCache);
 
         time.record();
-        if (name == null) {
-            name = "";
-        }
         if (cvrKode == null) {
             return null;
         }
@@ -98,11 +97,6 @@ public class CvrModel {
 
         CompanyFormEntity form = this.getFormEntity(formCode);
 
-        IndustryEntity primaryIndustry = this.getIndustryEntity(primaryIndustryCode);
-        HashSet<IndustryEntity> secondaryIndustries = new HashSet<IndustryEntity>();
-        for (int secondaryIndustryCode : secondaryIndustryCodes) {
-            secondaryIndustries.add(this.getIndustryEntity(secondaryIndustryCode));
-        }
         time.record();
 
         CompanyVersionEntity companyVersionEntity = companyEntity.getLatestVersion();
@@ -110,7 +104,7 @@ public class CvrModel {
         if (companyVersionEntity == null) {
             this.log.trace("Creating initial CompanyVersionEntity");
             companyVersionEntity = companyEntity.addVersion(registreringInfo.getCreateRegistrering(), virkninger);
-        } else if (!companyVersionEntity.matches(name, form, primaryIndustry, secondaryIndustries, startDate, endDate, primaryAddressDescriptor)) {
+        } else if (!companyVersionEntity.matches(form, companyInfo)) {
             this.log.trace("Creating updated CompanyVersionEntity " + registreringInfo.getUpdateRegisterering().getAktoerUUID());
             companyVersionEntity = companyEntity.addVersion(registreringInfo.getUpdateRegisterering(), virkninger);
         } else {
@@ -120,20 +114,9 @@ public class CvrModel {
 
         if (companyVersionEntity != null) {
             time.record();
-            CompanyInfo cInfo = companyVersionEntity.getCompanyInfo();
-            cInfo.setName(name);
             companyVersionEntity.setForm(form);
-            cInfo.setPrimaryIndustry(primaryIndustry);
-            time.record();
-            for (IndustryEntity industryEntity : secondaryIndustries) {
-                cInfo.addSecondaryIndustry(industryEntity);
-            }
-            //companyVersionEntity.setPrimaryUnit(primaryUnit);
-            time.record();
-            cInfo.getLifeCycle().setStartDate(startDate);
-            cInfo.getLifeCycle().setEndDate(endDate);
-            cInfo.getLocationAddress().setDescriptor(primaryAddressDescriptor);
-            cInfo.setUpdateDate(ajourDate);
+
+            companyVersionEntity.setCompanyInfo(companyInfo);
             this.companyRepository.save(companyEntity);
             time.record();
 
@@ -394,7 +377,8 @@ public class CvrModel {
 
     public DeltagerEntity setDeltager(long deltagerNummer, String name, String cvrNummer,
                                             Date ajourDate, Date gyldigDate,
-                                            String typeName, String rolleName,
+                                            String typeName, String rolleName, String statusName,
+                                            CvrAddress locationAddress,
                                             RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
         TimeRecorder time = new TimeRecorder();
         DeltagerEntity deltagerEntity = this.getDeltager(deltagerNummer, true);
@@ -410,15 +394,16 @@ public class CvrModel {
 
         TypeEntity typeEntity = this.setType(typeName);
         RolleEntity rolleEntity = this.setRolle(rolleName);
+        StatusEntity statusEntity = this.setStatus(statusName);
 
         DeltagerVersionEntity deltagerVersionEntity = deltagerEntity.getLatestVersion();
 
         time.record();
         if (deltagerVersionEntity == null) {
-            this.log.trace("Creating initial DeltagerVersionEntity for " + deltagerNummer);
+            this.log.info("Creating initial DeltagerVersionEntity for " + deltagerNummer);
             deltagerVersionEntity = deltagerEntity.addVersion(registreringInfo.getCreateRegistrering(), virkninger);
-        } else if (!deltagerVersionEntity.matches(name, ajourDate, gyldigDate, typeEntity, rolleEntity)) {
-            this.log.trace("Creating updated DeltagerVersionEntity for " + deltagerNummer);
+        } else if (!deltagerVersionEntity.matches(name, ajourDate, gyldigDate, typeEntity, rolleEntity, statusEntity, locationAddress)) {
+            this.log.info("Creating updated DeltagerVersionEntity for " + deltagerNummer);
             deltagerVersionEntity = deltagerEntity.addVersion(registreringInfo.getUpdateRegisterering(), virkninger);
         } else {
             deltagerVersionEntity = null;
@@ -431,6 +416,8 @@ public class CvrModel {
             deltagerVersionEntity.setGyldigDate(gyldigDate);
             deltagerVersionEntity.setType(typeEntity);
             deltagerVersionEntity.setRolle(rolleEntity);
+            deltagerVersionEntity.setStatus(statusEntity);
+            deltagerVersionEntity.setLocationAddress(locationAddress);
             this.deltagerRepository.save(deltagerEntity);
             //this.deltagerCache.put(deltagerEntity);
             this.addKnownDeltagerNumber(deltagerNummer);
@@ -664,6 +651,33 @@ public class CvrModel {
     @PostConstruct
     private void loadRolleCache() {
         this.rolleCache = new Level1Cache<RolleEntity>(this.deltagerRolleRepository);
+    }
+
+
+    @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
+    private StatusRepository deltagerStatusRepository;
+
+    public StatusEntity setStatus(String name) {
+        if (name == null) {
+            return null;
+        } else {
+            StatusEntity statusEntity = this.statusCache.get(name);
+            if (statusEntity == null) {
+                statusEntity = new StatusEntity();
+                statusEntity.setName(name);
+                this.deltagerStatusRepository.save(statusEntity);
+                this.statusCache.put(statusEntity);
+            }
+            return statusEntity;
+        }
+    }
+
+    private Level1Cache<StatusEntity> statusCache;
+
+    @PostConstruct
+    private void loadStatusCache() {
+        this.statusCache = new Level1Cache<StatusEntity>(this.deltagerStatusRepository);
     }
 
     //------------------------------------------------------------------------------------------------------------------

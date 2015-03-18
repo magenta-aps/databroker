@@ -147,24 +147,11 @@ public class CompanyVersionEntity extends DobbeltHistorikVersion<CompanyEntity, 
     //----------------------------------------------------
 
     public boolean matches(
-            String name,
             CompanyFormEntity form,
-            IndustryEntity primaryIndustry,
-            Set<IndustryEntity> secondaryIndustries,
-            Date startDate,
-            Date endDate,
-            String primaryAddressDescriptor
+            CompanyInfo companyInfo
     ) {
-        CompanyInfo cInfo = this.getCompanyInfo();
-        return Util.compare(cInfo.getName(), name) &&
-                Util.compare(this.form, form) &&
-                Util.compare(this.companyInfo.getPrimaryIndustry(), primaryIndustry) &&
-                Util.compare(this.companyInfo.getSecondaryIndustries(), secondaryIndustries) &&
-                Util.compare(this.unitVersions, unitVersions) &&
-                Util.compare(this.companyInfo.getLifeCycle().getStartDate(), startDate) &&
-                Util.compare(this.companyInfo.getLifeCycle().getEndDate(), endDate) &&
-                // TODO: Compare both location and postal address?
-                Util.compare(this.companyInfo.getLocationAddress().getDescriptor(), primaryAddressDescriptor);
+        return Util.compare(this.form, form) &&
+               Util.compare(this.getCompanyInfo(), companyInfo);
     }
 
 

@@ -71,6 +71,7 @@
         <mapping class="dk.magenta.databroker.cvr.model.deltager.DeltagerVersionEntity"/>
         <mapping class="dk.magenta.databroker.cvr.model.deltager.rolle.RolleEntity"/>
         <mapping class="dk.magenta.databroker.cvr.model.deltager.type.TypeEntity"/>
+        <mapping class="dk.magenta.databroker.cvr.model.deltager.status.StatusEntity"/>
         <mapping class="dk.magenta.databroker.cvr.model.form.CompanyFormEntity"/>
         <mapping class="dk.magenta.databroker.cvr.model.industry.IndustryEntity"/>
 

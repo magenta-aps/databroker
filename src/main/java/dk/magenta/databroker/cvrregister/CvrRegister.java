@@ -6,6 +6,7 @@ import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.core.model.oio.VirkningEntity;
 import dk.magenta.databroker.cvr.model.CvrModel;
 import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitEntity;
+import dk.magenta.databroker.cvr.model.embeddable.*;
 import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseEntity;
@@ -48,6 +49,7 @@ public class CvrRegister extends Register {
 
         public CvrRecord(ListHash<String> hash) {
             this.hash = hash;
+            this.obtain("ajourDato", "ajourfoeringsdato");
         }
 
         protected void obtain(String key, String path) {
@@ -57,42 +59,20 @@ public class CvrRegister extends Register {
         protected List<String> getList(String path) {
             return this.hash.get(path);
         }
-    }
 
-    private class VirksomhedRecord extends CvrRecord {
-        public VirksomhedRecord(ListHash<String> virksomhedHash) {
-            super(virksomhedHash);
-            this.obtain("cvrNummer", "cvrnr");
-            this.obtain("advertProtection", "reklamebeskyttelse");
-            this.obtain("name", "navn/tekst");
-            this.obtain("form", "virksomhedsform/kode");
-            this.obtain("formText", "virksomhedsform/tekst");
-            this.obtain("primaryIndustry", "hovedbranche/kode");
-            this.obtain("secondaryIndustry1", "bibranche1/kode");
-            this.obtain("secondaryIndustry2", "bibranche2/kode");
-            this.obtain("secondaryIndustry3", "bibranche3/kode");
-            this.obtain("startDate", "livsforloeb/startdato");
-            this.obtain("endDate", "livsforloeb/slutdato");
-            this.obtain("ajourDate", "ajourfoeringsdato");
-            this.obtain("kommunekode", "beliggenhedsadresse/kommune/kode");
-            this.obtain("vejkode", "beliggenhedsadresse/vejkode");
-            this.obtain("husnummerFra", "beliggenhedsadresse/husnummerFra");
-            this.obtain("husnummerTil", "beliggenhedsadresse/husnummerTil");
-            this.obtain("bogstavFra", "beliggenhedsadresse/bogstavFra");
-            this.obtain("bogstavTil", "beliggenhedsadresse/bogstavTil");
-            this.obtain("etage", "beliggenhedsadresse/etage");
-            this.obtain("sidedoer", "beliggenhedsadresse/sidedoer");
-            this.obtain("phone", "telefonnummer/kontaktoplysning");
+        public Date getDate(String key) {
+            String dateStr = this.get(key);
+            if (dateStr != null && !dateStr.isEmpty()) {
+                final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                try {
+                    return format.parse(dateStr);
+                } catch (ParseException e) {
+                }
+            }
+            return null;
         }
-    }
 
-    private class ProductionUnitRecord extends CvrRecord {
-        public ProductionUnitRecord(ListHash<String> productionunitHash) {
-            super(productionunitHash);
-            this.obtain("pNummer", "pnr");
-            this.obtain("cvrNummer", "virksomhed/virksomhed/cvrnr");
-            this.obtain("advertProtection", "reklamebeskyttelse");
-            this.obtain("name", "navn/tekst");
+        protected void loadIndustries() {
             this.obtain("primaryIndustry", "hovedbranche/kode");
             this.obtain("primaryIndustryText", "hovedbranche/tekst");
             this.obtain("secondaryIndustry1", "bibranche1/kode");
@@ -101,29 +81,253 @@ public class CvrRegister extends Register {
             this.obtain("secondaryIndustryText2", "bibranche2/tekst");
             this.obtain("secondaryIndustry3", "bibranche3/kode");
             this.obtain("secondaryIndustryText3", "bibranche3/tekst");
+        }
+
+        protected void loadLocationAddress() {
+            this.loadLocationAddress(null);
+        }
+        protected void loadLocationAddress(String prefix) {
+            if (prefix == null || prefix.isEmpty()) {
+                prefix = "";
+            } else {
+                prefix += "/";
+            }
+            prefix += "beliggenhedsadresse";
+            this.obtain("beliggenhed_valid", prefix+"/gyldigFra");
+            this.obtain("beliggenhed_kommunekode", prefix+"/kommune/kode");
+            this.obtain("beliggenhed_kommunenavn", prefix+"/kommune/tekst");
+            this.obtain("beliggenhed_vejkode", prefix+"/vejkode");
+            this.obtain("beliggenhed_vejnavn", prefix+"/vejnavn");
+            this.obtain("beliggenhed_husnummerFra", prefix+"/husnummerFra");
+            this.obtain("beliggenhed_husnummerTil", prefix+"/husnummerTil");
+            this.obtain("beliggenhed_bogstavFra", prefix+"/bogstavFra");
+            this.obtain("beliggenhed_bogstavTil", prefix+"/bogstavTil");
+            this.obtain("beliggenhed_etage", prefix+"/etage");
+            this.obtain("beliggenhed_sidedoer", prefix+"/sidedoer");
+            this.obtain("beliggenhed_postnr", prefix+"/postnr");
+            this.obtain("beliggenhed_postdistrikt", prefix+"/postdistrikt");
+            this.obtain("beliggenhed_bynavn", prefix+"/bynavn");
+            this.obtain("beliggenhed_co", prefix+"/coNavn");
+            this.obtain("beliggenhed_postboks", prefix+"/postboks");
+            this.obtain("beliggenhed_text", prefix+"/adresseFritekst");
+        }
+        protected void loadPostalAddress() {
+            this.loadPostalAddress(null);
+        }
+        protected void loadPostalAddress(String prefix) {
+            if (prefix == null || prefix.isEmpty()) {
+                prefix = "";
+            } else {
+                prefix += "/";
+            }
+            prefix += "postadresse";
+            this.obtain("post_valid", prefix+"/gyldigFra");
+            this.obtain("post_kommunekode", prefix+"/kommune/kode");
+            this.obtain("post_kommunenavn", prefix+"/kommune/tekst");
+            this.obtain("post_vejkode", prefix+"/vejkode");
+            this.obtain("post_vejnavn", prefix+"/vejnavn");
+            this.obtain("post_husnummerFra", prefix+"/husnummerFra");
+            this.obtain("post_husnummerTil", prefix+"/husnummerTil");
+            this.obtain("post_bogstavFra", prefix+"/bogstavFra");
+            this.obtain("post_bogstavTil", prefix+"/bogstavTil");
+            this.obtain("post_etage", prefix+"/etage");
+            this.obtain("post_sidedoer", prefix+"/sidedoer");
+            this.obtain("post_postnr", prefix+"/postnr");
+            this.obtain("post_postdistrikt", prefix+"/postdistrikt");
+            this.obtain("post_bynavn", prefix+"/bynavn");
+            this.obtain("post_co", prefix+"/coNavn");
+            this.obtain("post_postboks", prefix+"/postboks");
+            this.obtain("post_text", prefix+"/adresseFritekst");
+        }
+
+        protected void loadContactInfo() {
+            this.obtain("phone", "telefonnummer/kontaktoplysning");
+            this.obtain("phone_valid", "telefonnummer/gyldigFra");
+            this.obtain("fax", "telefax/kontaktoplysning");
+            this.obtain("fax_valid", "telefax/gyldigFra");
+            this.obtain("email", "email/kontaktoplysning");
+            this.obtain("email_valid", "email/gyldigFra");
+        }
+
+
+        protected void loadYearlyEmploy() {
+            this.loadYearlyEmploy(null);
+        }
+        protected void loadYearlyEmploy(String prefix) {
+                if (prefix == null || prefix.isEmpty()) {
+                prefix = "";
+            } else {
+                prefix += "/";
+            }
+            prefix += "aarsbeskaeftigelse";
+            this.obtain("årsbeskæftigelse_år", prefix+"/aar");
+            this.obtain("årsbeskæftigelse_ansatte", prefix+"/antalAnsatte");
+            this.obtain("årsbeskæftigelse_årsværk", prefix+"/antalAarsvaerk");
+            this.obtain("årsbeskæftigelse_ansatteInklEjere", prefix+"/antalInclEjere");
+            this.obtain("årsbeskæftigelse_ansatteInterval", prefix+"/antalAnsatteInterval");
+            this.obtain("årsbeskæftigelse_årsværkInterval", prefix+"/antalAarsvaerkInterval");
+            this.obtain("årsbeskæftigelse_ansatteInklEjereInterval", prefix+"/antalInclEjereInterval");
+        }
+
+        protected void loadQuarterlyEmploy() {
+            this.loadQuarterlyEmploy(null);
+        }
+        protected void loadQuarterlyEmploy(String prefix) {
+                if (prefix == null || prefix.isEmpty()) {
+                prefix = "";
+            } else {
+                prefix += "/";
+            }
+            prefix += "kvartalsbeskaeftigelse";
+            this.obtain("kvartalsbeskæftigelse_år", prefix+"/aar");
+            this.obtain("kvartalsbeskæftigelse_kvartal", prefix+"/kvartal");
+            this.obtain("kvartalsbeskæftigelse_ansatte", prefix+"/antalAnsatte");
+            this.obtain("kvartalsbeskæftigelse_aarsværk", prefix+"/antalAarsvaerk");
+            this.obtain("kvartalsbeskæftigelse_ansatteInklEjere", prefix+"/antalInclEjere");
+            this.obtain("kvartalsbeskæftigelse_ansatteInterval", prefix+"/antalAnsatteInterval");
+            this.obtain("kvartalsbeskæftigelse_aarsværkInterval", prefix+"/antalAarsvaerkInterval");
+            this.obtain("kvartalsbeskæftigelse_ansatteInklEjereInterval", prefix+"/antalInclEjereInterval");
+        }
+    }
+
+    private class CompanyDataRecord extends CvrRecord {
+        public CompanyDataRecord(ListHash<String> hash) {
+            super(hash);
+            this.obtain("name", "navn/tekst");
+            this.obtain("advertProtection", "reklamebeskyttelse");
+
             this.obtain("startDate", "livsforloeb/startdato");
             this.obtain("endDate", "livsforloeb/slutdato");
-            this.obtain("adresseDato", "beliggenhedsadresse/gyldigFra");
-            this.obtain("vejnavn", "beliggenhedsadresse/vejnavn");
-            this.obtain("vejkode", "beliggenhedsadresse/vejkode");
-            this.obtain("husnummerFra", "beliggenhedsadresse/husnummerFra");
-            this.obtain("husnummerTil", "beliggenhedsadresse/husnummerTil");
-            this.obtain("bogstavFra", "beliggenhedsadresse/bogstavFra");
-            this.obtain("bogstavTil", "beliggenhedsadresse/bogstavTil");
-            this.obtain("etage", "beliggenhedsadresse/etage");
-            this.obtain("sidedoer", "beliggenhedsadresse/sidedoer");
-            this.obtain("postnr", "beliggenhedsadresse/postnr");
-            this.obtain("kommunekode", "beliggenhedsadresse/kommune/kode");
-            this.obtain("sidedoer", "beliggenhedsadresse/sidedoer");
-            this.obtain("co", "beliggenhedsadresse/coNavn");
-            this.obtain("phone", "telefonnummer/kontaktoplysning");
-            this.obtain("fax", "telefax/kontaktoplysning");
-            this.obtain("email", "email/kontaktoplysning");
-            this.obtain("isPrimary", "hovedafdeling");
 
-            /*if (this.get("kommunekode") == null || this.get("kommunekode").isEmpty()) {
-                System.err.println(productionunitHash);
-            }*/
+            this.loadIndustries();
+            this.loadLocationAddress();
+            this.loadPostalAddress();
+            this.loadContactInfo();
+            this.loadYearlyEmploy();
+            this.loadQuarterlyEmploy();
+        }
+
+        public CompanyInfo toCompanyInfo() {
+            CompanyInfo info = new CompanyInfo();
+
+            info.setUpdateDate(this.getDate("ajourDato"));
+            info.setName(this.get("name"));
+            info.setAdvertProtection(this.getBoolean("advertProtection"));
+
+            if (this.containsKey("startDate") || this.containsKey("endDate")) {
+                LifeCycle lifeCycle = new LifeCycle();
+                lifeCycle.setStartDate(this.getDate("startDate"));
+                lifeCycle.setEndDate(this.getDate("endDate"));
+                info.setLifeCycle(lifeCycle);
+            }
+
+            info.setPrimaryIndustryCode(this.getInt("primaryIndustry"));
+            info.addSecondaryIndustryCode(this.getInt("secondaryIndustry1"));
+            info.addSecondaryIndustryCode(this.getInt("secondaryIndustry2"));
+            info.addSecondaryIndustryCode(this.getInt("secondaryIndustry3"));
+
+
+            if (this.containsKey("beliggenhed_valid")) {
+
+                CvrAddress address = new CvrAddress(
+                        this.getDate("beliggenhed_valid"),
+                        this.get("beliggenhed_vejnavn"),
+                        this.getInt("beliggenhed_vejkode"),
+                        this.getInt("beliggenhed_husnummerFra"),
+                        this.getInt("beliggenhed_husnummerTil"),
+                        this.getChar("beliggenhed_husnummerFra"),
+                        this.getChar("beliggenhed_husnummerTil"),
+                        this.get("beliggenhed_etage"),
+                        this.get("beliggenhed_sidedoer"),
+                        this.getInt("beliggenhed_postnr"),
+                        this.get("beliggenhed_postdistrikt"),
+                        this.get("beliggenhed_bynavn"),
+                        this.getInt("beliggenhed_kommunekode"),
+                        this.get("beliggenhed_kommunenavn"),
+                        this.getInt("post_postboks"),
+                        this.get("beliggenhed_co"),
+                        this.get("beliggenhed_text"),
+                        null);
+                info.setLocationAddress(address);
+            }
+
+            if (this.containsKey("post_valid")) {
+                CvrAddress address = new CvrAddress(
+                        this.getDate("post_valid"),
+                        this.get("post_vejnavn"),
+                        this.getInt("post_vejkode"),
+                        this.getInt("post_husnummerFra"),
+                        this.getInt("post_husnummerTil"),
+                        this.getChar("post_husnummerFra"),
+                        this.getChar("post_husnummerTil"),
+                        this.get("post_etage"),
+                        this.get("post_sidedoer"),
+                        this.getInt("post_postnr"),
+                        this.get("post_postdistrikt"),
+                        this.get("post_bynavn"),
+                        this.getInt("post_kommunekode"),
+                        this.get("post_kommunenavn"),
+                        this.getInt("post_postboks"),
+                        this.get("post_co"),
+                        this.get("post_text"),
+                        null);
+                info.setPostalAddress(address);
+            }
+
+
+            if (this.containsKey("phone") && this.containsKey("phone_valid")) {
+                info.setTelephoneNumber(new ValidFromField(this.get("phone"), this.getDate("phone_valid")));
+            }
+            if (this.containsKey("fax") && this.containsKey("fax_valid")) {
+                info.setTelefaxNumber(new ValidFromField(this.get("fax"), this.getDate("fax_valid")));
+            }
+            if (this.containsKey("email") && this.containsKey("email_valid")) {
+                info.setEmail(new ValidFromField(this.get("email"), this.getDate("email_valid")));
+            }
+
+            if (this.containsKey("årsbeskæftigelse_ansatte")) {
+                YearlyEmployeeNumbers yearlyEmployeeNumbers = new YearlyEmployeeNumbers();
+                yearlyEmployeeNumbers.setEmployees(this.getInt("årsbeskæftigelse_ansatte"));
+                yearlyEmployeeNumbers.setEmployeesInterval(this.get("årsbeskæftigelse_ansatteInterval"));
+                yearlyEmployeeNumbers.setIncludingOwners(this.getInt("årsbeskæftigelse_ansatteInklEjere"));
+                yearlyEmployeeNumbers.setIncludingOwnersInterval(this.get("årsbeskæftigelse_ansatteInklEjereInterval"));
+                yearlyEmployeeNumbers.setFullTimeEquivalent(this.getInt("årsbeskæftigelse_årsværk"));
+                yearlyEmployeeNumbers.setFullTimeEquivalentInterval(this.get("årsbeskæftigelse_årsværkInterval"));
+                yearlyEmployeeNumbers.setYear(this.getInt("årsbeskæftigelse_år"));
+                info.setYearlyEmployeeNumbers(yearlyEmployeeNumbers);
+            }
+            if (this.containsKey("kvartalsbeskæftigelse_ansatte")) {
+                QuarterlyEmployeeNumbers quarterlyEmployeeNumbers = new QuarterlyEmployeeNumbers();
+                quarterlyEmployeeNumbers.setEmployees(this.getInt("kvartalsbeskæftigelse_ansatte"));
+                quarterlyEmployeeNumbers.setEmployeesInterval(this.get("kvartalsbeskæftigelse_ansatteInterval"));
+                quarterlyEmployeeNumbers.setIncludingOwners(this.getInt("kvartalsbeskæftigelse_ansatteInklEjere"));
+                quarterlyEmployeeNumbers.setIncludingOwnersInterval(this.get("kvartalsbeskæftigelse_ansatteInklEjereInterval"));
+                quarterlyEmployeeNumbers.setFullTimeEquivalent(this.getInt("kvartalsbeskæftigelse_årsværk"));
+                quarterlyEmployeeNumbers.setFullTimeEquivalentInterval(this.get("kvartalsbeskæftigelse_årsværkInterval"));
+                quarterlyEmployeeNumbers.setYear(this.getInt("kvartalsbeskæftigelse_år"));
+                quarterlyEmployeeNumbers.setQuarter(this.getInt("kvartalsbeskæftigelse_kvartal"));
+                info.setQuarterlyEmployeeNumbers(quarterlyEmployeeNumbers);
+            }
+
+            return info;
+        }
+    }
+
+    private class VirksomhedRecord extends CompanyDataRecord {
+        public VirksomhedRecord(ListHash<String> virksomhedHash) {
+            super(virksomhedHash);
+            this.obtain("cvrNummer", "cvrnr");
+            this.obtain("form", "virksomhedsform/kode");
+            this.obtain("formText", "virksomhedsform/tekst");
+        }
+    }
+
+    private class ProductionUnitRecord extends CompanyDataRecord {
+        public ProductionUnitRecord(ListHash<String> productionunitHash) {
+            super(productionunitHash);
+            this.obtain("pNummer", "pnr");
+            this.obtain("cvrNummer", "virksomhed/virksomhed/cvrnr");
+            this.obtain("isPrimary", "hovedafdeling");
         }
     }
 
@@ -131,13 +335,37 @@ public class CvrRegister extends Register {
         public DeltagerRecord(ListHash<String> deltagerHash) {
             super(deltagerHash);
             this.obtain("nummer", "deltagernummer");
-            this.obtain("ajourDato", "ajourfoeringsdato");
             this.obtain("gyldigDato", "deltagelseGyldigFra");
             this.obtain("cvrNummer", "cvrnr");
             this.obtain("type", "oplysninger/deltagertype");
             this.obtain("navn", "oplysninger/navn");
             this.obtain("status", "oplysninger/personstatus");
             this.obtain("rolle", "rolle");
+
+            loadLocationAddress("oplysninger");
+        }
+
+        public CvrAddress getLocationAddress() {
+            CvrAddress address = new CvrAddress(
+                    this.getDate("beliggenhed_valid"),
+                    this.get("beliggenhed_vejnavn"),
+                    this.getInt("beliggenhed_vejkode"),
+                    this.getInt("beliggenhed_husnummerFra"),
+                    this.getInt("beliggenhed_husnummerTil"),
+                    this.getChar("beliggenhed_husnummerFra"),
+                    this.getChar("beliggenhed_husnummerTil"),
+                    this.get("beliggenhed_etage"),
+                    this.get("beliggenhed_sidedoer"),
+                    this.getInt("beliggenhed_postnr"),
+                    this.get("beliggenhed_postdistrikt"),
+                    this.get("beliggenhed_bynavn"),
+                    this.getInt("beliggenhed_kommunekode"),
+                    this.get("beliggenhed_kommunenavn"),
+                    this.getInt("post_postboks"),
+                    this.get("beliggenhed_co"),
+                    this.get("beliggenhed_text"),
+                    null);
+            return address;
         }
     }
 
@@ -319,36 +547,18 @@ public class CvrRegister extends Register {
                         this.ensureIndustryInDatabase(virksomhed.getInt("secondaryIndustry1"), virksomhed.get("secondaryIndustryText1"));
                         this.ensureIndustryInDatabase(virksomhed.getInt("secondaryIndustry2"), virksomhed.get("secondaryIndustryText2"));
                         this.ensureIndustryInDatabase(virksomhed.getInt("secondaryIndustry3"), virksomhed.get("secondaryIndustryText3"));
+
                         itemTimer.record();
                         this.ensureFormInDatabase(virksomhed.getInt("form"), virksomhed.get("formText"));
 
                         itemTimer.record();
                         // Fetch basic fields
                         String cvrNummer = virksomhed.get("cvrNummer");
-                        boolean advertProtection = virksomhed.getInt("advertProtection") == 1;
-                        String name = virksomhed.get("name");
 
                         itemTimer.record();
                         int form = virksomhed.getInt("form");
-                        int primaryIndustry = virksomhed.getInt("primaryIndustry");
-
-                        Date startDate = this.parseDate(virksomhed.get("startDate"));
-                        Date endDate = this.parseDate(virksomhed.get("endDate"));
-                        Date ajourDate = this.parseDate(virksomhed.get("ajourDate"));
 
                         itemTimer.record();
-                        int vejkode = virksomhed.getInt("vejkode");
-                        int kommunekode = virksomhed.getInt("kommunekode");
-                        String husnr = virksomhed.get("husnummerFra");
-                        String bogstav = virksomhed.get("bogstavFra");
-                        String etage = virksomhed.get("etage");
-                        String sidedoer = virksomhed.get("sidedoer");
-                        String fullHusNr = husnr + (bogstav != null ? bogstav : "");
-
-                        itemTimer.record();
-                        String descriptor = EnhedsAdresseEntity.generateDescriptor(kommunekode, vejkode, fullHusNr, etage, sidedoer);
-
-                        String phone = virksomhed.get("phone");
 
                         itemTimer.record();
                         List<Integer> secondaryIndustriesList = new ArrayList<Integer>();
@@ -368,19 +578,12 @@ public class CvrRegister extends Register {
                             ;
 
                         itemTimer.record();
-                        this.cvrModel.setCompany(cvrNummer, name,
-                                primaryIndustry, secondaryIndustries, form,
-                                startDate, endDate, ajourDate,
+                        this.cvrModel.setCompany(cvrNummer,
+                                form,
+                                virksomhed.toCompanyInfo(),
                                 registreringInfo, new ArrayList<VirkningEntity>());
                         totalCompanies++;
                         itemTimer.record();
-
-                        //if (totalCompanies % 10000 == 0) {
-                        //System.out.println("flushing");
-                        //    this.cvrModel.flush();
-                        //System.out.println("flushed");
-                        //}
-
 
                         //this.endTransaction();
                         timer.add(itemTimer);
@@ -544,7 +747,8 @@ public class CvrRegister extends Register {
                         String statusName = deltager.get("status");
                         String rolleName = deltager.get("rolle");
                         itemTimer.record();
-                        this.cvrModel.setDeltager(deltagerNummer, name, cvrNummer, ajourDate, gyldigDate, typeName, rolleName, registreringInfo, new ArrayList<VirkningEntity>());
+                        this.cvrModel.setDeltager(deltagerNummer, name, cvrNummer, ajourDate, gyldigDate, typeName, rolleName, statusName, deltager.getLocationAddress(),
+                                registreringInfo, new ArrayList<VirkningEntity>());
                         itemTimer.record();
                         sumTime.add(itemTimer);
                     }

@@ -124,6 +124,8 @@ public class DeltagerEntity extends DobbeltHistorikBase<DeltagerEntity, Deltager
         obj.put("validFrom", version.getValidFrom());
         obj.put("role", version.getRolle().toJSON());
         obj.put("type", version.getType().toJSON());
+        obj.put("status", version.getStatus().toJSON());
+        obj.put("location", version.getLocationAddress().toJSON());
 
         return obj;
     }

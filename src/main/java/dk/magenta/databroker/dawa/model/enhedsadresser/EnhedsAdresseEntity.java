@@ -136,6 +136,14 @@ public class EnhedsAdresseEntity extends DobbeltHistorikBase<EnhedsAdresseEntity
         this.descriptor = descriptor;
     }
 
+    public static String generateDescriptor(int kommuneKode, int vejKode, int husNr, Character husbogstav, String etage, String doer) {
+        String fullHusNr = String.valueOf((husNr > 0) ? husNr : "") + (husbogstav != null ? husbogstav : "");
+        return generateDescriptor(kommuneKode, vejKode, fullHusNr, etage, doer);
+    }
+    public static String generateDescriptor(int kommuneKode, int vejKode, int husNr, char husbogstav, String etage, String doer) {
+        String fullHusNr = String.valueOf((husNr > 0) ? husNr : "") + husbogstav;
+        return generateDescriptor(kommuneKode, vejKode, fullHusNr, etage, doer);
+    }
     public static String generateDescriptor(int kommuneKode, int vejKode, String husNr, String etage, String doer) {
         return kommuneKode+":"+vejKode+":"+Util.emptyIfNull(husNr)+":"+Util.emptyIfNull(etage)+":"+Util.emptyIfNull(doer);
     }

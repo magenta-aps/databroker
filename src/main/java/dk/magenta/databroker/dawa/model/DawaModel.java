@@ -41,7 +41,6 @@ public class DawaModel {
     private EntityManagerFactory entityManagerFactory;
 
     public void flush() {
-        System.out.println("FLUSHING");
         this.kommuneRepository.flush();
         this.kommuneRepository.clear();
         this.vejstykkeRepository.flush();

@@ -115,6 +115,7 @@ public class CompanyEntity extends DobbeltHistorikBase<CompanyEntity, CompanyVer
         JSONObject obj = super.toJSON();
         obj.put("cvrnr", this.getCvrNummer());
         obj.put("href", SearchService.getCompanyBaseUrl() + "/" + this.getCvrNummer());
+        obj.put("companyform", version.getForm().toJSON());
         version.getCompanyInfo().addToJSONObject(obj);
         return obj;
     }
@@ -161,8 +162,14 @@ public class CompanyEntity extends DobbeltHistorikBase<CompanyEntity, CompanyVer
         return null;
     }
 
-    public static String joinCompanyUnit() {
-        return databaseKey+".units as "+CompanyUnitEntity.databaseKey;
+    public static String[] joinCompanyUnit() {
+        String versionsKey = databaseKey+"_versions";
+        String unitVersionsKey = CompanyUnitEntity.databaseKey+"_versions";
+        return new String[] {
+            databaseKey + ".versions as " + versionsKey,
+                versionsKey + ".unitVersions as " + unitVersionsKey,
+                unitVersionsKey + ".entity as " + CompanyUnitEntity.databaseKey
+        };
     }
 
     @Override

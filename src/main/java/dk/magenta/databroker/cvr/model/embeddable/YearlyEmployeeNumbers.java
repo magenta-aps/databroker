@@ -1,5 +1,6 @@
 package dk.magenta.databroker.cvr.model.embeddable;
 
+import dk.magenta.databroker.util.Util;
 import org.json.JSONObject;
 
 import javax.persistence.Column;
@@ -84,21 +85,39 @@ public class YearlyEmployeeNumbers {
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
 
-        obj.put("year", this.year);
-
-        if(this.employees != 0)
+        if (this.year > 0) {
+            obj.put("year", this.year);
+        }
+        if(this.employees > 0)
             obj.put("numberOfEmployees", this.employees);
         if(this.employeesInterval != null)
             obj.put("numberOfEmployeesInterval", this.employeesInterval);
-        if(this.fullTimeEquivalent != 0)
+        if(this.fullTimeEquivalent > 0)
             obj.put("fullTimeEquivalent", this.fullTimeEquivalent);
         if(this.fullTimeEquivalentInterval != null)
             obj.put("fullTimeEquivalentInterval", this.fullTimeEquivalentInterval);
-        if(this.includingOwners != 0)
+        if(this.includingOwners > 0)
             obj.put("includingOwners", this.includingOwners);
         if(this.includingOwnersInterval != null)
             obj.put("includingOwnersInterval", this.includingOwnersInterval);
 
         return obj;
+    }
+
+    public boolean equals(Object otherObject) {
+        if (otherObject == null || otherObject.getClass() != YearlyEmployeeNumbers.class) {
+            return false;
+        }
+        return this.equals((YearlyEmployeeNumbers) otherObject);
+    }
+    public boolean equals(YearlyEmployeeNumbers otherYearlyEmployeeNumbers) {
+        return
+                Util.compare(this.year, otherYearlyEmployeeNumbers.getYear()) &&
+                Util.compare(this.employees, otherYearlyEmployeeNumbers.getEmployees()) &&
+                Util.compare(this.fullTimeEquivalent, otherYearlyEmployeeNumbers.getFullTimeEquivalent()) &&
+                Util.compare(this.includingOwners, otherYearlyEmployeeNumbers.getIncludingOwners()) &&
+                Util.compare(this.employeesInterval, otherYearlyEmployeeNumbers.getEmployeesInterval()) &&
+                Util.compare(this.fullTimeEquivalentInterval, otherYearlyEmployeeNumbers.getFullTimeEquivalentInterval()) &&
+                Util.compare(this.includingOwnersInterval, otherYearlyEmployeeNumbers.getIncludingOwnersInterval());
     }
 }

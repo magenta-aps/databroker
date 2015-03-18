@@ -2,6 +2,7 @@ package dk.magenta.databroker.cvr.model.industry;
 
 import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.core.model.oio.UniqueBase;
+import dk.magenta.databroker.util.Util;
 import org.hibernate.annotations.Index;
 import org.json.JSONObject;
 
@@ -78,5 +79,18 @@ public class IndustryEntity implements OutputFormattable {
     @Override
     public SOAPElement toFullXML(SOAPElement parent, SOAPEnvelope envelope) {
         return null;
+    }
+
+
+    public boolean equals(Object otherObject) {
+        if (otherObject == null || otherObject.getClass() != IndustryEntity.class) {
+            return false;
+        }
+        return this.equals((IndustryEntity) otherObject);
+    }
+
+    public boolean equals(IndustryEntity otherIndustryEntity) {
+        return this.code == otherIndustryEntity.getCode() &&
+                Util.compare(this.name, otherIndustryEntity.getName());
     }
 }

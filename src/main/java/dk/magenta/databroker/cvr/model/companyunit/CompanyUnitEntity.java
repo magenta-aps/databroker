@@ -132,7 +132,7 @@ public class CompanyUnitEntity extends DobbeltHistorikBase<CompanyUnitEntity, Co
     public static final String databaseKey = "productionUnit";
 
     public static String joinEnhedsAdresse() {
-        return databaseKey+".latestVersion.address as "+EnhedsAdresseEntity.databaseKey;
+        return databaseKey+".latestVersion.companyInfo.locationAddress.enhedsAdresse as "+EnhedsAdresseEntity.databaseKey;
     }
 
     public static Condition pnoCondition(long pno) {

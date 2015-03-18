@@ -1,6 +1,7 @@
 package dk.magenta.databroker.cvr.model.embeddable;
 
 import dk.magenta.databroker.cvr.model.industry.IndustryEntity;
+import dk.magenta.databroker.util.Util;
 import org.hibernate.annotations.Index;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -192,10 +193,6 @@ public class CompanyInfo {
         this.email = email;
     }
 
-    public String getEmailText() {
-        return this.email != null ? this.email.getText() : null;
-    }
-
     //----------------------------------------------------
 
     @ManyToOne(optional = true, fetch = FetchType.EAGER)
@@ -207,6 +204,19 @@ public class CompanyInfo {
 
     public void setPrimaryIndustry(IndustryEntity primaryIndustry) {
         this.primaryIndustry = primaryIndustry;
+    }
+
+    @Transient
+    private int primaryIndustryCode;
+
+    @Transient
+    public int getPrimaryIndustryCode() {
+        return primaryIndustryCode;
+    }
+
+    @Transient
+    public void setPrimaryIndustryCode(int primaryIndustryCode) {
+        this.primaryIndustryCode = primaryIndustryCode;
     }
 
     //----------------------------------------------------
@@ -234,6 +244,21 @@ public class CompanyInfo {
 
     public void setSecondaryIndustries(Collection<IndustryEntity> secondaryIndustries) {
         this.secondaryIndustries = secondaryIndustries;
+    }
+
+    @Transient
+    private Collection<Integer> secondaryIndustryCodes;
+
+    @Transient
+    public Collection<Integer> getSecondaryIndustryCodes() {
+        return secondaryIndustryCodes;
+    }
+
+    @Transient
+    public void addSecondaryIndustryCode(Integer secondaryIndustryCode) {
+        if (secondaryIndustryCode != null && secondaryIndustryCode != 0) {
+            this.secondaryIndustryCodes.add(secondaryIndustryCode);
+        }
     }
 
     //----------------------------------------------------
@@ -270,6 +295,7 @@ public class CompanyInfo {
         this.telefaxNumber = new ValidFromField();
         this.email = new ValidFromField();
         this.secondaryIndustries = new ArrayList<IndustryEntity>();
+        this.secondaryIndustryCodes = new ArrayList<Integer>();
         this.yearlyEmployeeNumbers = new YearlyEmployeeNumbers();
         this.quarterlyEmployeeNumbers = new QuarterlyEmployeeNumbers();
     }
@@ -277,9 +303,15 @@ public class CompanyInfo {
     public void addToJSONObject(JSONObject obj) {
         obj.put("advertProtection", this.hasAdvertProtection());
         obj.put("name",this.getName());
-        obj.put("email",this.getEmailText());
-        obj.put("phone",this.getTelefaxNumber());
-        obj.put("fax",this.getTelefaxNumber());
+        if (this.email != null) {
+            obj.put("email", this.email.toJSON());
+        }
+        if (this.telephoneNumber != null) {
+            obj.put("phone", this.telephoneNumber.toJSON());
+        }
+        if (this.telefaxNumber != null) {
+            obj.put("fax", this.telefaxNumber.toJSON());
+        }
 
         obj.put("startDate", this.getLifeCycle().getStartDate());
         obj.put("endDate", this.getLifeCycle().getEndDate());
@@ -299,6 +331,28 @@ public class CompanyInfo {
 
         obj.put("yearlyEmployees", this.getYearlyEmployeeNumbers().toJSON());
         obj.put("quarterlyEmployees", this.getYearlyEmployeeNumbers().toJSON());
+    }
+
+    public boolean equals(Object otherObject) {
+        if (otherObject == null || otherObject.getClass() != CompanyInfo.class) {
+            return false;
+        }
+        CompanyInfo otherCompanyInfo = (CompanyInfo) otherObject;
+        return (
+                        Util.compare(this.name, otherCompanyInfo.getName()) &&
+                        ValidFromField.compare(this.email, otherCompanyInfo.getEmail()) &&
+                        Util.compare(this.updateDate, otherCompanyInfo.getUpdateDate()) &&
+                        Util.compare(this.primaryIndustry, otherCompanyInfo.getPrimaryIndustry()) &&
+                        Util.compare(this.advertProtection, otherCompanyInfo.hasAdvertProtection()) &&
+                        Util.compare(this.lifeCycle, otherCompanyInfo.getLifeCycle()) &&
+                        Util.compare(this.locationAddress, otherCompanyInfo.getLocationAddress()) &&
+                        Util.compare(this.postalAddress, otherCompanyInfo.getPostalAddress()) &&
+                        Util.compare(this.quarterlyEmployeeNumbers, otherCompanyInfo.getQuarterlyEmployeeNumbers()) &&
+                        Util.compare(this.secondaryIndustries, otherCompanyInfo.getSecondaryIndustries()) &&
+                        ValidFromField.compare(this.telefaxNumber, otherCompanyInfo.getTelefaxNumber()) &&
+                        ValidFromField.compare(this.telephoneNumber, otherCompanyInfo.getTelephoneNumber()) &&
+                        Util.compare(this.yearlyEmployeeNumbers, otherCompanyInfo.getYearlyEmployeeNumbers())
+                );
     }
 
 }
