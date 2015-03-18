@@ -28,19 +28,6 @@ public class DeltagerEntity extends DobbeltHistorikBase<DeltagerEntity, Deltager
 
     //------------------------------------------------------------------------------------------------------------------
 
-    @Column
-    private String cvrNummer;
-
-    public String getCvrNummer() {
-        return cvrNummer;
-    }
-
-    public void setCvrNummer(String cvrNummer) {
-        this.cvrNummer = cvrNummer;
-    }
-
-    //------------------------------------------------------------------------------------------------------------------
-
     @OneToMany(mappedBy = "entity", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Collection<DeltagerVersionEntity> versions;
 

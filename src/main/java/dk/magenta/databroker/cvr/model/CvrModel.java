@@ -5,6 +5,8 @@ import dk.magenta.databroker.core.model.oio.VirkningEntity;
 import dk.magenta.databroker.cvr.model.company.CompanyEntity;
 import dk.magenta.databroker.cvr.model.company.CompanyRepository;
 import dk.magenta.databroker.cvr.model.company.CompanyVersionEntity;
+import dk.magenta.databroker.cvr.model.company.companydeltagere.CompanyDeltagerRelationEntity;
+import dk.magenta.databroker.cvr.model.company.companydeltagere.CompanyDeltagerRelationRepository;
 import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitEntity;
 import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitRepository;
 import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitVersionEntity;
@@ -62,11 +64,17 @@ public class CvrModel {
     @SuppressWarnings("SpringJavaAutowiringInspection")
     private CompanyRepository companyRepository;
 
+
+    @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
+    private CompanyDeltagerRelationRepository companyDeltagerRelationRepository;
+
     private TimeRecorder companyRecorder = new TimeRecorder();
 
     public CompanyEntity setCompany(String cvrKode,
         int formCode,
         CompanyInfo companyInfo,
+        Map<Long, Date> deltagere,
                 RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
 
         boolean useCache = false;
@@ -104,7 +112,7 @@ public class CvrModel {
         if (companyVersionEntity == null) {
             this.log.trace("Creating initial CompanyVersionEntity");
             companyVersionEntity = companyEntity.addVersion(registreringInfo.getCreateRegistrering(), virkninger);
-        } else if (!companyVersionEntity.matches(form, companyInfo)) {
+        } else if (!companyVersionEntity.matches(form, companyInfo, deltagere)) {
             this.log.trace("Creating updated CompanyVersionEntity " + registreringInfo.getUpdateRegisterering().getAktoerUUID());
             companyVersionEntity = companyEntity.addVersion(registreringInfo.getUpdateRegisterering(), virkninger);
         } else {
@@ -122,6 +130,16 @@ public class CvrModel {
 
             this.addKnownCvrNumber(cvrKode);
             time.record();
+
+            if (deltagere != null) {
+                for (Long deltagerNummer : deltagere.keySet()) {
+                    CompanyDeltagerRelationEntity companyDeltagerRelationEntity = new CompanyDeltagerRelationEntity();
+                    companyDeltagerRelationEntity.setDeltagerNummer(deltagerNummer);
+                    companyDeltagerRelationEntity.setValidFrom(deltagere.get(deltagerNummer));
+                    companyDeltagerRelationEntity.setCompanyVersionEntity(companyVersionEntity);
+                    this.companyDeltagerRelationRepository.save(companyDeltagerRelationEntity);
+                }
+            }
         }
 
         companyRecorder.add(time);
@@ -380,15 +398,16 @@ public class CvrModel {
                                             String typeName, String rolleName, String statusName,
                                             CvrAddress locationAddress,
                                             RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
+        boolean allowCache = true;
+
         TimeRecorder time = new TimeRecorder();
-        DeltagerEntity deltagerEntity = this.getDeltager(deltagerNummer, true);
+        DeltagerEntity deltagerEntity = this.getDeltager(deltagerNummer, !allowCache);
         time.record();
 
         if (deltagerEntity == null) {
             this.log.trace("Creating new DeltagerEntity " + deltagerNummer);
             deltagerEntity = new DeltagerEntity();
             deltagerEntity.setDeltagerNummer(deltagerNummer);
-            deltagerEntity.setCvrNummer(cvrNummer);
         }
         time.record();
 
@@ -402,7 +421,7 @@ public class CvrModel {
         if (deltagerVersionEntity == null) {
             this.log.info("Creating initial DeltagerVersionEntity for " + deltagerNummer);
             deltagerVersionEntity = deltagerEntity.addVersion(registreringInfo.getCreateRegistrering(), virkninger);
-        } else if (!deltagerVersionEntity.matches(name, ajourDate, gyldigDate, typeEntity, rolleEntity, statusEntity, locationAddress)) {
+        } else if (!deltagerVersionEntity.matches(name, cvrNummer, ajourDate, gyldigDate, typeEntity, rolleEntity, statusEntity, locationAddress)) {
             this.log.info("Creating updated DeltagerVersionEntity for " + deltagerNummer);
             deltagerVersionEntity = deltagerEntity.addVersion(registreringInfo.getUpdateRegisterering(), virkninger);
         } else {
@@ -412,6 +431,7 @@ public class CvrModel {
 
         if (deltagerVersionEntity != null) {
             deltagerVersionEntity.setName(name);
+            deltagerVersionEntity.setCvrNummer(cvrNummer);
             deltagerVersionEntity.setAjourDate(ajourDate);
             deltagerVersionEntity.setGyldigDate(gyldigDate);
             deltagerVersionEntity.setType(typeEntity);
@@ -419,7 +439,9 @@ public class CvrModel {
             deltagerVersionEntity.setStatus(statusEntity);
             deltagerVersionEntity.setLocationAddress(locationAddress);
             this.deltagerRepository.save(deltagerEntity);
-            //this.deltagerCache.put(deltagerEntity);
+            if (allowCache) {
+                this.deltagerCache.put(deltagerEntity);
+            }
             this.addKnownDeltagerNumber(deltagerNummer);
         }
         time.record();

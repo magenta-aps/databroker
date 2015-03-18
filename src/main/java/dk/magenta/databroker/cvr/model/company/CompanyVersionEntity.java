@@ -1,5 +1,6 @@
 package dk.magenta.databroker.cvr.model.company;
 
+import dk.magenta.databroker.cvr.model.company.companydeltagere.CompanyDeltagerRelationEntity;
 import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitVersionEntity;
 import dk.magenta.databroker.cvr.model.deltager.DeltagerVersionEntity;
 import dk.magenta.databroker.cvr.model.embeddable.*;
@@ -11,10 +12,7 @@ import dk.magenta.databroker.cvr.model.industry.IndustryEntity;
 import org.hibernate.annotations.Index;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by jubk on 18-12-2014.
@@ -144,14 +142,40 @@ public class CompanyVersionEntity extends DobbeltHistorikVersion<CompanyEntity, 
         this.participants = participants;
     }
 
+
+
+
+
+
+    @OneToMany(mappedBy = "companyVersionEntity")
+    private Collection<CompanyDeltagerRelationEntity> companyDeltagerRelationEntities;
+
+    public Collection<CompanyDeltagerRelationEntity> getCompanyDeltagerRelationEntities() {
+        return companyDeltagerRelationEntities;
+    }
+
+    public void setCompanyDeltagerRelationEntities(Collection<CompanyDeltagerRelationEntity> companyDeltagerRelationEntities) {
+        this.companyDeltagerRelationEntities = companyDeltagerRelationEntities;
+    }
+
+    private Map<Long, Date> getSimplifiedDeltagerList() {
+        HashMap<Long, Date> deltagere = new HashMap<Long, Date>();
+        for (CompanyDeltagerRelationEntity companyDeltagerRelationEntity : this.companyDeltagerRelationEntities) {
+            deltagere.put(companyDeltagerRelationEntity.getDeltagerNummer(), companyDeltagerRelationEntity.getValidFrom());
+        }
+        return deltagere;
+    }
+
     //----------------------------------------------------
 
     public boolean matches(
             CompanyFormEntity form,
-            CompanyInfo companyInfo
+            CompanyInfo companyInfo,
+            Map<Long, Date> deltagere
     ) {
         return Util.compare(this.form, form) &&
-               Util.compare(this.getCompanyInfo(), companyInfo);
+               Util.compare(this.getCompanyInfo(), companyInfo) &&
+                Util.compare(this.getSimplifiedDeltagerList(), deltagere);
     }
 
 

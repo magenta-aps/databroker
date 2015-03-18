@@ -75,6 +75,8 @@
         <mapping class="dk.magenta.databroker.cvr.model.form.CompanyFormEntity"/>
         <mapping class="dk.magenta.databroker.cvr.model.industry.IndustryEntity"/>
 
+        <mapping class="dk.magenta.databroker.cvr.model.company.companydeltagere.CompanyDeltagerRelationEntity"/>
+
 
         <!-- test stuff
         <mapping class="dk.magenta.databroker.jubk.model.JubkEntity"/>

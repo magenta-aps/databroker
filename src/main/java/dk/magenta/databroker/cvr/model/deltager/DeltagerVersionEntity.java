@@ -44,6 +44,22 @@ public class DeltagerVersionEntity extends DobbeltHistorikVersion<DeltagerEntity
     //------------------------------------------------------------------------------------------------------------------
     /* Domain specific fields */
 
+    //------------------------------------------------------------------------------------------------------------------
+
+    @Column
+    private String cvrNummer;
+
+    public String getCvrNummer() {
+        return cvrNummer;
+    }
+
+    public void setCvrNummer(String cvrNummer) {
+        this.cvrNummer = cvrNummer;
+    }
+
+
+
+
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, optional = true)
     private CompanyVersionEntity companyVersion;
 
@@ -193,8 +209,9 @@ public class DeltagerVersionEntity extends DobbeltHistorikVersion<DeltagerEntity
 
     //----------------------------------------------------
 
-    public boolean matches(String name, Date ajourDate, Date gyldigDate, TypeEntity type, RolleEntity rolle, StatusEntity status, CvrAddress locationAddress) {
+    public boolean matches(String name, String cvrNummer, Date ajourDate, Date gyldigDate, TypeEntity type, RolleEntity rolle, StatusEntity status, CvrAddress locationAddress) {
         return Util.compare(this.name, name) &&
+                Util.compare(this.cvrNummer, cvrNummer) &&
                 Util.compare(this.ajourDate, ajourDate) &&
                 Util.compare(this.gyldigDate, gyldigDate) &&
                 Util.compare(this.type, type) &&

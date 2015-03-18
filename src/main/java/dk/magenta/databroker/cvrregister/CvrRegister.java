@@ -60,8 +60,7 @@ public class CvrRegister extends Register {
             return this.hash.get(path);
         }
 
-        public Date getDate(String key) {
-            String dateStr = this.get(key);
+        protected Date parseDate(String dateStr) {
             if (dateStr != null && !dateStr.isEmpty()) {
                 final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
                 try {
@@ -70,6 +69,10 @@ public class CvrRegister extends Register {
                 }
             }
             return null;
+        }
+
+        public Date getDate(String key) {
+            return this.parseDate(this.get(key));
         }
 
         protected void loadIndustries() {
@@ -314,11 +317,26 @@ public class CvrRegister extends Register {
     }
 
     private class VirksomhedRecord extends CompanyDataRecord {
+        private HashMap<Long, Date> deltagerMap;
         public VirksomhedRecord(ListHash<String> virksomhedHash) {
             super(virksomhedHash);
             this.obtain("cvrNummer", "cvrnr");
             this.obtain("form", "virksomhedsform/kode");
             this.obtain("formText", "virksomhedsform/tekst");
+
+            List<String> gyldigFra = this.getList("deltagere/deltager/gyldigFra");
+            List<String> deltagere = this.getList("deltagere/deltager/deltagernummer");
+            if (gyldigFra != null && deltagere != null && gyldigFra.size() == deltagere.size()) {
+                this.deltagerMap = new HashMap<Long, Date>();
+                for (int i=0; i<gyldigFra.size(); i++) {
+                    try {
+                        this.deltagerMap.put(Long.parseLong(deltagere.get(i)), this.parseDate(gyldigFra.get(i)));
+                    } catch (NumberFormatException e) {}
+                }
+            }
+        }
+        public Map<Long, Date> getDeltagerMap() {
+            return deltagerMap;
         }
     }
 
@@ -580,7 +598,7 @@ public class CvrRegister extends Register {
                         itemTimer.record();
                         this.cvrModel.setCompany(cvrNummer,
                                 form,
-                                virksomhed.toCompanyInfo(),
+                                virksomhed.toCompanyInfo(), virksomhed.getDeltagerMap(),
                                 registreringInfo, new ArrayList<VirkningEntity>());
                         totalCompanies++;
                         itemTimer.record();
