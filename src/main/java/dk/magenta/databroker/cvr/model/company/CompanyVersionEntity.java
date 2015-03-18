@@ -33,6 +33,7 @@ public class CompanyVersionEntity extends DobbeltHistorikVersion<CompanyEntity, 
         this.companyInfo = new CompanyInfo();
         this.creditInformation = new ValidFromField();
         this.participants = new ArrayList<DeltagerVersionEntity>();
+        this.companyDeltagerRelationEntities = new ArrayList<CompanyDeltagerRelationEntity>();
     }
 
     public CompanyVersionEntity(CompanyEntity entity) {
@@ -41,6 +42,7 @@ public class CompanyVersionEntity extends DobbeltHistorikVersion<CompanyEntity, 
         this.companyInfo = new CompanyInfo();
         this.creditInformation = new ValidFromField();
         this.participants = new ArrayList<DeltagerVersionEntity>();
+        this.companyDeltagerRelationEntities = new ArrayList<CompanyDeltagerRelationEntity>();
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -147,23 +149,23 @@ public class CompanyVersionEntity extends DobbeltHistorikVersion<CompanyEntity, 
 
 
 
-    @OneToMany(mappedBy = "companyVersionEntity")
+    @OneToMany(mappedBy = "companyVersionEntity", cascade = CascadeType.ALL)
     private Collection<CompanyDeltagerRelationEntity> companyDeltagerRelationEntities;
 
     public Collection<CompanyDeltagerRelationEntity> getCompanyDeltagerRelationEntities() {
         return companyDeltagerRelationEntities;
     }
 
-    public void setCompanyDeltagerRelationEntities(Collection<CompanyDeltagerRelationEntity> companyDeltagerRelationEntities) {
-        this.companyDeltagerRelationEntities = companyDeltagerRelationEntities;
+    public void addCompanyDeltagerRelationEntitiy(CompanyDeltagerRelationEntity companyDeltagerRelationEntity) {
+        this.companyDeltagerRelationEntities.add(companyDeltagerRelationEntity);
     }
 
     private Map<Long, Date> getSimplifiedDeltagerList() {
         HashMap<Long, Date> deltagere = new HashMap<Long, Date>();
         for (CompanyDeltagerRelationEntity companyDeltagerRelationEntity : this.companyDeltagerRelationEntities) {
-            deltagere.put(companyDeltagerRelationEntity.getDeltagerNummer(), companyDeltagerRelationEntity.getValidFrom());
+            deltagere.put(companyDeltagerRelationEntity.getDeltagerNummer(), new Date(companyDeltagerRelationEntity.getValidFrom().getTime()));
         }
-        return deltagere;
+        return deltagere.isEmpty() ? null : deltagere;
     }
 
     //----------------------------------------------------
@@ -173,6 +175,9 @@ public class CompanyVersionEntity extends DobbeltHistorikVersion<CompanyEntity, 
             CompanyInfo companyInfo,
             Map<Long, Date> deltagere
     ) {
+        if (deltagere != null && deltagere.isEmpty()) {
+            deltagere = null;
+        }
         return Util.compare(this.form, form) &&
                Util.compare(this.getCompanyInfo(), companyInfo) &&
                 Util.compare(this.getSimplifiedDeltagerList(), deltagere);

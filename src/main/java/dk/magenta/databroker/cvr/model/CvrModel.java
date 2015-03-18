@@ -28,6 +28,7 @@ import dk.magenta.databroker.cvr.model.industry.IndustryRepository;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseEntity;
 import dk.magenta.databroker.util.TimeRecorder;
+import dk.magenta.databroker.util.Util;
 import dk.magenta.databroker.util.cache.Level1Cache;
 import dk.magenta.databroker.util.objectcontainers.Level1Container;
 import org.apache.log4j.Logger;
@@ -125,7 +126,6 @@ public class CvrModel {
             companyVersionEntity.setForm(form);
 
             companyVersionEntity.setCompanyInfo(companyInfo);
-            this.companyRepository.save(companyEntity);
             time.record();
 
             this.addKnownCvrNumber(cvrKode);
@@ -137,13 +137,14 @@ public class CvrModel {
                     companyDeltagerRelationEntity.setDeltagerNummer(deltagerNummer);
                     companyDeltagerRelationEntity.setValidFrom(deltagere.get(deltagerNummer));
                     companyDeltagerRelationEntity.setCompanyVersionEntity(companyVersionEntity);
-                    this.companyDeltagerRelationRepository.save(companyDeltagerRelationEntity);
+                    companyVersionEntity.addCompanyDeltagerRelationEntitiy(companyDeltagerRelationEntity);
+                    //this.companyDeltagerRelationRepository.save(companyDeltagerRelationEntity);
                 }
             }
+            this.companyRepository.save(companyEntity);
         }
 
         companyRecorder.add(time);
-
         this.companyRepository.clear();
 
         return companyEntity;
@@ -398,10 +399,10 @@ public class CvrModel {
                                             String typeName, String rolleName, String statusName,
                                             CvrAddress locationAddress,
                                             RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
-        boolean allowCache = true;
+        boolean useCache = true;
 
         TimeRecorder time = new TimeRecorder();
-        DeltagerEntity deltagerEntity = this.getDeltager(deltagerNummer, !allowCache);
+        DeltagerEntity deltagerEntity = this.getDeltager(deltagerNummer, !useCache);
         time.record();
 
         if (deltagerEntity == null) {
@@ -417,15 +418,27 @@ public class CvrModel {
 
         DeltagerVersionEntity deltagerVersionEntity = deltagerEntity.getLatestVersion();
 
+
+
         time.record();
         if (deltagerVersionEntity == null) {
             this.log.info("Creating initial DeltagerVersionEntity for " + deltagerNummer);
             deltagerVersionEntity = deltagerEntity.addVersion(registreringInfo.getCreateRegistrering(), virkninger);
-        } else if (!deltagerVersionEntity.matches(name, cvrNummer, ajourDate, gyldigDate, typeEntity, rolleEntity, statusEntity, locationAddress)) {
-            this.log.info("Creating updated DeltagerVersionEntity for " + deltagerNummer);
-            deltagerVersionEntity = deltagerEntity.addVersion(registreringInfo.getUpdateRegisterering(), virkninger);
         } else {
-            deltagerVersionEntity = null;
+
+            boolean match = false;
+            for (DeltagerVersionEntity version : deltagerEntity.getVersions()) {
+                if (version.matches(name, cvrNummer, ajourDate, gyldigDate, typeEntity, rolleEntity, statusEntity, locationAddress)) {
+                    match = true;
+                    break;
+                }
+            }
+            if (!match) {
+                this.log.info("Creating updated DeltagerVersionEntity for " + deltagerNummer);
+                deltagerVersionEntity = deltagerEntity.addVersion(registreringInfo.getUpdateRegisterering(), virkninger);
+            } else {
+                deltagerVersionEntity = null;
+            }
         }
         time.record();
 
@@ -439,7 +452,7 @@ public class CvrModel {
             deltagerVersionEntity.setStatus(statusEntity);
             deltagerVersionEntity.setLocationAddress(locationAddress);
             this.deltagerRepository.save(deltagerEntity);
-            if (allowCache) {
+            if (useCache) {
                 this.deltagerCache.put(deltagerEntity);
             }
             this.addKnownDeltagerNumber(deltagerNummer);

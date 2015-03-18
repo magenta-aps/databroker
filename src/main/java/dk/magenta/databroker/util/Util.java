@@ -6,6 +6,7 @@ import java.io.*;
 import java.text.Normalizer;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * Created by lars on 27-01-15.
@@ -28,6 +29,27 @@ public abstract class Util {
         boolean answer = a == null ? (b == null) : a.equals(b);
         //if (!answer) System.out.println("object mismatch on "+a+" ("+(a!=null ? a.getClass().getSimpleName() : null)+") vs "+b+" ("+(b!=null ? b.getClass().getSimpleName() : null)+")");
         return answer;
+    }
+
+    public static boolean compare(Map a, Map b) {
+        if (a == null || b == null) {
+            boolean answer = a == b;
+            //if (!answer) System.out.println("map mismatch on "+a+" vs "+b);
+            return answer;
+        } else if (a.size() != b.size()) {
+            //System.out.println("map mismatch on "+a+" vs "+b);
+            return false;
+        } else {
+            boolean answer = true;
+            for (Object key : a.keySet()) {
+                if (!b.containsKey(key) || !Util.compare(a.get(key), b.get(key))) {
+                    answer = false;
+                    break;
+                }
+            }
+            //if (!answer) System.out.println("map mismatch on "+a+" vs "+b);
+            return answer;
+        }
     }
 
     public static boolean compare(Collection a, Collection b) {

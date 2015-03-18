@@ -2,6 +2,7 @@ package dk.magenta.databroker.cvr.model.company;
 
 import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
+import dk.magenta.databroker.cvr.model.company.companydeltagere.CompanyDeltagerRelationEntity;
 import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitEntity;
 import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitVersionEntity;
 import dk.magenta.databroker.cvr.model.deltager.DeltagerVersionEntity;
@@ -116,6 +117,15 @@ public class CompanyEntity extends DobbeltHistorikBase<CompanyEntity, CompanyVer
         obj.put("cvrnr", this.getCvrNummer());
         obj.put("href", SearchService.getCompanyBaseUrl() + "/" + this.getCvrNummer());
         obj.put("companyform", version.getForm().toJSON());
+
+        JSONArray deltagere = new JSONArray();
+        for (CompanyDeltagerRelationEntity rel : version.getCompanyDeltagerRelationEntities()) {
+            JSONObject deltager = new JSONObject();
+            deltager.put("deltagerNummer", rel.getDeltagerNummer());
+            deltager.put("validFrom", rel.getValidFrom());
+            deltagere.put(deltager);
+        }
+        obj.put("deltagere", deltagere);
         version.getCompanyInfo().addToJSONObject(obj);
         return obj;
     }
