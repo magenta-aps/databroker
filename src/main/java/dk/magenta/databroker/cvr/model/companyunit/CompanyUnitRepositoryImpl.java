@@ -31,22 +31,22 @@ public class CompanyUnitRepositoryImpl extends RepositoryImplementation<CompanyU
         double time;
         this.log.info("Updating references between units and companies");
         time = Util.getTime();
-        this.entityManager.createNativeQuery("update cvr_companyunit_version unitversion " +
+        this.runNativeQuery("update cvr_companyunit_version unitversion " +
                 "join cvr_company company on unitversion.cvr_nummer=company.cvr_nummer " +
                 "set unitversion.company_version_id=company.latest_version_id " +
-                "where unitversion.company_version_id is NULL").executeUpdate();
+                "where unitversion.company_version_id is NULL");
         this.log.info("References updated in " + (Util.getTime() - time) + " ms");
 
         this.log.info("Updating references between units and addresses");
         time = Util.getTime();
-        this.entityManager.createNativeQuery("update cvr_companyunit_version unitversion " +
+        this.runNativeQuery("update cvr_companyunit_version unitversion " +
                 "join dawa_enhedsadresse address on unitversion.postal_address_descriptor=address.descriptor " +
                 "set unitversion.postal_address_enheds_adresse=address.id " +
-                "where unitversion.postal_address_enheds_adresse is NULL").executeUpdate();
-        this.entityManager.createNativeQuery("update cvr_companyunit_version unitversion " +
+                "where unitversion.postal_address_enheds_adresse is NULL");
+        this.runNativeQuery("update cvr_companyunit_version unitversion " +
                 "join dawa_enhedsadresse address on unitversion.location_address_descriptor=address.descriptor " +
                 "set unitversion.location_address_enheds_adresse=address.id " +
-                "where unitversion.location_address_enheds_adresse is NULL").executeUpdate();
+                "where unitversion.location_address_enheds_adresse is NULL");
         this.log.info("References updated in "+(Util.getTime() - time)+" ms");
     }
 

@@ -125,24 +125,10 @@ public class CompanyUnitVersionEntity extends DobbeltHistorikVersion<CompanyUnit
     //----------------------------------------------------
 
 
-    public boolean matches(String name, String cvrNummer, EnhedsAdresseEntity address, Date addressDate,
-                           IndustryEntity primaryIndustry, List<IndustryEntity> secondaryIndustries,
-                           String phone, String fax, String email, boolean isPrimaryUnit,
-                           boolean advertProtection,
-                           Date startDate, Date endDate) {
-        return Util.compare(this.companyInfo.getName(), name) &&
-                Util.compare(this.cvrNummer, cvrNummer) &&
-                Util.compare(this.companyInfo.getLocationAddress().getEnhedsAdresse(),address) &&
-                Util.compare(this.companyInfo.getLocationAddress().getValidFrom(), addressDate) &&
-                this.companyInfo.getPrimaryIndustry().equals(primaryIndustry) &&
-                Util.compare(this.companyInfo.getSecondaryIndustries(), secondaryIndustries) &&
-                Util.compare(this.companyInfo.getTelephoneNumber(), phone) &&
-                Util.compare(this.companyInfo.getTelefaxNumber(), fax) &&
-                Util.compare(this.companyInfo.getEmail(), email) &&
+    public boolean matches(String cvrNummer, CompanyInfo companyInfo, boolean isPrimaryUnit) {
+        return Util.compare(this.cvrNummer, cvrNummer) &&
                 Util.compare(this.isPrimaryUnit, isPrimaryUnit) &&
-                Util.compare(this.companyInfo.hasAdvertProtection(), advertProtection) &&
-                Util.compare(this.companyInfo.getLifeCycle().getStartDate(), startDate) &&
-                Util.compare(this.companyInfo.getLifeCycle().getEndDate(), endDate);
+                Util.compare(this.companyInfo, companyInfo);
     }
 
 }

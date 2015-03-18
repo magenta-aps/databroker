@@ -170,11 +170,7 @@ public class CompanyVersionEntity extends DobbeltHistorikVersion<CompanyEntity, 
 
     //----------------------------------------------------
 
-    public boolean matches(
-            CompanyFormEntity form,
-            CompanyInfo companyInfo,
-            Map<Long, Date> deltagere
-    ) {
+    public boolean matches(CompanyFormEntity form, CompanyInfo companyInfo, Map<Long, Date> deltagere) {
         if (deltagere != null && deltagere.isEmpty()) {
             deltagere = null;
         }

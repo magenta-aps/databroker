@@ -94,4 +94,9 @@ public abstract class RepositoryImplementation<T> {
         }
         return null;
     }
+
+    protected void runNativeQuery(String query) {
+        this.log.info(query);
+        this.entityManager.createNativeQuery(query).executeUpdate();
+    }
 }

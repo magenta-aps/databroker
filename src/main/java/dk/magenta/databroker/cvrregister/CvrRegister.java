@@ -631,20 +631,8 @@ public class CvrRegister extends Register {
 
                         // Fetch basic fields
                         long pNummer = unit.getLong("pNummer");
-                        String name = unit.get("name");
                         String cvrNummer = unit.get("cvrNummer");
-                        String phone = unit.get("phone");
-                        String fax = unit.get("fax");
-                        String email = unit.get("email");
-                        Date startDate = this.parseDate(unit.get("startDate"));
-                        Date endDate = this.parseDate(unit.get("endDate"));
-                        boolean advertProtection = unit.getBoolean("advertProtection");
                         boolean isPrimaryUnit = unit.getBoolean("isPrimary");
-
-                        int primaryIndustry = unit.getInt("primaryIndustry");
-                        if (primaryIndustry == 0) {
-                            primaryIndustry = UNKNOWN_INDUSTRY;
-                        }
 
                         List<Integer> secondaryIndustriesList = new ArrayList<Integer>();
                         String[] keys = new String[]{"secondaryIndustry1", "secondaryIndustry2", "secondaryIndustry3"};
@@ -660,85 +648,15 @@ public class CvrRegister extends Register {
                         int i = 0;
                         for (Iterator<Integer> iIter = secondaryIndustriesList.iterator(); iIter.hasNext(); secondaryIndustries[i++] = iIter.next());
 
-
-                        EnhedsAdresseEntity adresse = null;
-
-                        //SearchParameters addressSearch = new SearchParameters();
-                        int kommuneKode = unit.getInt("kommunekode");
-                        int postNr = unit.getInt("postnr");
-                        int vejKode = unit.getInt("vejkode");
-                        String vejNavn = unit.get("vejnavn");
-                        String husnr = unit.get("husnummerFra");
-                        String bogstav = unit.get("bogstavFra");
-                        String etage = unit.get("etage");
-                        String sidedoer = unit.get("sidedoer");
-                        String fullHusNr = husnr + (bogstav != null ? bogstav : "");
-                        Date addressDate = this.parseDate(unit.get("adresseDato"));
-                        String postnr = unit.get("postnr");
+                        CompanyUnitEntity companyUnitEntity = this.cvrModel.setCompanyUnit(pNummer, cvrNummer,
+                                unit.toCompanyInfo(),
+                                isPrimaryUnit,
+                                registreringInfo, new ArrayList<VirkningEntity>()
+                        );
                         itemTimer.record();
-                        if (kommuneKode > 0 && vejKode > 0) {
-                            VejstykkeEntity vej = this.dawaModel.getVejstykke(kommuneKode, vejKode);
-                            itemTimer.record();
 
-                            if (vej == null) {
-                                if (vejNavn == null || vejNavn.isEmpty()) {
-                                    this.log.warn("Road " + kommuneKode + ":" + vejKode + " not found");
-                                } else {
-                                    this.log.warn("Road " + kommuneKode + ":" + vejKode + " not found; cvr names it " + vejNavn);
-                                    if (USE_NEARBY_ROAD_CODES) {
-                                        SearchParameters searchParameters = new SearchParameters();
-                                        searchParameters.put(SearchParameters.Key.KOMMUNE, kommuneKode);
-                                        searchParameters.put(SearchParameters.Key.VEJ, vejNavn);
-                                        Collection<VejstykkeEntity> candidates = this.dawaModel.getVejstykke(searchParameters);
-                                        if (candidates.size() == 1) {
-                                            VejstykkeEntity candidate = candidates.iterator().next();
-                                            if (Math.abs(candidate.getKode() - vejKode) < 4) {
-                                                this.log.trace("Using " + kommuneKode + ":" + candidate.getKode() + " for " + vejNavn + ", because " + kommuneKode + ":" + vejKode + "was not found");
-                                                vejKode = candidate.getKode();
-                                                vej = candidate;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                        sumTime.add(itemTimer);
 
-                            boolean doAddUnit = false;
-
-                            itemTimer.record();
-
-                            if (REQUIRE_ROAD_EXIST) {
-                                if (vej != null) {
-                                    String cprNavn = this.normalizeVejnavn(vej.getLatestVersion().getVejnavn());
-                                    String cvrNavn = this.normalizeVejnavn(vejNavn);
-                                    if (!Util.compareNormalized(cprNavn, cvrNavn)) {
-                                        this.log.warn("Mismatch on " + kommuneKode + ":" + vejKode + "; cpr names it " + cprNavn + " while cvr names it " + cvrNavn);
-                                        misses++;
-                                    } else {
-                                        doAddUnit = true;
-                                    }
-                                } else {
-                                    misses++;
-                                }
-                            } else {
-                                doAddUnit = true;
-                            }
-
-                            if (doAddUnit) {
-                                String addressDescriptor = this.addNeededAddress(kommuneKode, vejKode, husnr, etage, sidedoer);
-                                //adresse = this.dawaModel.setAdresse(kommuneKode, vejKode, husnr, null, etage, sidedoer, registreringInfo, new ArrayList<VirkningEntity>(), false, true);
-                                itemTimer.record();
-                                CompanyUnitEntity companyUnitEntity = this.cvrModel.setCompanyUnit(pNummer, name, cvrNummer,
-                                        primaryIndustry, secondaryIndustries,
-                                        adresse, addressDate, addressDescriptor,
-                                        phone, fax, email, isPrimaryUnit,
-                                        startDate, endDate,
-                                        advertProtection,
-                                        registreringInfo, new ArrayList<VirkningEntity>()
-                                );
-                                itemTimer.record();
-                            }
-                            sumTime.add(itemTimer);
-                        }
                         //this.endTransaction();
                     }
 
@@ -792,11 +710,9 @@ public class CvrRegister extends Register {
         }
     }
 
-    private void bulkwireReferences() {
+    protected void bulkwire(DataProviderEntity dataProviderEntity) {
         this.dawaModel.resetAllCaches();
-        //this.beginTransaction();
         this.cvrModel.bulkWireReferences();
-        //this.endTransaction();
     }
 
     private void bulkwireAdresses() {

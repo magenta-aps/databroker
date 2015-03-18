@@ -81,6 +81,16 @@ public abstract class DataProvider {
                 }
             });
             log.info("Ended transaction");
+
+            log.info("Wiring");
+            this.transactionTemplate.execute(new TransactionCallback() {
+                // the code in this method executes in a transactional context
+                public Object doInTransaction(TransactionStatus status) {
+                    DataProvider.this.bulkwire(dataProviderEntity);
+                    return null;
+                }
+            });
+            log.info("Wiring complete");
             this.uploadData.delete();
         }
     }
@@ -162,6 +172,10 @@ public abstract class DataProvider {
             thread.start();
         }
         return thread;
+    }
+
+    protected void bulkwire(DataProviderEntity dataProviderEntity) {
+        // Override me
     }
 
     //public abstract Properties getConfigSpecification(DataProviderEntity dataProviderEntity);

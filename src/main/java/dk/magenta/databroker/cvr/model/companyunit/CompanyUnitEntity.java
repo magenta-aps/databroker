@@ -33,19 +33,6 @@ public class CompanyUnitEntity extends DobbeltHistorikBase<CompanyUnitEntity, Co
 
     //------------------------------------------------------------------------------------------------------------------
 
-    @Column
-    private String cvrNummer;
-
-    public String getCvrNummer() {
-        return cvrNummer;
-    }
-
-    public void setCvrNummer(String cvrNummer) {
-        this.cvrNummer = cvrNummer;
-    }
-
-    //------------------------------------------------------------------------------------------------------------------
-
     @OneToMany(mappedBy = "entity", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Collection<CompanyUnitVersionEntity> versions;
 

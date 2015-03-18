@@ -26,9 +26,7 @@ import dk.magenta.databroker.cvr.model.form.CompanyFormRepository;
 import dk.magenta.databroker.cvr.model.industry.IndustryEntity;
 import dk.magenta.databroker.cvr.model.industry.IndustryRepository;
 import dk.magenta.databroker.dawa.model.SearchParameters;
-import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseEntity;
 import dk.magenta.databroker.util.TimeRecorder;
-import dk.magenta.databroker.util.Util;
 import dk.magenta.databroker.util.cache.Level1Cache;
 import dk.magenta.databroker.util.objectcontainers.Level1Container;
 import org.apache.log4j.Logger;
@@ -59,6 +57,18 @@ public class CvrModel {
 
     private Logger log = Logger.getLogger(CvrModel.class);
 
+
+
+    private CompanyInfo wireCompanyInfoIndustries(CompanyInfo companyInfo) {
+        companyInfo.setPrimaryIndustry(this.getIndustryEntity(companyInfo.getPrimaryIndustryCode()));
+        for (int secondaryIndustryCode : companyInfo.getSecondaryIndustryCodes()) {
+            companyInfo.addSecondaryIndustry(this.getIndustryEntity(secondaryIndustryCode));
+        }
+        return companyInfo;
+    }
+
+
+
     //------------------------------------------------------------------------------------------------------------------
 
     @Autowired
@@ -80,10 +90,7 @@ public class CvrModel {
 
         boolean useCache = false;
 
-        companyInfo.setPrimaryIndustry(this.getIndustryEntity(companyInfo.getPrimaryIndustryCode()));
-        for (int secondaryIndustryCode : companyInfo.getSecondaryIndustryCodes()) {
-            companyInfo.addSecondaryIndustry(this.getIndustryEntity(secondaryIndustryCode));
-        }
+        this.wireCompanyInfoIndustries(companyInfo);
 
 
         TimeRecorder time = new TimeRecorder();
@@ -236,16 +243,15 @@ public class CvrModel {
     @SuppressWarnings("SpringJavaAutowiringInspection")
     private CompanyUnitRepository companyUnitRepository;
 
-    public CompanyUnitEntity setCompanyUnit(long pNummer, String name, String cvrNummer,
-                                    int primaryIndustryCode, int[] secondaryIndustryCodes,
-                                    EnhedsAdresseEntity address, Date addressDate, String addressDescriptor,
-                                    String phone, String fax, String email, boolean isPrimaryUnit,
-                                    Date startDate, Date endDate,
-                                    boolean advertProtection,
+    public CompanyUnitEntity setCompanyUnit(long pNummer, String cvrNummer,
+                                    CompanyInfo companyInfo,
+                                    boolean isPrimaryUnit,
                                     RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
         TimeRecorder time = new TimeRecorder();
 
-        CompanyUnitEntity companyUnitEntity = this.getCompanyUnit(pNummer, true);
+        boolean useCache = false;
+
+        CompanyUnitEntity companyUnitEntity = this.getCompanyUnit(pNummer, !useCache);
         time.record();
         //CompanyEntity companyEntity = this.getCompanyVersion(cvrNummer);
         //CompanyVersionEntity companyVersionEntity = companyEntity.getLatestVersion();
@@ -254,24 +260,10 @@ public class CvrModel {
             this.log.trace("Creating new CompanyUnitEntity " + pNummer);
             companyUnitEntity = new CompanyUnitEntity();
             companyUnitEntity.setPNO(pNummer);
-            //this.putCompanyUnitCache(companyUnitEntity);
         }
         time.record();
 
-        /*
-        if (company != null && companyUnitEntity != null &&
-                company.getLatestVersion().getPrimaryUnit() == null &&
-                company.getLatestVersion().getPrimaryUnitCode() == pNummer) {
-            company.getLatestVersion().setPrimaryUnit(companyUnitEntity);
-            this.companyRepository.save(company);
-        }*/
-
-
-        IndustryEntity primaryIndustry = this.getIndustryEntity(primaryIndustryCode);
-        ArrayList<IndustryEntity> secondaryIndustries = new ArrayList<IndustryEntity>();
-        for (int secondaryIndustryCode : secondaryIndustryCodes) {
-            secondaryIndustries.add(this.getIndustryEntity(secondaryIndustryCode));
-        }
+        this.wireCompanyInfoIndustries(companyInfo);
         time.record();
 
         CompanyUnitVersionEntity companyUnitVersionEntity = companyUnitEntity.getLatestVersion();
@@ -280,7 +272,7 @@ public class CvrModel {
         if (companyUnitVersionEntity == null) {
             this.log.trace("Creating initial CompanyUnitVersionEntity");
             companyUnitVersionEntity = companyUnitEntity.addVersion(registreringInfo.getCreateRegistrering(), virkninger);
-        } else if (!companyUnitVersionEntity.matches(name, cvrNummer, address, addressDate, primaryIndustry, secondaryIndustries, phone, fax, email, isPrimaryUnit, advertProtection, startDate, endDate)) {
+        } else if (!companyUnitVersionEntity.matches(cvrNummer, companyInfo, isPrimaryUnit)) {
             this.log.trace("Creating updated CompanyUnitVersionEntity");
             companyUnitVersionEntity = companyUnitEntity.addVersion(registreringInfo.getUpdateRegisterering(), virkninger);
         } else {
@@ -290,24 +282,13 @@ public class CvrModel {
 
 
         if (companyUnitVersionEntity != null) {
-            CompanyInfo cInfo = companyUnitVersionEntity.getCompanyInfo();
-            cInfo.setName(name);
-            cInfo.getLocationAddress().setEnhedsAdresse(address);
-            cInfo.getLocationAddress().setValidFrom(addressDate);
-            cInfo.getLocationAddress().setDescriptor(addressDescriptor);
-            cInfo.setPrimaryIndustry(primaryIndustry);
-            for (IndustryEntity industryEntity : secondaryIndustries) {
-                cInfo.addSecondaryIndustry(industryEntity);
-            }
-            cInfo.setAdvertProtection(advertProtection);
-            cInfo.getLifeCycle().setStartDate(startDate);
-            cInfo.getLifeCycle().setEndDate(endDate);
-            cInfo.getTelephoneNumber().setText(phone);
-            cInfo.getTelefaxNumber().setText(fax);
-            cInfo.getEmail().setText(email);
+            companyUnitVersionEntity.setCompanyInfo(companyInfo);
             companyUnitVersionEntity.setPrimaryUnit(isPrimaryUnit);
             companyUnitVersionEntity.setCvrNummer(cvrNummer);
             this.companyUnitRepository.save(companyUnitEntity);
+            if (useCache) {
+                this.companyUnitCache.put(companyUnitEntity);
+            }
             this.addKnownUnitNumber(pNummer);
         }
 
@@ -422,7 +403,7 @@ public class CvrModel {
 
         time.record();
         if (deltagerVersionEntity == null) {
-            this.log.info("Creating initial DeltagerVersionEntity for " + deltagerNummer);
+            this.log.trace("Creating initial DeltagerVersionEntity for " + deltagerNummer);
             deltagerVersionEntity = deltagerEntity.addVersion(registreringInfo.getCreateRegistrering(), virkninger);
         } else {
 
@@ -434,7 +415,7 @@ public class CvrModel {
                 }
             }
             if (!match) {
-                this.log.info("Creating updated DeltagerVersionEntity for " + deltagerNummer);
+                this.log.trace("Creating updated DeltagerVersionEntity for " + deltagerNummer);
                 deltagerVersionEntity = deltagerEntity.addVersion(registreringInfo.getUpdateRegisterering(), virkninger);
             } else {
                 deltagerVersionEntity = null;

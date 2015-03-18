@@ -27,10 +27,13 @@ public class DeltagerRepositoryImpl extends RepositoryImplementation<DeltagerEnt
     private Logger log = Logger.getLogger(DeltagerRepositoryImpl.class);
 
     public void bulkWireReferences() {
-        this.log.info("Updating references between members and companies");
+        /*this.log.info("Updating references between members and companies");
         double time = Util.getTime();
-        this.entityManager.createNativeQuery("update cvr_deltager deltager inner join cvr_company company on deltager.cvr_nummer=company.cvr_nummer set deltager.company_id=company.id where deltager.company_id is NULL").executeUpdate();
-        this.log.info("References updated in "+(Util.getTime()-time)+" ms");
+        this.runNativeQuery("update cvr_deltager deltager " +
+                "inner join cvr_company company on deltager.cvr_nummer=company.cvr_nummer " +
+                "set deltager.company_id=company.id " +
+                "where deltager.company_id is NULL");
+        this.log.info("References updated in "+(Util.getTime()-time)+" ms");*/
     }
 
     public DeltagerEntity getByDeltagerNummer(long deltagernummer) {
