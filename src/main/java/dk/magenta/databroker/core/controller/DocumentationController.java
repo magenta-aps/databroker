@@ -125,14 +125,14 @@ public class DocumentationController {
 
         return new ModelAndView("doc/virksomhed", model);
     }
-/*
-    @RequestMapping("/doc/produktionsEnhed")
-    public ModelAndView produktionsEnhed() {
+
+    @RequestMapping("/doc/produktionsenhed")
+    public ModelAndView produktionsenhed() {
 
         Map<String, Object> model = new HashMap<String, Object>();
         model.put("pNummer", "1019601052");
-        model.put("nav","produktionsEnhed");
+        model.put("nav","produktionsenhed");
 
-        return new ModelAndView("doc/produktionsEnhed", model);
-    }*/
+        return new ModelAndView("doc/produktionsenhed", model);
+    }
 }

@@ -1,6 +1,8 @@
 package dk.magenta.databroker.cvr.model.companyunit;
 
 import dk.magenta.databroker.core.model.RepositoryImplementation;
+import dk.magenta.databroker.cvr.model.company.CompanyEntity;
+import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.util.Util;
@@ -24,6 +26,7 @@ interface CompanyUnitRepositoryCustom {
     public void clear();
     public CompanyUnitEntity getByPno(long pno);
     public List<Long> getUnitNumbers();
+    public Collection<CompanyUnitEntity> search(SearchParameters parameters);
 }
 
 public class CompanyUnitRepositoryImpl extends RepositoryImplementation<CompanyUnitEntity> implements CompanyUnitRepositoryCustom {
@@ -87,6 +90,86 @@ public class CompanyUnitRepositoryImpl extends RepositoryImplementation<CompanyU
     public List<Long> getUnitNumbers() {
         Query q = this.entityManager.createQuery("select " + CompanyUnitEntity.databaseKey + ".pno from CompanyUnitEntity as " + CompanyUnitEntity.databaseKey);
         return q.getResultList();
+    }
+
+
+
+
+    @Override
+    public Collection<CompanyUnitEntity> search(SearchParameters parameters) {
+
+        StringList hql = new StringList();
+        StringList join = new StringList();
+        ConditionList conditions = new ConditionList(ConditionList.Operator.AND);
+
+        hql.append("select distinct "+CompanyUnitEntity.databaseKey+" from CompanyUnitEntity as "+CompanyUnitEntity.databaseKey);
+        join.setPrefix("join ");
+
+        conditions.addCondition(CompanyUnitEntity.virksomhedCondition(parameters));
+        conditions.addCondition(CompanyUnitEntity.cvrCondition(parameters));
+        conditions.addCondition(CompanyUnitEntity.pnoCondition(parameters));
+
+        if (parameters.hasAny(SearchParameters.Key.LAND, SearchParameters.Key.KOMMUNE, SearchParameters.Key.VEJ, SearchParameters.Key.POST, SearchParameters.Key.HUSNR, SearchParameters.Key.ETAGE, SearchParameters.Key.DOER, SearchParameters.Key.LOKALITET)) {
+            conditions.addCondition(CompanyUnitEntity.kommuneCondition(parameters));
+            conditions.addCondition(CompanyUnitEntity.vejCondition(parameters));
+            conditions.addCondition(CompanyUnitEntity.postCondition(parameters));
+            conditions.addCondition(CompanyUnitEntity.lokalitetCondition(parameters));
+            conditions.addCondition(CompanyUnitEntity.husnrCondition(parameters));
+            conditions.addCondition(CompanyUnitEntity.etageCondition(parameters));
+            conditions.addCondition(CompanyUnitEntity.doerCondition(parameters));
+
+
+            /*join.append(CompanyEntity.joinCompanyUnit());
+            join.append(CompanyUnitEntity.joinEnhedsAdresse());
+            join.append(EnhedsAdresseEntity.joinAdgangsAdresse());
+
+            conditions.addCondition(EnhedsAdresseEntity.doerCondition(parameters));
+            conditions.addCondition(EnhedsAdresseEntity.etageCondition(parameters));
+            conditions.addCondition(AdgangsAdresseEntity.husnrCondition(parameters));
+            conditions.addCondition(AdgangsAdresseEntity.bnrCondition(parameters));
+
+            if (parameters.hasAny(Key.LAND, Key.KOMMUNE, Key.VEJ, Key.POST)) {
+                join.append(AdgangsAdresseEntity.joinVej());
+                conditions.addCondition(VejstykkeEntity.vejCondition(parameters));
+
+                if (parameters.hasAny(Key.LAND, Key.KOMMUNE)) {
+                    join.append(VejstykkeEntity.joinKommune());
+                    conditions.addCondition(KommuneEntity.landCondition(parameters));
+                    conditions.addCondition(KommuneEntity.kommuneCondition(parameters));
+                }
+
+                if (parameters.has(Key.POST)) {
+                    join.append(VejstykkeEntity.joinPost());
+                    conditions.addCondition(PostNummerEntity.postCondition(parameters));
+                }
+            }*/
+        }
+
+        conditions.addCondition(CompanyUnitEntity.emailCondition(parameters));
+        conditions.addCondition(CompanyUnitEntity.phoneCondition(parameters));
+        conditions.addCondition(CompanyUnitEntity.faxCondition(parameters));
+
+        conditions.addCondition(CompanyUnitEntity.primaryIndustryCondition(parameters));
+        conditions.addCondition(CompanyUnitEntity.secondaryIndustryCondition(parameters));
+        conditions.addCondition(CompanyUnitEntity.anyIndustryCondition(parameters));
+
+        // our conditions list should now be complete
+
+        if (conditions.hasRequiredJoin()) {
+            join.append(conditions.getRequiredJoin());
+        }
+
+        // our join list should now be complete
+
+        if (join.size()>0) {
+            hql.append(join.join(" "));
+        }
+        if (conditions.size() > 0) {
+            hql.append("where");
+            hql.append(conditions.getWhere());
+        }
+
+        return this.query(hql, conditions, parameters.getGlobalCondition());
     }
 
 }

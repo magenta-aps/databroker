@@ -352,7 +352,7 @@ public class SearchService {
     @Path("virksomhed/{cvrnr}")
     @Transactional
     public String company(@PathParam("cvrnr") String cvrnr,
-                            @QueryParam("format") String formatStr) {
+                          @QueryParam("format") String formatStr) {
         Format fmt = this.getFormat(formatStr);
         OutputFormattable lokalitetEntity = this.cvrModel.getCompany(cvrnr, true);
         if (lokalitetEntity != null) {
@@ -363,10 +363,60 @@ public class SearchService {
     }
 
 
+
+    //------------------------------------------------------------------------------------------------------------------
+
+
     public static String getCompanyUnitBaseUrl() {
-        return SearchService.getBaseUrl() + "/produktionsEnhed";
+        return SearchService.getBaseUrl() + "/produktionsenhed";
     }
 
+    @GET
+    @Path("produktionsenhed")
+    @Transactional
+    public String companyUnit(@QueryParam("land") String[] land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej, @QueryParam("husnr") String[] husnr, @QueryParam("post") String[] post, @QueryParam("lokalitet") String[] lokalitet, @QueryParam("etage") String[] etage, @QueryParam("doer") String[] doer, @QueryParam("bnr") String[] bnr,
+                          @QueryParam("virksomhed") String[] virksomhed, @QueryParam("cvr") String[] cvr, @QueryParam("pnr") String[] pnr,
+                          @QueryParam("email") String[] email, @QueryParam("phone") String[] phone, @QueryParam("fax") String[] fax,
+                          @QueryParam("primaryIndustry") String[] primaryIndustry, @QueryParam("secondaryIndustry") String[] secondaryIndustry, @QueryParam("anyIndustry") String[] anyIndustry,
+                          @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter, @QueryParam("offset") int offset, @QueryParam("limit") int limit) {
+        Format fmt = this.getFormat(formatStr);
+
+        SearchParameters parameters = new SearchParameters(land, kommune, post, lokalitet, vej, husnr, bnr, etage, doer, new GlobalCondition(includeBefore, includeAfter, offset, limit));
+        parameters.put(SearchParameters.Key.VIRKSOMHED, virksomhed);
+        parameters.put(SearchParameters.Key.CVR, cvr);
+        parameters.put(SearchParameters.Key.PNR, pnr);
+        parameters.put(SearchParameters.Key.EMAIL, email);
+        parameters.put(SearchParameters.Key.PHONE, phone);
+        parameters.put(SearchParameters.Key.FAX, fax);
+        parameters.put(SearchParameters.Key.PRIMARYINDUSTRY, primaryIndustry);
+        parameters.put(SearchParameters.Key.SECONDARYINDUSTRY, secondaryIndustry);
+        parameters.put(SearchParameters.Key.ANYINDUSTRY, anyIndustry);
+
+
+        ArrayList<OutputFormattable> virksomheder = new ArrayList<OutputFormattable>(
+                this.cvrModel.getCompanyUnit(parameters)
+        );
+
+        return this.format("produktionsenheder", virksomheder, fmt);
+    }
+
+
+    @GET
+    @Path("produktionsenhed/{pnr}")
+    @Transactional
+    public String companyUnit(@PathParam("pnr") String pnr,
+                          @QueryParam("format") String formatStr) {
+        Format fmt = this.getFormat(formatStr);
+        OutputFormattable lokalitetEntity = null;
+        try {
+            lokalitetEntity = this.cvrModel.getCompanyUnit(Long.parseLong(pnr), true);
+        } catch (NumberFormatException e) {}
+        if (lokalitetEntity != null) {
+            return this.format(lokalitetEntity, fmt);
+        } else {
+            throw new NotFoundException();
+        }
+    }
 
 
     //------------------------------------------------------------------------------------------------------------------

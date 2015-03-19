@@ -317,6 +317,10 @@ public class CvrModel {
         return companyUnitEntity;
     }
 
+    public Collection<CompanyUnitEntity> getCompanyUnit(SearchParameters parameters) {
+        return this.companyUnitRepository.search(parameters);
+    }
+
     private Level1Cache<CompanyUnitEntity> companyUnitCache;
 
     @PostConstruct

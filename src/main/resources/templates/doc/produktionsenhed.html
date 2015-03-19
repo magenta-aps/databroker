@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout">
+<head>
+    <title>Produktionsenheder</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+
+    <h3>Interaktiv Produktionsenhedsssøgning</h3>
+    <p>Søg efter produktionsenheder ved at udfylde et eller flere af de nedenstående felter. Se beskrivelsen af parametrene <a href="#parameters">længere nede på siden.</a></p>
+
+    <div class="search">
+
+        <div th:replace="doc/fragments/inputparams/virksomhed"/>
+        <div th:replace="doc/fragments/inputparams/cvr"/>
+        <div th:replace="doc/fragments/inputparams/land"/>
+        <div th:replace="doc/fragments/inputparams/kommune"/>
+        <div th:replace="doc/fragments/inputparams/post"/>
+        <div th:replace="doc/fragments/inputparams/vej"/>
+        <div th:replace="doc/fragments/inputparams/lokalitet"/>
+        <div th:replace="doc/fragments/inputparams/husnr"/>
+        <div th:replace="doc/fragments/inputparams/bnr"/>
+        <div th:replace="doc/fragments/inputparams/etage"/>
+        <div th:replace="doc/fragments/inputparams/doer"/>
+        <div th:replace="doc/fragments/inputparams/email"/>
+        <div th:replace="doc/fragments/inputparams/phone"/>
+        <div th:replace="doc/fragments/inputparams/fax"/>
+
+        <!--div th:replace="doc/fragments/inputparams/primaryIndustry"/>
+        <div th:replace="doc/fragments/inputparams/secondaryIndustry"/-->
+        <div th:replace="doc/fragments/inputparams/anyIndustry"/>
+
+
+
+        <div th:replace="doc/fragments/inputparams/versionsbegraensning"/>
+        <div th:replace="doc/fragments/inputparams/paginering"/>
+
+        <div th:replace="doc/fragments/dataDisplay :: buttons"/>
+    </div>
+    <div th:replace="doc/fragments/dataDisplay :: containers"/>
+    <script type="text/javascript" th:inline="javascript">
+        //<![CDATA[
+            window.dataSource = /*[[@{/services/search/produktionsenhed}]]*/ "/services/search/produktionsenhed";
+        //]]>
+    </script>
+
+    <script th:replace="doc/fragments/dataDisplay :: script"/>
+
+    <hr/>
+
+    <h3>Produktionsenhedsopslag</h3>
+    <p>Find produktionsenhed ud fra pnummer</p>
+    <pre th:text="|GET | + @{/service/search/produktionsenhed/{pnr}}"></pre>
+
+    <h4>Parametre</h4>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>Navn</th>
+            <th>Beskrivelse</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        <tr>
+            <td>id</td>
+            <td>
+                Viksomhedens cvr-nummer. Denne er unik, tildelt af systemet, og modtages i data ved søgning.
+            </td>
+        </tr>
+
+        </tbody>
+    </table>
+
+    <h4>Eksempler</h4>
+
+    <p th:text="'Hent produktionsenhed ud fra pnummer ' + ${pnr}"></p>
+    <a th:href="@{/services/search/produktionsenhed/{pnr}(pnr=${pnr})}"><pre th:text="'/services/search/produktionsenhed/' + ${pnr}"></pre></a>
+
+    <div class="page-header"/>
+
+    <h3>Produktionsenhedsssøgning</h3>
+    <p>Søg efter produktionsenheder, afgrænset af angivne parametre</p>
+    <pre th:text="|GET | + @{/service/search/produktionsenhed}"></pre>
+    <a name="parameters"></a>
+    <h4>Parametre</h4>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>Navn</th>
+            <th>Beskrivelse</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        <tr th:replace="doc/fragments/docparams/virksomhed"/>
+        <tr th:replace="doc/fragments/docparams/cvr"/>
+
+        <tr th:replace="doc/fragments/docparams/kommune"/>
+        <tr th:replace="doc/fragments/docparams/land"/>
+        <tr th:replace="doc/fragments/docparams/vej"/>
+        <tr th:replace="doc/fragments/docparams/post"/>
+        <tr th:replace="doc/fragments/docparams/husnr"/>
+        <tr th:replace="doc/fragments/docparams/bnr"/>
+        <tr th:replace="doc/fragments/docparams/etage"/>
+        <tr th:replace="doc/fragments/docparams/doer"/>
+
+        <tr th:replace="doc/fragments/docparams/format"/>
+        <tr th:replace="doc/fragments/docparams/includeBefore"/>
+        <tr th:replace="doc/fragments/docparams/includeAfter"/>
+        <tr th:replace="doc/fragments/docparams/offset"/>
+        <tr th:replace="doc/fragments/docparams/limit"/>
+
+        </tbody>
+    </table>
+
+    <h4>Eksempler</h4>
+
+    <p>Find alle produktionsenheder i Grønland, og output data i xml-format</p>
+    <a th:href="@{/services/search/produktionsenhed?land=gl&amp;format=xml}"><pre>/services/search/produktionsenhed?land=gl&amp;format=xml</pre></a>
+
+    <p>Find alle adresser i kommuner som begynder med "a", på vejkoder som ender på 4, i postnumre som begynder med 6</p>
+    <a th:href="@{/services/search/produktionsenhed?kommune=a*&amp;vej=*4&amp;post=6*}"><pre>/services/search/produktionsenhed?kommune=a*&amp;vej=*4&amp;post=6*</pre></a>
+
+</div>
+
+</body>
+</html>

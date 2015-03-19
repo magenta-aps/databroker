@@ -22,6 +22,7 @@ public class SearchParameters extends HashMap<String, String[]> {
         DOER,
         VIRKSOMHED,
         CVR,
+        PNR,
         EMAIL,
         PHONE,
         FAX,

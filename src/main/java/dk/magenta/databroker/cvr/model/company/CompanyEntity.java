@@ -113,6 +113,11 @@ public class CompanyEntity extends DobbeltHistorikBase<CompanyEntity, CompanyVer
         return this.toJSON(this.latestVersion);
     }
 
+    public JSONObject toFullJSON() {
+        return this.toFullJSON(this.latestVersion);
+    }
+
+
     public JSONObject toJSON(CompanyVersionEntity version) {
         JSONObject obj = super.toJSON();
         obj.put("cvrnr", this.getCvrNummer());
@@ -131,10 +136,9 @@ public class CompanyEntity extends DobbeltHistorikBase<CompanyEntity, CompanyVer
         return obj;
     }
 
-    @Override
-    public JSONObject toFullJSON() {
+    public JSONObject toFullJSON(CompanyVersionEntity version) {
         JSONObject obj = this.toJSON();
-        Collection<CompanyUnitVersionEntity> units = this.latestVersion.getUnitVersions();
+        Collection<CompanyUnitVersionEntity> units = version.getUnitVersions();
         if (units != null && !units.isEmpty()) {
             JSONArray unitArray = new JSONArray();
             for (CompanyUnitVersionEntity unit : units) {
@@ -142,7 +146,7 @@ public class CompanyEntity extends DobbeltHistorikBase<CompanyEntity, CompanyVer
             }
             obj.put("units", unitArray);
         }
-        Collection<DeltagerVersionEntity> participants = this.latestVersion.getParticipants();
+        Collection<DeltagerVersionEntity> participants = version.getParticipants();
         if (participants != null && !participants.isEmpty()) {
             JSONArray participantArray = new JSONArray();
             for (DeltagerVersionEntity participant : participants) {
