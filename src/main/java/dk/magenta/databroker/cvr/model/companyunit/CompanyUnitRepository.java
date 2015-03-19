@@ -1,6 +1,7 @@
 package dk.magenta.databroker.cvr.model.companyunit;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.transaction.support.TransactionCallback;
 
 import java.util.List;
 
@@ -16,7 +17,7 @@ public interface CompanyUnitRepository extends JpaRepository<CompanyUnitEntity, 
     * To be implemented in interface implementation
     * */
     //public Collection<CompanyEntity> search(SearchParameters parameters, boolean printQuery);
-    public void bulkWireReferences();
+    public List<TransactionCallback> getBulkwireCallbacks();
     public void clear();
     public CompanyUnitEntity getByPno(long pno);
     public List<Long> getUnitNumbers();

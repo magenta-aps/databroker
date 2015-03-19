@@ -6,8 +6,11 @@ import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.util.Util;
 import dk.magenta.databroker.util.objectcontainers.StringList;
 import org.apache.log4j.Logger;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
 
 import javax.persistence.Query;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,7 +19,7 @@ import java.util.List;
 
 
 interface DeltagerRepositoryCustom {
-    public void bulkWireReferences();
+    public List<TransactionCallback> getBulkwireCallbacks();
     public void clear();
     public DeltagerEntity getByDeltagerNummer(long deltagernummer);
     public List<Long> getDeltagerNumbers();
@@ -26,14 +29,24 @@ public class DeltagerRepositoryImpl extends RepositoryImplementation<DeltagerEnt
 
     private Logger log = Logger.getLogger(DeltagerRepositoryImpl.class);
 
-    public void bulkWireReferences() {
-        /*this.log.info("Updating references between members and companies");
-        double time = Util.getTime();
-        this.runNativeQuery("update cvr_deltager deltager " +
-                "inner join cvr_company company on deltager.cvr_nummer=company.cvr_nummer " +
-                "set deltager.company_id=company.id " +
-                "where deltager.company_id is NULL");
-        this.log.info("References updated in "+(Util.getTime()-time)+" ms");*/
+    public List<TransactionCallback> getBulkwireCallbacks() {
+        ArrayList<TransactionCallback> transactionCallbacks = new ArrayList<TransactionCallback>();
+/*
+        transactionCallbacks.add(new TransactionCallback() {
+            @Override
+            public Object doInTransaction(TransactionStatus transactionStatus) {
+                DeltagerRepositoryImpl repositoryImplementation = DeltagerRepositoryImpl.this;
+                repositoryImplementation.log.info("Updating references between members and companies");
+                double time = Util.getTime();
+                repositoryImplementation.runNativeQuery("update cvr_deltager deltager " +
+                        "inner join cvr_company company on deltager.cvr_nummer=company.cvr_nummer " +
+                        "set deltager.company_id=company.id " +
+                        "where deltager.company_id is NULL");
+                repositoryImplementation.log.info("References updated in "+(Util.getTime()-time)+" ms");
+                return null;
+            }
+        });*/
+        return transactionCallbacks;
     }
 
     public DeltagerEntity getByDeltagerNummer(long deltagernummer) {

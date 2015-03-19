@@ -24,6 +24,7 @@ import dk.magenta.databroker.util.objectcontainers.*;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.TransactionCallback;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManagerFactory;
@@ -601,8 +602,8 @@ public class DawaModel {
 
 
 
-    public void bulkwireAdresser() {
-        this.adgangsAdresseRepository.bulkWireReferences();
+    public List<TransactionCallback> getBulkwireCallbacks() {
+        return this.adgangsAdresseRepository.getBulkwireCallbacks();
     }
 
     //------------------------------------------------------------------------------------------------------------------

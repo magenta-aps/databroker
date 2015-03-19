@@ -5,9 +5,13 @@ import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
+import dk.magenta.databroker.util.Util;
 import dk.magenta.databroker.util.objectcontainers.StringList;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -15,6 +19,7 @@ import java.util.List;
  * Created by lars on 27-01-15.
  */
 interface CompanyRepositoryCustom {
+    public List<TransactionCallback> getBulkwireCallbacks();
     public Collection<CompanyEntity> search(SearchParameters parameters);
     public void clear();
     public CompanyEntity getByCvr(String cvrNummer);
@@ -116,5 +121,32 @@ public class CompanyRepositoryImpl extends RepositoryImplementation<CompanyEntit
     public List<String> getCvrNumbers() {
         Query q = this.entityManager.createQuery("select " + CompanyEntity.databaseKey + ".cvrNummer from CompanyEntity as " + CompanyEntity.databaseKey);
         return q.getResultList();
+    }
+
+    public List<TransactionCallback> getBulkwireCallbacks() {
+        double time;
+
+        ArrayList<TransactionCallback> transactionCallbacks = new ArrayList<TransactionCallback>();
+
+        transactionCallbacks.add(new TransactionCallback() {
+            @Override
+            public Object doInTransaction(TransactionStatus transactionStatus) {
+                CompanyRepositoryImpl repositoryImplementation = CompanyRepositoryImpl.this;
+                repositoryImplementation.log.info("Updating references between companies and addresses");
+                double time = Util.getTime();
+                repositoryImplementation.runNativeQuery("update cvr_company_version companyversion " +
+                        "join dawa_enhedsadresse address on companyversion.postal_address_descriptor=address.descriptor " +
+                        "set companyversion.postal_address_enheds_adresse=address.id " +
+                        "where companyversion.postal_address_enheds_adresse is NULL");
+
+                repositoryImplementation.runNativeQuery("update cvr_companyunit_version companyversion " +
+                        "join dawa_enhedsadresse address on companyversion.location_address_descriptor=address.descriptor " +
+                        "set companyversion.location_address_enheds_adresse=address.id " +
+                        "where companyversion.location_address_enheds_adresse is NULL");
+                repositoryImplementation.log.info("References updated in " + (Util.getTime() - time) + " ms");
+                return null;
+            }
+        });
+        return transactionCallbacks;
     }
 }

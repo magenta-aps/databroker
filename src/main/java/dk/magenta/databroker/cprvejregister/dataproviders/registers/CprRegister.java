@@ -308,4 +308,8 @@ public class CprRegister extends LineRegister {
             subRegister.loadCorrectionSeed(dataProviderEntity);
         }
     }
+
+    protected List<TransactionCallback> getBulkwireCallbacks(DataProviderEntity dataProviderEntity) {
+        return this.dawaModel.getBulkwireCallbacks();
+    }
 }

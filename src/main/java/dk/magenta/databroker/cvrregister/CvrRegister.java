@@ -8,9 +8,7 @@ import dk.magenta.databroker.cvr.model.CvrModel;
 import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitEntity;
 import dk.magenta.databroker.cvr.model.embeddable.*;
 import dk.magenta.databroker.dawa.model.DawaModel;
-import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseEntity;
-import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.register.Register;
 import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.util.TimeRecorder;
@@ -23,6 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -710,15 +710,21 @@ public class CvrRegister extends Register {
         }
     }
 
-    protected void bulkwire(DataProviderEntity dataProviderEntity) {
-        this.dawaModel.resetAllCaches();
-        this.cvrModel.bulkWireReferences();
+    protected List<TransactionCallback> getBulkwireCallbacks(DataProviderEntity dataProviderEntity) {
+        ArrayList<TransactionCallback> transactionCallbacks = new ArrayList<TransactionCallback>();
+        transactionCallbacks.add(new TransactionCallback() {
+            @Override
+            public Object doInTransaction(TransactionStatus transactionStatus) {
+                CvrRegister.this.dawaModel.resetAllCaches();
+                return null;
+            }
+        });
+        transactionCallbacks.addAll(this.cvrModel.getBulkwireCallbacks());
+        return transactionCallbacks;
     }
 
-    private void bulkwireAdresses() {
-        this.beginTransaction();
-        this.dawaModel.bulkwireAdresser();
-        this.endTransaction();
+    private List<TransactionCallback> getBulkwireCallbacks() {
+        return this.dawaModel.getBulkwireCallbacks();
     }
 
     private void generateAddresses(boolean bulkwire) {
@@ -759,9 +765,9 @@ public class CvrRegister extends Register {
         }
         this.dawaModel.flush();
         //this.endTransaction();
-        if (bulkwire) {
+        /*if (bulkwire) {
             this.bulkwireAdresses();
-        }
+        }*/
 
 
 

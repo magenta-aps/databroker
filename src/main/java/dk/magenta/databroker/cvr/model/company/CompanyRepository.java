@@ -2,6 +2,7 @@ package dk.magenta.databroker.cvr.model.company;
 
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.transaction.support.TransactionCallback;
 
 import java.util.Collection;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.List;
 public interface CompanyRepository extends JpaRepository<CompanyEntity, Long> {
 
     public CompanyEntity getByUuid(String uuid);
+    public List<TransactionCallback> getBulkwireCallbacks();
     public CompanyEntity getByCvr(String cvrNummer);
     public Collection<CompanyEntity> search(SearchParameters parameters);
     public void clear();

@@ -83,13 +83,11 @@ public abstract class DataProvider {
             log.info("Ended transaction");
 
             log.info("Wiring");
-            this.transactionTemplate.execute(new TransactionCallback() {
-                // the code in this method executes in a transactional context
-                public Object doInTransaction(TransactionStatus status) {
-                    DataProvider.this.bulkwire(dataProviderEntity);
-                    return null;
-                }
-            });
+            List<TransactionCallback> transactionCallbacks = DataProvider.this.getBulkwireCallbacks(dataProviderEntity);
+
+            for (TransactionCallback transactionCallback : transactionCallbacks) {
+                this.transactionTemplate.execute(transactionCallback);
+            }
             log.info("Wiring complete");
             this.uploadData.delete();
         }
@@ -115,6 +113,13 @@ public abstract class DataProvider {
                     return null;
                 }
             });
+
+            log.info("Wiring");
+            List<TransactionCallback> transactionCallbacks = DataProvider.this.getBulkwireCallbacks(dataProviderEntity);
+            for (TransactionCallback transactionCallback : transactionCallbacks) {
+                this.transactionTemplate.execute(transactionCallback);
+            }
+            log.info("Wiring complete");
         }
     }
 
@@ -174,8 +179,9 @@ public abstract class DataProvider {
         return thread;
     }
 
-    protected void bulkwire(DataProviderEntity dataProviderEntity) {
+    protected List<TransactionCallback> getBulkwireCallbacks(DataProviderEntity dataProviderEntity) {
         // Override me
+        return null;
     }
 
     //public abstract Properties getConfigSpecification(DataProviderEntity dataProviderEntity);

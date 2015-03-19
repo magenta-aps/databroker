@@ -32,6 +32,8 @@ import dk.magenta.databroker.util.objectcontainers.Level1Container;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManagerFactory;
@@ -698,8 +700,11 @@ public class CvrModel {
 
     //------------------------------------------------------------------------------------------------------------------
 
-    public void bulkWireReferences() {
-        this.companyUnitRepository.bulkWireReferences();
-        this.deltagerRepository.bulkWireReferences();
+    public List<TransactionCallback> getBulkwireCallbacks() {
+        ArrayList<TransactionCallback> transactionCallbacks = new ArrayList<TransactionCallback>();
+        transactionCallbacks.addAll(this.companyRepository.getBulkwireCallbacks());
+        transactionCallbacks.addAll(this.companyUnitRepository.getBulkwireCallbacks());
+        transactionCallbacks.addAll(this.deltagerRepository.getBulkwireCallbacks());
+        return transactionCallbacks;
     }
 }

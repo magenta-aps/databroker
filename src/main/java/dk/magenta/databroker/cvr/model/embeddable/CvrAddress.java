@@ -313,6 +313,7 @@ public class CvrAddress {
             obj.put("municipalityCode", this.municipalityCode);
         }
         obj.put("municipalityText", this.municipalityText);
+        obj.put("location", this.cityName);
         if (this.postBox > 0) {
             obj.put("postBox", this.postBox);
         }

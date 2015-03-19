@@ -5,8 +5,10 @@ import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.support.TransactionCallback;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Created by lars on 29-12-14.
@@ -44,7 +46,7 @@ public interface AdgangsAdresseRepository extends JpaRepository<AdgangsAdresseEn
     * */
     public Collection<AdgangsAdresseEntity> search(SearchParameters parameters);
     public AdgangsAdresseEntity getByDescriptor(long descriptor);
-    public void bulkWireReferences();
+    public List<TransactionCallback> getBulkwireCallbacks();
     public void clear();
 
 }

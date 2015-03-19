@@ -12,8 +12,12 @@ import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.util.Util;
 import dk.magenta.databroker.util.objectcontainers.StringList;
 import org.apache.log4j.Logger;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Created by lars on 09-12-14.
@@ -21,7 +25,7 @@ import java.util.Collection;
 
 interface AdgangsAdresseRepositoryCustom {
     public Collection<AdgangsAdresseEntity> search(SearchParameters parameters);
-    public void bulkWireReferences();
+    public List<TransactionCallback> getBulkwireCallbacks();
     public void clear();
     public AdgangsAdresseEntity getByDescriptor(long descriptor);
 }
@@ -106,10 +110,19 @@ public class AdgangsAdresseRepositoryImpl extends RepositoryImplementation<Adgan
         return this.query(hql, conditions, parameters.getGlobalCondition());
     }
 
-    public void bulkWireReferences() {
-        this.log.info("Updating references between addresses and roads");
-        double time = Util.getTime();
-        this.entityManager.createNativeQuery("update dawa_adgangsadresse adresse join dawa_vejstykke vej on adresse.vejstykke_descriptor=vej.descriptor set adresse.vejstykke_id=vej.id where adresse.vejstykke_id is NULL").executeUpdate();
-        this.log.info("References updated in "+(Util.getTime()-time)+" ms");
+    public List<TransactionCallback> getBulkwireCallbacks() {
+        ArrayList<TransactionCallback> transactionCallbacks = new ArrayList<TransactionCallback>();
+        transactionCallbacks.add(new TransactionCallback() {
+            @Override
+            public Object doInTransaction(TransactionStatus transactionStatus) {
+                AdgangsAdresseRepositoryImpl repositoryImplementation = AdgangsAdresseRepositoryImpl.this;
+                repositoryImplementation.log.info("Updating references between addresses and roads");
+                double time = Util.getTime();
+                repositoryImplementation.entityManager.createNativeQuery("update dawa_adgangsadresse adresse join dawa_vejstykke vej on adresse.vejstykke_descriptor=vej.descriptor set adresse.vejstykke_id=vej.id where adresse.vejstykke_id is NULL").executeUpdate();
+                repositoryImplementation.log.info("References updated in "+(Util.getTime()-time)+" ms");
+                return null;
+            }
+        });
+        return transactionCallbacks;
     }
 }

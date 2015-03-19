@@ -6,8 +6,11 @@ import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.util.Util;
 import dk.magenta.databroker.util.objectcontainers.StringList;
 import org.apache.log4j.Logger;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
 
 import javax.persistence.Query;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -17,7 +20,7 @@ import java.util.List;
 
 
 interface CompanyUnitRepositoryCustom {
-    public void bulkWireReferences();
+    public List<TransactionCallback> getBulkwireCallbacks();
     public void clear();
     public CompanyUnitEntity getByPno(long pno);
     public List<Long> getUnitNumbers();
@@ -27,32 +30,51 @@ public class CompanyUnitRepositoryImpl extends RepositoryImplementation<CompanyU
 
     private Logger log = Logger.getLogger(CompanyUnitRepositoryImpl.class);
 
-    public void bulkWireReferences() {
-        double time;
-        this.log.info("Updating references between units and companies");
-        time = Util.getTime();
-        this.runNativeQuery("update cvr_companyunit_version unitversion " +
-                "join cvr_company company on unitversion.cvr_nummer=company.cvr_nummer " +
-                "set unitversion.company_version_id=company.latest_version_id " +
-                "where unitversion.company_version_id is NULL");
-        this.log.info("References updated in " + (Util.getTime() - time) + " ms");
+    public List<TransactionCallback> getBulkwireCallbacks() {
+        ArrayList<TransactionCallback> transactionCallbacks = new ArrayList<TransactionCallback>();
 
-        this.log.info("Updating references between units and addresses");
-        time = Util.getTime();
-        this.runNativeQuery("update cvr_companyunit_version unitversion " +
-                "join dawa_enhedsadresse address on unitversion.postal_address_descriptor=address.descriptor " +
-                "set unitversion.postal_address_enheds_adresse=address.id " +
-                "where unitversion.postal_address_enheds_adresse is NULL");
-        this.runNativeQuery("update cvr_companyunit_version unitversion " +
-                "join dawa_enhedsadresse address on unitversion.location_address_descriptor=address.descriptor " +
-                "set unitversion.location_address_enheds_adresse=address.id " +
-                "where unitversion.location_address_enheds_adresse is NULL");
-        this.log.info("References updated in "+(Util.getTime() - time)+" ms");
+        transactionCallbacks.add(new TransactionCallback() {
+            @Override
+            public Object doInTransaction(TransactionStatus transactionStatus) {
+                CompanyUnitRepositoryImpl repositoryImplementation = CompanyUnitRepositoryImpl.this;
+                repositoryImplementation.log.info("Updating references between units and companies");
+                double time = Util.getTime();
+                repositoryImplementation.runNativeQuery("update cvr_companyunit_version unitversion " +
+                        "join cvr_company company on unitversion.cvr_nummer=company.cvr_nummer " +
+                        "set unitversion.company_version_id=company.latest_version_id " +
+                        "where unitversion.company_version_id is NULL");
+                repositoryImplementation.log.info("References updated in " + (Util.getTime() - time) + " ms");
+                return null;
+            }
+        });
+
+
+        transactionCallbacks.add(new TransactionCallback() {
+            @Override
+            public Object doInTransaction(TransactionStatus transactionStatus) {
+                CompanyUnitRepositoryImpl repositoryImplementation = CompanyUnitRepositoryImpl.this;
+                repositoryImplementation.log.info("Updating references between units and addresses");
+                double time = Util.getTime();
+                repositoryImplementation.runNativeQuery("update cvr_companyunit_version unitversion " +
+                        "join dawa_enhedsadresse address on unitversion.postal_address_descriptor=address.descriptor " +
+                        "set unitversion.postal_address_enheds_adresse=address.id " +
+                        "where unitversion.postal_address_enheds_adresse is NULL");
+                repositoryImplementation.runNativeQuery("update cvr_companyunit_version unitversion " +
+                        "join dawa_enhedsadresse address on unitversion.location_address_descriptor=address.descriptor " +
+                        "set unitversion.location_address_enheds_adresse=address.id " +
+                        "where unitversion.location_address_enheds_adresse is NULL");
+                repositoryImplementation.log.info("References updated in " + (Util.getTime() - time) + " ms");
+                return null;
+            }
+        });
+
+        return transactionCallbacks;
     }
+
 
     public CompanyUnitEntity getByPno(long pno) {
         StringList hql = new StringList();
-        hql.append("select distinct "+CompanyUnitEntity.databaseKey+" from CompanyUnitEntity as "+CompanyUnitEntity.databaseKey);
+        hql.append("select distinct " + CompanyUnitEntity.databaseKey + " from CompanyUnitEntity as " + CompanyUnitEntity.databaseKey);
         ConditionList conditions = new ConditionList();
         conditions.addCondition(CompanyUnitEntity.pnoCondition(pno));
         hql.append("where");
