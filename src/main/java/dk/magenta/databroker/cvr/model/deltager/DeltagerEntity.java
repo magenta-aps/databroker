@@ -5,6 +5,7 @@ import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.cvr.model.company.CompanyEntity;
 import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.Condition;
+import dk.magenta.databroker.service.rest.SearchService;
 import dk.magenta.databroker.util.cache.Cacheable;
 import org.hibernate.annotations.Index;
 import org.json.JSONObject;
@@ -114,6 +115,7 @@ public class DeltagerEntity extends DobbeltHistorikBase<DeltagerEntity, Deltager
         obj.put("status", version.getStatus().toJSON());
         obj.put("location", version.getLocationAddress().toJSON());
         obj.put("cvrNummer", version.getCvrNummer());
+        obj.put("href", SearchService.getCompanyMemberBaseUrl() + "/" + this.getDeltagerNummer());
 
         return obj;
     }

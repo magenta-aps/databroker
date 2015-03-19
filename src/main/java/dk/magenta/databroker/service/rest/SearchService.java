@@ -421,6 +421,30 @@ public class SearchService {
 
     //------------------------------------------------------------------------------------------------------------------
 
+    public static String getCompanyMemberBaseUrl() {
+        return SearchService.getBaseUrl() + "/deltager";
+    }
+
+    @GET
+    @Path("deltager/{deltagernummer}")
+    @Transactional
+    public String companyMember(@PathParam("deltagernummer") String deltagernummer,
+                              @QueryParam("format") String formatStr) {
+        Format fmt = this.getFormat(formatStr);
+        OutputFormattable lokalitetEntity = null;
+        try {
+            lokalitetEntity = this.cvrModel.getDeltager(Long.parseLong(deltagernummer), true);
+        } catch (NumberFormatException e) {}
+        if (lokalitetEntity != null) {
+            return this.format(lokalitetEntity, fmt);
+        } else {
+            throw new NotFoundException();
+        }
+    }
+
+
+    //------------------------------------------------------------------------------------------------------------------
+
     private static int indent = 4;
 
     private String format(OutputFormattable output, Format format) {

@@ -129,6 +129,7 @@ public class CompanyEntity extends DobbeltHistorikBase<CompanyEntity, CompanyVer
             JSONObject deltager = new JSONObject();
             deltager.put("deltagerNummer", rel.getDeltagerNummer());
             deltager.put("validFrom", rel.getValidFrom());
+            deltager.put("href", SearchService.getCompanyMemberBaseUrl() + "/" + rel.getDeltagerNummer());
             deltagere.put(deltager);
         }
         obj.put("deltagere", deltagere);
