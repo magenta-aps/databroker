@@ -1,6 +1,11 @@
 package dk.magenta.databroker.cvr.model.embeddable;
 
+import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitEntity;
 import dk.magenta.databroker.cvr.model.industry.IndustryEntity;
+import dk.magenta.databroker.dawa.model.SearchParameters;
+import dk.magenta.databroker.register.RepositoryUtil;
+import dk.magenta.databroker.register.conditions.Condition;
+import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.util.Util;
 import org.hibernate.annotations.Index;
 import org.json.JSONArray;
@@ -10,6 +15,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * Created by jubk on 04-03-2015.
@@ -354,5 +360,136 @@ public class CompanyInfo {
                         Util.compare(this.yearlyEmployeeNumbers, otherCompanyInfo.getYearlyEmployeeNumbers())
                 );
     }
+
+
+
+    public static Condition nameCondition(SearchParameters parameters, String pathPrefix) {
+        if (parameters.has(SearchParameters.Key.VIRKSOMHED)) {
+            return RepositoryUtil.whereField(parameters.get(SearchParameters.Key.VIRKSOMHED), null, pathPrefix + ".name");
+        }
+        return null;
+    }
+    public static Condition emailCondition(SearchParameters parameters, String pathPrefix) {
+        if (parameters.has(SearchParameters.Key.EMAIL)) {
+            return ValidFromField.fromCondition(parameters.get(SearchParameters.Key.EMAIL), pathPrefix + ".email");
+        }
+        return null;
+    }
+    public static Condition phoneCondition(SearchParameters parameters, String pathPrefix) {
+        if (parameters.has(SearchParameters.Key.PHONE)) {
+            return ValidFromField.fromCondition(parameters.get(SearchParameters.Key.PHONE), pathPrefix + ".telephoneNumber");
+        }
+        return null;
+    }
+    public static Condition faxCondition(SearchParameters parameters, String pathPrefix) {
+        if (parameters.has(SearchParameters.Key.FAX)) {
+            return ValidFromField.fromCondition(parameters.get(SearchParameters.Key.FAX), pathPrefix + ".telefaxNumber");
+        }
+        return null;
+    }
+    public static Condition primaryIndustryCondition(SearchParameters parameters, String pathPrefix) {
+        if (parameters.has(SearchParameters.Key.PRIMARYINDUSTRY)) {
+            return primaryIndustryCondition(parameters.get(SearchParameters.Key.PRIMARYINDUSTRY), pathPrefix);
+        }
+        return null;
+    }
+    private static Condition primaryIndustryCondition(String[] value, String pathPrefix) {
+        return IndustryEntity.industryCondition(value, pathPrefix + ".primaryIndustry");
+    }
+    public static Condition secondaryIndustryCondition(SearchParameters parameters, String pathPrefix) {
+        if (parameters.has(SearchParameters.Key.SECONDARYINDUSTRY)) {
+            return secondaryIndustryCondition(parameters.get(SearchParameters.Key.SECONDARYINDUSTRY), pathPrefix);
+        }
+        return null;
+    }
+    private static Condition secondaryIndustryCondition(String[] value, String pathPrefix) {
+        String secIndustryKey = "secondaryIndustry";
+        Condition condition = IndustryEntity.industryCondition(value, secIndustryKey);
+        condition.addRequiredJoin(pathPrefix + ".secondaryIndustries as " + secIndustryKey);
+        return condition;
+    }
+    public static Condition anyIndustryCondition(SearchParameters parameters, String pathPrefix) {
+        if (parameters.has(SearchParameters.Key.ANYINDUSTRY)) {
+            ConditionList conditions = new ConditionList(ConditionList.Operator.OR);
+            String[] value = parameters.get(SearchParameters.Key.ANYINDUSTRY);
+            conditions.addCondition(primaryIndustryCondition(value, pathPrefix));
+            conditions.addCondition(secondaryIndustryCondition(value, pathPrefix));
+            return conditions;
+        }
+        return null;
+    }
+
+
+    /*public static Condition updateCondition(SearchParameters parameters, String pathPrefix) {
+        if (parameters.has(SearchParameters.Key.UPDATEDATE)) {
+            return RepositoryUtil.whereField(parameters.get(SearchParameters.Key.UPDATEDATE), null, pathPrefix + ".updateDate");
+        }
+        return null;
+    }*/
+
+    public static Condition kommuneCondition(SearchParameters parameters, String pathPrefix) {
+        if (parameters.has(SearchParameters.Key.KOMMUNE)) {
+            ConditionList conditionList = new ConditionList(ConditionList.Operator.OR);
+            conditionList.addCondition(CvrAddress.kommuneCondition(parameters, pathPrefix+".locationAddress"));
+            conditionList.addCondition(CvrAddress.kommuneCondition(parameters, pathPrefix + ".postalAddress"));
+            return conditionList;
+        }
+        return null;
+    }
+    public static Condition vejCondition(SearchParameters parameters, String pathPrefix) {
+        if (parameters.has(SearchParameters.Key.VEJ)) {
+            ConditionList conditionList = new ConditionList(ConditionList.Operator.OR);
+            conditionList.addCondition(CvrAddress.vejCondition(parameters, pathPrefix + ".locationAddress"));
+            conditionList.addCondition(CvrAddress.vejCondition(parameters, pathPrefix + ".postalAddress"));
+            return conditionList;
+        }
+        return null;
+    }
+    public static Condition postCondition(SearchParameters parameters, String pathPrefix) {
+        if (parameters.has(SearchParameters.Key.POST)) {
+            ConditionList conditionList = new ConditionList(ConditionList.Operator.OR);
+            conditionList.addCondition(CvrAddress.postnrCondition(parameters, pathPrefix + ".locationAddress"));
+            conditionList.addCondition(CvrAddress.postnrCondition(parameters, pathPrefix + ".postalAddress"));
+            return conditionList;
+        }
+        return null;
+    }
+    public static Condition lokalitetCondition(SearchParameters parameters, String pathPrefix) {
+        if (parameters.has(SearchParameters.Key.LOKALITET)) {
+            ConditionList conditionList = new ConditionList(ConditionList.Operator.OR);
+            conditionList.addCondition(CvrAddress.lokalitetCondition(parameters, pathPrefix + ".locationAddress"));
+            conditionList.addCondition(CvrAddress.lokalitetCondition(parameters, pathPrefix + ".postalAddress"));
+            return conditionList;
+        }
+        return null;
+    }
+    public static Condition husnrCondition(SearchParameters parameters, String pathPrefix) {
+        if (parameters.has(SearchParameters.Key.HUSNR)) {
+            ConditionList conditionList = new ConditionList(ConditionList.Operator.OR);
+            conditionList.addCondition(CvrAddress.husnrCondition(parameters, pathPrefix + ".locationAddress"));
+            conditionList.addCondition(CvrAddress.husnrCondition(parameters, pathPrefix + ".postalAddress"));
+            return conditionList;
+        }
+        return null;
+    }
+    public static Condition etageCondition(SearchParameters parameters, String pathPrefix) {
+        if (parameters.has(SearchParameters.Key.ETAGE)) {
+            ConditionList conditionList = new ConditionList(ConditionList.Operator.OR);
+            conditionList.addCondition(CvrAddress.etageCondition(parameters, pathPrefix + ".locationAddress"));
+            conditionList.addCondition(CvrAddress.etageCondition(parameters, pathPrefix + ".postalAddress"));
+            return conditionList;
+        }
+        return null;
+    }
+    public static Condition doerCondition(SearchParameters parameters, String pathPrefix) {
+        if (parameters.has(SearchParameters.Key.DOER)) {
+            ConditionList conditionList = new ConditionList(ConditionList.Operator.OR);
+            conditionList.addCondition(CvrAddress.doerCondition(parameters, pathPrefix + ".locationAddress"));
+            conditionList.addCondition(CvrAddress.doerCondition(parameters, pathPrefix + ".postalAddress"));
+            return conditionList;
+        }
+        return null;
+    }
+
 
 }

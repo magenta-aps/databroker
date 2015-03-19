@@ -6,6 +6,7 @@ import dk.magenta.databroker.cvr.model.company.companydeltagere.CompanyDeltagerR
 import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitEntity;
 import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitVersionEntity;
 import dk.magenta.databroker.cvr.model.deltager.DeltagerVersionEntity;
+import dk.magenta.databroker.cvr.model.embeddable.CompanyInfo;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.register.RepositoryUtil;
@@ -155,6 +156,7 @@ public class CompanyEntity extends DobbeltHistorikBase<CompanyEntity, CompanyVer
     //------------------------------------------------------------------------------------------------------------------
 
     public static final String databaseKey = "company";
+    private static final String companyInfoKey = databaseKey+".latestVersion.companyInfo";
 
     public static Condition cvrCondition(SearchParameters parameters) {
         if (parameters.has(Key.CVR)) {
@@ -166,10 +168,46 @@ public class CompanyEntity extends DobbeltHistorikBase<CompanyEntity, CompanyVer
         return RepositoryUtil.whereField(cvrNummer, null, databaseKey+".cvrNummer");
     }
     public static Condition virksomhedCondition(SearchParameters parameters) {
-        if (parameters.has(Key.VIRKSOMHED)) {
-            return RepositoryUtil.whereField(parameters.get(Key.VIRKSOMHED), null, databaseKey+".latestVersion.companyInfo.name");
-        }
-        return null;
+        return CompanyInfo.nameCondition(parameters, companyInfoKey);
+    }
+    public static Condition emailCondition(SearchParameters parameters) {
+        return CompanyInfo.emailCondition(parameters, companyInfoKey);
+    }
+    public static Condition phoneCondition(SearchParameters parameters) {
+        return CompanyInfo.phoneCondition(parameters, companyInfoKey);
+    }
+    public static Condition faxCondition(SearchParameters parameters) {
+        return CompanyInfo.faxCondition(parameters, companyInfoKey);
+    }
+    public static Condition primaryIndustryCondition(SearchParameters parameters) {
+        return CompanyInfo.primaryIndustryCondition(parameters, companyInfoKey);
+    }
+    public static Condition secondaryIndustryCondition(SearchParameters parameters) {
+        return CompanyInfo.secondaryIndustryCondition(parameters, companyInfoKey);
+    }
+    public static Condition anyIndustryCondition(SearchParameters parameters) {
+        return CompanyInfo.anyIndustryCondition(parameters, companyInfoKey);
+    }
+    public static Condition kommuneCondition(SearchParameters parameters) {
+        return CompanyInfo.kommuneCondition(parameters, companyInfoKey);
+    }
+    public static Condition vejCondition(SearchParameters parameters) {
+        return CompanyInfo.vejCondition(parameters, companyInfoKey);
+    }
+    public static Condition postCondition(SearchParameters parameters) {
+        return CompanyInfo.postCondition(parameters, companyInfoKey);
+    }
+    public static Condition lokalitetCondition(SearchParameters parameters) {
+        return CompanyInfo.lokalitetCondition(parameters, companyInfoKey);
+    }
+    public static Condition husnrCondition(SearchParameters parameters) {
+        return CompanyInfo.husnrCondition(parameters, companyInfoKey);
+    }
+    public static Condition etageCondition(SearchParameters parameters) {
+        return CompanyInfo.etageCondition(parameters, companyInfoKey);
+    }
+    public static Condition doerCondition(SearchParameters parameters) {
+        return CompanyInfo.doerCondition(parameters, companyInfoKey);
     }
 
     public static String[] joinCompanyUnit() {
@@ -181,6 +219,8 @@ public class CompanyEntity extends DobbeltHistorikBase<CompanyEntity, CompanyVer
                 unitVersionsKey + ".entity as " + CompanyUnitEntity.databaseKey
         };
     }
+
+    //public static Condition
 
     @Override
     public String[] getIdentifiers() {

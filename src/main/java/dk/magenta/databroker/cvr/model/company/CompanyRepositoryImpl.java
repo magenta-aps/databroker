@@ -1,14 +1,8 @@
 package dk.magenta.databroker.cvr.model.company;
 
 import dk.magenta.databroker.core.model.RepositoryImplementation;
-import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitEntity;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
-import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseEntity;
-import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseEntity;
-import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
-import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
-import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.util.objectcontainers.StringList;
@@ -43,8 +37,17 @@ public class CompanyRepositoryImpl extends RepositoryImplementation<CompanyEntit
         conditions.addCondition(CompanyEntity.virksomhedCondition(parameters));
         conditions.addCondition(CompanyEntity.cvrCondition(parameters));
 
-        if (parameters.hasAny(Key.HUSNR, Key.ETAGE, Key.LAND, Key.KOMMUNE, Key.VEJ, Key.POST)) {
-            join.append(CompanyEntity.joinCompanyUnit());
+        if (parameters.hasAny(Key.LAND, Key.KOMMUNE, Key.VEJ, Key.POST, Key.HUSNR, Key.ETAGE, Key.DOER, Key.LOKALITET)) {
+            conditions.addCondition(CompanyEntity.kommuneCondition(parameters));
+            conditions.addCondition(CompanyEntity.vejCondition(parameters));
+            conditions.addCondition(CompanyEntity.postCondition(parameters));
+            conditions.addCondition(CompanyEntity.lokalitetCondition(parameters));
+            conditions.addCondition(CompanyEntity.husnrCondition(parameters));
+            conditions.addCondition(CompanyEntity.etageCondition(parameters));
+            conditions.addCondition(CompanyEntity.doerCondition(parameters));
+
+
+            /*join.append(CompanyEntity.joinCompanyUnit());
             join.append(CompanyUnitEntity.joinEnhedsAdresse());
             join.append(EnhedsAdresseEntity.joinAdgangsAdresse());
 
@@ -67,8 +70,16 @@ public class CompanyRepositoryImpl extends RepositoryImplementation<CompanyEntit
                     join.append(VejstykkeEntity.joinPost());
                     conditions.addCondition(PostNummerEntity.postCondition(parameters));
                 }
-            }
+            }*/
         }
+
+        conditions.addCondition(CompanyEntity.emailCondition(parameters));
+        conditions.addCondition(CompanyEntity.phoneCondition(parameters));
+        conditions.addCondition(CompanyEntity.faxCondition(parameters));
+
+        conditions.addCondition(CompanyEntity.primaryIndustryCondition(parameters));
+        conditions.addCondition(CompanyEntity.secondaryIndustryCondition(parameters));
+        conditions.addCondition(CompanyEntity.anyIndustryCondition(parameters));
 
         // our conditions list should now be complete
 

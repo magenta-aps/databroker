@@ -34,6 +34,11 @@ public class LatestCondition implements Condition {
     }
 
     @Override
+    public void addRequiredJoin(String requiredJoin) {
+
+    }
+
+    @Override
     public boolean hasCondition(Condition condition) {
         return (condition == this);
     }

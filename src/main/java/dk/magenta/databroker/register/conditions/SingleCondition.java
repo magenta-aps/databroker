@@ -34,6 +34,11 @@ public class SingleCondition implements Condition {
     }
     public boolean hasRequiredJoin() {return this.requiredJoin!=null; }
 
+    @Override
+    public void addRequiredJoin(String requiredJoin) {
+        this.requiredJoin = requiredJoin;
+    }
+
     public String getWhere() {
         return this.fieldspec + " " + this.operator + " :" + this.key;
     }

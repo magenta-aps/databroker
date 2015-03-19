@@ -11,6 +11,7 @@ public interface Condition {
     public Map<String, Object> getParameters();
     public boolean hasRequiredJoin();
     public List<String> getRequiredJoin();
+    public void addRequiredJoin(String requiredJoin);
     public boolean hasCondition(Condition condition);
     public int size();
 }

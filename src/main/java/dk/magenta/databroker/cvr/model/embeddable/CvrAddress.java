@@ -1,6 +1,10 @@
 package dk.magenta.databroker.cvr.model.embeddable;
 
+import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseEntity;
+import dk.magenta.databroker.register.RepositoryUtil;
+import dk.magenta.databroker.register.conditions.Condition;
+import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.util.Util;
 import org.json.JSONObject;
 
@@ -297,6 +301,7 @@ public class CvrAddress {
         if (this.housenumberTo > 0) {
             obj.put("housenumberTo", this.housenumberTo);
         }
+        obj.put("letterFrom", this.letterFrom);
         obj.put("letterTo", this.letterTo);
         obj.put("floor", this.floor);
         obj.put("sideOrDoor", this.sideOrDoor);
@@ -346,5 +351,57 @@ public class CvrAddress {
                 Util.compare(this.roadName, otherCvrAddress.getRoadName()) &&
                 Util.compare(this.sideOrDoor, otherCvrAddress.getSideOrDoor()) &&
                 Util.compare(this.validFrom, otherCvrAddress.getValidFrom());
+    }
+
+    public static Condition kommuneCondition(SearchParameters parameters, String pathPrefix) {
+        if (parameters.has(SearchParameters.Key.KOMMUNE)) {
+            return RepositoryUtil.whereField(parameters.get(SearchParameters.Key.KOMMUNE), pathPrefix + ".municipalityCode", null);
+        }
+        return null;
+    }
+
+    public static Condition vejCondition(SearchParameters parameters, String pathPrefix) {
+        if (parameters.has(SearchParameters.Key.VEJ)) {
+            return RepositoryUtil.whereField(parameters.get(SearchParameters.Key.VEJ), pathPrefix + ".roadCode", pathPrefix + ".roadName");
+        }
+        return null;
+    }
+
+    public static Condition postnrCondition(SearchParameters parameters, String pathPrefix) {
+        if (parameters.has(SearchParameters.Key.POST)) {
+            return RepositoryUtil.whereField(parameters.get(SearchParameters.Key.POST), pathPrefix + ".postalCode", pathPrefix + ".postalDistrict");
+        }
+        return null;
+    }
+
+    public static Condition lokalitetCondition(SearchParameters parameters, String pathPrefix) {
+        if (parameters.has(SearchParameters.Key.LOKALITET)) {
+            return RepositoryUtil.whereField(parameters.get(SearchParameters.Key.LOKALITET), pathPrefix + ".cityName", pathPrefix + ".cityName");
+        }
+        return null;
+    }
+
+    public static Condition husnrCondition(SearchParameters parameters, String pathPrefix) {
+        if (parameters.has(SearchParameters.Key.HUSNR)) {
+            ConditionList conditions = new ConditionList(ConditionList.Operator.OR);
+            conditions.addCondition(RepositoryUtil.whereField(parameters.get(SearchParameters.Key.HUSNR), null, "concat(" + pathPrefix + ".housenumberFrom, coalesce(" + pathPrefix + ".letterFrom,''))"));
+            conditions.addCondition(RepositoryUtil.whereField(parameters.get(SearchParameters.Key.HUSNR), null, "concat(" + pathPrefix + ".housenumberTo, coalesce("+pathPrefix+".letterTo,''))"));
+            return conditions;
+        }
+        return null;
+    }
+
+    public static Condition etageCondition(SearchParameters parameters, String pathPrefix) {
+        if (parameters.has(SearchParameters.Key.ETAGE)) {
+            return RepositoryUtil.whereField(parameters.get(SearchParameters.Key.ETAGE), null, pathPrefix + ".floor");
+        }
+        return null;
+    }
+
+    public static Condition doerCondition(SearchParameters parameters, String pathPrefix) {
+        if (parameters.has(SearchParameters.Key.DOER)) {
+            return RepositoryUtil.whereField(parameters.get(SearchParameters.Key.DOER), null, pathPrefix + ".sideOrDoor");
+        }
+        return null;
     }
 }

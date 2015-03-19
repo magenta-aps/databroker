@@ -15,6 +15,7 @@ public class ConditionList extends ArrayList<Condition> implements Condition {
     }
 
     private Operator operator;
+    private ArrayList<String> extraJoins;
 
     public ConditionList() {
         this(Operator.AND);
@@ -22,6 +23,7 @@ public class ConditionList extends ArrayList<Condition> implements Condition {
 
     public ConditionList(Operator operator) {
         this.operator = operator;
+        this.extraJoins = new ArrayList<String>();
     }
 
     public void addCondition(SingleCondition condition) {
@@ -63,7 +65,7 @@ public class ConditionList extends ArrayList<Condition> implements Condition {
     }
 
     public List<String> getRequiredJoin() {
-        ArrayList<String> list = new ArrayList<String>();
+        ArrayList<String> list = new ArrayList<String>(this.extraJoins);
         for (Condition condition : this) {
             list.addAll(condition.getRequiredJoin());
         }
@@ -75,9 +77,13 @@ public class ConditionList extends ArrayList<Condition> implements Condition {
                 return true;
             }
         }
-        return false;
+        return !this.extraJoins.isEmpty();
     }
 
+    @Override
+    public void addRequiredJoin(String requiredJoin) {
+        this.extraJoins.add(requiredJoin);
+    }
 
     public String getWhere() {
         StringList stringList = new StringList();

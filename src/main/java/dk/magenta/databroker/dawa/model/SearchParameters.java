@@ -21,7 +21,14 @@ public class SearchParameters extends HashMap<String, String[]> {
         ETAGE,
         DOER,
         VIRKSOMHED,
-        CVR
+        CVR,
+        EMAIL,
+        PHONE,
+        FAX,
+        PRIMARYINDUSTRY,
+        SECONDARYINDUSTRY,
+        ANYINDUSTRY,
+        UPDATEDATE
     }
 
     private GlobalCondition globalCondition = null;

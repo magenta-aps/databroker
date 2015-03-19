@@ -47,7 +47,7 @@ public abstract class RepositoryImplementation<T> {
     protected Logger log = Logger.getLogger(this.getClass());
 
     protected List<T> query(StringList hql, ConditionList conditions, GlobalCondition globalCondition) {
-        this.log.trace(hql.join(" \n"));
+        this.log.info(hql.join(" \n"));
         Query q = this.entityManager.createQuery(hql.join(" "));
 
         int offset;
@@ -69,7 +69,7 @@ public abstract class RepositoryImplementation<T> {
             queryParameters = conditions.getParameters();
             for (String key : queryParameters.keySet()) {
                 Object value = queryParameters.get(key);
-                this.log.trace(key + " = " + value);
+                this.log.info(key + " = " + value);
                 if (value.getClass() == Long.class) {
                     q.setParameter(key, (Long) value);
                 } else if (value.getClass() == Integer.class) {

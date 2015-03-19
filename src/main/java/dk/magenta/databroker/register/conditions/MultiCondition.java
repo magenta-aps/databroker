@@ -54,6 +54,11 @@ public class MultiCondition implements Condition {
     }
     public boolean hasRequiredJoin() {return this.requiredJoin!=null; }
 
+    @Override
+    public void addRequiredJoin(String requiredJoin) {
+        this.requiredJoin = requiredJoin;
+    }
+
     public String getWhere() {
         StringList keyList = new StringList(this.value.keySet());
         keyList.setPrefix(":");

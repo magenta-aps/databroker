@@ -1,5 +1,8 @@
 package dk.magenta.databroker.cvr.model.embeddable;
 
+import dk.magenta.databroker.dawa.model.SearchParameters;
+import dk.magenta.databroker.register.RepositoryUtil;
+import dk.magenta.databroker.register.conditions.Condition;
 import dk.magenta.databroker.util.Util;
 import org.json.JSONObject;
 
@@ -25,6 +28,7 @@ public class ValidFromField {
 
     @Column
     private String text;
+
     public String getText() {
         return text;
     }
@@ -61,6 +65,7 @@ public class ValidFromField {
         }
         return this.equals((ValidFromField) otherObject);
     }
+
     public boolean equals(ValidFromField otherValidFromField) {
         return Util.compare(this.text, otherValidFromField.getText()) &&
                 Util.compare(this.validFrom, otherValidFromField.getValidFrom());
@@ -75,5 +80,9 @@ public class ValidFromField {
             return true;
         }
         return Util.compare(a, b);
+    }
+
+    public static Condition fromCondition(String[] value, String pathPrefix) {
+        return RepositoryUtil.whereField(value, null, pathPrefix+".text");
     }
 }

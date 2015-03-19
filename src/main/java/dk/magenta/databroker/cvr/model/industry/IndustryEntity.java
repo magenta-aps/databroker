@@ -2,6 +2,9 @@ package dk.magenta.databroker.cvr.model.industry;
 
 import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.core.model.oio.UniqueBase;
+import dk.magenta.databroker.dawa.model.SearchParameters;
+import dk.magenta.databroker.register.RepositoryUtil;
+import dk.magenta.databroker.register.conditions.Condition;
 import dk.magenta.databroker.util.Util;
 import org.hibernate.annotations.Index;
 import org.json.JSONObject;
@@ -92,5 +95,10 @@ public class IndustryEntity implements OutputFormattable {
     public boolean equals(IndustryEntity otherIndustryEntity) {
         return this.code == otherIndustryEntity.getCode() &&
                 Util.compare(this.name, otherIndustryEntity.getName());
+    }
+
+
+    public static Condition industryCondition(String[] value, String pathPrefix) {
+        return RepositoryUtil.whereField(value, pathPrefix + ".code", pathPrefix + ".name");
     }
 }
