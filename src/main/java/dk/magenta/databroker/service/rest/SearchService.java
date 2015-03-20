@@ -325,7 +325,7 @@ public class SearchService {
     public String company(@QueryParam("land") String[] land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej, @QueryParam("husnr") String[] husnr, @QueryParam("post") String[] post, @QueryParam("lokalitet") String[] lokalitet, @QueryParam("etage") String[] etage, @QueryParam("doer") String[] doer, @QueryParam("bnr") String[] bnr,
                           @QueryParam("virksomhed") String[] virksomhed, @QueryParam("cvr") String[] cvr,
                           @QueryParam("email") String[] email, @QueryParam("phone") String[] phone, @QueryParam("fax") String[] fax,
-                          @QueryParam("primaryIndustry") String[] primaryIndustry, @QueryParam("secondaryIndustry") String[] secondaryIndustry, @QueryParam("anyIndustry") String[] anyIndustry,
+                          @QueryParam("primaryIndustry") String[] primaryIndustry, @QueryParam("secondaryIndustry") String[] secondaryIndustry, @QueryParam("industri") String[] industri,
                           @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter, @QueryParam("offset") int offset, @QueryParam("limit") int limit) {
         Format fmt = this.getFormat(formatStr);
 
@@ -337,7 +337,7 @@ public class SearchService {
         parameters.put(SearchParameters.Key.FAX, fax);
         parameters.put(SearchParameters.Key.PRIMARYINDUSTRY, primaryIndustry);
         parameters.put(SearchParameters.Key.SECONDARYINDUSTRY, secondaryIndustry);
-        parameters.put(SearchParameters.Key.ANYINDUSTRY, anyIndustry);
+        parameters.put(SearchParameters.Key.ANYINDUSTRY, industri);
 
 
         ArrayList<OutputFormattable> virksomheder = new ArrayList<OutputFormattable>(
@@ -375,14 +375,14 @@ public class SearchService {
     @Path("produktionsenhed")
     @Transactional
     public String companyUnit(@QueryParam("land") String[] land, @QueryParam("kommune") String[] kommune, @QueryParam("vej") String[] vej, @QueryParam("husnr") String[] husnr, @QueryParam("post") String[] post, @QueryParam("lokalitet") String[] lokalitet, @QueryParam("etage") String[] etage, @QueryParam("doer") String[] doer, @QueryParam("bnr") String[] bnr,
-                          @QueryParam("virksomhed") String[] virksomhed, @QueryParam("cvr") String[] cvr, @QueryParam("pnr") String[] pnr,
+                          @QueryParam("navn") String[] navn, @QueryParam("cvr") String[] cvr, @QueryParam("pnr") String[] pnr,
                           @QueryParam("email") String[] email, @QueryParam("phone") String[] phone, @QueryParam("fax") String[] fax,
-                          @QueryParam("primaryIndustry") String[] primaryIndustry, @QueryParam("secondaryIndustry") String[] secondaryIndustry, @QueryParam("anyIndustry") String[] anyIndustry,
+                          @QueryParam("primaryIndustry") String[] primaryIndustry, @QueryParam("secondaryIndustry") String[] secondaryIndustry, @QueryParam("industri") String[] industri,
                           @QueryParam("format") String formatStr, @QueryParam("includeBefore") String includeBefore, @QueryParam("includeAfter") String includeAfter, @QueryParam("offset") int offset, @QueryParam("limit") int limit) {
         Format fmt = this.getFormat(formatStr);
 
         SearchParameters parameters = new SearchParameters(land, kommune, post, lokalitet, vej, husnr, bnr, etage, doer, new GlobalCondition(includeBefore, includeAfter, offset, limit));
-        parameters.put(SearchParameters.Key.VIRKSOMHED, virksomhed);
+        parameters.put(SearchParameters.Key.VIRKSOMHED, navn);
         parameters.put(SearchParameters.Key.CVR, cvr);
         parameters.put(SearchParameters.Key.PNR, pnr);
         parameters.put(SearchParameters.Key.EMAIL, email);
@@ -390,7 +390,7 @@ public class SearchService {
         parameters.put(SearchParameters.Key.FAX, fax);
         parameters.put(SearchParameters.Key.PRIMARYINDUSTRY, primaryIndustry);
         parameters.put(SearchParameters.Key.SECONDARYINDUSTRY, secondaryIndustry);
-        parameters.put(SearchParameters.Key.ANYINDUSTRY, anyIndustry);
+        parameters.put(SearchParameters.Key.ANYINDUSTRY, industri);
 
 
         ArrayList<OutputFormattable> virksomheder = new ArrayList<OutputFormattable>(

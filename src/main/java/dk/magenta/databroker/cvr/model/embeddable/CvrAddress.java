@@ -354,9 +354,16 @@ public class CvrAddress {
                 Util.compare(this.validFrom, otherCvrAddress.getValidFrom());
     }
 
+    public static Condition landCondition(SearchParameters parameters, String pathPrefix) {
+        if (parameters.has(SearchParameters.Key.LAND)) {
+            return RepositoryUtil.whereFieldLand(parameters.get(SearchParameters.Key.LAND), pathPrefix + ".municipalityCode");
+        }
+        return null;
+    }
+
     public static Condition kommuneCondition(SearchParameters parameters, String pathPrefix) {
         if (parameters.has(SearchParameters.Key.KOMMUNE)) {
-            return RepositoryUtil.whereField(parameters.get(SearchParameters.Key.KOMMUNE), pathPrefix + ".municipalityCode", null);
+            return RepositoryUtil.whereField(parameters.get(SearchParameters.Key.KOMMUNE), pathPrefix + ".municipalityCode", pathPrefix + ".municipalityText");
         }
         return null;
     }

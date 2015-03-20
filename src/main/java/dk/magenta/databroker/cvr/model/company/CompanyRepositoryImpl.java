@@ -43,6 +43,7 @@ public class CompanyRepositoryImpl extends RepositoryImplementation<CompanyEntit
         conditions.addCondition(CompanyEntity.cvrCondition(parameters));
 
         if (parameters.hasAny(Key.LAND, Key.KOMMUNE, Key.VEJ, Key.POST, Key.HUSNR, Key.ETAGE, Key.DOER, Key.LOKALITET)) {
+            conditions.addCondition(CompanyEntity.landCondition(parameters));
             conditions.addCondition(CompanyEntity.kommuneCondition(parameters));
             conditions.addCondition(CompanyEntity.vejCondition(parameters));
             conditions.addCondition(CompanyEntity.postCondition(parameters));

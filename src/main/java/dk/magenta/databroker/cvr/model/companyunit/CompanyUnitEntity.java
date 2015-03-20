@@ -157,7 +157,7 @@ public class CompanyUnitEntity extends DobbeltHistorikBase<CompanyUnitEntity, Co
     public static Condition cvrCondition(String cvrNummer) {
         return RepositoryUtil.whereField(cvrNummer, null, databaseKey+".cvrNummer");
     }
-    public static Condition virksomhedCondition(SearchParameters parameters) {
+    public static Condition nameCondition(SearchParameters parameters) {
         return CompanyInfo.nameCondition(parameters, companyInfoKey);
     }
     public static Condition emailCondition(SearchParameters parameters) {
@@ -177,6 +177,9 @@ public class CompanyUnitEntity extends DobbeltHistorikBase<CompanyUnitEntity, Co
     }
     public static Condition anyIndustryCondition(SearchParameters parameters) {
         return CompanyInfo.anyIndustryCondition(parameters, companyInfoKey);
+    }
+    public static Condition landCondition(SearchParameters parameters) {
+        return CompanyInfo.landCondition(parameters, companyInfoKey);
     }
     public static Condition kommuneCondition(SearchParameters parameters) {
         return CompanyInfo.kommuneCondition(parameters, companyInfoKey);

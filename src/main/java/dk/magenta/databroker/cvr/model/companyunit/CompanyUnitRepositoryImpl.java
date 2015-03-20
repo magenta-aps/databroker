@@ -1,7 +1,6 @@
 package dk.magenta.databroker.cvr.model.companyunit;
 
 import dk.magenta.databroker.core.model.RepositoryImplementation;
-import dk.magenta.databroker.cvr.model.company.CompanyEntity;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
@@ -105,11 +104,12 @@ public class CompanyUnitRepositoryImpl extends RepositoryImplementation<CompanyU
         hql.append("select distinct "+CompanyUnitEntity.databaseKey+" from CompanyUnitEntity as "+CompanyUnitEntity.databaseKey);
         join.setPrefix("join ");
 
-        conditions.addCondition(CompanyUnitEntity.virksomhedCondition(parameters));
+        conditions.addCondition(CompanyUnitEntity.nameCondition(parameters));
         conditions.addCondition(CompanyUnitEntity.cvrCondition(parameters));
         conditions.addCondition(CompanyUnitEntity.pnoCondition(parameters));
 
         if (parameters.hasAny(SearchParameters.Key.LAND, SearchParameters.Key.KOMMUNE, SearchParameters.Key.VEJ, SearchParameters.Key.POST, SearchParameters.Key.HUSNR, SearchParameters.Key.ETAGE, SearchParameters.Key.DOER, SearchParameters.Key.LOKALITET)) {
+            conditions.addCondition(CompanyUnitEntity.landCondition(parameters));
             conditions.addCondition(CompanyUnitEntity.kommuneCondition(parameters));
             conditions.addCondition(CompanyUnitEntity.vejCondition(parameters));
             conditions.addCondition(CompanyUnitEntity.postCondition(parameters));

@@ -83,12 +83,18 @@ public abstract class RepositoryUtil {
         return (land != null && land.length > 0) ? whereFieldLand(land[0]) : null;
     }
     public static Condition whereFieldLand(String land) {
-        if (land != null) {
+        return whereFieldLand(land, "kommune.kode");
+    }
+    public static Condition whereFieldLand(String[] land, String kommuneKodePath) {
+        return (land != null && land.length > 0) ? whereFieldLand(land[0], kommuneKodePath) : null;
+    }
+    public static Condition whereFieldLand(String land, String kommuneKodePath) {
+            if (land != null) {
             land = land.toLowerCase();
             if (land.equals("gl") || land.equals("grønland")) {
-                return whereField("9*", "kommune.kode", null);
+                return whereField("9*", kommuneKodePath, null);
             } else if (land.equals("dk") || land.equals("danmark")) {
-                return whereField("!9*", "kommune.kode", null);
+                return whereField("!9*", kommuneKodePath, null);
             }
         }
         return null;

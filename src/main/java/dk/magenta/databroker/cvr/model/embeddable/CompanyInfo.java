@@ -427,6 +427,15 @@ public class CompanyInfo {
         return null;
     }*/
 
+    public static Condition landCondition(SearchParameters parameters, String pathPrefix) {
+        if (parameters.has(SearchParameters.Key.LAND)) {
+            ConditionList conditionList = new ConditionList(ConditionList.Operator.OR);
+            conditionList.addCondition(CvrAddress.landCondition(parameters, pathPrefix+".locationAddress"));
+            conditionList.addCondition(CvrAddress.landCondition(parameters, pathPrefix + ".postalAddress"));
+            return conditionList;
+        }
+        return null;
+    }
     public static Condition kommuneCondition(SearchParameters parameters, String pathPrefix) {
         if (parameters.has(SearchParameters.Key.KOMMUNE)) {
             ConditionList conditionList = new ConditionList(ConditionList.Operator.OR);

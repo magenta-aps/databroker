@@ -193,6 +193,9 @@ public class CompanyEntity extends DobbeltHistorikBase<CompanyEntity, CompanyVer
     public static Condition anyIndustryCondition(SearchParameters parameters) {
         return CompanyInfo.anyIndustryCondition(parameters, companyInfoKey);
     }
+    public static Condition landCondition(SearchParameters parameters) {
+        return CompanyInfo.landCondition(parameters, companyInfoKey);
+    }
     public static Condition kommuneCondition(SearchParameters parameters) {
         return CompanyInfo.kommuneCondition(parameters, companyInfoKey);
     }

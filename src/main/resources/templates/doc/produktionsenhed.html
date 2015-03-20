@@ -14,8 +14,9 @@
 
     <div class="search">
 
-        <div th:replace="doc/fragments/inputparams/virksomhed"/>
+        <div th:replace="doc/fragments/inputparams/enhedsnavn"/>
         <div th:replace="doc/fragments/inputparams/cvr"/>
+        <div th:replace="doc/fragments/inputparams/pnr"/>
         <div th:replace="doc/fragments/inputparams/land"/>
         <div th:replace="doc/fragments/inputparams/kommune"/>
         <div th:replace="doc/fragments/inputparams/post"/>
@@ -25,15 +26,11 @@
         <div th:replace="doc/fragments/inputparams/bnr"/>
         <div th:replace="doc/fragments/inputparams/etage"/>
         <div th:replace="doc/fragments/inputparams/doer"/>
+
         <div th:replace="doc/fragments/inputparams/email"/>
-        <div th:replace="doc/fragments/inputparams/phone"/>
+        <div th:replace="doc/fragments/inputparams/telefon"/>
         <div th:replace="doc/fragments/inputparams/fax"/>
-
-        <!--div th:replace="doc/fragments/inputparams/primaryIndustry"/>
-        <div th:replace="doc/fragments/inputparams/secondaryIndustry"/-->
-        <div th:replace="doc/fragments/inputparams/anyIndustry"/>
-
-
+        <div th:replace="doc/fragments/inputparams/industri"/>
 
         <div th:replace="doc/fragments/inputparams/versionsbegraensning"/>
         <div th:replace="doc/fragments/inputparams/paginering"/>
@@ -98,6 +95,7 @@
 
         <tr th:replace="doc/fragments/docparams/virksomhed"/>
         <tr th:replace="doc/fragments/docparams/cvr"/>
+        <tr th:replace="doc/fragments/docparams/pnr"/>
 
         <tr th:replace="doc/fragments/docparams/kommune"/>
         <tr th:replace="doc/fragments/docparams/land"/>
@@ -107,6 +105,11 @@
         <tr th:replace="doc/fragments/docparams/bnr"/>
         <tr th:replace="doc/fragments/docparams/etage"/>
         <tr th:replace="doc/fragments/docparams/doer"/>
+
+        <div th:replace="doc/fragments/docparams/email"/>
+        <div th:replace="doc/fragments/docparams/telefon"/>
+        <div th:replace="doc/fragments/docparams/fax"/>
+        <div th:replace="doc/fragments/docparams/industri"/>
 
         <tr th:replace="doc/fragments/docparams/format"/>
         <tr th:replace="doc/fragments/docparams/includeBefore"/>
@@ -119,8 +122,8 @@
 
     <h4>Eksempler</h4>
 
-    <p>Find alle produktionsenheder i Grønland, og output data i xml-format</p>
-    <a th:href="@{/services/search/produktionsenhed?land=gl&amp;format=xml}"><pre>/services/search/produktionsenhed?land=gl&amp;format=xml</pre></a>
+    <p>Find alle produktionsenheder i Aarhus, og output data i xml-format</p>
+    <a th:href="@{/services/search/produktionsenhed?kommune=Aarhus&amp;format=xml}"><pre>/services/search/produktionsenhed?kommune=Aarhus&amp;format=xml</pre></a>
 
     <p>Find alle adresser i kommuner som begynder med "a", på vejkoder som ender på 4, i postnumre som begynder med 6</p>
     <a th:href="@{/services/search/produktionsenhed?kommune=a*&amp;vej=*4&amp;post=6*}"><pre>/services/search/produktionsenhed?kommune=a*&amp;vej=*4&amp;post=6*</pre></a>
