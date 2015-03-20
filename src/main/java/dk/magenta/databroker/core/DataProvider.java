@@ -84,9 +84,10 @@ public abstract class DataProvider {
 
             log.info("Wiring");
             List<TransactionCallback> transactionCallbacks = DataProvider.this.getBulkwireCallbacks(dataProviderEntity);
-
-            for (TransactionCallback transactionCallback : transactionCallbacks) {
-                this.transactionTemplate.execute(transactionCallback);
+            if (transactionCallbacks != null) {
+                for (TransactionCallback transactionCallback : transactionCallbacks) {
+                    this.transactionTemplate.execute(transactionCallback);
+                }
             }
             log.info("Wiring complete");
             this.uploadData.delete();

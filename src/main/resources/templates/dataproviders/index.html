@@ -3,6 +3,9 @@
   layout:decorator="layout">
   <head>
     <title th:text="#{dataprovider.title}">DataBroker : Dataproviders</title>
+      <script th:inline="javascript">
+          window.dataprovidersUrl = /*[[@{/dataproviders/}]]*/ "/dataproviders/";
+      </script>
     <script type="text/javascript" th:src="@{/js/processing.js}"></script>
   </head>
   <body>

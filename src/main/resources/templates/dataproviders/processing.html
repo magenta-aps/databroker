@@ -3,7 +3,9 @@
       layout:decorator="layout">
 <head>
     <title th:text="#{dataprovider.editTitle}">DataBroker : Dataproviders</title>
-
+    <script th:inline="javascript">
+        window.dataprovidersUrl = /*[[@{/dataproviders/}]]*/ "/dataproviders/";
+    </script>
     <script type="text/javascript" th:src="@{/js/processing.js}"></script>
     <script th:inline="javascript">
         window.data = [[${data}]];
@@ -16,7 +18,7 @@
     <h1 th:text="#{dataprovider.processing}">Behandler</h1>
     <p th:text="'Dataprovider '+${data.name}+' arbejder'"/>
 
-    <a href="/dataproviders/" class="btn btn-default" th:text="#{dataprovider.back}">Tilbage</a>
+    <a th:href="@{/dataproviders/}" class="btn btn-default" th:text="#{dataprovider.back}">Tilbage</a>
 
     <script type="text/javascript">
         // <![CDATA[

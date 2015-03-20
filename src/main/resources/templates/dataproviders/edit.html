@@ -10,6 +10,8 @@
       window.providerData = [[${dataproviders}]];
       window.values = [[${values}]];
       window.blockImport = [[${blockImport}]];
+      window.fragmentUrl = /*[[@{/dataproviders/fragment}]]*/ "/dataproviders/fragment";
+      window.dataprovidersUrl = /*[[@{/dataproviders/}]]*/ "/dataproviders/";
     </script>
 
     <script type="text/javascript">
@@ -27,7 +29,7 @@
           var data = window.providerData[providerId];
           var container = $("#dataproviderConfiguration");
           if (data && data.template) {
-            var template = "/dataproviders/fragment?f=" + data.template;
+            var template = window.fragmentUrl + "?f=" + data.template;
             $.ajax(template, {success:function(responseText, status, responseObject) {
               var tmp = $(document.createElement("div"));
               var values = $.extend({}, data.values, window.values);

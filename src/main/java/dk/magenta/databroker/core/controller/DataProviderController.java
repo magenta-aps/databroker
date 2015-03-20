@@ -16,6 +16,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
@@ -129,7 +130,7 @@ public class DataProviderController {
 
     private ModelAndView redirectToIndex() {
         this.log.trace("Redirecting to index");
-        return new ModelAndView(new RedirectView("/dataproviders/"));
+        return new ModelAndView(new RedirectView("/dataproviders/", true));
     }
 
 

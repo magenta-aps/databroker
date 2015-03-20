@@ -11,11 +11,12 @@ var startProcessingListener = function(onStatus, uuid, idleInterval, runningInte
             PAUSED: "PAUSED"
         },
         lastWasError = false;
+    var url = window.dataprovidersUrl + "processingStatus";
 
     var run = function () {
         $.ajax({
             type: "GET",
-            url: "/dataproviders/processingStatus",
+            url: url,
             data: {
                 uuid: uuid
             },
@@ -61,7 +62,6 @@ var startProcessingListener = function(onStatus, uuid, idleInterval, runningInte
     var interval;
 
     var rerun = function(){
-        console.log("rerun ",keepRunning, statusTimer);
         if (keepRunning && !statusTimer) {
             statusTimer = setTimeout(function(){
                 statusTimer = null;
