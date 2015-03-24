@@ -552,7 +552,7 @@ public class CvrRegister extends Register {
                         itemTimer.record();
 
                         // Fetch basic fields
-                        String cvrNummer = virksomhed.get("cvrNummer");
+                        long cvrNummer = virksomhed.getLong("cvrNummer");
                         int form = virksomhed.getInt("form");
                         itemTimer.record();
                         this.ensureFormInDatabase(form, virksomhed.get("formText"));

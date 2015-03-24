@@ -91,13 +91,13 @@ public class CompanyEntity extends DobbeltHistorikBase<CompanyEntity, CompanyVer
 
     @Column(nullable = false)
     @Index(name = "cvrNummerIndex")
-    private String cvrNummer;
+    private long cvrNummer;
 
-    public String getCvrNummer() {
+    public long getCvrNummer() {
         return cvrNummer;
     }
 
-    public void setCvrNummer(String cvrNummer) {
+    public void setCvrNummer(long cvrNummer) {
         this.cvrNummer = cvrNummer;
     }
 
@@ -169,8 +169,8 @@ public class CompanyEntity extends DobbeltHistorikBase<CompanyEntity, CompanyVer
         }
         return null;
     }
-    public static Condition cvrCondition(String cvrNummer) {
-        return RepositoryUtil.whereField(cvrNummer, null, databaseKey+".cvrNummer");
+    public static Condition cvrCondition(long cvrNummer) {
+        return RepositoryUtil.whereField(cvrNummer, databaseKey+".cvrNummer", null);
     }
     public static Condition virksomhedCondition(SearchParameters parameters) {
         return CompanyInfo.nameCondition(parameters, companyInfoKey);
@@ -232,6 +232,6 @@ public class CompanyEntity extends DobbeltHistorikBase<CompanyEntity, CompanyVer
 
     @Override
     public String[] getIdentifiers() {
-        return new String[] { this.getCvrNummer() };
+        return new String[] { ""+this.getCvrNummer() };
     }
 }

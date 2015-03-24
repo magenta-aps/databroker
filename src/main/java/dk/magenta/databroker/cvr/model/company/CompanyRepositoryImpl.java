@@ -22,8 +22,8 @@ import java.util.List;
 interface CompanyRepositoryCustom {
     public List<TransactionCallback> getBulkwireCallbacks();
     public Collection<CompanyEntity> search(SearchParameters parameters);
-    public List<String> getIdentifiers();
-    public CompanyEntity getByIdentifier(String cvrNummer);
+    public List<Long> getIdentifiers();
+    public CompanyEntity getByIdentifier(long cvrNummer);
     public void clear();
 }
 
@@ -134,13 +134,13 @@ public class CompanyRepositoryImpl extends RepositoryImplementation<CompanyEntit
     }
 
 
-    public List<String> getIdentifiers() {
+    public List<Long> getIdentifiers() {
         Query q = this.entityManager.createQuery("select " + CompanyEntity.databaseKey + ".cvrNummer from CompanyEntity as " + CompanyEntity.databaseKey);
         return q.getResultList();
     }
 
 
-    public CompanyEntity getByIdentifier(String cvrNummer) {
+    public CompanyEntity getByIdentifier(long cvrNummer) {
         StringList hql = new StringList();
         hql.append("select distinct "+CompanyEntity.databaseKey+" from CompanyEntity as "+CompanyEntity.databaseKey);
         ConditionList conditions = new ConditionList();

@@ -83,7 +83,7 @@ public class CvrModel {
 
     private TimeRecorder companyRecorder = new TimeRecorder();
 
-    public CompanyEntity setCompany(String cvrKode,
+    public CompanyEntity setCompany(long cvrKode,
         int formCode,
         CompanyInfo companyInfo,
         Map<Long, Date> deltagere,
@@ -98,7 +98,7 @@ public class CvrModel {
         CompanyEntity companyEntity = this.getCompany(cvrKode, !useCache);
 
         time.record();
-        if (cvrKode == null) {
+        if (cvrKode == 0) {
             return null;
         }
 
@@ -165,15 +165,15 @@ public class CvrModel {
 
 
 
-    private HashSet<String> knownCvrNumbers = null;
-    private void addKnownCvrNumber(String cvr) {
+    private HashSet<Long> knownCvrNumbers = null;
+    private void addKnownCvrNumber(long cvr) {
         if (knownCvrNumbers == null) {
             this.findKnownCvrNumbers();
         }
         this.knownCvrNumbers.add(cvr);
     }
 
-    private boolean hasKnownCvr(String cvr) {
+    private boolean hasKnownCvr(long cvr) {
         if (knownCvrNumbers == null) {
             this.findKnownCvrNumbers();
         }
@@ -181,10 +181,10 @@ public class CvrModel {
     }
 
     private void findKnownCvrNumbers() {
-        this.knownCvrNumbers = new HashSet<String>(this.companyRepository.getIdentifiers());
+        this.knownCvrNumbers = new HashSet<Long>(this.companyRepository.getIdentifiers());
     }
 
-    public CompanyEntity getCompany(String cvrNummer, boolean noCache) {
+    public CompanyEntity getCompany(long cvrNummer, boolean noCache) {
         CompanyEntity companyEntity = null;
         if (this.hasKnownCvr(cvrNummer)) {
             if (!noCache) {
