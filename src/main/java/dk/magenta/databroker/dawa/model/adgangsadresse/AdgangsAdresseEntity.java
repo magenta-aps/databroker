@@ -4,17 +4,15 @@ import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseEntity;
-import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseVersionEntity;
 import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
 import dk.magenta.databroker.dawa.model.stormodtagere.StormodtagerEntity;
 import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.Condition;
-import dk.magenta.databroker.register.conditions.SingleCondition;
 import dk.magenta.databroker.service.rest.SearchService;
 import dk.magenta.databroker.util.Util;
-import dk.magenta.databroker.util.cache.Cacheable;
+import dk.magenta.databroker.util.cache.CacheableEntity;
 import org.hibernate.annotations.Index;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -29,7 +27,7 @@ import java.util.regex.Pattern;
  */
 @Entity
 @Table(name = "dawa_adgangsadresse")
-public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEntity, AdgangsAdresseVersionEntity> implements Cacheable {
+public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEntity, AdgangsAdresseVersionEntity> implements CacheableEntity {
 
     public AdgangsAdresseEntity() {
         this.versioner = new ArrayList<AdgangsAdresseVersionEntity>();

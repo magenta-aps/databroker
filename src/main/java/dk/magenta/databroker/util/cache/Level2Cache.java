@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 /**
  * Created by lars on 04-02-15.
  */
-public class Level2Cache<T extends Cacheable> extends Level2Container<T> {
+public class Level2Cache<T extends CacheableEntity> extends Level2Container<T> {
     private JpaRepository<T, Long> repository;
     private boolean loaded;
 

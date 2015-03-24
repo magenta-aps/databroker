@@ -725,6 +725,8 @@ public class CvrRegister extends Register {
 
         private int recordCount = 0;
 
+        TimeRecorder timeRecorder = new TimeRecorder();
+
         public VirksomhedDataHandler(RegistreringInfo registreringInfo, int chunkSize) {
             this.registreringInfo = registreringInfo;
             this.chunkSize = chunkSize;
@@ -743,12 +745,17 @@ public class CvrRegister extends Register {
         }
         private void onRecordSave(boolean force) {
             this.recordCount++;
+            if (this.recordCount % 100 == 0) {
+                this.timeRecorder.record();
+            }
             if (force || this.recordCount >= this.chunkSize) {
+                System.out.println("Saving records to database " + this.timeRecorder);
                     CvrRegister.this.saveRunToDatabase(this.currentRun, this.registreringInfo);
                 this.currentRun.clear();
                 this.currentRun = new CvrRegisterRun();
                 this.recordCount = 0;
-                System.gc();
+                this.timeRecorder.reset();
+                //System.gc();
             }
             this.parameters.clear();
         }
@@ -767,9 +774,11 @@ public class CvrRegister extends Register {
                     test.equals(tagName) && !this.tags.isEmpty() && this.tags.peek().equals(parentName));
         }
 
+
         @Override
         public void startElement(String uri, String localName, String qName,
                                  Attributes attributes) throws SAXException {
+
 
             if (!inVirksomhed && !inProductionUnit && !inDeltager && this.checkTagAndParent(qName, "virksomhed","virksomheder")) {
                 inVirksomhed = true;

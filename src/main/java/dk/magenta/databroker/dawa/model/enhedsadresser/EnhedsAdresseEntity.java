@@ -11,7 +11,7 @@ import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.Condition;
 import dk.magenta.databroker.service.rest.SearchService;
 import dk.magenta.databroker.util.Util;
-import dk.magenta.databroker.util.cache.Cacheable;
+import dk.magenta.databroker.util.cache.CacheableEntity;
 import org.hibernate.annotations.Index;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -25,7 +25,7 @@ import java.util.Collection;
  */
 @Entity
 @Table(name = "dawa_enhedsadresse")
-public class EnhedsAdresseEntity extends DobbeltHistorikBase<EnhedsAdresseEntity, EnhedsAdresseVersionEntity> implements Cacheable {
+public class EnhedsAdresseEntity extends DobbeltHistorikBase<EnhedsAdresseEntity, EnhedsAdresseVersionEntity> implements CacheableEntity {
 
     public EnhedsAdresseEntity() {
         this.versioner = new ArrayList<EnhedsAdresseVersionEntity>();

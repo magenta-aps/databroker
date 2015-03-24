@@ -10,7 +10,7 @@ import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.Condition;
 import dk.magenta.databroker.service.rest.SearchService;
-import dk.magenta.databroker.util.cache.Cacheable;
+import dk.magenta.databroker.util.cache.CacheableEntity;
 import org.hibernate.annotations.Index;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -25,7 +25,7 @@ import java.util.HashSet;
  */
 @Entity
 @Table(name = "dawa_vejstykke")
-public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, VejstykkeVersionEntity> implements Cacheable {
+public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, VejstykkeVersionEntity> implements CacheableEntity {
 
     public VejstykkeEntity() {
         this.versioner = new ArrayList<VejstykkeVersionEntity>();

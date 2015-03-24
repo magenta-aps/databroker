@@ -2,21 +2,17 @@ package dk.magenta.databroker.cvr.model.companyunit;
 
 import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikBase;
-import dk.magenta.databroker.cvr.model.company.CompanyEntity;
 import dk.magenta.databroker.cvr.model.embeddable.CompanyInfo;
-import dk.magenta.databroker.cvr.model.industry.IndustryEntity;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseEntity;
 import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.Condition;
 import dk.magenta.databroker.service.rest.SearchService;
-import dk.magenta.databroker.util.cache.Cacheable;
+import dk.magenta.databroker.util.cache.CacheableEntity;
 import org.hibernate.annotations.Index;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.persistence.*;
-import javax.validation.constraints.Null;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -26,7 +22,7 @@ import java.util.Collection;
 
 @Entity
 @Table(name = "cvr_companyunit")
-public class CompanyUnitEntity extends DobbeltHistorikBase<CompanyUnitEntity, CompanyUnitVersionEntity> implements OutputFormattable, Cacheable {
+public class CompanyUnitEntity extends DobbeltHistorikBase<CompanyUnitEntity, CompanyUnitVersionEntity> implements OutputFormattable, CacheableEntity {
 
     public CompanyUnitEntity() {
         this.versions = new ArrayList<CompanyUnitVersionEntity>();

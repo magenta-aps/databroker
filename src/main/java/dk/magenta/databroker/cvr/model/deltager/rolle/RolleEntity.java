@@ -2,7 +2,7 @@ package dk.magenta.databroker.cvr.model.deltager.rolle;
 
 import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.core.model.oio.UniqueBase;
-import dk.magenta.databroker.util.cache.Cacheable;
+import dk.magenta.databroker.util.cache.CacheableEntity;
 import org.hibernate.annotations.Index;
 import org.json.JSONObject;
 
@@ -15,7 +15,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "cvr_deltager_rolle")
-public class RolleEntity extends UniqueBase implements OutputFormattable, Cacheable {
+public class RolleEntity extends UniqueBase implements OutputFormattable, CacheableEntity {
 
     public RolleEntity() {
         this.generateNewUUID();

@@ -65,5 +65,6 @@ public class TimeRecorder {
     public void reset() {
         this.record.clear();
         this.added = 0;
+        this.time = this.getTime();
     }
 }
