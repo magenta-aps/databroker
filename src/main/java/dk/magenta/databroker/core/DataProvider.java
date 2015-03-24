@@ -16,6 +16,7 @@ import org.odftoolkit.simple.table.Table;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -66,31 +67,41 @@ public abstract class DataProvider {
         @Override
         public void run() {
 
-            final DataProviderEntity dataProviderEntity = this.dataProviderEntity;
+            try {
+                final DataProviderEntity dataProviderEntity = this.dataProviderEntity;
 
-            this.transactionTemplate.execute(new TransactionCallback() {
-                // the code in this method executes in a transactional context
-                public Object doInTransaction(TransactionStatus status) {
-                    try {
-                        DataProvider.this.handlePush(true, dataProviderEntity, new FileInputStream(DataProviderPusher.this.uploadData));
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
+                this.transactionTemplate.execute(new TransactionCallback() {
+                    // the code in this method executes in a transactional context
+                    public Object doInTransaction(TransactionStatus status) {
+                        DataProviderPusher pusher = DataProviderPusher.this;
+                        try {
+                            DataProvider.this.handlePush(true, pusher.dataProviderEntity, new FileInputStream(pusher.uploadData));
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                        log.info("Ending transaction");
+                        return null;
                     }
-                    log.info("Ending transaction");
-                    return null;
-                }
-            });
-            log.info("Ended transaction");
+                });
+                log.info("Ended transaction");
 
-            log.info("Wiring");
-            List<TransactionCallback> transactionCallbacks = DataProvider.this.getBulkwireCallbacks(dataProviderEntity);
-            if (transactionCallbacks != null) {
-                for (TransactionCallback transactionCallback : transactionCallbacks) {
-                    this.transactionTemplate.execute(transactionCallback);
+                log.info("Wiring");
+                List<TransactionCallback> transactionCallbacks = DataProvider.this.getBulkwireCallbacks(dataProviderEntity);
+                if (transactionCallbacks != null) {
+                    for (TransactionCallback transactionCallback : transactionCallbacks) {
+                        this.transactionTemplate.execute(transactionCallback);
+                    }
                 }
+                log.info("Wiring complete");
+            } catch (TransactionException e) {
+                log.error("TransactionException in transaction: ", e);
+                e.printStackTrace();
+            } catch (Exception e) {
+                log.error("Exception in transaction: ", e);
+                e.printStackTrace();
+            } finally {
+                this.uploadData.delete();
             }
-            log.info("Wiring complete");
-            this.uploadData.delete();
         }
     }
 
@@ -154,6 +165,7 @@ public abstract class DataProvider {
     public abstract void pull(DataProviderEntity dataProviderEntity);
 
     public abstract InputStream getUploadStream(HttpServletRequest request);
+
 
     public void handlePush(DataProviderEntity dataProviderEntity, HttpServletRequest request) {
         throw new NotImplementedException();
@@ -401,6 +413,7 @@ public abstract class DataProvider {
 
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     CorrectionCollectionRepository correctionCollectionRepository;
 
     public void loadCorrectionSeed(DataProviderEntity dataProviderEntity) {

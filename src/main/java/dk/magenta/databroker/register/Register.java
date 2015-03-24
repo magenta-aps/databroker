@@ -32,6 +32,7 @@ import java.nio.file.StandardCopyOption;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.regex.Pattern;
 
 /**
  * Created by lars on 15-12-14.
@@ -120,12 +121,12 @@ public abstract class Register extends DataProvider {
     }
 
     public void pull(boolean forceFetch, boolean forceParse, DataProviderEntity dataProviderEntity) {
+        System.gc();
         this.clearRegistreringEntities();
         this.log.info(this.getClass().getSimpleName() + " pulling");
         try {
             InputStream input = null;
             boolean fromCache = false;
-            String checksum = null;
             File cacheFile = this.getCacheFile(false);
 
             if (!forceFetch) {
@@ -164,6 +165,21 @@ public abstract class Register extends DataProvider {
         } else {
             this.log.error("Register " + this.getClass().getSimpleName() + " cannot receive push; no input data found");
         }
+    }
+
+    //@Transactional
+    @Override
+    public void handlePush(boolean forceParse, DataProviderEntity dataProviderEntity, InputStream input) {
+        this.clearRegistreringEntities();
+        System.gc();
+        this.log.info(this.getClass().getSimpleName() + " receiving push");
+        if (input != null) {
+            this.handleInput(input, dataProviderEntity, false, forceParse);
+            this.log.info(this.getClass().getSimpleName() + " push complete");
+        } else {
+            this.log.error("Register " + this.getClass().getSimpleName() + " cannot receive push; no input data found");
+        }
+        System.gc();
     }
 
 
@@ -209,25 +225,11 @@ public abstract class Register extends DataProvider {
         // Override me
     }
 
-    //@Transactional
-    @Override
-    public void handlePush(boolean forceParse, DataProviderEntity dataProviderEntity, InputStream input) {
-        this.clearRegistreringEntities();
-        this.log.info(this.getClass().getSimpleName() + " receiving push");
-        if (input != null) {
-            this.handleInput(input, dataProviderEntity, false, forceParse);
-            this.log.info(this.getClass().getSimpleName() + " push complete");
-        } else {
-            this.log.error("Register " + this.getClass().getSimpleName() + " cannot receive push; no input data found");
-        }
-        System.gc();
-    }
 
 
 
     protected void importData(RegistreringInfo registreringInfo) {
         RegisterRun run = this.parse(registreringInfo.getInputStream());
-
 
         CorrectionCollectionEntity correctionCollectionEntity = registreringInfo.getDataProviderEntity().getCorrections();
         if (correctionCollectionEntity != null) {
@@ -313,8 +315,6 @@ public abstract class Register extends DataProvider {
                         data = this.readCache(cacheFile);
                     }
 
-                    final long dataSize = data.getKnownSize();
-
                     boolean checksumMatch = compareChecksum(checksum);
 
                     if (forceParse || checksum == null || !checksumMatch) {
@@ -376,6 +376,7 @@ public abstract class Register extends DataProvider {
     // obtain a file to cache input data to/from
     protected File getCacheFile(boolean forceCreateNew) throws IOException {
         File dir = new File(cacheDir, this.getClass().getSimpleName());
+        final Pattern txtPattern = Pattern.compile("\\.txt$");
         if (!dir.exists()) {
             this.log.info("Folder " + dir.getAbsolutePath() + " doesn't exist, creating it");
             dir.mkdirs();
@@ -397,7 +398,7 @@ public abstract class Register extends DataProvider {
             if (files != null) {
                 for (File file : files) {
                     try {
-                        Date fileDate = dateFormat.parse(file.getName().replaceAll("\\.txt$", ""));
+                        Date fileDate = dateFormat.parse(txtPattern.matcher(file.getName()).replaceAll(""));
                         if (latestDate == null || fileDate.compareTo(latestDate) > 0) {
                             latestDate = fileDate;
                             latest = file;

@@ -9,6 +9,12 @@ import java.util.*;
 // e.g. { a: 42 }
 public class Level1Container<T> extends HashMap<String, T> {
 
+    public Level1Container() {
+    }
+    public Level1Container(int initialCapacity) {
+        super(initialCapacity);
+    }
+
     public T get(int ident1) {
         return this.get(""+ident1);
     }

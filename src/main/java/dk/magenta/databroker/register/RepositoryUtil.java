@@ -14,9 +14,9 @@ public abstract class RepositoryUtil {
 
     private static final Pattern onlyDigits = Pattern.compile("^\\*?\\-?\\d+\\*?$"); // Match a string containing only digits and optional leading and/or trailing wildcards
     private static final Pattern hasWildcard = Pattern.compile("^.*\\*.*$"); // Match a string that contains a wildcard
-    private static final String surroundingWildcards = "^\\*+|\\*+$"; // For replacement; finds any series of leading or trailing wildcards
+    private static final Pattern surroundingWildcards = Pattern.compile("^\\*+|\\*+$"); // For replacement; finds any series of leading or trailing wildcards
     private static final Pattern negated = Pattern.compile("^!.+$");
-    private static final String leadingNegator = "^!"; // For replacement; finds any series of leading or trailing wildcards
+    private static final Pattern leadingNegator = Pattern.compile("^!"); // For replacement; finds any series of leading or trailing wildcards
     private static final String LIKE = "like";
     private static final String NOT_LIKE = "not like";
     private static final String EQUALS = "=";
@@ -52,10 +52,10 @@ public abstract class RepositoryUtil {
         String strSearch = search.toString();
         boolean wildcardPresent = hasWildcard.matcher(strSearch).matches();
         boolean negate = negated.matcher(strSearch).matches();
-        strSearch = strSearch.replaceAll(leadingNegator, "");
+        strSearch = leadingNegator.matcher(strSearch).replaceAll("");
         boolean digits = onlyDigits.matcher(strSearch).matches();
         if (wildcardPresent) {
-            strSearch = strSearch.replaceAll(surroundingWildcards, "%");
+            strSearch = surroundingWildcards.matcher(strSearch).replaceAll("%");
         }
 
         if (digitKey != null && digits) {

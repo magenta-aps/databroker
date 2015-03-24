@@ -22,10 +22,10 @@ import java.util.List;
 
 interface CompanyUnitRepositoryCustom {
     public List<TransactionCallback> getBulkwireCallbacks();
-    public void clear();
-    public CompanyUnitEntity getByPno(long pno);
-    public List<Long> getUnitNumbers();
     public Collection<CompanyUnitEntity> search(SearchParameters parameters);
+    public List<Long> getIdentifiers();
+    public CompanyUnitEntity getByIdentifier(long pno);
+    public void clear();
 }
 
 public class CompanyUnitRepositoryImpl extends RepositoryImplementation<CompanyUnitEntity> implements CompanyUnitRepositoryCustom {
@@ -72,26 +72,6 @@ public class CompanyUnitRepositoryImpl extends RepositoryImplementation<CompanyU
 
         return transactionCallbacks;
     }
-
-
-    public CompanyUnitEntity getByPno(long pno) {
-        StringList hql = new StringList();
-        hql.append("select distinct " + CompanyUnitEntity.databaseKey + " from CompanyUnitEntity as " + CompanyUnitEntity.databaseKey);
-        ConditionList conditions = new ConditionList();
-        conditions.addCondition(CompanyUnitEntity.pnoCondition(pno));
-        hql.append("where");
-        hql.append(conditions.getWhere());
-        Collection<CompanyUnitEntity> companyUnitEntities = this.query(hql, conditions, GlobalCondition.singleCondition);
-        return companyUnitEntities.size() > 0 ? companyUnitEntities.iterator().next() : null;
-    }
-
-
-    public List<Long> getUnitNumbers() {
-        Query q = this.entityManager.createQuery("select " + CompanyUnitEntity.databaseKey + ".pno from CompanyUnitEntity as " + CompanyUnitEntity.databaseKey);
-        return q.getResultList();
-    }
-
-
 
 
     @Override
@@ -170,6 +150,24 @@ public class CompanyUnitRepositoryImpl extends RepositoryImplementation<CompanyU
         }
 
         return this.query(hql, conditions, parameters.getGlobalCondition());
+    }
+
+
+    public List<Long> getIdentifiers() {
+        Query q = this.entityManager.createQuery("select " + CompanyUnitEntity.databaseKey + ".pno from CompanyUnitEntity as " + CompanyUnitEntity.databaseKey);
+        return q.getResultList();
+    }
+
+
+    public CompanyUnitEntity getByIdentifier(long pno) {
+        StringList hql = new StringList();
+        hql.append("select distinct " + CompanyUnitEntity.databaseKey + " from CompanyUnitEntity as " + CompanyUnitEntity.databaseKey);
+        ConditionList conditions = new ConditionList();
+        conditions.addCondition(CompanyUnitEntity.pnoCondition(pno));
+        hql.append("where");
+        hql.append(conditions.getWhere());
+        Collection<CompanyUnitEntity> companyUnitEntities = this.query(hql, conditions, GlobalCondition.singleCondition);
+        return companyUnitEntities.size() > 0 ? companyUnitEntities.iterator().next() : null;
     }
 
 }

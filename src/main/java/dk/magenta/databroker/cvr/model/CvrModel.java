@@ -33,7 +33,6 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManagerFactory;
@@ -131,14 +130,9 @@ public class CvrModel {
         time.record();
 
         if (companyVersionEntity != null) {
-            time.record();
             companyVersionEntity.setForm(form);
-
             companyVersionEntity.setCompanyInfo(companyInfo);
-            time.record();
-
             this.addKnownCvrNumber(cvrKode);
-            time.record();
 
             if (deltagere != null) {
                 for (Long deltagerNummer : deltagere.keySet()) {
@@ -152,6 +146,7 @@ public class CvrModel {
             }
             this.companyRepository.save(companyEntity);
         }
+        time.record();
 
         companyRecorder.add(time);
         this.companyRepository.clear();
@@ -186,7 +181,7 @@ public class CvrModel {
     }
 
     private void findKnownCvrNumbers() {
-        this.knownCvrNumbers = new HashSet<String>(this.companyRepository.getCvrNumbers());
+        this.knownCvrNumbers = new HashSet<String>(this.companyRepository.getIdentifiers());
     }
 
     public CompanyEntity getCompany(String cvrNummer, boolean noCache) {
@@ -196,7 +191,7 @@ public class CvrModel {
                 companyEntity = this.companyCache.get(cvrNummer);
             }
             if (companyEntity == null) {
-                companyEntity = this.companyRepository.getByCvr(cvrNummer);
+                companyEntity = this.companyRepository.getByIdentifier(cvrNummer);
                 if (!noCache) {
                     this.putCompany(companyEntity);
                 }
@@ -255,8 +250,6 @@ public class CvrModel {
 
         CompanyUnitEntity companyUnitEntity = this.getCompanyUnit(pNummer, !useCache);
         time.record();
-        //CompanyEntity companyEntity = this.getCompanyVersion(cvrNummer);
-        //CompanyVersionEntity companyVersionEntity = companyEntity.getLatestVersion();
 
         if (companyUnitEntity == null) {
             this.log.trace("Creating new CompanyUnitEntity " + pNummer);
@@ -308,7 +301,7 @@ public class CvrModel {
                 companyUnitEntity = this.companyUnitCache.get(pNummer);
             }
             if (companyUnitEntity == null) {
-                companyUnitEntity = this.companyUnitRepository.getByPno(pNummer);
+                companyUnitEntity = this.companyUnitRepository.getByIdentifier(pNummer);
                 if (!noCache) {
                     this.companyUnitCache.put(companyUnitEntity);
                 }
@@ -344,7 +337,7 @@ public class CvrModel {
     }
 
     private void findKnownUnitNumbers() {
-        this.knownUnitNumbers = new HashSet<Long>(this.companyUnitRepository.getUnitNumbers());
+        this.knownUnitNumbers = new HashSet<Long>(this.companyUnitRepository.getIdentifiers());
     }
 
     public TimeRecorder getUnitTimer() {
@@ -386,7 +379,7 @@ public class CvrModel {
                                             String typeName, String rolleName, String statusName,
                                             CvrAddress locationAddress,
                                             RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
-        boolean useCache = true;
+        boolean useCache = false;
 
         TimeRecorder time = new TimeRecorder();
         DeltagerEntity deltagerEntity = this.getDeltager(deltagerNummer, !useCache);
@@ -457,7 +450,7 @@ public class CvrModel {
                 deltagerEntity = this.deltagerCache.get(deltagerNummer);
             }
             if (deltagerEntity == null) {
-                deltagerEntity = this.deltagerRepository.getByDeltagerNummer(deltagerNummer);
+                deltagerEntity = this.deltagerRepository.getByIdentifier(deltagerNummer);
                 if (!noCache) {
                     this.deltagerCache.put(deltagerEntity);
                 }
@@ -492,7 +485,7 @@ public class CvrModel {
     }
 
     private void findKnownDeltagerNumbers() {
-        this.knownDeltagerNumbers = new HashSet<Long>(this.deltagerRepository.getDeltagerNumbers());
+        this.knownDeltagerNumbers = new HashSet<Long>(this.deltagerRepository.getIdentifiers());
     }
 
 

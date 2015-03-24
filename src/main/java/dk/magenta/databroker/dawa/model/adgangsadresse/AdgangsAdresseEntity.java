@@ -22,6 +22,7 @@ import org.json.JSONObject;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.regex.Pattern;
 
 /**
  * Created by jubk on 18-12-2014.
@@ -156,8 +157,9 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
     }
 
     public int getIntHusnr() {
+        final Pattern nonDigitPattern = Pattern.compile("[^\\d]");
         try {
-            return Integer.parseInt(this.husnr.replaceAll("[^\\d]",""), 10);
+            return Integer.parseInt(nonDigitPattern.matcher(this.husnr).replaceAll(""), 10);
         } catch (NumberFormatException e) {
             return 0;
         }
@@ -231,7 +233,8 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
     }
 
     public static String stripBnr(String bnr) {
-        return bnr != null ? bnr.replaceAll("^[Bb]-", "") : null;
+        final Pattern bPattern = Pattern.compile("^[Bb]-?");
+        return bnr != null ? bPattern.matcher(bnr).replaceAll("") : null;
     }
     public static String[] stripBnr(String[] bnr) {
         String[] b = new String[bnr.length];

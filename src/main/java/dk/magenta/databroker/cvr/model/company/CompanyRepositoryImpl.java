@@ -7,6 +7,7 @@ import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.util.Util;
 import dk.magenta.databroker.util.objectcontainers.StringList;
+import org.apache.log4j.Logger;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 
@@ -21,13 +22,39 @@ import java.util.List;
 interface CompanyRepositoryCustom {
     public List<TransactionCallback> getBulkwireCallbacks();
     public Collection<CompanyEntity> search(SearchParameters parameters);
+    public List<String> getIdentifiers();
+    public CompanyEntity getByIdentifier(String cvrNummer);
     public void clear();
-    public CompanyEntity getByCvr(String cvrNummer);
-    public List<String> getCvrNumbers();
 }
 
 
 public class CompanyRepositoryImpl extends RepositoryImplementation<CompanyEntity> implements CompanyRepositoryCustom {
+
+    public List<TransactionCallback> getBulkwireCallbacks() {
+        ArrayList<TransactionCallback> transactionCallbacks = new ArrayList<TransactionCallback>();
+        transactionCallbacks.add(new TransactionCallback() {
+            CompanyRepositoryImpl repositoryImplementation = CompanyRepositoryImpl.this;
+            Logger log = repositoryImplementation.log;
+            @Override
+            public Object doInTransaction(TransactionStatus transactionStatus) {
+                log.info("Updating references between companies and addresses");
+                double time = Util.getTime();
+                repositoryImplementation.runNativeQuery("update cvr_company_version companyversion " +
+                        "join dawa_enhedsadresse address on companyversion.postal_address_descriptor=address.descriptor " +
+                        "set companyversion.postal_address_enheds_adresse=address.id " +
+                        "where companyversion.postal_address_enheds_adresse is NULL");
+
+                repositoryImplementation.runNativeQuery("update cvr_companyunit_version companyversion " +
+                        "join dawa_enhedsadresse address on companyversion.location_address_descriptor=address.descriptor " +
+                        "set companyversion.location_address_enheds_adresse=address.id " +
+                        "where companyversion.location_address_enheds_adresse is NULL");
+                log.info("References updated in " + (Util.getTime() - time) + " ms");
+                return null;
+            }
+        });
+        return transactionCallbacks;
+    }
+
 
     @Override
     public Collection<CompanyEntity> search(SearchParameters parameters) {
@@ -106,7 +133,14 @@ public class CompanyRepositoryImpl extends RepositoryImplementation<CompanyEntit
         return this.query(hql, conditions, parameters.getGlobalCondition());
     }
 
-    public CompanyEntity getByCvr(String cvrNummer) {
+
+    public List<String> getIdentifiers() {
+        Query q = this.entityManager.createQuery("select " + CompanyEntity.databaseKey + ".cvrNummer from CompanyEntity as " + CompanyEntity.databaseKey);
+        return q.getResultList();
+    }
+
+
+    public CompanyEntity getByIdentifier(String cvrNummer) {
         StringList hql = new StringList();
         hql.append("select distinct "+CompanyEntity.databaseKey+" from CompanyEntity as "+CompanyEntity.databaseKey);
         ConditionList conditions = new ConditionList();
@@ -117,37 +151,4 @@ public class CompanyRepositoryImpl extends RepositoryImplementation<CompanyEntit
         return companyEntities.size() > 0 ? companyEntities.iterator().next() : null;
     }
 
-
-
-    public List<String> getCvrNumbers() {
-        Query q = this.entityManager.createQuery("select " + CompanyEntity.databaseKey + ".cvrNummer from CompanyEntity as " + CompanyEntity.databaseKey);
-        return q.getResultList();
-    }
-
-    public List<TransactionCallback> getBulkwireCallbacks() {
-        double time;
-
-        ArrayList<TransactionCallback> transactionCallbacks = new ArrayList<TransactionCallback>();
-
-        transactionCallbacks.add(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus transactionStatus) {
-                CompanyRepositoryImpl repositoryImplementation = CompanyRepositoryImpl.this;
-                repositoryImplementation.log.info("Updating references between companies and addresses");
-                double time = Util.getTime();
-                repositoryImplementation.runNativeQuery("update cvr_company_version companyversion " +
-                        "join dawa_enhedsadresse address on companyversion.postal_address_descriptor=address.descriptor " +
-                        "set companyversion.postal_address_enheds_adresse=address.id " +
-                        "where companyversion.postal_address_enheds_adresse is NULL");
-
-                repositoryImplementation.runNativeQuery("update cvr_companyunit_version companyversion " +
-                        "join dawa_enhedsadresse address on companyversion.location_address_descriptor=address.descriptor " +
-                        "set companyversion.location_address_enheds_adresse=address.id " +
-                        "where companyversion.location_address_enheds_adresse is NULL");
-                repositoryImplementation.log.info("References updated in " + (Util.getTime() - time) + " ms");
-                return null;
-            }
-        });
-        return transactionCallbacks;
-    }
 }

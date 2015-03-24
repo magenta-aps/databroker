@@ -3,11 +3,13 @@ package dk.magenta.databroker.register.records;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.regex.Pattern;
 
 /**
  * Created by lars on 15-12-14.
  */
 public abstract class Record extends HashMap<String, String> {
+
 
     private boolean visited;
     public boolean getVisited() {
@@ -38,7 +40,7 @@ public abstract class Record extends HashMap<String, String> {
     public int getInt(String key, boolean lenient) {
         String value = this.get(key);
         if (lenient) {
-            value = value.replaceAll("[^\\d]", "");
+            value = this.stripLeadingDigits(value);
         }
         try {
             return Integer.parseInt(value, 10);
@@ -53,13 +55,18 @@ public abstract class Record extends HashMap<String, String> {
     public long getLong(String key, boolean lenient) {
         String value = this.get(key);
         if (lenient) {
-            value = value.replaceAll("[^\\d]", "");
+            value = this.stripLeadingDigits(value);
         }
         try {
             return Long.parseLong(value, 10);
         } catch (NumberFormatException e) {
             return 0;
         }
+    }
+
+    private String stripLeadingDigits(String value) {
+        final Pattern leadingDigitPattern = Pattern.compile("[^\\d]+");
+        return leadingDigitPattern.matcher(value).replaceAll("");
     }
 
     public boolean getBoolean(String key) {

@@ -7,6 +7,7 @@ import java.text.Normalizer;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * Created by lars on 27-01-15.
@@ -94,8 +95,9 @@ public abstract class Util {
     }
 
     public static String normalizeString(String str) {
+        final Pattern fluff = Pattern.compile("\\p{InCombiningDiacriticalMarks}|[\\.']|\\s");
         if (str != null && !str.isEmpty()) {
-            return Normalizer.normalize(str.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}|[\\.']|\\s", "").trim();
+            return fluff.matcher(Normalizer.normalize(str.toLowerCase(), Normalizer.Form.NFD)).replaceAll("").trim();
         }
         return str;
     }

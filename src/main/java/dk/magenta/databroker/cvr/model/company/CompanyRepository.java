@@ -11,11 +11,9 @@ import java.util.List;
  * Created by lars on 19-12-14.
  */
 public interface CompanyRepository extends JpaRepository<CompanyEntity, Long> {
-
-    public CompanyEntity getByUuid(String uuid);
     public List<TransactionCallback> getBulkwireCallbacks();
-    public CompanyEntity getByCvr(String cvrNummer);
+    public CompanyEntity getByIdentifier(String cvrNummer);
     public Collection<CompanyEntity> search(SearchParameters parameters);
     public void clear();
-    public List<String> getCvrNumbers();
+    public List<String> getIdentifiers();
 }
