@@ -81,15 +81,16 @@ public class LokalitetRepositoryImpl extends RepositoryImplementation<LokalitetE
     public LokalitetEntity getByKommunekodeAndLokalitetsnavn(int kommuneKode, String lokalitetsnavn) {
         StringList hql = new StringList();
         hql.append("select distinct "+LokalitetEntity.databaseKey+" from LokalitetEntity as "+LokalitetEntity.databaseKey);
-        StringList join = new StringList();
+        //StringList join = new StringList();
         ConditionList conditions = new ConditionList();
         conditions.addCondition(LokalitetEntity.lokalitetCondition(lokalitetsnavn));
-        join.append(LokalitetEntity.joinVej());
-        join.append(VejstykkeEntity.joinKommune());
+        //join.append(LokalitetEntity.joinVej());
+        //join.append(VejstykkeEntity.joinKommune());
         conditions.addCondition(KommuneEntity.kommuneCondition(kommuneKode));
         hql.append("where");
         hql.append(conditions.getWhere());
         Collection<LokalitetEntity> lokalitetEntities = this.query(hql, conditions, GlobalCondition.singleCondition);
+        hql = null;
         return lokalitetEntities.size() > 0 ? lokalitetEntities.iterator().next() : null;
     }
 }

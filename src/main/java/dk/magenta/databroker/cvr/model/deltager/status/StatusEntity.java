@@ -2,20 +2,24 @@ package dk.magenta.databroker.cvr.model.deltager.status;
 
 import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.core.model.oio.UniqueBase;
+import dk.magenta.databroker.register.RepositoryUtil;
+import dk.magenta.databroker.register.conditions.Condition;
 import dk.magenta.databroker.util.cache.CacheableEntity;
-import org.hibernate.annotations.Index;
 import org.json.JSONObject;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Index;
 import javax.persistence.Table;
 
 /**
  * Created by lars on 26-01-15.
  */
 @Entity
-@Table(name = "cvr_deltager_status")
+@Table(name = "cvr_deltager_status", indexes = {@Index(columnList = "name")})
 public class StatusEntity extends UniqueBase implements OutputFormattable, CacheableEntity {
+
+    public static final String databaseKey = "deltagerstatus";
 
     public StatusEntity() {
         this.generateNewUUID();
@@ -24,7 +28,6 @@ public class StatusEntity extends UniqueBase implements OutputFormattable, Cache
     //----------------------------------------------------
 
     @Column(nullable = true, unique = true)
-    @Index(name = "nameIndex")
     private String name;
 
     public String getName() {
@@ -62,5 +65,14 @@ public class StatusEntity extends UniqueBase implements OutputFormattable, Cache
     @Override
     public String[] getIdentifiers() {
         return new String[] { this.name };
+    }
+
+
+
+    public static Condition uuidCondition(String uuid) {
+        return RepositoryUtil.whereField(uuid, null, databaseKey + ".uuid");
+    }
+    public static Condition nameCondition(String name) {
+        return RepositoryUtil.whereField(name, null, databaseKey + ".name");
     }
 }

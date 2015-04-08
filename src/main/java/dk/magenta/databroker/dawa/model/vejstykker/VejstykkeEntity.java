@@ -11,7 +11,6 @@ import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.Condition;
 import dk.magenta.databroker.service.rest.SearchService;
 import dk.magenta.databroker.util.cache.CacheableEntity;
-import org.hibernate.annotations.Index;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -24,7 +23,7 @@ import java.util.HashSet;
  * Created by jubk on 18-12-2014.
  */
 @Entity
-@Table(name = "dawa_vejstykke")
+@Table(name = "dawa_vejstykke", indexes = {@Index(columnList = "kode"), @Index(columnList = "descriptor")})
 public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, VejstykkeVersionEntity> implements CacheableEntity {
 
     public VejstykkeEntity() {
@@ -88,7 +87,6 @@ public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, Vejsty
     /* Domain specific fields */
 
     @Column
-    @Index(name = "kodeIndex")
     private int kode;
 
     public int getKode() {
@@ -115,7 +113,6 @@ public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, Vejsty
     //----------------------------------------------------
 
     @Column
-    @Index(name = "descriptorIndex")
     private int descriptor;
 
     public int getDescriptor() {

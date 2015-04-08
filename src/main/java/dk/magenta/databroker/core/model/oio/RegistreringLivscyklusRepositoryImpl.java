@@ -1,7 +1,6 @@
 package dk.magenta.databroker.core.model.oio;
 
 import dk.magenta.databroker.core.model.RepositoryImplementation;
-import org.hibernate.Session;
 
 import javax.persistence.Query;
 import java.util.List;

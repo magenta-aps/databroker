@@ -9,7 +9,6 @@ import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.Condition;
 import dk.magenta.databroker.service.rest.SearchService;
 import dk.magenta.databroker.util.cache.CacheableEntity;
-import org.hibernate.annotations.Index;
 import org.json.JSONObject;
 
 import javax.persistence.*;
@@ -21,7 +20,7 @@ import java.util.Collection;
  */
 
 @Entity
-@Table(name = "cvr_companyunit")
+@Table(name = "cvr_companyunit", indexes = {@Index(columnList = "pno")})
 public class CompanyUnitEntity extends DobbeltHistorikBase<CompanyUnitEntity, CompanyUnitVersionEntity> implements OutputFormattable, CacheableEntity {
 
     public CompanyUnitEntity() {
@@ -84,7 +83,6 @@ public class CompanyUnitEntity extends DobbeltHistorikBase<CompanyUnitEntity, Co
     /* Domain specific fields */
 
     @Column(nullable = false)
-    @Index(name = "pnoIndex")
     private long pno;
 
     public long getPNO() {

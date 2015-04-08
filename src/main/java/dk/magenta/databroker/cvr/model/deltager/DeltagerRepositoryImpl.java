@@ -21,6 +21,8 @@ interface DeltagerRepositoryCustom {
     public List<Long> getIdentifiers();
     public DeltagerEntity getByIdentifier(long deltagernummer);
     public void clear();
+    public void detach(DeltagerEntity deltagerEntity);
+    public void detach(DeltagerVersionEntity deltagerVersionEntity);
 }
 
 public class DeltagerRepositoryImpl extends RepositoryImplementation<DeltagerEntity> implements DeltagerRepositoryCustom {
@@ -62,6 +64,14 @@ public class DeltagerRepositoryImpl extends RepositoryImplementation<DeltagerEnt
         hql.append(conditions.getWhere());
         List<DeltagerEntity> items = this.query(hql, conditions, GlobalCondition.singleCondition);
         return items != null && !items.isEmpty() ? items.iterator().next() : null;
+    }
+
+
+    public void detach(DeltagerEntity deltagerEntity) {
+        this.entityManager.detach(deltagerEntity);
+    }
+    public void detach(DeltagerVersionEntity deltagerVersionEntity) {
+        this.entityManager.detach(deltagerVersionEntity);
     }
 
 

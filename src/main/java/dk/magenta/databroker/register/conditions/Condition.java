@@ -9,6 +9,8 @@ import java.util.Map;
 public interface Condition {
     public String getWhere();
     public Map<String, Object> getParameters();
+    public String getWhere(String key);
+    public Map<String, Object> getParameters(String key);
     public boolean hasRequiredJoin();
     public List<String> getRequiredJoin();
     public void addRequiredJoin(String requiredJoin);

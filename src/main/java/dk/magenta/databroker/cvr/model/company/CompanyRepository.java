@@ -16,4 +16,6 @@ public interface CompanyRepository extends JpaRepository<CompanyEntity, Long> {
     public Collection<CompanyEntity> search(SearchParameters parameters);
     public void clear();
     public List<Long> getIdentifiers();
+    public void detach(CompanyEntity companyEntity);
+    public void detach(CompanyVersionEntity companyVersionEntity);
 }

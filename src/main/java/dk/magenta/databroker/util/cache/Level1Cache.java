@@ -26,12 +26,16 @@ public class Level1Cache<T extends CacheableEntity> extends Level1Container<T> {
     }
 
     public void reload(boolean wait) {
-        //System.out.println("Loading cache from " + this.repository);
-        for (T item : this.repository.findAll()) {
-            this.doPut(item);
+        try {
+            //System.out.println("Loading cache from " + this.repository);
+            for (T item : this.repository.findAll()) {
+                this.doPut(item);
+            }
+            //System.out.println("Cache loaded from " + this.repository);
+            this.loaded = true;
+        } catch (Error e) {
+            e.printStackTrace();
         }
-        //System.out.println("Cache loaded from " + this.repository);
-        this.loaded = true;
     }
 
     public void put(T item) {

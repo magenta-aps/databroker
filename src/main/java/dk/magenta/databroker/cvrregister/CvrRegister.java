@@ -570,6 +570,7 @@ public class CvrRegister extends Register {
                     totalCompanyCount += companyCount;
                     this.log.info(companyCount + " companies created in " + time + " ms (avg " + (time / (double) companyCount) + " ms) " + sumTime.toString() + " " + this.cvrModel.getCompanyTimer());
                     this.cvrModel.resetCompanyTimer();
+
                 }
 
 
@@ -609,6 +610,10 @@ public class CvrRegister extends Register {
 
 
                 if (memberCount > 0) {
+
+                    this.cvrModel.resetIndustryCache();
+
+
                     TimeRecorder sumTime = new TimeRecorder();
                     for (DeltagerRecord deltager : cRun.getDeltagere().getList()) {
                         TimeRecorder itemTimer = new TimeRecorder();
@@ -635,6 +640,9 @@ public class CvrRegister extends Register {
                 //this.cvrModel.flushCompanies();
                 //this.dawaModel.flush();
                 this.cvrModel.flush();
+
+
+                //this.cvrModel.printStatistics();
             }
             catch (Exception ex) {
                 ex.printStackTrace();
@@ -755,6 +763,7 @@ public class CvrRegister extends Register {
                 this.currentRun = new CvrRegisterRun();
                 this.recordCount = 0;
                 this.timeRecorder.reset();
+
                 //System.gc();
             }
             this.parameters.clear();
@@ -800,14 +809,15 @@ public class CvrRegister extends Register {
             }
 
             this.tags.push(qName);
+            this.textChunk = null;
             this.textChunk = new StringList();
         }
+
+        private Pattern whitespace = Pattern.compile("\\s\\s+");
 
         @Override
         public void endElement(String uri, String localName, String qName)
                 throws SAXException {
-
-            final Pattern whitespace = Pattern.compile("\\s\\s+");
 
             if (qName.equals(this.tags.peek())) {
                 this.tags.pop();
@@ -837,13 +847,14 @@ public class CvrRegister extends Register {
             if (this.inVirksomhed || this.inProductionUnit || this.inDeltager) {
                 StringList path = new StringList();
                 for (int i = this.tags.size() - this.depth + 1; i < this.tags.size(); i++) {
-                    String a = this.tags.get(i);
-                    path.append(a);
+                    path.append(this.tags.get(i));
                 }
                 path.append(qName);
-                this.parameters.put(path.join("/"), whitespace.matcher(this.textChunk.join()).replaceAll(" ").trim());
+                this.parameters.put(path.join("/"), this.whitespace.matcher(this.textChunk.join()).replaceAll(" ").trim());
                 this.depth--;
+                path = null;
             }
+            this.textChunk = null;
             this.textChunk = new StringList();
         }
 

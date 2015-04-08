@@ -1,6 +1,7 @@
 package dk.magenta.databroker.cvr.model.companyunit;
 
 import dk.magenta.databroker.core.model.RepositoryImplementation;
+import dk.magenta.databroker.cvr.model.company.CompanyEntity;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
@@ -14,6 +15,7 @@ import javax.persistence.Query;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by lars on 02-02-15.
@@ -26,6 +28,8 @@ interface CompanyUnitRepositoryCustom {
     public List<Long> getIdentifiers();
     public CompanyUnitEntity getByIdentifier(long pno);
     public void clear();
+    public void detach(CompanyUnitEntity companyUnitEntity);
+    public void detach(CompanyUnitVersionEntity companyUnitVersionEntity);
 }
 
 public class CompanyUnitRepositoryImpl extends RepositoryImplementation<CompanyUnitEntity> implements CompanyUnitRepositoryCustom {
@@ -69,6 +73,11 @@ public class CompanyUnitRepositoryImpl extends RepositoryImplementation<CompanyU
                 return null;
             }
         });
+
+
+        //System.out.println("getEntityCount: "+this.getSession().getStatistics().getEntityCount());
+        //System.out.println("getCollectionCount: "+this.getSession().getStatistics().getCollectionCount());
+
 
         return transactionCallbacks;
     }
@@ -160,14 +169,23 @@ public class CompanyUnitRepositoryImpl extends RepositoryImplementation<CompanyU
 
 
     public CompanyUnitEntity getByIdentifier(long pno) {
-        StringList hql = new StringList();
-        hql.append("select distinct " + CompanyUnitEntity.databaseKey + " from CompanyUnitEntity as " + CompanyUnitEntity.databaseKey);
+        final String key = "id_"+ UUID.randomUUID().toString().replace("-","");
         ConditionList conditions = new ConditionList();
         conditions.addCondition(CompanyUnitEntity.pnoCondition(pno));
-        hql.append("where");
-        hql.append(conditions.getWhere());
-        Collection<CompanyUnitEntity> companyUnitEntities = this.query(hql, conditions, GlobalCondition.singleCondition);
-        return companyUnitEntities.size() > 0 ? companyUnitEntities.iterator().next() : null;
+        final String hql = "select distinct " + CompanyUnitEntity.databaseKey + " from CompanyUnitEntity as " + CompanyUnitEntity.databaseKey + "where" + conditions.getWhere(key);
+        Collection<CompanyUnitEntity> companyUnitEntities = this.query(hql, conditions.getParameters(key), GlobalCondition.singleCondition);
+        CompanyUnitEntity entity = companyUnitEntities.size() > 0 ? companyUnitEntities.iterator().next() : null;
+        companyUnitEntities.clear();
+        companyUnitEntities = null;
+        return entity;
+    }
+
+
+    public void detach(CompanyUnitEntity companyUnitEntity) {
+        this.entityManager.detach(companyUnitEntity);
+    }
+    public void detach(CompanyUnitVersionEntity companyUnitVersionEntity) {
+        this.entityManager.detach(companyUnitVersionEntity);
     }
 
 }

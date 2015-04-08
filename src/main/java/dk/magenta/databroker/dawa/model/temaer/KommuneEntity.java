@@ -12,7 +12,6 @@ import dk.magenta.databroker.service.rest.SearchService;
 import dk.magenta.databroker.util.Util;
 import dk.magenta.databroker.util.cache.CacheableEntity;
 import dk.magenta.databroker.util.objectcontainers.Pair;
-import org.hibernate.annotations.Index;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -24,7 +23,7 @@ import java.util.HashSet;
  * Created by jubk on 18-12-2014.
  */
 @Entity
-@Table(name = "dawa_kommune")
+@Table(name = "dawa_kommune", indexes = {@javax.persistence.Index(columnList = "kode")})
 public class KommuneEntity extends TemaBase implements CacheableEntity {
 
     public KommuneEntity() {
@@ -40,7 +39,6 @@ public class KommuneEntity extends TemaBase implements CacheableEntity {
     //------------------------------------------------------------------------------------------------------------------
 
     @Column(nullable = false)
-    @Index(name = "kodeIndex")
     private int kode;
 
     public int getKode() {

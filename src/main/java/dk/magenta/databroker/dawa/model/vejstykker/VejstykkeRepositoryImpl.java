@@ -9,6 +9,7 @@ import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.util.objectcontainers.StringList;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collection;
 

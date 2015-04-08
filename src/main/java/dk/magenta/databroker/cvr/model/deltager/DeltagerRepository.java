@@ -13,4 +13,6 @@ public interface DeltagerRepository extends JpaRepository<DeltagerEntity, Long> 
     public List<Long> getIdentifiers();
     public DeltagerEntity getByIdentifier(long deltagernummer);
     public void clear();
+    public void detach(DeltagerEntity deltagerEntity);
+    public void detach(DeltagerVersionEntity deltagerVersionEntity);
 }

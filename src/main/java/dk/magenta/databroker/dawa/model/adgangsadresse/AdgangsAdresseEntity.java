@@ -13,7 +13,6 @@ import dk.magenta.databroker.register.conditions.Condition;
 import dk.magenta.databroker.service.rest.SearchService;
 import dk.magenta.databroker.util.Util;
 import dk.magenta.databroker.util.cache.CacheableEntity;
-import org.hibernate.annotations.Index;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -26,7 +25,7 @@ import java.util.regex.Pattern;
  * Created by jubk on 18-12-2014.
  */
 @Entity
-@Table(name = "dawa_adgangsadresse")
+@Table(name = "dawa_adgangsadresse", indexes = {@Index(columnList = "husnr"), @Index(columnList = "descriptor")})
 public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEntity, AdgangsAdresseVersionEntity> implements CacheableEntity {
 
     public AdgangsAdresseEntity() {
@@ -143,7 +142,6 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
     //----------------------------------------------------
 
     @Column(nullable = false)
-    @Index(name = "husnrIndex")
     private String husnr;
 
     public String getHusnr() {
@@ -154,8 +152,10 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
         this.husnr = husnr;
     }
 
+    @Transient
+    private static Pattern nonDigitPattern = Pattern.compile("[^\\d]");
+
     public int getIntHusnr() {
-        final Pattern nonDigitPattern = Pattern.compile("[^\\d]");
         try {
             return Integer.parseInt(nonDigitPattern.matcher(this.husnr).replaceAll(""), 10);
         } catch (NumberFormatException e) {
@@ -166,7 +166,6 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
     //----------------------------------------------------
 
     @Column(length = 20)
-    @Index(name="descriptorIndex")
     private long descriptor;
 
     public long getDescriptor() {
@@ -230,8 +229,10 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
         this.setBnr(b);
     }
 
+    @Transient
+    private static Pattern bPattern = Pattern.compile("^[Bb]-?");
+
     public static String stripBnr(String bnr) {
-        final Pattern bPattern = Pattern.compile("^[Bb]-?");
         return bnr != null ? bPattern.matcher(bnr).replaceAll("") : null;
     }
     public static String[] stripBnr(String[] bnr) {

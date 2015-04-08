@@ -24,6 +24,16 @@ public class LatestCondition implements Condition {
     }
 
     @Override
+    public String getWhere(String key) {
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> getParameters(String key) {
+        return null;
+    }
+
+    @Override
     public boolean hasRequiredJoin() {
         return false;
     }

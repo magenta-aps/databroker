@@ -8,8 +8,6 @@ import dk.magenta.databroker.cvr.model.form.CompanyFormEntity;
 import dk.magenta.databroker.util.Util;
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikVersion;
 import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitEntity;
-import dk.magenta.databroker.cvr.model.industry.IndustryEntity;
-import org.hibernate.annotations.Index;
 
 import javax.persistence.*;
 import java.util.*;
@@ -18,12 +16,10 @@ import java.util.*;
  * Created by jubk on 18-12-2014.
  */
 @Entity
-@Table(name = "cvr_company_version")
-@org.hibernate.annotations.Table(
-        appliesTo = "cvr_company_version",
+@Table(name = "cvr_company_version",
         indexes = {
-                @Index(name = "locationAddressDescriptorIndex", columnNames = {"locationAddressDescriptor"}),
-                @Index(name = "postalAddressDescriptorIndex", columnNames = {"postalAddressDescriptor"}),
+                @Index(name = "locationAddressDescriptorIndex", columnList = "locationAddressDescriptor"),
+                @Index(name = "postalAddressDescriptorIndex", columnList = "postalAddressDescriptor"),
         }
 )
 public class CompanyVersionEntity extends DobbeltHistorikVersion<CompanyEntity, CompanyVersionEntity> {

@@ -2,7 +2,6 @@ package dk.magenta.databroker.dawa.model.postnummer;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikVersion;
 import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
-import org.hibernate.annotations.Index;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -12,7 +11,7 @@ import java.util.HashSet;
  * Created by jubk on 18-12-2014.
  */
 @Entity
-@Table(name = "dawa_postnummer_version")
+@Table(name = "dawa_postnummer_version", indexes = {@Index(columnList = "nr"), @Index(columnList = "navn")})
 public class PostNummerVersionEntity extends DobbeltHistorikVersion<PostNummerEntity, PostNummerVersionEntity> {
 
 
@@ -43,7 +42,6 @@ public class PostNummerVersionEntity extends DobbeltHistorikVersion<PostNummerEn
     //----------------------------------------------------
 
     @Column(nullable = false)
-    @Index(name = "nrIndex")
     private int nr;
 
     public int getNr() {
@@ -57,7 +55,6 @@ public class PostNummerVersionEntity extends DobbeltHistorikVersion<PostNummerEn
     //----------------------------------------------------
 
     @Column(nullable = false)
-    @Index(name = "navnIndex")
     private String navn;
 
     public String getNavn() {

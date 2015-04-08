@@ -94,8 +94,10 @@ public abstract class Util {
         return str == null ? "" : str;
     }
 
+
+    private static Pattern fluff = Pattern.compile("\\p{InCombiningDiacriticalMarks}|[\\.']|\\s");
+
     public static String normalizeString(String str) {
-        final Pattern fluff = Pattern.compile("\\p{InCombiningDiacriticalMarks}|[\\.']|\\s");
         if (str != null && !str.isEmpty()) {
             return fluff.matcher(Normalizer.normalize(str.toLowerCase(), Normalizer.Form.NFD)).replaceAll("").trim();
         }

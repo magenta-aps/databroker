@@ -49,6 +49,7 @@ public class CvrModel {
     private EntityManagerFactory entityManagerFactory;
 
     public void flush() {
+        System.out.println("FLUSHING");
         this.companyRepository.clear();
         this.companyUnitRepository.clear();
         this.deltagerRepository.clear();
@@ -70,6 +71,10 @@ public class CvrModel {
 
 
 
+
+
+
+
     //------------------------------------------------------------------------------------------------------------------
 
     @Autowired
@@ -83,7 +88,7 @@ public class CvrModel {
 
     private TimeRecorder companyRecorder = new TimeRecorder();
 
-    public CompanyEntity setCompany(long cvrKode,
+    public void setCompany(long cvrKode,
         int formCode,
         CompanyInfo companyInfo,
         Map<Long, Date> deltagere,
@@ -95,11 +100,11 @@ public class CvrModel {
 
 
         TimeRecorder time = new TimeRecorder();
-        CompanyEntity companyEntity = this.getCompany(cvrKode, !useCache);
+        CompanyEntity companyEntity = this.getCompany(cvrKode, useCache);
 
         time.record();
         if (cvrKode == 0) {
-            return null;
+            return;
         }
 
         if (companyEntity == null) {
@@ -134,7 +139,7 @@ public class CvrModel {
             companyVersionEntity.setCompanyInfo(companyInfo);
             this.addKnownCvrNumber(cvrKode);
 
-            if (deltagere != null) {
+            /*if (deltagere != null) {
                 for (Long deltagerNummer : deltagere.keySet()) {
                     CompanyDeltagerRelationEntity companyDeltagerRelationEntity = new CompanyDeltagerRelationEntity();
                     companyDeltagerRelationEntity.setDeltagerNummer(deltagerNummer);
@@ -143,15 +148,15 @@ public class CvrModel {
                     companyVersionEntity.addCompanyDeltagerRelationEntitiy(companyDeltagerRelationEntity);
                     //this.companyDeltagerRelationRepository.save(companyDeltagerRelationEntity);
                 }
-            }
+            }*/
             this.companyRepository.save(companyEntity);
+            this.companyRepository.detach(companyVersionEntity);
         }
         time.record();
 
         companyRecorder.add(time);
+        this.companyRepository.detach(companyEntity);
         this.companyRepository.clear();
-
-        return companyEntity;
     }
 
 
@@ -184,15 +189,15 @@ public class CvrModel {
         this.knownCvrNumbers = new HashSet<Long>(this.companyRepository.getIdentifiers());
     }
 
-    public CompanyEntity getCompany(long cvrNummer, boolean noCache) {
+    public CompanyEntity getCompany(long cvrNummer, boolean useCache) {
         CompanyEntity companyEntity = null;
         if (this.hasKnownCvr(cvrNummer)) {
-            if (!noCache) {
+            if (useCache) {
                 companyEntity = this.companyCache.get(cvrNummer);
             }
             if (companyEntity == null) {
                 companyEntity = this.companyRepository.getByIdentifier(cvrNummer);
-                if (!noCache) {
+                if (useCache) {
                     this.putCompany(companyEntity);
                 }
             }
@@ -240,7 +245,7 @@ public class CvrModel {
     @SuppressWarnings("SpringJavaAutowiringInspection")
     private CompanyUnitRepository companyUnitRepository;
 
-    public CompanyUnitEntity setCompanyUnit(long pNummer, String cvrNummer,
+    public void setCompanyUnit(long pNummer, String cvrNummer,
                                     CompanyInfo companyInfo,
                                     boolean isPrimaryUnit,
                                     RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
@@ -248,7 +253,7 @@ public class CvrModel {
 
         boolean useCache = false;
 
-        CompanyUnitEntity companyUnitEntity = this.getCompanyUnit(pNummer, !useCache);
+        CompanyUnitEntity companyUnitEntity = this.getCompanyUnit(pNummer, useCache);
         time.record();
 
         if (companyUnitEntity == null) {
@@ -285,24 +290,24 @@ public class CvrModel {
                 this.companyUnitCache.put(companyUnitEntity);
             }
             this.addKnownUnitNumber(pNummer);
+            this.companyUnitRepository.detach(companyUnitVersionEntity);
         }
 
         time.record();
         unitRecorder.add(time);
+        this.companyUnitRepository.detach(companyUnitEntity);
         this.companyUnitRepository.clear();
-
-        return companyUnitEntity;
     }
 
-    public CompanyUnitEntity getCompanyUnit(long pNummer, boolean noCache) {
+    public CompanyUnitEntity getCompanyUnit(long pNummer, boolean useCache) {
         CompanyUnitEntity companyUnitEntity = null;
         if (this.hasKnownUnitNumber(pNummer)) {
-            if (!noCache) {
+            if (useCache) {
                 companyUnitEntity = this.companyUnitCache.get(pNummer);
             }
             if (companyUnitEntity == null) {
                 companyUnitEntity = this.companyUnitRepository.getByIdentifier(pNummer);
-                if (!noCache) {
+                if (useCache) {
                     this.companyUnitCache.put(companyUnitEntity);
                 }
             }
@@ -374,15 +379,19 @@ public class CvrModel {
 
     private TimeRecorder deltagerRecorder = new TimeRecorder();
 
-    public DeltagerEntity setDeltager(long deltagerNummer, String name, String cvrNummer,
+    private boolean firstDeltager = true;
+
+    public void setDeltager(long deltagerNummer, String name, String cvrNummer,
                                             Date ajourDate, Date gyldigDate,
                                             String typeName, String rolleName, String statusName,
                                             CvrAddress locationAddress,
                                             RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
         boolean useCache = false;
+        TimeRecorder t = new TimeRecorder();
+
 
         TimeRecorder time = new TimeRecorder();
-        DeltagerEntity deltagerEntity = this.getDeltager(deltagerNummer, !useCache);
+        DeltagerEntity deltagerEntity = this.getDeltager(deltagerNummer, useCache);
         time.record();
 
         if (deltagerEntity == null) {
@@ -436,22 +445,23 @@ public class CvrModel {
                 this.deltagerCache.put(deltagerEntity);
             }
             this.addKnownDeltagerNumber(deltagerNummer);
+            this.deltagerRepository.detach(deltagerVersionEntity);
         }
         time.record();
         this.deltagerRecorder.add(time);
+        this.deltagerRepository.detach(deltagerEntity);
         this.deltagerRepository.clear();
-        return deltagerEntity;
     }
 
-    public DeltagerEntity getDeltager(long deltagerNummer, boolean noCache) {
+    public DeltagerEntity getDeltager(long deltagerNummer, boolean useCache) {
         DeltagerEntity deltagerEntity = null;
         if (this.hasKnownDeltagerNumber(deltagerNummer)) {
-            if (!noCache) {
+            if (useCache) {
                 deltagerEntity = this.deltagerCache.get(deltagerNummer);
             }
             if (deltagerEntity == null) {
                 deltagerEntity = this.deltagerRepository.getByIdentifier(deltagerNummer);
-                if (!noCache) {
+                if (useCache) {
                     this.deltagerCache.put(deltagerEntity);
                 }
             }
@@ -630,19 +640,23 @@ public class CvrModel {
     public TypeEntity setType(String name) {
         TypeEntity typeEntity = this.typeCache.get(name);
         if (typeEntity == null) {
+            typeEntity = this.deltagerTypeRepository.getByName(name);
+            this.typeCache.put(name, typeEntity);
+        }
+        if (typeEntity == null) {
             typeEntity = new TypeEntity();
             typeEntity.setName(name);
             this.deltagerTypeRepository.save(typeEntity);
-            this.typeCache.put(typeEntity);
+            this.typeCache.put(name, typeEntity);
         }
         return typeEntity;
     }
 
-    private Level1Cache<TypeEntity> typeCache;
+    private Level1Container<TypeEntity> typeCache;
 
     @PostConstruct
     private void loadTypeCache() {
-        this.typeCache = new Level1Cache<TypeEntity>(this.deltagerTypeRepository);
+        this.typeCache = new Level1Container<TypeEntity>();
     }
 
 
@@ -653,19 +667,23 @@ public class CvrModel {
     public RolleEntity setRolle(String name) {
         RolleEntity rolleEntity = this.rolleCache.get(name);
         if (rolleEntity == null) {
+            rolleEntity = this.deltagerRolleRepository.getByName(name);
+            this.rolleCache.put(name, rolleEntity);
+        }
+        if (rolleEntity == null) {
             rolleEntity = new RolleEntity();
             rolleEntity.setName(name);
             this.deltagerRolleRepository.save(rolleEntity);
-            this.rolleCache.put(rolleEntity);
+            this.rolleCache.put(name, rolleEntity);
         }
         return rolleEntity;
     }
 
-    private Level1Cache<RolleEntity> rolleCache;
+    private Level1Container<RolleEntity> rolleCache;
 
     @PostConstruct
     private void loadRolleCache() {
-        this.rolleCache = new Level1Cache<RolleEntity>(this.deltagerRolleRepository);
+        this.rolleCache = new Level1Container<RolleEntity>();
     }
 
 
@@ -679,20 +697,24 @@ public class CvrModel {
         } else {
             StatusEntity statusEntity = this.statusCache.get(name);
             if (statusEntity == null) {
+                statusEntity = this.deltagerStatusRepository.getByName(name);
+                this.statusCache.put(name, statusEntity);
+            }
+            if (statusEntity == null) {
                 statusEntity = new StatusEntity();
                 statusEntity.setName(name);
                 this.deltagerStatusRepository.save(statusEntity);
-                this.statusCache.put(statusEntity);
+                this.statusCache.put(name, statusEntity);
             }
             return statusEntity;
         }
     }
 
-    private Level1Cache<StatusEntity> statusCache;
+    private Level1Container<StatusEntity> statusCache;
 
     @PostConstruct
     private void loadStatusCache() {
-        this.statusCache = new Level1Cache<StatusEntity>(this.deltagerStatusRepository);
+        this.statusCache = new Level1Container<StatusEntity>();
     }
 
     //------------------------------------------------------------------------------------------------------------------

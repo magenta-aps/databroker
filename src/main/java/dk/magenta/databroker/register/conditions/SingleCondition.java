@@ -40,11 +40,17 @@ public class SingleCondition implements Condition {
     }
 
     public String getWhere() {
-        return this.fieldspec + " " + this.operator + " :" + this.key;
+        return this.getWhere(this.key);
+    }
+    public String getWhere(String key) {
+        return this.fieldspec + " " + this.operator + " :" + key;
     }
     public Map<String, Object> getParameters() {
+        return this.getParameters(this.key);
+    }
+    public Map<String, Object> getParameters(String key) {
         HashMap<String, Object> list = new HashMap<String, Object>();
-        list.put(this.key, this.value);
+        list.put(key, this.value);
         return list;
     }
     public boolean hasCondition(Condition condition) {

@@ -15,6 +15,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by lars on 27-01-15.
@@ -25,6 +26,8 @@ interface CompanyRepositoryCustom {
     public List<Long> getIdentifiers();
     public CompanyEntity getByIdentifier(long cvrNummer);
     public void clear();
+    public void detach(CompanyEntity companyEntity);
+    public void detach(CompanyVersionEntity companyVersionEntity);
 }
 
 
@@ -52,6 +55,8 @@ public class CompanyRepositoryImpl extends RepositoryImplementation<CompanyEntit
                 return null;
             }
         });
+
+
         return transactionCallbacks;
     }
 
@@ -141,14 +146,19 @@ public class CompanyRepositoryImpl extends RepositoryImplementation<CompanyEntit
 
 
     public CompanyEntity getByIdentifier(long cvrNummer) {
-        StringList hql = new StringList();
-        hql.append("select distinct "+CompanyEntity.databaseKey+" from CompanyEntity as "+CompanyEntity.databaseKey);
+        final String key = "id_"+UUID.randomUUID().toString().replace("-","");
         ConditionList conditions = new ConditionList();
         conditions.addCondition(CompanyEntity.cvrCondition(cvrNummer));
-        hql.append("where");
-        hql.append(conditions.getWhere());
-        Collection<CompanyEntity> companyEntities = this.query(hql, conditions, GlobalCondition.singleCondition);
+        final String hql = "select distinct "+CompanyEntity.databaseKey+" from CompanyEntity as "+CompanyEntity.databaseKey+" where "+conditions.getWhere(key);
+        Collection<CompanyEntity> companyEntities = this.query(hql, conditions.getParameters(key), GlobalCondition.singleCondition);
         return companyEntities.size() > 0 ? companyEntities.iterator().next() : null;
+    }
+
+    public void detach(CompanyEntity companyEntity) {
+        this.entityManager.detach(companyEntity);
+    }
+    public void detach(CompanyVersionEntity companyVersionEntity) {
+        this.entityManager.detach(companyVersionEntity);
     }
 
 }

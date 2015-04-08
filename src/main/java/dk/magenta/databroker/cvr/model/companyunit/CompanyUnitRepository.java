@@ -16,4 +16,6 @@ public interface CompanyUnitRepository extends JpaRepository<CompanyUnitEntity, 
     public List<Long> getIdentifiers();
     public CompanyUnitEntity getByIdentifier(long pno);
     public void clear();
+    public void detach(CompanyUnitEntity companyUnitEntity);
+    public void detach(CompanyUnitVersionEntity companyUnitVersionEntity);
 }

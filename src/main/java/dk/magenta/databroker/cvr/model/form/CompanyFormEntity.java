@@ -2,13 +2,9 @@ package dk.magenta.databroker.cvr.model.form;
 
 import dk.magenta.databroker.core.model.OutputFormattable;
 import dk.magenta.databroker.util.Util;
-import org.hibernate.annotations.Index;
 import org.json.JSONObject;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPEnvelope;
 
@@ -16,7 +12,7 @@ import javax.xml.soap.SOAPEnvelope;
  * Created by lars on 26-01-15.
  */
 @Entity
-@Table(name = "cvr_form")
+@Table(name = "cvr_form", indexes = {@Index(columnList = "name"), @Index(columnList = "code")})
 public class CompanyFormEntity implements OutputFormattable {
 
     public CompanyFormEntity() {
@@ -25,7 +21,6 @@ public class CompanyFormEntity implements OutputFormattable {
     //----------------------------------------------------
 
     @Column(nullable = true, unique = true)
-    @Index(name = "nameIndex")
     private String name;
 
     public String getName() {
@@ -40,7 +35,6 @@ public class CompanyFormEntity implements OutputFormattable {
 
     @Id
     @Column(nullable = false, unique = true)
-    @Index(name = "codeIndex")
     private int code;
 
     public int getCode() {

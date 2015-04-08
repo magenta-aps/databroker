@@ -68,6 +68,17 @@ public class MultiCondition implements Condition {
     public Map<String, Object> getParameters() {
         return this.value;
     }
+
+    @Override
+    public String getWhere(String key) {
+        return "";
+    }
+
+    @Override
+    public Map<String, Object> getParameters(String key) {
+        return new HashMap<String, Object>();
+    }
+
     public boolean hasCondition(Condition condition) {
         return (condition == this);
     }

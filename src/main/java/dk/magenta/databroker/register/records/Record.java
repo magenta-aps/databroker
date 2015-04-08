@@ -64,8 +64,9 @@ public abstract class Record extends HashMap<String, String> {
         }
     }
 
+    private static Pattern leadingDigitPattern = Pattern.compile("[^\\d]+");
+
     private String stripLeadingDigits(String value) {
-        final Pattern leadingDigitPattern = Pattern.compile("[^\\d]+");
         return leadingDigitPattern.matcher(value).replaceAll("");
     }
 

@@ -46,7 +46,7 @@ public class EnhedsAdresseRepositoryImpl extends RepositoryImplementation<Enheds
         ConditionList conditions = new ConditionList(ConditionList.Operator.AND);
 
         join.setPrefix("join ");
-        hql.append("select distinct " + EnhedsAdresseEntity.databaseKey + " from EnhedsAdresseEntity as " + EnhedsAdresseEntity.databaseKey);
+        hql.append("select " + EnhedsAdresseEntity.databaseKey + " from EnhedsAdresseEntity as " + EnhedsAdresseEntity.databaseKey);
 
         if (parameters.hasAny(Key.LAND, Key.KOMMUNE, Key.VEJ, Key.POST, Key.HUSNR, Key.BNR, Key.LOKALITET)) {
 

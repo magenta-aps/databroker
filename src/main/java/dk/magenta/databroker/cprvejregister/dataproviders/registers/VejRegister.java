@@ -552,7 +552,7 @@ public class VejRegister extends CprSubRegister {
         // We do this in the VejRegisterRun instance because there is some state information
         // that we don't want to pollute our VejRegister instance with
 
-        this.log.info("Storing VejstykkeEntities in database");
+        this.log.info("Storing "+orderedList.size()+" VejstykkeEntities in database");
         time = this.indepTic();
         ModelUpdateCounter counter = new ModelUpdateCounter();
         counter.setLog(this.log);
@@ -573,7 +573,7 @@ public class VejRegister extends CprSubRegister {
 
 
 
-        this.log.info("Storing AdresseEntities in database");
+        this.log.info("Storing "+vrun.getBoliger().size()+" AdresseEntities in database");
         time = this.indepTic();
         counter.reset();
         for (Bolig bolig : vrun.getBoliger()) {

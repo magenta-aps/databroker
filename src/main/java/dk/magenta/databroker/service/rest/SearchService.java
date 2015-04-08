@@ -436,7 +436,7 @@ public class SearchService {
         Format fmt = this.getFormat(formatStr);
         OutputFormattable lokalitetEntity = null;
         try {
-            lokalitetEntity = this.cvrModel.getDeltager(Long.parseLong(deltagernummer), true);
+            lokalitetEntity = this.cvrModel.getDeltager(Long.parseLong(deltagernummer), false);
         } catch (NumberFormatException e) {}
         if (lokalitetEntity != null) {
             return this.format(lokalitetEntity, fmt);

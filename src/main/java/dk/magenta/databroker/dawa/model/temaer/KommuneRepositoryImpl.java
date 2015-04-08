@@ -68,6 +68,7 @@ public class KommuneRepositoryImpl extends RepositoryImplementation<KommuneEntit
         if (join.size()>0) {
             hql.append(join.join(" "));
         }
+        join = null;
         if (conditions.size() > 0) {
             hql.append("where");
             hql.append(conditions.getWhere());

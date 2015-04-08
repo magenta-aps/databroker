@@ -105,4 +105,21 @@ public class ConditionList extends ArrayList<Condition> implements Condition {
         }
         return parameters;
     }
+
+    public String getWhere(String key) {
+        if (this.size() == 1) {
+            return this.get(0).getWhere(key);
+        } else {
+            return "";
+        }
+    }
+
+    public Map<String, Object> getParameters(String key) {
+        if (this.size() == 1) {
+            return this.get(0).getParameters(key);
+        } else {
+            return new HashMap<String, Object>();
+        }
+    }
+
 }

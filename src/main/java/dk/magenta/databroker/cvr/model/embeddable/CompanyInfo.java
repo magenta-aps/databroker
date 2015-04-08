@@ -7,7 +7,6 @@ import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.Condition;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.util.Util;
-import org.hibernate.annotations.Index;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -63,7 +62,6 @@ public class CompanyInfo {
     //-----------------------------------------------------------
 
     @Column(nullable = true)
-    @Index(name = "nameIndex")
     private String name;
 
     public String getName() {

@@ -12,7 +12,6 @@ import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.Condition;
 import dk.magenta.databroker.service.rest.SearchService;
 import dk.magenta.databroker.util.cache.CacheableEntity;
-import org.hibernate.annotations.Index;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -24,7 +23,7 @@ import java.util.HashSet;
  * Created by lars on 05-01-2015.
  */
 @Entity
-@Table(name = "dawa_lokalitet")
+@Table(name = "dawa_lokalitet", indexes = {@javax.persistence.Index(columnList = "navn")})
 public class LokalitetEntity extends UniqueBase implements OutputFormattable, CacheableEntity {
 
     public LokalitetEntity() {
@@ -65,7 +64,6 @@ public class LokalitetEntity extends UniqueBase implements OutputFormattable, Ca
     //----------------------------------------------------
 
     @Column(nullable = false)
-    @Index(name = "navnIndex")
     private String navn;
 
     public String getNavn() {

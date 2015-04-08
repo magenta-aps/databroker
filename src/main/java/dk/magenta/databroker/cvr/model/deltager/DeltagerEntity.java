@@ -7,7 +7,6 @@ import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.Condition;
 import dk.magenta.databroker.service.rest.SearchService;
 import dk.magenta.databroker.util.cache.CacheableEntity;
-import org.hibernate.annotations.Index;
 import org.json.JSONObject;
 
 import javax.persistence.*;
@@ -19,7 +18,7 @@ import java.util.Collection;
  */
 
 @Entity
-@Table(name = "cvr_deltager")
+@Table(name = "cvr_deltager", indexes = {@Index(columnList = "deltagerNummer")})
 public class DeltagerEntity extends DobbeltHistorikBase<DeltagerEntity, DeltagerVersionEntity> implements OutputFormattable, CacheableEntity {
 
     public DeltagerEntity() {
@@ -82,7 +81,6 @@ public class DeltagerEntity extends DobbeltHistorikBase<DeltagerEntity, Deltager
     /* Domain specific fields */
 
     @Column(nullable = false)
-    @Index(name = "deltagerNummerIndex")
     private long deltagerNummer;
 
     public long getDeltagerNummer() {

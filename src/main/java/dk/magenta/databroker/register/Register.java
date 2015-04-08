@@ -23,6 +23,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import javax.annotation.PostConstruct;
+import javax.persistence.Transient;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
@@ -124,8 +125,8 @@ public abstract class Register extends DataProvider {
         System.gc();
         this.clearRegistreringEntities();
         this.log.info(this.getClass().getSimpleName() + " pulling");
+        InputStream input = null;
         try {
-            InputStream input = null;
             boolean fromCache = false;
             File cacheFile = this.getCacheFile(false);
 
@@ -152,6 +153,13 @@ public abstract class Register extends DataProvider {
 
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            if (input != null) {
+                try {
+                    input.close();
+                } catch (IOException e) {
+                }
+            }
         }
         this.log.info(this.getClass().getSimpleName() + " pull complete");
         System.gc();
@@ -373,10 +381,11 @@ public abstract class Register extends DataProvider {
         // Override me
     }
 
+    private static Pattern txtPattern = Pattern.compile("\\.txt$");
+
     // obtain a file to cache input data to/from
     protected File getCacheFile(boolean forceCreateNew) throws IOException {
         File dir = new File(cacheDir, this.getClass().getSimpleName());
-        final Pattern txtPattern = Pattern.compile("\\.txt$");
         if (!dir.exists()) {
             this.log.info("Folder " + dir.getAbsolutePath() + " doesn't exist, creating it");
             dir.mkdirs();

@@ -1,11 +1,7 @@
 package dk.magenta.databroker.dawa.model.enhedsadresser;
 
 import dk.magenta.databroker.core.model.oio.DobbeltHistorikVersion;
-import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseEntity;
-import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
-import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.util.Util;
-import org.hibernate.annotations.Index;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
