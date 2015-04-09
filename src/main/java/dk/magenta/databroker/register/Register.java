@@ -18,9 +18,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.Transient;
@@ -189,51 +186,6 @@ public abstract class Register extends DataProvider {
         }
         System.gc();
     }
-
-
-
-    private TransactionStatus transactionStatus;
-    protected void beginTransaction() {
-        if (this.transactionStatus == null) {
-            DefaultTransactionDefinition def = new DefaultTransactionDefinition();
-            def.setName("CommandLineTransactionDefinition");
-            def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
-            this.transactionStatus = this.txManager.getTransaction(def);
-            System.out.println("Beginning transaction " + this.transactionStatus.hashCode());
-        } else {
-            //throw new Exception("Transaction not ended, cannot start new transaction");
-            this.log.error("Transaction not ended, cannot start new transaction");
-        }
-    }
-
-    protected void endTransaction() {
-        if (this.transactionStatus != null) {
-            this.txManager.commit(this.transactionStatus);
-            this.onTransactionEnd();
-            System.out.println("Ending transaction " + this.transactionStatus.hashCode());
-            this.transactionStatus = null;
-        } else {
-            this.log.error("Transaction not started, cannot end transaction");
-        }
-    }
-
-    protected void rollbackTransaction() {
-        if (this.transactionStatus != null) {
-            this.txManager.rollback(this.transactionStatus);
-            this.onTransactionRollback();
-            this.transactionStatus = null;
-        }
-    }
-
-    protected void onTransactionEnd() {
-        // Override me
-    }
-
-    protected void onTransactionRollback() {
-        // Override me
-    }
-
-
 
 
     protected void importData(RegistreringInfo registreringInfo) {

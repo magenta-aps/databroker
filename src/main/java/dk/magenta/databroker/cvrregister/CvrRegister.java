@@ -12,6 +12,7 @@ import dk.magenta.databroker.dawa.model.enhedsadresser.EnhedsAdresseEntity;
 import dk.magenta.databroker.register.Register;
 import dk.magenta.databroker.register.RegisterRun;
 import dk.magenta.databroker.util.TimeRecorder;
+import dk.magenta.databroker.util.TransactionCallback;
 import dk.magenta.databroker.util.Util;
 import dk.magenta.databroker.util.objectcontainers.Level1Container;
 import dk.magenta.databroker.register.records.Record;
@@ -22,7 +23,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -492,12 +492,6 @@ public class CvrRegister extends Register {
     }
 
 
-    protected void onTransactionEnd() {
-        this.dawaModel.onTransactionEnd();
-    }
-
-
-
 
     @Override
     protected RegisterRun parse(InputStream input) {
@@ -658,9 +652,8 @@ public class CvrRegister extends Register {
         ArrayList<TransactionCallback> transactionCallbacks = new ArrayList<TransactionCallback>();
         transactionCallbacks.add(new TransactionCallback() {
             @Override
-            public Object doInTransaction(TransactionStatus transactionStatus) {
+            public void run() {
                 CvrRegister.this.dawaModel.resetAllCaches();
-                return null;
             }
         });
         transactionCallbacks.addAll(this.cvrModel.getBulkwireCallbacks());
@@ -850,7 +843,8 @@ public class CvrRegister extends Register {
                     path.append(this.tags.get(i));
                 }
                 path.append(qName);
-                this.parameters.put(path.join("/"), this.whitespace.matcher(this.textChunk.join()).replaceAll(" ").trim());
+                String value = this.whitespace.matcher(this.textChunk.join()).replaceAll(" ").trim();
+                this.parameters.put(path.join("/"), value);
                 this.depth--;
                 path = null;
             }

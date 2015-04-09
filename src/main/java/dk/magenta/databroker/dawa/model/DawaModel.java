@@ -19,12 +19,12 @@ import dk.magenta.databroker.dawa.model.temaer.KommuneRepository;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeRepository;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeVersionEntity;
+import dk.magenta.databroker.util.TransactionCallback;
 import dk.magenta.databroker.util.cache.Level2Cache;
 import dk.magenta.databroker.util.objectcontainers.*;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.support.TransactionCallback;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManagerFactory;
@@ -145,6 +145,11 @@ public class DawaModel {
     @SuppressWarnings("SpringJavaAutowiringInspection")
     private VejstykkeRepository vejstykkeRepository;
 
+
+    private int roadCount = 0;
+    private TimeRecorder roadTimeRecorder = new TimeRecorder();
+
+
     /*
     * Add or modify a road
     * */
@@ -155,9 +160,11 @@ public class DawaModel {
 
     public VejstykkeEntity setVejstykke(int kommuneKode, int vejKode, String vejNavn, String vejAddresseringsnavn,
                                         RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
+        TimeRecorder time = new TimeRecorder();
 
         //VejstykkeEntity vejstykkeEntity = this.vejstykkeRepository.getByKommunekodeAndVejkode(kommuneKode, vejKode);
         VejstykkeEntity vejstykkeEntity = this.getVejstykke(kommuneKode, vejKode);
+        time.record();
         //VejstykkeEntity vejstykkeEntity = this.vejstykkeCache.get(kommuneKode, vejKode);
         if (vejstykkeEntity == null) {
             KommuneEntity kommuneEntity = this.getKommune(kommuneKode);
@@ -171,6 +178,7 @@ public class DawaModel {
             vejstykkeEntity.setKommune(kommuneEntity);
             vejstykkeEntity.generateDescriptor();
         }
+        time.record();
         VejstykkeVersionEntity vejstykkeVersionEntity = vejstykkeEntity.getLatestVersion();
         if (vejstykkeVersionEntity == null) {
             this.log.trace("Creating initial VejstykkeVersionEntity");
@@ -185,6 +193,7 @@ public class DawaModel {
                 vejstykkeVersionEntity = null;
             }
         }
+        time.record();
 
         if (vejstykkeVersionEntity != null) {
             vejstykkeVersionEntity.setVejnavn(vejNavn);
@@ -193,7 +202,17 @@ public class DawaModel {
             this.putVejstykke(vejstykkeEntity);
             this.vejstykkeRepository.save(vejstykkeEntity);
         }
+        time.record();
         this.itemAdded(false);
+
+
+
+        roadTimeRecorder.add(time);
+        roadCount++;
+        if (roadTimeRecorder.getAdded() % 1000 == 0) {
+            System.out.println("model ("+roadCount+"): "+roadTimeRecorder);
+            roadTimeRecorder = new TimeRecorder();
+        }
 
         return vejstykkeEntity;
     }
@@ -210,9 +229,6 @@ public class DawaModel {
         this.preloadVejstykkeCache = new Level2Cache<VejstykkeEntity>(this.vejstykkeRepository);
     }
 
-    TimeRecorder vejRecorder = new TimeRecorder();
-
-
     public VejstykkeEntity getVejstykke(int kommuneKode, int vejKode) {
         TimeRecorder v = new TimeRecorder();
         //VejstykkeEntity vejstykkeEntity = this.transactionVejstykkeCache.get(kommuneKode, vejKode);
@@ -228,12 +244,6 @@ public class DawaModel {
             }
             v.record();
         }
-        vejRecorder.add(v);
-        if (vejRecorder.getAdded() > 10000) {
-            this.log.trace("vejRecorder timing: "+vejRecorder);
-            vejRecorder = new TimeRecorder();
-        }
-
         return vejstykkeEntity;
     }
 
@@ -540,8 +550,8 @@ public class DawaModel {
         if (addressCount % 1000 == 0) {
             System.out.println("model ("+addressCount+"): "+addressTimeRecorder);
             addressTimeRecorder = new TimeRecorder();
-            this.adgangsAdresseRepository.flush();
-            this.enhedsAdresseRepository.flush();
+            //this.adgangsAdresseRepository.flush();
+            //this.enhedsAdresseRepository.flush();
         }
         return enhedsAdresseEntity;
     }

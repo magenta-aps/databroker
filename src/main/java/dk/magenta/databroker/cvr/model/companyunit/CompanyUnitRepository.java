@@ -1,8 +1,8 @@
 package dk.magenta.databroker.cvr.model.companyunit;
 
 import dk.magenta.databroker.dawa.model.SearchParameters;
+import dk.magenta.databroker.util.TransactionCallback;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.transaction.support.TransactionCallback;
 
 import java.util.Collection;
 import java.util.List;

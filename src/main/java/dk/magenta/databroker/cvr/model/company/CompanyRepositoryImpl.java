@@ -5,11 +5,11 @@ import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
+import dk.magenta.databroker.util.TransactionCallback;
 import dk.magenta.databroker.util.Util;
 import dk.magenta.databroker.util.objectcontainers.StringList;
 import org.apache.log4j.Logger;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ public class CompanyRepositoryImpl extends RepositoryImplementation<CompanyEntit
             CompanyRepositoryImpl repositoryImplementation = CompanyRepositoryImpl.this;
             Logger log = repositoryImplementation.log;
             @Override
-            public Object doInTransaction(TransactionStatus transactionStatus) {
+            public void run() {
                 log.info("Updating references between companies and addresses");
                 double time = Util.getTime();
                 repositoryImplementation.runNativeQuery("update cvr_company_version companyversion " +
@@ -52,7 +52,6 @@ public class CompanyRepositoryImpl extends RepositoryImplementation<CompanyEntit
                         "set companyversion.location_address_enheds_adresse=address.id " +
                         "where companyversion.location_address_enheds_adresse is NULL");
                 log.info("References updated in " + (Util.getTime() - time) + " ms");
-                return null;
             }
         });
 

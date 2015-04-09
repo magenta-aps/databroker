@@ -9,11 +9,11 @@ import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
+import dk.magenta.databroker.util.TransactionCallback;
 import dk.magenta.databroker.util.Util;
 import dk.magenta.databroker.util.objectcontainers.StringList;
 import org.apache.log4j.Logger;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -114,13 +114,12 @@ public class AdgangsAdresseRepositoryImpl extends RepositoryImplementation<Adgan
         ArrayList<TransactionCallback> transactionCallbacks = new ArrayList<TransactionCallback>();
         transactionCallbacks.add(new TransactionCallback() {
             @Override
-            public Object doInTransaction(TransactionStatus transactionStatus) {
+            public void run() {
                 AdgangsAdresseRepositoryImpl repositoryImplementation = AdgangsAdresseRepositoryImpl.this;
                 repositoryImplementation.log.info("Updating references between addresses and roads");
                 double time = Util.getTime();
                 repositoryImplementation.entityManager.createNativeQuery("update dawa_adgangsadresse adresse join dawa_vejstykke vej on adresse.vejstykke_descriptor=vej.descriptor set adresse.vejstykke_id=vej.id where adresse.vejstykke_id is NULL").executeUpdate();
                 repositoryImplementation.log.info("References updated in "+(Util.getTime()-time)+" ms");
-                return null;
             }
         });
         return transactionCallbacks;

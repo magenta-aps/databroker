@@ -92,7 +92,9 @@ public class ConditionList extends ArrayList<Condition> implements Condition {
                 stringList.append(condition.getWhere());
             }
         }
-        return "("+stringList.join(" "+this.operator+" ")+")";
+        String where = "("+stringList.join(" "+this.operator+" ")+")";
+        stringList = null;
+        return where;
     }
 
     public Map<String, Object> getParameters() {

@@ -3,10 +3,14 @@ package dk.magenta.databroker.core;
 import dk.magenta.databroker.core.controller.DataProviderController;
 import dk.magenta.databroker.correction.CorrectionCollectionEntity;
 import dk.magenta.databroker.correction.CorrectionCollectionRepository;
+import dk.magenta.databroker.util.TransactionCallback;
 import dk.magenta.databroker.util.Util;
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.StatelessSession;
 import org.odftoolkit.simple.SpreadsheetDocument;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -15,15 +19,12 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.odftoolkit.simple.table.Table;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionException;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 
 import javax.annotation.PostConstruct;
+import javax.persistence.EntityManagerFactory;
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.net.URL;
@@ -40,19 +41,55 @@ import java.util.zip.ZipInputStream;
  */
 public abstract class DataProvider {
 
-
     @Autowired
-    @SuppressWarnings("SpringJavaAutowiringInspection")
-    protected PlatformTransactionManager txManager;
+    private EntityManagerFactory entityManagerFactory;
+
+    private SessionFactory sessionFactory;
+
+    @PostConstruct
+    private void unwrapSessionFactory() {
+        this.sessionFactory = entityManagerFactory.unwrap(SessionFactory.class);
+    }
+
+    protected void runTransacationCallback(TransactionCallback transactionCallback) {
+        runTransacationCallback(transactionCallback, true);
+    }
+    protected void runTransacationCallback(TransactionCallback transactionCallback, boolean stateless) {
+        log.info("Running "+(stateless ? "staleless":"stateful")+" transaction");
+        org.hibernate.Transaction transaction;
+        StatelessSession statelessSession = null;
+        Session session = null;
+        if (stateless) {
+            statelessSession = sessionFactory.openStatelessSession();
+            transaction = statelessSession.getTransaction();
+        } else {
+            session = sessionFactory.openSession();
+            transaction = session.getTransaction();
+        }
+        transaction.begin();
+        try {
+            transactionCallback.run();
+            log.info("Ending transaction");
+            transaction.commit();
+        } catch (Exception e) {
+            log.info("Rolling back transaction");
+            transaction.rollback();
+        }
+        if (session != null) {
+            session.close();
+        }
+        if (statelessSession != null) {
+            statelessSession.close();
+        }
+    }
 
 
     private class DataProviderPusher extends Thread {
         private DataProviderEntity dataProviderEntity;
         private File uploadData;
-        private TransactionTemplate transactionTemplate;
         private Logger log = Logger.getLogger(DataProviderPusher.class);
 
-        public DataProviderPusher(DataProviderEntity dataProviderEntity, HttpServletRequest request, PlatformTransactionManager transactionManager) {
+        public DataProviderPusher(DataProviderEntity dataProviderEntity, HttpServletRequest request) {
             this.dataProviderEntity = dataProviderEntity;
             try {
                 this.uploadData = File.createTempFile(dataProviderEntity.getUuid(), ".tmp");
@@ -62,34 +99,32 @@ public abstract class DataProvider {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            this.transactionTemplate = new TransactionTemplate(transactionManager);
         }
         @Override
         public void run() {
 
             try {
                 final DataProviderEntity dataProviderEntity = this.dataProviderEntity;
+                final DataProviderPusher pusher = this;
 
-                this.transactionTemplate.execute(new TransactionCallback() {
-                    // the code in this method executes in a transactional context
-                    public Object doInTransaction(TransactionStatus status) {
-                        DataProviderPusher pusher = DataProviderPusher.this;
+                runTransacationCallback(new TransactionCallback(){
+                    @Override
+                    public void run() throws Exception {
+                        FileInputStream inputStream = null;
                         try {
-                            DataProvider.this.handlePush(true, pusher.dataProviderEntity, new FileInputStream(pusher.uploadData));
+                            inputStream = new FileInputStream(pusher.uploadData);
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();
                         }
-                        log.info("Ending transaction");
-                        return null;
+                        DataProvider.this.handlePush(true, pusher.dataProviderEntity, inputStream);
                     }
                 });
-                log.info("Ended transaction");
 
                 log.info("Wiring");
                 List<TransactionCallback> transactionCallbacks = DataProvider.this.getBulkwireCallbacks(dataProviderEntity);
                 if (transactionCallbacks != null) {
                     for (TransactionCallback transactionCallback : transactionCallbacks) {
-                        this.transactionTemplate.execute(transactionCallback);
+                        runTransacationCallback(transactionCallback);
                     }
                 }
                 log.info("Wiring complete");
@@ -108,28 +143,24 @@ public abstract class DataProvider {
     private class DataProviderPuller extends Thread {
         private DataProviderEntity dataProviderEntity;
 
-        private TransactionTemplate transactionTemplate;
 
-
-        public DataProviderPuller(DataProviderEntity dataProviderEntity, PlatformTransactionManager transactionManager) {
+        public DataProviderPuller(DataProviderEntity dataProviderEntity) {
             this.dataProviderEntity = dataProviderEntity;
-            this.transactionTemplate = new TransactionTemplate(transactionManager);
         }
         @Override
         public void run() {
             final DataProviderEntity dataProviderEntity = this.dataProviderEntity;
-            this.transactionTemplate.execute(new TransactionCallback() {
-                // the code in this method executes in a transactional context
-                public Object doInTransaction(TransactionStatus status) {
+            runTransacationCallback(new TransactionCallback() {
+                @Override
+                public void run() {
                     DataProvider.this.pull(dataProviderEntity);
-                    return null;
                 }
             });
 
             log.info("Wiring");
             List<TransactionCallback> transactionCallbacks = DataProvider.this.getBulkwireCallbacks(dataProviderEntity);
             for (TransactionCallback transactionCallback : transactionCallbacks) {
-                this.transactionTemplate.execute(transactionCallback);
+                runTransacationCallback(transactionCallback);
             }
             log.info("Wiring complete");
         }
@@ -176,7 +207,7 @@ public abstract class DataProvider {
     }
 
     public Thread asyncPush(DataProviderEntity dataProviderEntity, HttpServletRequest request) {
-        Thread thread = new DataProviderPusher(dataProviderEntity, request, this.txManager);
+        Thread thread = new DataProviderPusher(dataProviderEntity, request);
         thread.start();
         return thread;
     }
@@ -185,7 +216,7 @@ public abstract class DataProvider {
         return this.asyncPull(dataProviderEntity, true);
     }
     public Thread asyncPull(DataProviderEntity dataProviderEntity, boolean runNow) {
-        Thread thread = new DataProviderPuller(dataProviderEntity, this.txManager);
+        Thread thread = new DataProviderPuller(dataProviderEntity);
         if (runNow) {
             thread.start();
         }

@@ -27,12 +27,12 @@ import dk.magenta.databroker.cvr.model.industry.IndustryEntity;
 import dk.magenta.databroker.cvr.model.industry.IndustryRepository;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.util.TimeRecorder;
+import dk.magenta.databroker.util.TransactionCallback;
 import dk.magenta.databroker.util.cache.Level1Cache;
 import dk.magenta.databroker.util.objectcontainers.Level1Container;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.support.TransactionCallback;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManagerFactory;

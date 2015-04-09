@@ -2,10 +2,10 @@ package dk.magenta.databroker.dawa.model.adgangsadresse;
 
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
+import dk.magenta.databroker.util.TransactionCallback;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.transaction.support.TransactionCallback;
 
 import java.util.Collection;
 import java.util.List;

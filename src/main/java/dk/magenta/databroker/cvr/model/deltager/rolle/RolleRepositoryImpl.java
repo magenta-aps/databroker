@@ -7,6 +7,7 @@ import dk.magenta.databroker.util.objectcontainers.StringList;
 import org.apache.log4j.Logger;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by lars on 02-02-15.
@@ -23,23 +24,21 @@ public class RolleRepositoryImpl extends RepositoryImplementation<RolleEntity> i
     private Logger log = Logger.getLogger(RolleRepositoryImpl.class);
 
     public RolleEntity getByUuid(String uuid) {
-        StringList hql = new StringList();
-        hql.append("select distinct "+RolleEntity.databaseKey+" from RolleEntity "+RolleEntity.databaseKey+" where ");
+        final String key = "id_"+ UUID.randomUUID().toString().replace("-","");
         ConditionList conditions = new ConditionList();
         conditions.addCondition(RolleEntity.uuidCondition(uuid));
-        hql.append(conditions.getWhere());
-        List<RolleEntity> items = this.query(hql, conditions, GlobalCondition.singleCondition);
+        String hql = "select distinct " + RolleEntity.databaseKey + " from RolleEntity " + RolleEntity.databaseKey + " where " + conditions.getWhere(key);
+        List<RolleEntity> items = this.query(hql, conditions.getParameters(key), GlobalCondition.singleCondition);
         return items != null && !items.isEmpty() ? items.iterator().next() : null;
     }
 
     public RolleEntity getByName(String name) {
         log.info("getByName(" + name + ")");
-        StringList hql = new StringList();
-        hql.append("select distinct "+RolleEntity.databaseKey+" from RolleEntity "+RolleEntity.databaseKey+" where ");
+        final String key = "id_"+ UUID.randomUUID().toString().replace("-","");
         ConditionList conditions = new ConditionList();
         conditions.addCondition(RolleEntity.nameCondition(name));
-        hql.append(conditions.getWhere());
-        List<RolleEntity> items = this.query(hql, conditions, GlobalCondition.singleCondition);
+        String hql = "select distinct " + RolleEntity.databaseKey + " from RolleEntity " + RolleEntity.databaseKey + " where " + conditions.getWhere(key);
+        List<RolleEntity> items = this.query(hql, conditions.getParameters(key), GlobalCondition.singleCondition);
         return items != null && !items.isEmpty() ? items.iterator().next() : null;
     }
 

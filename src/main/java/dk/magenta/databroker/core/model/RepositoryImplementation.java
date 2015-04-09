@@ -39,8 +39,8 @@ public abstract class RepositoryImplementation<T> {
             session.clear();
         }*/
         if (this.entityManager != null) {
-            this.entityManager.flush();
-            this.entityManager.clear();
+//            this.entityManager.flush();
+//            this.entityManager.clear();
         }
     }
 

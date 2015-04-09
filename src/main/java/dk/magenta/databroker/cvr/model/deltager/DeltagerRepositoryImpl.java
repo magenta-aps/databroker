@@ -3,13 +3,14 @@ package dk.magenta.databroker.cvr.model.deltager;
 import dk.magenta.databroker.core.model.RepositoryImplementation;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
+import dk.magenta.databroker.util.TransactionCallback;
 import dk.magenta.databroker.util.objectcontainers.StringList;
 import org.apache.log4j.Logger;
-import org.springframework.transaction.support.TransactionCallback;
 
 import javax.persistence.Query;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by lars on 02-02-15.
@@ -57,12 +58,11 @@ public class DeltagerRepositoryImpl extends RepositoryImplementation<DeltagerEnt
 
 
     public DeltagerEntity getByIdentifier(long deltagernummer) {
-        StringList hql = new StringList();
-        hql.append("select "+DeltagerEntity.databaseKey+" from DeltagerEntity "+DeltagerEntity.databaseKey+" where ");
+        final String key = "id_"+ UUID.randomUUID().toString().replace("-","");
         ConditionList conditions = new ConditionList();
         conditions.addCondition(DeltagerEntity.nummerCondition(deltagernummer));
-        hql.append(conditions.getWhere());
-        List<DeltagerEntity> items = this.query(hql, conditions, GlobalCondition.singleCondition);
+        final String hql = "select " + DeltagerEntity.databaseKey + " from DeltagerEntity " + DeltagerEntity.databaseKey + " where " + conditions.getWhere(key);
+        List<DeltagerEntity> items = this.query(hql, conditions.getParameters(key), GlobalCondition.singleCondition);
         return items != null && !items.isEmpty() ? items.iterator().next() : null;
     }
 

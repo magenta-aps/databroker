@@ -10,11 +10,14 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+import javax.persistence.EntityManagerFactory;
 
 @Configuration
 @EnableScheduling
@@ -54,4 +57,15 @@ public class Application extends SpringBootServletInitializer {
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
         return application.sources(Application.class);
     }
+/*
+    @Bean
+    public EntityManagerFactory entityManagerFactory() {
+        LocalContainerEntityManagerFactoryBean theEntityManager = new LocalContainerEntityManagerFactoryBean();
+        theEntityManager.setDataSource(pooledDataSource());
+        theEntityManager.setPersistenceUnitName(configrationProperties.getString("db.jpa.persistanceUnit"));
+        theEntityManager.setJpaVendorAdapter(jpaVendorAdapter());
+        theEntityManager.setJpaProperties(jpaProperties());
+        EntityManagerFactory emf = theEntityManager.getNativeEntityManagerFactory();
+        return emf;
+    }*/
 }

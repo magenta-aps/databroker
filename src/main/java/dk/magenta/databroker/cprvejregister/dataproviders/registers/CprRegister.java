@@ -6,17 +6,13 @@ import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.register.LineRegister;
 import dk.magenta.databroker.register.RegisterRun;
+import dk.magenta.databroker.util.TransactionCallback;
 import dk.magenta.databroker.util.objectcontainers.Pair;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
@@ -39,13 +35,11 @@ public class CprRegister extends LineRegister {
         boolean deleteFiles;
         Logger log = Logger.getLogger(this.getClass());
 
-        private TransactionTemplate transactionTemplate;
 
-        public CprPusher(DataProviderEntity dataProviderEntity, List<Pair<CprSubRegister, File>> input, boolean deleteFiles, PlatformTransactionManager transactionManager) {
+        public CprPusher(DataProviderEntity dataProviderEntity, List<Pair<CprSubRegister, File>> input, boolean deleteFiles) {
             this.dataProviderEntity = dataProviderEntity;
             this.input = input;
             this.deleteFiles = deleteFiles;
-            this.transactionTemplate = new TransactionTemplate(transactionManager);
         }
 
         public void run() {
@@ -54,9 +48,9 @@ public class CprRegister extends LineRegister {
             final List<Pair<CprSubRegister, File>> input = this.input;
             final boolean deleteFiles = this.deleteFiles;
             this.log.info("Beginning push");
-            this.transactionTemplate.execute(new TransactionCallback() {
+            runTransacationCallback(new TransactionCallback() {
                 // the code in this method executes in a transactional context
-                public Object doInTransaction(TransactionStatus status) {
+                public void run() {
                     for (Pair<CprSubRegister, File> p : input) {
                         CprSubRegister cprSubRegister = p.getLeft();
                         File file = p.getRight();
@@ -77,9 +71,8 @@ public class CprRegister extends LineRegister {
                         }
                     }
                     CprRegister.this.dawaModel.flush();
-                    return null;
                 }
-            });
+            }, false);
 
             this.log.info("Push complete");
         }
@@ -90,12 +83,9 @@ public class CprRegister extends LineRegister {
         private DataProviderEntity dataProviderEntity;
         private List<CprSubRegister> registers;
 
-        private TransactionTemplate transactionTemplate;
-
-        public CprPuller(DataProviderEntity dataProviderEntity, List<CprSubRegister> registers, PlatformTransactionManager transactionManager) {
+        public CprPuller(DataProviderEntity dataProviderEntity, List<CprSubRegister> registers) {
             this.dataProviderEntity = dataProviderEntity;
             this.registers = registers;
-            this.transactionTemplate = new TransactionTemplate(transactionManager);
         }
 
         public void run() {
@@ -103,15 +93,14 @@ public class CprRegister extends LineRegister {
             final DataProviderEntity dataProviderEntity = this.dataProviderEntity;
             final List<CprSubRegister> registers = this.registers;
 
-            this.transactionTemplate.execute(new TransactionCallback() {
+            runTransacationCallback(new TransactionCallback() {
                 // the code in this method executes in a transactional context
-                public Object doInTransaction(TransactionStatus status) {
+                public void run() {
                     for (CprSubRegister subRegister : registers) {
                         subRegister.pull(true, true, dataProviderEntity);
                     }
                     CprRegister.this.dawaModel.flush();
                     CprRegister.this.dawaModel.onTransactionEnd();
-                    return null;
                 }
             });
         }
@@ -186,13 +175,13 @@ public class CprRegister extends LineRegister {
         for (CprSubRegister cprSubRegister : this.subRegisters) {
             list.add(new Pair<CprSubRegister, File>(cprSubRegister, this.getTempUploadFile(cprSubRegister, request)));
         }
-        Thread thread = new CprPusher(dataProviderEntity, list, true, this.txManager);
+        Thread thread = new CprPusher(dataProviderEntity, list, true);
         thread.start();
         return thread;
     }
 
     public Thread asyncPull(DataProviderEntity dataProviderEntity, boolean runNow) {
-        Thread thread = new CprPuller(dataProviderEntity, this.subRegisters, this.txManager);
+        Thread thread = new CprPuller(dataProviderEntity, this.subRegisters);
         if (runNow) {
             thread.start();
         }

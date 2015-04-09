@@ -1,15 +1,13 @@
 package dk.magenta.databroker.cvr.model.companyunit;
 
 import dk.magenta.databroker.core.model.RepositoryImplementation;
-import dk.magenta.databroker.cvr.model.company.CompanyEntity;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
+import dk.magenta.databroker.util.TransactionCallback;
 import dk.magenta.databroker.util.Util;
 import dk.magenta.databroker.util.objectcontainers.StringList;
 import org.apache.log4j.Logger;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 
 import javax.persistence.Query;
 import java.util.ArrayList;
@@ -41,7 +39,7 @@ public class CompanyUnitRepositoryImpl extends RepositoryImplementation<CompanyU
 
         transactionCallbacks.add(new TransactionCallback() {
             @Override
-            public Object doInTransaction(TransactionStatus transactionStatus) {
+            public void run() {
                 CompanyUnitRepositoryImpl repositoryImplementation = CompanyUnitRepositoryImpl.this;
                 repositoryImplementation.log.info("Updating references between units and companies");
                 double time = Util.getTime();
@@ -50,14 +48,13 @@ public class CompanyUnitRepositoryImpl extends RepositoryImplementation<CompanyU
                         "set unitversion.company_version_id=company.latest_version_id " +
                         "where unitversion.company_version_id is NULL");
                 repositoryImplementation.log.info("References updated in " + (Util.getTime() - time) + " ms");
-                return null;
             }
         });
 
 
         transactionCallbacks.add(new TransactionCallback() {
             @Override
-            public Object doInTransaction(TransactionStatus transactionStatus) {
+            public void run() {
                 CompanyUnitRepositoryImpl repositoryImplementation = CompanyUnitRepositoryImpl.this;
                 repositoryImplementation.log.info("Updating references between units and addresses");
                 double time = Util.getTime();
@@ -70,7 +67,6 @@ public class CompanyUnitRepositoryImpl extends RepositoryImplementation<CompanyU
                         "set unitversion.location_address_enheds_adresse=address.id " +
                         "where unitversion.location_address_enheds_adresse is NULL");
                 repositoryImplementation.log.info("References updated in " + (Util.getTime() - time) + " ms");
-                return null;
             }
         });
 
