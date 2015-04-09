@@ -81,16 +81,52 @@ public abstract class DataProvider {
         if (statelessSession != null) {
             statelessSession.close();
         }
+        log.info("Transaction complete, session closed");
+    }
+
+    private class DataProviderThread extends Thread {
+        private DataProvider dataProvider;
+        private DataProviderEntity dataProviderEntity;
+        public DataProviderThread(DataProvider dataProvider, DataProviderEntity dataProviderEntity) {
+            this.dataProvider = dataProvider;
+            this.dataProviderEntity = dataProviderEntity;
+        }
+
+        public DataProvider getDataProvider() {
+            return dataProvider;
+        }
+
+        public DataProviderEntity getDataProviderEntity() {
+            return dataProviderEntity;
+        }
+
+        protected List<TransactionCallback> getTransactionCallbacks() {
+            return null;
+        }
+
+        @Override
+        public void run() {
+            try {
+                List<TransactionCallback> transactionCallbacks = this.getTransactionCallbacks();
+                if (transactionCallbacks != null) {
+                    for (TransactionCallback transactionCallback : transactionCallbacks) {
+                        runTransacationCallback(transactionCallback);
+                    }
+                }
+            } catch (Exception e) {
+                log.error("Exception in transaction: ", e);
+                e.printStackTrace();
+            }
+        }
+
     }
 
 
-    private class DataProviderPusher extends Thread {
-        private DataProviderEntity dataProviderEntity;
+    private class DataProviderPusher extends DataProviderThread {
         private File uploadData;
-        private Logger log = Logger.getLogger(DataProviderPusher.class);
 
         public DataProviderPusher(DataProviderEntity dataProviderEntity, HttpServletRequest request) {
-            this.dataProviderEntity = dataProviderEntity;
+            super(DataProvider.this, dataProviderEntity);
             try {
                 this.uploadData = File.createTempFile(dataProviderEntity.getUuid(), ".tmp");
                 this.uploadData.deleteOnExit();
@@ -100,69 +136,56 @@ public abstract class DataProvider {
                 e.printStackTrace();
             }
         }
-        @Override
-        public void run() {
 
-            try {
-                final DataProviderEntity dataProviderEntity = this.dataProviderEntity;
-                final DataProviderPusher pusher = this;
+        protected List<TransactionCallback> getTransactionCallbacks() {
+            ArrayList<TransactionCallback> transactionCallbacks = new ArrayList<TransactionCallback>();
 
-                runTransacationCallback(new TransactionCallback(){
-                    @Override
-                    public void run() throws Exception {
-                        FileInputStream inputStream = null;
-                        try {
-                            inputStream = new FileInputStream(pusher.uploadData);
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                        }
-                        DataProvider.this.handlePush(true, pusher.dataProviderEntity, inputStream);
-                    }
-                });
-
-                log.info("Wiring");
-                List<TransactionCallback> transactionCallbacks = DataProvider.this.getBulkwireCallbacks(dataProviderEntity);
-                if (transactionCallbacks != null) {
-                    for (TransactionCallback transactionCallback : transactionCallbacks) {
-                        runTransacationCallback(transactionCallback);
-                    }
-                }
-                log.info("Wiring complete");
-            } catch (TransactionException e) {
-                log.error("TransactionException in transaction: ", e);
-                e.printStackTrace();
-            } catch (Exception e) {
-                log.error("Exception in transaction: ", e);
-                e.printStackTrace();
-            } finally {
-                this.uploadData.delete();
-            }
-        }
-    }
-
-    private class DataProviderPuller extends Thread {
-        private DataProviderEntity dataProviderEntity;
-
-
-        public DataProviderPuller(DataProviderEntity dataProviderEntity) {
-            this.dataProviderEntity = dataProviderEntity;
-        }
-        @Override
-        public void run() {
-            final DataProviderEntity dataProviderEntity = this.dataProviderEntity;
-            runTransacationCallback(new TransactionCallback() {
+            final DataProviderPusher pusher = this;
+            transactionCallbacks.add(new TransactionCallback(){
                 @Override
-                public void run() {
-                    DataProvider.this.pull(dataProviderEntity);
+                public void run() throws Exception {
+                    FileInputStream inputStream = null;
+                    try {
+                        inputStream = new FileInputStream(pusher.uploadData);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    DataProvider.this.handlePush(true, pusher.getDataProviderEntity(), inputStream);
                 }
             });
 
-            log.info("Wiring");
-            List<TransactionCallback> transactionCallbacks = DataProvider.this.getBulkwireCallbacks(dataProviderEntity);
-            for (TransactionCallback transactionCallback : transactionCallbacks) {
-                runTransacationCallback(transactionCallback);
-            }
-            log.info("Wiring complete");
+            transactionCallbacks.addAll(this.getDataProvider().getBulkwireCallbacks(this.getDataProviderEntity()));
+
+            return transactionCallbacks;
+        }
+
+        @Override
+        public void run() {
+            super.run();
+            this.uploadData.delete();
+        }
+    }
+
+    private class DataProviderPuller extends DataProviderThread {
+
+        public DataProviderPuller(DataProviderEntity dataProviderEntity) {
+            super(DataProvider.this, dataProviderEntity);
+        }
+
+        protected List<TransactionCallback> getTransactionCallbacks() {
+            ArrayList<TransactionCallback> transactionCallbacks = new ArrayList<TransactionCallback>();
+
+            final DataProviderPuller puller = this;
+            transactionCallbacks.add(new TransactionCallback(){
+                @Override
+                public void run() throws Exception {
+                    DataProvider.this.pull(puller.getDataProviderEntity());
+                }
+            });
+
+            transactionCallbacks.addAll(this.getDataProvider().getBulkwireCallbacks(this.getDataProviderEntity()));
+
+            return transactionCallbacks;
         }
     }
 

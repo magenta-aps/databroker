@@ -213,6 +213,8 @@ public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, Vejsty
 
     @Override
     public String[] getIdentifiers() {
-        return new String[] { String.valueOf(this.getKommune().getKode()), String.valueOf(this.getKode()) };
+        String kommunekode = String.valueOf(this.getKommune().getKode());
+        String vejkode = String.valueOf(this.getKode());
+        return new String[] { kommunekode, vejkode };
     }
 }

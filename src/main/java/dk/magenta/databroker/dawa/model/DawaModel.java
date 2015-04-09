@@ -28,6 +28,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManagerFactory;
+import java.sql.Time;
 import java.util.*;
 
 /**
@@ -62,10 +63,10 @@ public class DawaModel {
 
     private void itemAdded(boolean noFlush) {
         this.itemCounter++;
-        if (!noFlush && this.itemCounter >= 50000) {
+        /*if (!noFlush && this.itemCounter >= 50000) {
             this.itemCounter = 0;
             this.flush();
-        }
+        }*/
     }
 
     private Logger log = Logger.getLogger(DawaModel.class);
@@ -209,7 +210,7 @@ public class DawaModel {
 
         roadTimeRecorder.add(time);
         roadCount++;
-        if (roadTimeRecorder.getAdded() % 1000 == 0) {
+        if (roadCount % 1000 == 0) {
             System.out.println("model ("+roadCount+"): "+roadTimeRecorder);
             roadTimeRecorder = new TimeRecorder();
         }
@@ -230,19 +231,15 @@ public class DawaModel {
     }
 
     public VejstykkeEntity getVejstykke(int kommuneKode, int vejKode) {
-        TimeRecorder v = new TimeRecorder();
         //VejstykkeEntity vejstykkeEntity = this.transactionVejstykkeCache.get(kommuneKode, vejKode);
         VejstykkeEntity vejstykkeEntity = this.preloadVejstykkeCache.get(kommuneKode, vejKode);
-        v.record();
         if (vejstykkeEntity == null) {
             vejstykkeEntity = this.vejstykkeRepository.getByDesc(VejstykkeEntity.generateDescriptor(kommuneKode, vejKode));
-            v.record();
             if (vejstykkeEntity != null) {
                 //this.putVejstykke(vejstykkeEntity);
                 //this.transactionVejstykkeCache.put(kommuneKode, vejKode, vejstykkeEntity);
                 this.preloadVejstykkeCache.put(kommuneKode, vejKode, vejstykkeEntity);
             }
-            v.record();
         }
         return vejstykkeEntity;
     }
@@ -623,6 +620,9 @@ public class DawaModel {
     @SuppressWarnings("SpringJavaAutowiringInspection")
     private LokalitetRepository lokalitetRepository;
 
+    private TimeRecorder lokalitetRecorder = new TimeRecorder();
+    private int lokalitetCount = 0;
+
     public void setLokalitet(int kommuneKode, String lokalitetsnavn, Set<RawVej> veje,
                              RegistreringInfo registreringInfo) {
         this.setLokalitet(kommuneKode, lokalitetsnavn, veje, registreringInfo, new ArrayList<VirkningEntity>());
@@ -631,8 +631,10 @@ public class DawaModel {
     public void setLokalitet(int kommuneKode, String lokalitetsnavn, Set<RawVej> veje,
                              RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
 
+        TimeRecorder time = new TimeRecorder();
         LokalitetEntity lokalitetEntity = this.getLokalitet(kommuneKode, lokalitetsnavn);
 
+        time.record();
         if (lokalitetEntity == null) {
             KommuneEntity kommuneEntity = this.getKommune(kommuneKode);
             if (kommuneEntity != null) {
@@ -643,6 +645,7 @@ public class DawaModel {
                 this.lokalitetRepository.save(lokalitetEntity);
             }
         }
+        time.record();
         for (RawVej vej : veje) {
             int vejKode = vej.getVejKode();
             VejstykkeEntity vejstykkeEntity = this.getVejstykke(kommuneKode, vejKode);
@@ -661,7 +664,16 @@ public class DawaModel {
                 }
             }
         }
+        time.record();
         this.itemAdded(false);
+
+
+        lokalitetRecorder.add(time);
+        lokalitetCount++;
+        if (lokalitetCount % 1000 == 0) {
+            System.out.println("model ("+lokalitetCount+"): "+lokalitetRecorder);
+            lokalitetRecorder = new TimeRecorder();
+        }
     }
 
     private Level2Container<LokalitetEntity> transactionLokalitetCache = new Level2Container<LokalitetEntity>();
