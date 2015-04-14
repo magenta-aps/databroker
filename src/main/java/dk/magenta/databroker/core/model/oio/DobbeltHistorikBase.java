@@ -59,8 +59,8 @@ public abstract class DobbeltHistorikBase<
             this.setLatestVersion(version);
         }
 
-        Collection<R> versioner = this.getVersions();
-        versioner.add(version);
+        //Collection<R> versioner = this.getVersions();
+        //versioner.add(version);
     }
 
     public R addVersion(RegistreringEntity fromOIORegistrering)

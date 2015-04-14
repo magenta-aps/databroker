@@ -1,6 +1,8 @@
 package dk.magenta.databroker.dawa.model.adgangsadresse;
 
-import dk.magenta.databroker.core.model.RepositoryImplementation;
+import dk.magenta.databroker.core.Session;
+import dk.magenta.databroker.core.model.EntityRepositoryCustom;
+import dk.magenta.databroker.core.model.EntityRepositoryImplementation;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.dawa.model.lokalitet.LokalitetEntity;
@@ -13,43 +15,54 @@ import dk.magenta.databroker.util.TransactionCallback;
 import dk.magenta.databroker.util.Util;
 import dk.magenta.databroker.util.objectcontainers.StringList;
 import org.apache.log4j.Logger;
-import org.springframework.transaction.TransactionStatus;
+import org.hibernate.StatelessSession;
 
+import javax.persistence.Query;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 /**
  * Created by lars on 09-12-14.
  */
 
-interface AdgangsAdresseRepositoryCustom {
-    public Collection<AdgangsAdresseEntity> search(SearchParameters parameters);
-    public List<TransactionCallback> getBulkwireCallbacks();
-    public void clear();
-    public AdgangsAdresseEntity getByDescriptor(long descriptor);
+interface AdgangsAdresseRepositoryCustom extends EntityRepositoryCustom<AdgangsAdresseEntity, Long> {
 }
 
-public class AdgangsAdresseRepositoryImpl extends RepositoryImplementation<AdgangsAdresseEntity> implements AdgangsAdresseRepositoryCustom {
+public class AdgangsAdresseRepositoryImpl extends EntityRepositoryImplementation<AdgangsAdresseEntity, Long> implements AdgangsAdresseRepositoryCustom {
 
     private Logger log = Logger.getLogger(AdgangsAdresseRepositoryImpl.class);
 
+    @Override
+    public AdgangsAdresseEntity getByDescriptor(Long descriptor) {
+        return this.getByDescriptor(descriptor, null);
+    }
 
-    // TODO: Kan vi på nogen måde gøre denne metode hurtigere? p.t. kører den på 1-3 ms
-    public AdgangsAdresseEntity getByDescriptor(long descriptor) {
-        StringList hql = new StringList();
-        hql.append("select distinct "+AdgangsAdresseEntity.databaseKey+" from AdgangsAdresseEntity as "+AdgangsAdresseEntity.databaseKey);
+    @Override
+    public AdgangsAdresseEntity getByDescriptor(Long descriptor, Session session) {
+        return this.getByDescriptor(descriptor.longValue(), session);
+    }
+
+
+
+    public AdgangsAdresseEntity getByDescriptor(long descriptor, Session session) {
+        // TODO: Kan vi på nogen måde gøre denne metode hurtigere? p.t. kører den på 1-3 ms
+        if (!this.hasKnownDescriptor(descriptor, true)) {
+            return null;
+        }
         ConditionList conditions = new ConditionList();
         conditions.addCondition(AdgangsAdresseEntity.descriptorCondition(descriptor));
-        hql.append("where");
-        hql.append(conditions.getWhere());
-        Collection<AdgangsAdresseEntity> adgangsAdresseEntities = this.query(hql, conditions, GlobalCondition.singleCondition);
+        final String key = this.getRandomKey();
+        final String hql = "select distinct " + AdgangsAdresseEntity.databaseKey + " from AdgangsAdresseEntity as " + AdgangsAdresseEntity.databaseKey + " where " + conditions.getWhere(key);
+        Collection<AdgangsAdresseEntity> adgangsAdresseEntities = this.query(hql, conditions.getParameters(key), GlobalCondition.singleCondition, session);
         //System.out.println("Found "+adgangsAdresseEntities.size()+" candidates for descriptor "+descriptor);
         if (adgangsAdresseEntities != null && adgangsAdresseEntities.size() > 0) {
             return adgangsAdresseEntities.iterator().next();
         }
         return null;
     }
+
 
     @Override
     public Collection<AdgangsAdresseEntity> search(SearchParameters parameters) {
@@ -114,7 +127,7 @@ public class AdgangsAdresseRepositoryImpl extends RepositoryImplementation<Adgan
         ArrayList<TransactionCallback> transactionCallbacks = new ArrayList<TransactionCallback>();
         transactionCallbacks.add(new TransactionCallback() {
             @Override
-            public void run() {
+            public void run(Session session) {
                 AdgangsAdresseRepositoryImpl repositoryImplementation = AdgangsAdresseRepositoryImpl.this;
                 repositoryImplementation.log.info("Updating references between addresses and roads");
                 double time = Util.getTime();
@@ -123,5 +136,11 @@ public class AdgangsAdresseRepositoryImpl extends RepositoryImplementation<Adgan
             }
         });
         return transactionCallbacks;
+    }
+
+    @Override
+    public HashSet<Long> getKnownDescriptors() {
+        Query q = this.entityManager.createQuery("select " + AdgangsAdresseEntity.databaseKey + ".descriptor from AdgangsAdresseEntity as " + AdgangsAdresseEntity.databaseKey);
+        return new HashSet<Long>(q.getResultList());
     }
 }

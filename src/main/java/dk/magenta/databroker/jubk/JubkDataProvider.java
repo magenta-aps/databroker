@@ -2,6 +2,7 @@ package dk.magenta.databroker.jubk;
 
 import dk.magenta.databroker.core.DataProvider;
 import dk.magenta.databroker.core.DataProviderConfiguration;
+import dk.magenta.databroker.core.Session;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +18,7 @@ public class JubkDataProvider extends DataProvider {
     }
 
     @Override
-    public void pull(DataProviderEntity dataProviderEntity) {
+    public void pull(DataProviderEntity dataProviderEntity, Session session) {
         // Do nothing
     }
 

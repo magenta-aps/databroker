@@ -591,7 +591,7 @@ public class VejRegister extends CprSubRegister {
 
 
 
-        this.log.info("Storing LokalitetEntities in database");
+        this.log.info("Storing "+lokalitetData.totalSize()+" LokalitetEntities in database");
         time = this.indepTic();
         counter.reset();
 

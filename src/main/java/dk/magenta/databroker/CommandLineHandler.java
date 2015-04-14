@@ -59,6 +59,8 @@ public class CommandLineHandler implements CommandLineRunner {
         SpringApplication.exit(configurableApplicationContext);
     }
 
+
+    // TODO: create a transactioncallback and run it
     @Transactional
     private void runTransactional(String[] strings) throws Exception {
         System.out.println();
@@ -108,7 +110,7 @@ public class CommandLineHandler implements CommandLineRunner {
                 if(dataProviderEntity == null) {
                     System.out.println("Could not find dataprovider with UUID " + strings[1]);
                 } else {
-                    DataProviderRegistry.getDataProviderForEntity(dataProviderEntity).pull(dataProviderEntity);
+                    DataProviderRegistry.getDataProviderForEntity(dataProviderEntity).pull(dataProviderEntity, null);
                     System.out.println();
                     System.out.println("Successfully pulled for the data provider with UUID " + strings[1]);
                 }

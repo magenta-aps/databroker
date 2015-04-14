@@ -1,11 +1,18 @@
 package dk.magenta.databroker.cvr.model.deltager.status;
 
-import dk.magenta.databroker.core.model.RepositoryImplementation;
+import dk.magenta.databroker.core.Session;
+import dk.magenta.databroker.core.model.EntityRepositoryCustom;
+import dk.magenta.databroker.core.model.EntityRepositoryImplementation;
+import dk.magenta.databroker.dawa.model.SearchParameters;
+import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
-import dk.magenta.databroker.util.objectcontainers.StringList;
+import dk.magenta.databroker.util.TransactionCallback;
 import org.apache.log4j.Logger;
 
+import javax.persistence.Query;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -13,35 +20,60 @@ import java.util.List;
  */
 
 
-interface StatusRepositoryCustom {
+interface StatusRepositoryCustom extends EntityRepositoryCustom<StatusEntity, String> {
     public StatusEntity getByUuid(String uuid);
-    public StatusEntity getByName(String name);
+    public StatusEntity getByName(String name, Session session);
 }
 
-public class StatusRepositoryImpl extends RepositoryImplementation<StatusEntity> implements StatusRepositoryCustom {
+public class StatusRepositoryImpl extends EntityRepositoryImplementation<StatusEntity, String> implements StatusRepositoryCustom {
 
     private Logger log = Logger.getLogger(StatusRepositoryImpl.class);
 
     public StatusEntity getByUuid(String uuid) {
-        StringList hql = new StringList();
-        hql.append("select distinct "+StatusEntity.databaseKey+" from StatusEntity "+StatusEntity.databaseKey+" where ");
         ConditionList conditions = new ConditionList();
         conditions.addCondition(StatusEntity.uuidCondition(uuid));
-        hql.append(conditions.getWhere());
-        List<StatusEntity> items = this.query(hql, conditions, GlobalCondition.singleCondition);
+        final String key = this.getRandomKey();
+        final String hql = "select distinct "+StatusEntity.databaseKey+" from StatusEntity "+StatusEntity.databaseKey+" where " + conditions.getWhere(key);
+        List<StatusEntity> items = this.query(hql, conditions.getParameters(key), GlobalCondition.singleCondition);
         return items != null && !items.isEmpty() ? items.iterator().next() : null;
     }
 
-    public StatusEntity getByName(String name) {
+    public StatusEntity getByName(String name, Session session) {
         log.info("getByName(" + name + ")");
-        StringList hql = new StringList();
-        hql.append("select distinct "+StatusEntity.databaseKey+" from StatusEntity "+StatusEntity.databaseKey+" where ");
         ConditionList conditions = new ConditionList();
         conditions.addCondition(StatusEntity.nameCondition(name));
-        hql.append(conditions.getWhere());
-        List<StatusEntity> items = this.query(hql, conditions, GlobalCondition.singleCondition);
+        final String key = this.getRandomKey();
+        final String hql = "select distinct " + StatusEntity.databaseKey + " from StatusEntity " + StatusEntity.databaseKey + " where " + conditions.getWhere(key);
+        List<StatusEntity> items = this.query(hql, conditions.getParameters(key), GlobalCondition.singleCondition, session);
         return items != null && !items.isEmpty() ? items.iterator().next() : null;
     }
 
+
+    @Override
+    public List<TransactionCallback> getBulkwireCallbacks() {
+        return null;
+    }
+
+    @Override
+    public Collection<StatusEntity> search(SearchParameters parameters) {
+        return null;
+    }
+
+    @Override
+    public HashSet<String> getKnownDescriptors() {
+        Query q = this.entityManager.createQuery("select " + StatusEntity.databaseKey + ".name from StatusEntity as " + StatusEntity.databaseKey);
+        return new HashSet<String>(q.getResultList());
+    }
+
+
+    @Override
+    public StatusEntity getByDescriptor(String descriptor) {
+        return this.getByDescriptor(descriptor, null);
+    }
+
+    @Override
+    public StatusEntity getByDescriptor(String descriptor, Session session) {
+        return null;
+    }
 
 }

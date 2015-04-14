@@ -3,6 +3,7 @@ package dk.magenta.databroker.register;
 import dk.magenta.databroker.core.DataProvider;
 import dk.magenta.databroker.core.NamedInputStream;
 import dk.magenta.databroker.core.RegistreringInfo;
+import dk.magenta.databroker.core.Session;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.core.model.DataProviderStorageEntity;
 import dk.magenta.databroker.core.model.DataProviderStorageRepository;
@@ -11,6 +12,7 @@ import dk.magenta.databroker.core.model.oio.RegistreringLivscyklusRepository;
 import dk.magenta.databroker.core.model.oio.RegistreringRepository;
 import dk.magenta.databroker.correction.CorrectionCollectionEntity;
 import dk.magenta.databroker.register.records.Record;
+import dk.magenta.databroker.util.TransactionCallback;
 import dk.magenta.databroker.util.Util;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.log4j.Logger;
@@ -98,8 +100,8 @@ public abstract class Register extends DataProvider {
     @Autowired
     private RegistreringManager registreringManager;
 
-    private RegistreringInfo createRegistreringsInfo(DataProviderEntity dataProviderEntity, NamedInputStream data) {
-        RegistreringInfo registreringInfo = new RegistreringInfo(this.registreringRepository, this.registreringLivscyklusRepository, this.registreringManager, dataProviderEntity, data);
+    private RegistreringInfo createRegistreringsInfo(DataProviderEntity dataProviderEntity, NamedInputStream data, dk.magenta.databroker.core.Session session) {
+        RegistreringInfo registreringInfo = new RegistreringInfo(this.registreringRepository, this.registreringLivscyklusRepository, this.registreringManager, dataProviderEntity, data, session);
         return registreringInfo;
     }
 
@@ -114,11 +116,24 @@ public abstract class Register extends DataProvider {
 
     protected abstract void saveRunToDatabase(RegisterRun run, RegistreringInfo registreringInfo) throws Exception;
 
-    public void pull(DataProviderEntity dataProviderEntity) {
-        this.pull(false, false, dataProviderEntity);
+
+
+    public void pull(final boolean forceFetch, final boolean forceParse, final DataProviderEntity dataProviderEntity) {
+        final Register register = this;
+        runTransacationCallback(new TransactionCallback(){
+            @Override
+            public void run(Session session) throws Exception {
+                register.pull(forceFetch, forceParse, dataProviderEntity, session);
+            }
+        });
     }
 
-    public void pull(boolean forceFetch, boolean forceParse, DataProviderEntity dataProviderEntity) {
+
+    public void pull(DataProviderEntity dataProviderEntity, Session session) throws Exception {
+        this.pull(false, false, dataProviderEntity, session);
+    }
+
+    public void pull(boolean forceFetch, boolean forceParse, DataProviderEntity dataProviderEntity, Session session) throws Exception {
         System.gc();
         this.clearRegistreringEntities();
         this.log.info(this.getClass().getSimpleName() + " pulling");
@@ -143,7 +158,7 @@ public abstract class Register extends DataProvider {
             }
             if (input != null) {
                 // Now that we have an input stream, process it
-                this.handleInput(input, dataProviderEntity, fromCache, forceParse);
+                this.handleInput(input, dataProviderEntity, fromCache, forceParse, session);
             } else {
                 this.log.error("Register " + this.getClass().getSimpleName() + " cannot pull; no input data found");
             }
@@ -163,10 +178,10 @@ public abstract class Register extends DataProvider {
     }
 
 
-    public void handlePush(DataProviderEntity dataProviderEntity, HttpServletRequest request) {
+    public void handlePush(DataProviderEntity dataProviderEntity, HttpServletRequest request, Session session) throws Exception {
         InputStream input = this.getUploadStream(request);
         if (input != null) {
-            this.handlePush(true, dataProviderEntity, input);
+            this.handlePush(true, dataProviderEntity, input, session);
         } else {
             this.log.error("Register " + this.getClass().getSimpleName() + " cannot receive push; no input data found");
         }
@@ -174,12 +189,12 @@ public abstract class Register extends DataProvider {
 
     //@Transactional
     @Override
-    public void handlePush(boolean forceParse, DataProviderEntity dataProviderEntity, InputStream input) {
+    public void handlePush(boolean forceParse, DataProviderEntity dataProviderEntity, InputStream input, Session session) throws Exception {
         this.clearRegistreringEntities();
         System.gc();
         this.log.info(this.getClass().getSimpleName() + " receiving push");
         if (input != null) {
-            this.handleInput(input, dataProviderEntity, false, forceParse);
+            this.handleInput(input, dataProviderEntity, false, forceParse, session);
             this.log.info(this.getClass().getSimpleName() + " push complete");
         } else {
             this.log.error("Register " + this.getClass().getSimpleName() + " cannot receive push; no input data found");
@@ -188,7 +203,7 @@ public abstract class Register extends DataProvider {
     }
 
 
-    protected void importData(RegistreringInfo registreringInfo) {
+    protected void importData(RegistreringInfo registreringInfo) throws Exception {
         RegisterRun run = this.parse(registreringInfo.getInputStream());
 
         CorrectionCollectionEntity correctionCollectionEntity = registreringInfo.getDataProviderEntity().getCorrections();
@@ -196,11 +211,7 @@ public abstract class Register extends DataProvider {
             correctionCollectionEntity.correctRecords(run);
         }
 
-        try {
-            this.saveRunToDatabase(run, registreringInfo);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        this.saveRunToDatabase(run, registreringInfo);
     }
 
 
@@ -232,7 +243,7 @@ public abstract class Register extends DataProvider {
         return input;
     }
 
-    private void handleInput(InputStream input, DataProviderEntity dataProviderEntity, boolean alreadyCached, boolean forceParse) {
+    private void handleInput(InputStream input, DataProviderEntity dataProviderEntity, boolean alreadyCached, boolean forceParse, Session session) throws Exception {
         if (input != null) {
             // If cachefile doesn't exist, create it
             File cacheFile = null;
@@ -283,7 +294,7 @@ public abstract class Register extends DataProvider {
                         } else {
                             this.log.info("Checksum mismatch; parsing new data into database");
                         }
-                        RegistreringInfo registreringInfo = this.createRegistreringsInfo(dataProviderEntity, data);
+                        RegistreringInfo registreringInfo = this.createRegistreringsInfo(dataProviderEntity, data, session);
                         this.importData(registreringInfo);
                         registreringInfo.clear();
                     } else {

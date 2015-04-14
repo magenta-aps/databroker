@@ -2,6 +2,7 @@ package dk.magenta.databroker.cvrregister;
 
 import dk.magenta.databroker.core.DataProviderConfiguration;
 import dk.magenta.databroker.core.RegistreringInfo;
+import dk.magenta.databroker.core.Session;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.core.model.oio.VirkningEntity;
 import dk.magenta.databroker.cvr.model.CvrModel;
@@ -454,9 +455,6 @@ public class CvrRegister extends Register {
         return this.ctx.getResource("classpath:/data/cvrDelta.zip");
     }
 
-    public void pull(boolean forceFetch, boolean forceParse, DataProviderEntity dataProviderEntity) {
-        super.pull(forceFetch, forceParse, dataProviderEntity);
-    }
 
 
     @Override
@@ -479,15 +477,15 @@ public class CvrRegister extends Register {
         }
     }
 
-    private void ensureIndustryInDatabase(int code, String text) {
+    private void ensureIndustryInDatabase(int code, String text, Session session) {
         if (code > 0) {
-            this.cvrModel.setIndustry(code, text, true);
+            this.cvrModel.setIndustry(code, text, session, true);
         }
     }
 
-    private void ensureFormInDatabase(int code, String text) {
+    private void ensureFormInDatabase(int code, String text, Session session) {
         if (code > 0) {
-            this.cvrModel.setForm(code, text, true);
+            this.cvrModel.setForm(code, text, session, true);
         }
     }
 
@@ -513,6 +511,8 @@ public class CvrRegister extends Register {
 
         if (run.getClass() == CvrRegisterRun.class) {
 
+            Session session = registreringInfo.getSession();
+
             CvrRegisterRun cRun = (CvrRegisterRun) run;
             int companyCount = cRun.getVirksomheder().size();
             int unitCount = cRun.getProductionUnits().size();
@@ -531,17 +531,17 @@ public class CvrRegister extends Register {
 
             try {
 
-                if (companyCount > 0) {
+                if (false && companyCount > 0) {
                     TimeRecorder sumTime = new TimeRecorder();
                     for (VirksomhedRecord virksomhed : cRun.getVirksomheder().getList()) {
                         TimeRecorder itemTimer = new TimeRecorder();
 
                         // Make sure the referenced industries are present in the DB
                         itemTimer.record();
-                        this.ensureIndustryInDatabase(virksomhed.getInt("primaryIndustry"), virksomhed.get("primaryIndustryText"));
-                        this.ensureIndustryInDatabase(virksomhed.getInt("secondaryIndustry1"), virksomhed.get("secondaryIndustryText1"));
-                        this.ensureIndustryInDatabase(virksomhed.getInt("secondaryIndustry2"), virksomhed.get("secondaryIndustryText2"));
-                        this.ensureIndustryInDatabase(virksomhed.getInt("secondaryIndustry3"), virksomhed.get("secondaryIndustryText3"));
+                        this.ensureIndustryInDatabase(virksomhed.getInt("primaryIndustry"), virksomhed.get("primaryIndustryText"), session);
+                        this.ensureIndustryInDatabase(virksomhed.getInt("secondaryIndustry1"), virksomhed.get("secondaryIndustryText1"), session);
+                        this.ensureIndustryInDatabase(virksomhed.getInt("secondaryIndustry2"), virksomhed.get("secondaryIndustryText2"), session);
+                        this.ensureIndustryInDatabase(virksomhed.getInt("secondaryIndustry3"), virksomhed.get("secondaryIndustryText3"), session);
 
                         itemTimer.record();
 
@@ -549,7 +549,7 @@ public class CvrRegister extends Register {
                         long cvrNummer = virksomhed.getLong("cvrNummer");
                         int form = virksomhed.getInt("form");
                         itemTimer.record();
-                        this.ensureFormInDatabase(form, virksomhed.get("formText"));
+                        this.ensureFormInDatabase(form, virksomhed.get("formText"), session);
 
                         itemTimer.record();
                         this.cvrModel.setCompany(cvrNummer, form,
@@ -568,17 +568,17 @@ public class CvrRegister extends Register {
                 }
 
 
-                if (unitCount > 0) {
+                if (false && unitCount > 0) {
                     TimeRecorder sumTime = new TimeRecorder();
 
                     for (ProductionUnitRecord unit : cRun.getProductionUnits().getList()) {
                         TimeRecorder itemTimer = new TimeRecorder();
 
                         // Make sure the referenced industries are present in the DB
-                        this.ensureIndustryInDatabase(unit.getInt("primaryIndustry"), unit.get("primaryIndustryText"));
-                        this.ensureIndustryInDatabase(unit.getInt("secondaryIndustry1"), unit.get("secondaryIndustryText1"));
-                        this.ensureIndustryInDatabase(unit.getInt("secondaryIndustry2"), unit.get("secondaryIndustryText2"));
-                        this.ensureIndustryInDatabase(unit.getInt("secondaryIndustry3"), unit.get("secondaryIndustryText3"));
+                        this.ensureIndustryInDatabase(unit.getInt("primaryIndustry"), unit.get("primaryIndustryText"), session);
+                        this.ensureIndustryInDatabase(unit.getInt("secondaryIndustry1"), unit.get("secondaryIndustryText1"), session);
+                        this.ensureIndustryInDatabase(unit.getInt("secondaryIndustry2"), unit.get("secondaryIndustryText2"), session);
+                        this.ensureIndustryInDatabase(unit.getInt("secondaryIndustry3"), unit.get("secondaryIndustryText3"), session);
 
                         // Fetch basic fields
                         long pNummer = unit.getLong("pNummer");
@@ -633,7 +633,7 @@ public class CvrRegister extends Register {
 
                 //this.cvrModel.flushCompanies();
                 //this.dawaModel.flush();
-                this.cvrModel.flush();
+                //this.cvrModel.flush();
 
 
                 //this.cvrModel.printStatistics();
@@ -658,10 +658,6 @@ public class CvrRegister extends Register {
         });
         transactionCallbacks.addAll(this.cvrModel.getBulkwireCallbacks());
         return transactionCallbacks;
-    }
-
-    private List<TransactionCallback> getBulkwireCallbacks() {
-        return this.dawaModel.getBulkwireCallbacks();
     }
 
 

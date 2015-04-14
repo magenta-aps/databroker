@@ -178,12 +178,21 @@ public class MyndighedsRegister extends CprSubRegister {
     private DawaModel model;
 
     protected void saveRunToDatabase(RegisterRun run, RegistreringInfo registreringInfo) {
-        this.log.info("Storing KommuneEntities in database");
+        int c = 0;
+        MyndighedsRegisterRun mrun = (MyndighedsRegisterRun) run;
+
+        List<Myndighed> kommuner = mrun.getMyndigheder("5");
+        for (Myndighed kommune : kommuner) {
+            int kommuneKode = kommune.getInt("myndighedsKode");
+            String kommuneNavn = kommune.get("myndighedsNavn");
+            if (this.acceptKommune(kommuneKode, kommuneNavn)) {
+                c++;
+            }
+        }
+        this.log.info("Storing "+c+" KommuneEntities in database");
         double time = this.indepTic();
         ModelUpdateCounter counter = new ModelUpdateCounter();
         counter.setLog(this.log);
-        MyndighedsRegisterRun mrun = (MyndighedsRegisterRun) run;
-        List<Myndighed> kommuner = mrun.getMyndigheder("5");
 
         for (Myndighed kommune : kommuner) {
             int kommuneKode = kommune.getInt("myndighedsKode");

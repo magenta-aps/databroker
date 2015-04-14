@@ -1,9 +1,6 @@
 package dk.magenta.databroker.core.model;
 
-import dk.magenta.databroker.core.DataProvider;
-import dk.magenta.databroker.core.DataProviderConfiguration;
-import dk.magenta.databroker.core.DataProviderRegistry;
-import dk.magenta.databroker.core.RegistreringInfo;
+import dk.magenta.databroker.core.*;
 import dk.magenta.databroker.core.model.oio.RegistreringEntity;
 import dk.magenta.databroker.core.model.oio.RegistreringRepository;
 import dk.magenta.databroker.correction.CorrectionCollectionEntity;
@@ -207,8 +204,8 @@ public class DataProviderEntity {
      * Proxy-methods DataProvider implementations                                         *
      **************************************************************************************/
 
-    public void pull() {
-        this.getDataProvider().pull(this);
+    public void pull(Session session) throws Exception {
+        this.getDataProvider().pull(this, session);
     }
 
     public boolean canPull() {

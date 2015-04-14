@@ -3,14 +3,16 @@ package dk.magenta.databroker.core;
 import dk.magenta.databroker.core.controller.DataProviderController;
 import dk.magenta.databroker.correction.CorrectionCollectionEntity;
 import dk.magenta.databroker.correction.CorrectionCollectionRepository;
+import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.util.TransactionCallback;
 import dk.magenta.databroker.util.Util;
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.hibernate.Session;
+import org.hibernate.FlushMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
+import org.hibernate.internal.SessionImpl;
 import org.odftoolkit.simple.SpreadsheetDocument;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -19,7 +21,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.odftoolkit.simple.table.Table;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
-import org.springframework.transaction.TransactionException;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 
@@ -30,6 +31,7 @@ import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -55,32 +57,27 @@ public abstract class DataProvider {
         runTransacationCallback(transactionCallback, true);
     }
     protected void runTransacationCallback(TransactionCallback transactionCallback, boolean stateless) {
-        log.info("Running "+(stateless ? "staleless":"stateful")+" transaction");
-        org.hibernate.Transaction transaction;
-        StatelessSession statelessSession = null;
-        Session session = null;
+        log.info("Running "+(stateless ? "stateless":"stateful")+" transaction");
+        Session session;
         if (stateless) {
-            statelessSession = sessionFactory.openStatelessSession();
-            transaction = statelessSession.getTransaction();
+            session = new Session(sessionFactory.openStatelessSession());
         } else {
-            session = sessionFactory.openSession();
-            transaction = session.getTransaction();
+            session = new Session(sessionFactory.openSession());
+            //session.setFlushMode(FlushMode.COMMIT);
         }
-        transaction.begin();
+        log.info("Beginning transaction");
+        org.hibernate.Transaction transaction = session.beginTransaction();
         try {
-            transactionCallback.run();
-            log.info("Ending transaction");
+            transactionCallback.run(session);
+            log.info("Committing transaction");
             transaction.commit();
         } catch (Exception e) {
+            log.error("Exception encountered in transaction",e);
             log.info("Rolling back transaction");
             transaction.rollback();
         }
-        if (session != null) {
-            session.close();
-        }
-        if (statelessSession != null) {
-            statelessSession.close();
-        }
+        session.close();
+
         log.info("Transaction complete, session closed");
     }
 
@@ -143,14 +140,14 @@ public abstract class DataProvider {
             final DataProviderPusher pusher = this;
             transactionCallbacks.add(new TransactionCallback(){
                 @Override
-                public void run() throws Exception {
+                public void run(Session session) throws Exception {
                     FileInputStream inputStream = null;
                     try {
                         inputStream = new FileInputStream(pusher.uploadData);
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     }
-                    DataProvider.this.handlePush(true, pusher.getDataProviderEntity(), inputStream);
+                    DataProvider.this.handlePush(true, pusher.getDataProviderEntity(), inputStream, session);
                 }
             });
 
@@ -178,8 +175,8 @@ public abstract class DataProvider {
             final DataProviderPuller puller = this;
             transactionCallbacks.add(new TransactionCallback(){
                 @Override
-                public void run() throws Exception {
-                    DataProvider.this.pull(puller.getDataProviderEntity());
+                public void run(Session session) throws Exception {
+                    DataProvider.this.pull(puller.getDataProviderEntity(), session);
                 }
             });
 
@@ -216,7 +213,7 @@ public abstract class DataProvider {
 
     public abstract DataProviderConfiguration getDefaultConfiguration();
 
-    public abstract void pull(DataProviderEntity dataProviderEntity);
+    public abstract void pull(DataProviderEntity dataProviderEntity, Session session) throws Exception;
 
     public abstract InputStream getUploadStream(HttpServletRequest request);
 
@@ -225,7 +222,7 @@ public abstract class DataProvider {
         throw new NotImplementedException();
     }
 
-    public void handlePush(boolean forceParse, DataProviderEntity dataProviderEntity, InputStream input) {
+    public void handlePush(boolean forceParse, DataProviderEntity dataProviderEntity, InputStream input, Session session) throws Exception {
         throw new NotImplementedException();
     }
 

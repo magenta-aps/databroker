@@ -11,7 +11,7 @@ import java.util.HashSet;
  * Created by jubk on 18-12-2014.
  */
 @Entity
-@Table(name = "dawa_postnummer_version", indexes = {@Index(columnList = "nr"), @Index(columnList = "navn")})
+@Table(name = "dawa_postnummer_version", indexes = {@Index(columnList = "navn")})
 public class PostNummerVersionEntity extends DobbeltHistorikVersion<PostNummerEntity, PostNummerVersionEntity> {
 
 
@@ -37,19 +37,6 @@ public class PostNummerVersionEntity extends DobbeltHistorikVersion<PostNummerEn
     @Override
     public void setEntity(PostNummerEntity entity) {
         this.entity = entity;
-    }
-
-    //----------------------------------------------------
-
-    @Column(nullable = false)
-    private int nr;
-
-    public int getNr() {
-        return nr;
-    }
-
-    public void setNr(int nr) {
-        this.nr = nr;
     }
 
     //----------------------------------------------------
@@ -100,7 +87,7 @@ public class PostNummerVersionEntity extends DobbeltHistorikVersion<PostNummerEn
 
     //-----------------------------------------------------
 
-    public boolean matches(int nr, String navn) {
-        return this.getNr() == nr && this.getNavn() != null && this.getNavn().equals(navn);
+    public boolean matches(String navn) {
+        return this.getNavn() != null && this.getNavn().equals(navn);
     }
 }

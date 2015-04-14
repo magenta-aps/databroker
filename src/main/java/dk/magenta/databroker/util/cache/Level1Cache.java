@@ -1,5 +1,6 @@
 package dk.magenta.databroker.util.cache;
 
+import dk.magenta.databroker.core.model.EntityRepository;
 import dk.magenta.databroker.util.objectcontainers.Level1Container;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -7,10 +8,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * Created by lars on 04-02-15.
  */
 public class Level1Cache<T extends CacheableEntity> extends Level1Container<T> {
-    private JpaRepository<T, Long> repository;
+    private EntityRepository<T, Long> repository;
     private boolean loaded;
 
-    public Level1Cache(JpaRepository<T, Long> repository) {
+    public Level1Cache(EntityRepository repository) {
         this.repository = repository;
         this.loaded = false;
     }

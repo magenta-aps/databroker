@@ -93,10 +93,6 @@ public class GrLokalitetsRegister extends LineRegister {
     }
 
 
-    @Transactional
-    public void pull(boolean forceFetch, boolean forceParse, DataProviderEntity dataProviderEntity) {
-        super.pull(forceFetch, forceParse, dataProviderEntity);
-    }
 
 
     /*

@@ -132,6 +132,9 @@ public class CompanyUnitEntity extends DobbeltHistorikBase<CompanyUnitEntity, Co
         return databaseKey+".latestVersion.companyInfo.locationAddress.enhedsAdresse as "+EnhedsAdresseEntity.databaseKey;
     }
 
+    public static Condition descriptorCondition(long descriptor) {
+        return pnoCondition(descriptor);
+    }
     public static Condition pnoCondition(long pno) {
         return RepositoryUtil.whereField(pno, databaseKey + ".pno", null);
     }

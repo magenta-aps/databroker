@@ -1,21 +1,11 @@
 package dk.magenta.databroker.cvr.model.company;
 
-import dk.magenta.databroker.dawa.model.SearchParameters;
-import dk.magenta.databroker.util.TransactionCallback;
-import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.Collection;
-import java.util.List;
+import dk.magenta.databroker.core.model.EntityRepository;
 
 /**
  * Created by lars on 19-12-14.
  */
-public interface CompanyRepository extends JpaRepository<CompanyEntity, Long> {
-    public List<TransactionCallback> getBulkwireCallbacks();
-    public CompanyEntity getByIdentifier(long cvrNummer);
-    public Collection<CompanyEntity> search(SearchParameters parameters);
-    public void clear();
-    public List<Long> getIdentifiers();
+public interface CompanyRepository extends EntityRepository<CompanyEntity, Long> {
     public void detach(CompanyEntity companyEntity);
     public void detach(CompanyVersionEntity companyVersionEntity);
 }

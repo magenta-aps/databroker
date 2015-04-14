@@ -170,6 +170,9 @@ public class CompanyEntity extends DobbeltHistorikBase<CompanyEntity, CompanyVer
     public static Condition cvrCondition(long cvrNummer) {
         return RepositoryUtil.whereField(cvrNummer, databaseKey+".cvrNummer", null);
     }
+    public static Condition descriptorCondition(long descriptor) {
+        return cvrCondition(descriptor);
+    }
     public static Condition virksomhedCondition(SearchParameters parameters) {
         return CompanyInfo.nameCondition(parameters, companyInfoKey);
     }

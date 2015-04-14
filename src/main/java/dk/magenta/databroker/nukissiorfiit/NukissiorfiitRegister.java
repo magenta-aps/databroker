@@ -101,11 +101,6 @@ public class NukissiorfiitRegister extends LineRegister {
     }
 
 
-    @Transactional
-    public void pull(boolean forceFetch, boolean forceParse, DataProviderEntity dataProviderEntity) {
-        super.pull(forceFetch, forceParse, dataProviderEntity);
-    }
-
 
     /*
     * Database save
@@ -114,23 +109,6 @@ public class NukissiorfiitRegister extends LineRegister {
     @Autowired
     @SuppressWarnings("SpringJavaAutowiringInspection")
     private DawaModel model;
-
-    @Transactional
-    @Override
-    public void handlePush(DataProviderEntity dataProviderEntity, HttpServletRequest request) {
-        InputStream input = null;
-        try {
-            Part uploadPart = request.getPart("sourceUpload");
-            if (uploadPart != null) {
-                input = uploadPart.getInputStream();
-            }
-        } catch (IOException e) {
-        } catch (ServletException e) {
-        }
-        if (input != null) {
-            this.handlePush(true, dataProviderEntity, input);
-        }
-    }
 
     private HashMap<Integer, ArrayList<Integer>> aliasMap = new HashMap<Integer, ArrayList<Integer>>();
     private void addAlias(int... aliases) {
@@ -171,7 +149,7 @@ public class NukissiorfiitRegister extends LineRegister {
             for (VejstykkeEntity vej : veje) {
                 String navn = this.normalize(vej.getLatestVersion().getVejnavn());
                 for (PostNummerEntity post : vej.getLatestVersion().getPostnumre()) {
-                    vejMap.put(navn, post.getLatestVersion().getNr(), vej);
+                    vejMap.put(navn, post.getNr(), vej);
                     counter.countEntryProcessed();
                 }
             }

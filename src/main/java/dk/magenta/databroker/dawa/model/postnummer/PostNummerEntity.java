@@ -24,7 +24,7 @@ import java.util.HashSet;
  * Created by jubk on 18-12-2014.
  */
 @Entity
-@Table(name = "dawa_postnummer")
+@Table(name = "dawa_postnummer", indexes = {@Index(columnList = "nr")})
 public class PostNummerEntity extends DobbeltHistorikBase<PostNummerEntity, PostNummerVersionEntity> implements OutputFormattable, CacheableEntity {
 
     public PostNummerEntity() {
@@ -32,6 +32,20 @@ public class PostNummerEntity extends DobbeltHistorikBase<PostNummerEntity, Post
         this.vejstykkeVersioner = new HashSet<VejstykkeVersionEntity>();
         this.generateNewUUID();
     }
+
+    //----------------------------------------------------
+
+    @Column(nullable = false)
+    private int nr;
+
+    public int getNr() {
+        return nr;
+    }
+
+    public void setNr(int nr) {
+        this.nr = nr;
+    }
+
 
     //------------------------------------------------------------------------------------------------------------------
     /* Versioning */
@@ -111,10 +125,10 @@ public class PostNummerEntity extends DobbeltHistorikBase<PostNummerEntity, Post
     public JSONObject toJSON() {
         JSONObject obj = super.toJSON();
         PostNummerVersionEntity version = this.latestVersion;
-        obj.put("desc", version.getNr()+" "+version.getNavn());
+        obj.put("desc", this.getNr()+" "+version.getNavn());
         obj.put("navn", version.getNavn());
-        obj.put("nummer", version.getNr());
-        obj.put("href", SearchService.getPostnummerBaseUrl() + "/" + version.getNr());
+        obj.put("nummer", this.getNr());
+        obj.put("href", SearchService.getPostnummerBaseUrl() + "/" + this.getNr());
         return obj;
     }
 
@@ -141,9 +155,12 @@ public class PostNummerEntity extends DobbeltHistorikBase<PostNummerEntity, Post
 
     public static Condition postCondition(SearchParameters parameters) {
         if (parameters.has(Key.POST)) {
-            return RepositoryUtil.whereField(parameters.get(Key.POST), databaseKey+".latestVersion.nr", databaseKey+".latestVersion.navn");
+            return RepositoryUtil.whereField(parameters.get(Key.POST), databaseKey+".nr", databaseKey+".latestVersion.navn");
         }
         return null;
+    }
+    public static Condition descriptorCondition(int descriptor) {
+        return RepositoryUtil.whereField(descriptor, databaseKey+".nr", null);
     }
 
     public static String joinKommune() {
@@ -163,6 +180,6 @@ public class PostNummerEntity extends DobbeltHistorikBase<PostNummerEntity, Post
 
     @Override
     public String[] getIdentifiers() {
-        return new String[] { ""+this.getLatestVersion().getNr() };
+        return new String[] { ""+this.getNr() };
     }
 }

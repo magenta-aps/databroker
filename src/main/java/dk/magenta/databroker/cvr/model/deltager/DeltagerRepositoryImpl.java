@@ -1,32 +1,29 @@
 package dk.magenta.databroker.cvr.model.deltager;
 
-import dk.magenta.databroker.core.model.RepositoryImplementation;
+import dk.magenta.databroker.core.Session;
+import dk.magenta.databroker.core.model.EntityRepositoryCustom;
+import dk.magenta.databroker.core.model.EntityRepositoryImplementation;
+import dk.magenta.databroker.dawa.model.SearchParameters;
+import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.util.TransactionCallback;
-import dk.magenta.databroker.util.objectcontainers.StringList;
 import org.apache.log4j.Logger;
 
 import javax.persistence.Query;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Created by lars on 02-02-15.
  */
 
 
-interface DeltagerRepositoryCustom {
-    public List<TransactionCallback> getBulkwireCallbacks();
-    public List<Long> getIdentifiers();
-    public DeltagerEntity getByIdentifier(long deltagernummer);
-    public void clear();
+interface DeltagerRepositoryCustom extends EntityRepositoryCustom<DeltagerEntity, Long> {
     public void detach(DeltagerEntity deltagerEntity);
     public void detach(DeltagerVersionEntity deltagerVersionEntity);
 }
 
-public class DeltagerRepositoryImpl extends RepositoryImplementation<DeltagerEntity> implements DeltagerRepositoryCustom {
+public class DeltagerRepositoryImpl extends EntityRepositoryImplementation<DeltagerEntity, Long> implements DeltagerRepositoryCustom {
 
     private Logger log = Logger.getLogger(DeltagerRepositoryImpl.class);
 
@@ -50,19 +47,33 @@ public class DeltagerRepositoryImpl extends RepositoryImplementation<DeltagerEnt
         return transactionCallbacks;
     }
 
+    @Override
+    public Collection<DeltagerEntity> search(SearchParameters parameters) {
+        return null;
+    }
 
-    public List<Long> getIdentifiers() {
+    @Override
+    public HashSet<Long> getKnownDescriptors() {
         Query q = this.entityManager.createQuery("select " + DeltagerEntity.databaseKey + ".deltagerNummer from DeltagerEntity as " + DeltagerEntity.databaseKey);
-        return q.getResultList();
+        return new HashSet<Long>(q.getResultList());
     }
 
 
-    public DeltagerEntity getByIdentifier(long deltagernummer) {
+    @Override
+    public DeltagerEntity getByDescriptor(Long descriptor) {
+        return this.getByDescriptor(descriptor, null);
+    }
+
+    @Override
+    public DeltagerEntity getByDescriptor(Long descriptor, Session session) {
+        if (!this.hasKnownDescriptor(descriptor, true)) {
+            return null;
+        }
         final String key = "id_"+ UUID.randomUUID().toString().replace("-","");
         ConditionList conditions = new ConditionList();
-        conditions.addCondition(DeltagerEntity.nummerCondition(deltagernummer));
+        conditions.addCondition(DeltagerEntity.descriptorCondition(descriptor));
         final String hql = "select " + DeltagerEntity.databaseKey + " from DeltagerEntity " + DeltagerEntity.databaseKey + " where " + conditions.getWhere(key);
-        List<DeltagerEntity> items = this.query(hql, conditions.getParameters(key), GlobalCondition.singleCondition);
+        List<DeltagerEntity> items = this.query(hql, conditions.getParameters(key), GlobalCondition.singleCondition, session);
         return items != null && !items.isEmpty() ? items.iterator().next() : null;
     }
 
@@ -73,6 +84,7 @@ public class DeltagerRepositoryImpl extends RepositoryImplementation<DeltagerEnt
     public void detach(DeltagerVersionEntity deltagerVersionEntity) {
         this.entityManager.detach(deltagerVersionEntity);
     }
+
 
 
 }

@@ -1,6 +1,8 @@
 package dk.magenta.databroker.dawa.model.temaer;
 
-import dk.magenta.databroker.core.model.RepositoryImplementation;
+import dk.magenta.databroker.core.Session;
+import dk.magenta.databroker.core.model.EntityRepositoryCustom;
+import dk.magenta.databroker.core.model.EntityRepositoryImplementation;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.dawa.model.lokalitet.LokalitetEntity;
@@ -8,20 +10,29 @@ import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.register.conditions.Condition;
 import dk.magenta.databroker.register.conditions.ConditionList;
+import dk.magenta.databroker.register.conditions.GlobalCondition;
+import dk.magenta.databroker.util.TransactionCallback;
 import dk.magenta.databroker.util.objectcontainers.Pair;
 import dk.magenta.databroker.util.objectcontainers.StringList;
 
+import javax.persistence.Query;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * Created by lars on 19-12-14.
  */
-interface KommuneRepositoryCustom {
-    public Collection<KommuneEntity> search(SearchParameters parameters);
-    public void clear();
+interface KommuneRepositoryCustom extends EntityRepositoryCustom<KommuneEntity, Integer> {
+    public KommuneEntity getByKode(int kommunekode);
 }
 
-public class KommuneRepositoryImpl extends RepositoryImplementation<KommuneEntity> implements KommuneRepositoryCustom {
+public class KommuneRepositoryImpl extends EntityRepositoryImplementation<KommuneEntity, Integer> implements KommuneRepositoryCustom {
+
+    @Override
+    public List<TransactionCallback> getBulkwireCallbacks() {
+        return null;
+    }
 
     // Run a search where each input field may be a code or a name, and may contain leading and/or trailing wildcards
     // subject to a global condition (e.g. only extract entries with a version newer than a certain date)
@@ -78,4 +89,40 @@ public class KommuneRepositoryImpl extends RepositoryImplementation<KommuneEntit
 
         return this.query(hql, conditions, parameters.getGlobalCondition());
     }
+
+    @Override
+    public HashSet<Integer> getKnownDescriptors() {
+        Query q = this.entityManager.createQuery("select " + KommuneEntity.databaseKey + ".kode from KommuneEntity as " + KommuneEntity.databaseKey);
+        return new HashSet<Integer>(q.getResultList());
+    }
+
+    @Override
+    public KommuneEntity getByDescriptor(Integer descriptor) {
+        return this.getByDescriptor(descriptor, null);
+    }
+
+    @Override
+    public KommuneEntity getByDescriptor(Integer descriptor, Session session) {
+        if (!this.hasKnownDescriptor(descriptor, true)) {
+            //System.out.println("noooooo");
+            return null;
+        }
+        //System.out.println("yay");
+        ConditionList conditions = new ConditionList();
+        conditions.addCondition(KommuneEntity.kommuneCondition(descriptor));
+        final String key = this.getRandomKey();
+        final String hql = "select distinct " + KommuneEntity.databaseKey + " from KommuneEntity as " + KommuneEntity.databaseKey + " where " + conditions.getWhere(key);
+        Collection<KommuneEntity> kommuneEntities = this.query(hql, conditions.getParameters(key), GlobalCondition.singleCondition, session);
+        //System.out.println("Found "+kommuneEntities.size()+" candidates for descriptor "+descriptor);
+        if (kommuneEntities != null && kommuneEntities.size() > 0) {
+            return kommuneEntities.iterator().next();
+        }
+        return null;
+    }
+
+    @Override
+    public KommuneEntity getByKode(int kommunekode) {
+        return this.getByDescriptor(kommunekode);
+    }
+
 }

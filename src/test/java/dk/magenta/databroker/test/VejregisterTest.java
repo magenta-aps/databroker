@@ -51,7 +51,6 @@ public class VejregisterTest {
     private NukissiorfiitRegister nukissiorfiitRegister;
 
     @Test
-    //@Transactional
     public void testVejregister() {
         DataProviderEntity tmpDataProviderEntity = new DataProviderEntity();
         tmpDataProviderEntity.setUuid(UUID.randomUUID().toString());

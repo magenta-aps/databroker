@@ -1,6 +1,8 @@
 package dk.magenta.databroker.cvr.model.companyunit;
 
-import dk.magenta.databroker.core.model.RepositoryImplementation;
+import dk.magenta.databroker.core.Session;
+import dk.magenta.databroker.core.model.EntityRepositoryCustom;
+import dk.magenta.databroker.core.model.EntityRepositoryImplementation;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
@@ -10,27 +12,19 @@ import dk.magenta.databroker.util.objectcontainers.StringList;
 import org.apache.log4j.Logger;
 
 import javax.persistence.Query;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Created by lars on 02-02-15.
  */
 
 
-interface CompanyUnitRepositoryCustom {
-    public List<TransactionCallback> getBulkwireCallbacks();
-    public Collection<CompanyUnitEntity> search(SearchParameters parameters);
-    public List<Long> getIdentifiers();
-    public CompanyUnitEntity getByIdentifier(long pno);
-    public void clear();
+interface CompanyUnitRepositoryCustom extends EntityRepositoryCustom<CompanyUnitEntity, Long> {
     public void detach(CompanyUnitEntity companyUnitEntity);
     public void detach(CompanyUnitVersionEntity companyUnitVersionEntity);
 }
 
-public class CompanyUnitRepositoryImpl extends RepositoryImplementation<CompanyUnitEntity> implements CompanyUnitRepositoryCustom {
+public class CompanyUnitRepositoryImpl extends EntityRepositoryImplementation<CompanyUnitEntity, Long> implements CompanyUnitRepositoryCustom {
 
     private Logger log = Logger.getLogger(CompanyUnitRepositoryImpl.class);
 
@@ -39,7 +33,7 @@ public class CompanyUnitRepositoryImpl extends RepositoryImplementation<CompanyU
 
         transactionCallbacks.add(new TransactionCallback() {
             @Override
-            public void run() {
+            public void run(Session session) {
                 CompanyUnitRepositoryImpl repositoryImplementation = CompanyUnitRepositoryImpl.this;
                 repositoryImplementation.log.info("Updating references between units and companies");
                 double time = Util.getTime();
@@ -54,7 +48,7 @@ public class CompanyUnitRepositoryImpl extends RepositoryImplementation<CompanyU
 
         transactionCallbacks.add(new TransactionCallback() {
             @Override
-            public void run() {
+            public void run(Session session) {
                 CompanyUnitRepositoryImpl repositoryImplementation = CompanyUnitRepositoryImpl.this;
                 repositoryImplementation.log.info("Updating references between units and addresses");
                 double time = Util.getTime();
@@ -158,18 +152,20 @@ public class CompanyUnitRepositoryImpl extends RepositoryImplementation<CompanyU
     }
 
 
-    public List<Long> getIdentifiers() {
-        Query q = this.entityManager.createQuery("select " + CompanyUnitEntity.databaseKey + ".pno from CompanyUnitEntity as " + CompanyUnitEntity.databaseKey);
-        return q.getResultList();
+    @Override
+    public CompanyUnitEntity getByDescriptor(Long descriptor) {
+        return this.getByDescriptor(descriptor, null);
     }
 
-
-    public CompanyUnitEntity getByIdentifier(long pno) {
-        final String key = "id_"+ UUID.randomUUID().toString().replace("-","");
+    public CompanyUnitEntity getByDescriptor(Long descriptor, Session session) {
+        if (!this.hasKnownDescriptor(descriptor, true)) {
+            return null;
+        }
         ConditionList conditions = new ConditionList();
-        conditions.addCondition(CompanyUnitEntity.pnoCondition(pno));
-        final String hql = "select distinct " + CompanyUnitEntity.databaseKey + " from CompanyUnitEntity as " + CompanyUnitEntity.databaseKey + "where" + conditions.getWhere(key);
-        Collection<CompanyUnitEntity> companyUnitEntities = this.query(hql, conditions.getParameters(key), GlobalCondition.singleCondition);
+        conditions.addCondition(CompanyUnitEntity.descriptorCondition(descriptor));
+        final String key = "id_"+ UUID.randomUUID().toString().replace("-","");
+        final String hql = "select distinct " + CompanyUnitEntity.databaseKey + " from CompanyUnitEntity as " + CompanyUnitEntity.databaseKey + " where " + conditions.getWhere(key);
+        Collection<CompanyUnitEntity> companyUnitEntities = this.query(hql, conditions.getParameters(key), GlobalCondition.singleCondition, session);
         CompanyUnitEntity entity = companyUnitEntities.size() > 0 ? companyUnitEntities.iterator().next() : null;
         companyUnitEntities.clear();
         companyUnitEntities = null;
@@ -184,4 +180,9 @@ public class CompanyUnitRepositoryImpl extends RepositoryImplementation<CompanyU
         this.entityManager.detach(companyUnitVersionEntity);
     }
 
+    @Override
+    public HashSet<Long> getKnownDescriptors() {
+        Query q = this.entityManager.createQuery("select " + CompanyUnitEntity.databaseKey + ".pno from CompanyUnitEntity as " + CompanyUnitEntity.databaseKey);
+        return new HashSet<Long>(q.getResultList());
+    }
 }

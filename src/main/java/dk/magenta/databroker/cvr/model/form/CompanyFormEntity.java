@@ -1,6 +1,8 @@
 package dk.magenta.databroker.cvr.model.form;
 
 import dk.magenta.databroker.core.model.OutputFormattable;
+import dk.magenta.databroker.register.RepositoryUtil;
+import dk.magenta.databroker.register.conditions.Condition;
 import dk.magenta.databroker.util.Util;
 import org.json.JSONObject;
 
@@ -17,6 +19,8 @@ public class CompanyFormEntity implements OutputFormattable {
 
     public CompanyFormEntity() {
     }
+
+    public static String databaseKey = "companyform";
 
     //----------------------------------------------------
 
@@ -96,5 +100,14 @@ public class CompanyFormEntity implements OutputFormattable {
         return this.code == otherCompanyFormEntity.getCode() &&
                 Util.compare(this.name, otherCompanyFormEntity.getName()) &&
                 Util.compare(this.responsibleDatesource, otherCompanyFormEntity.getResponsibleDatesource());
+    }
+
+
+
+    public static Condition industryCondition(String[] value, String pathPrefix) {
+        return RepositoryUtil.whereField(value, pathPrefix + ".code", pathPrefix + ".name");
+    }
+    public static Condition descriptorCondition(int descriptor) {
+        return RepositoryUtil.whereField(descriptor, databaseKey + ".code", null);
     }
 }

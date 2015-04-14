@@ -1,11 +1,11 @@
 package dk.magenta.databroker.cvr.model;
 
 import dk.magenta.databroker.core.RegistreringInfo;
+import dk.magenta.databroker.core.Session;
 import dk.magenta.databroker.core.model.oio.VirkningEntity;
 import dk.magenta.databroker.cvr.model.company.CompanyEntity;
 import dk.magenta.databroker.cvr.model.company.CompanyRepository;
 import dk.magenta.databroker.cvr.model.company.CompanyVersionEntity;
-import dk.magenta.databroker.cvr.model.company.companydeltagere.CompanyDeltagerRelationEntity;
 import dk.magenta.databroker.cvr.model.company.companydeltagere.CompanyDeltagerRelationRepository;
 import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitEntity;
 import dk.magenta.databroker.cvr.model.companyunit.CompanyUnitRepository;
@@ -49,12 +49,12 @@ public class CvrModel {
     private EntityManagerFactory entityManagerFactory;
 
     public void flush() {
-        System.out.println("FLUSHING");
+        /*System.out.println("FLUSHING");
         this.companyRepository.clear();
         this.companyUnitRepository.clear();
         this.deltagerRepository.clear();
         this.industryRepository.clear();
-        this.entityManagerFactory.getCache().evictAll();
+        this.entityManagerFactory.getCache().evictAll();*/
     }
 
     private Logger log = Logger.getLogger(CvrModel.class);
@@ -102,18 +102,21 @@ public class CvrModel {
         TimeRecorder time = new TimeRecorder();
         CompanyEntity companyEntity = this.getCompany(cvrKode, useCache);
 
+        boolean entityExists = (companyEntity != null);
+
         time.record();
         if (cvrKode == 0) {
             return;
         }
 
-        if (companyEntity == null) {
+        if (!entityExists) {
             this.log.trace("Creating new CompanyEntity " + cvrKode);
             companyEntity = new CompanyEntity();
             companyEntity.setCvrNummer(cvrKode);
             if (useCache) {
                 this.putCompany(companyEntity);
             }
+            this.companyRepository.save(companyEntity, registreringInfo.getSession(), false);
         }
         time.record();
 
@@ -149,14 +152,15 @@ public class CvrModel {
                     //this.companyDeltagerRelationRepository.save(companyDeltagerRelationEntity);
                 }
             }*/
-            this.companyRepository.save(companyEntity);
-            this.companyRepository.detach(companyVersionEntity);
+            this.companyRepository.save(companyVersionEntity, registreringInfo.getSession(), false);
+            this.companyRepository.save(companyEntity, registreringInfo.getSession(), true);
+            //this.companyRepository.detach(companyVersionEntity);
         }
         time.record();
 
         companyRecorder.add(time);
-        this.companyRepository.detach(companyEntity);
-        this.companyRepository.clear();
+        //this.companyRepository.detach(companyEntity);
+        //this.companyRepository.clear();
     }
 
 
@@ -186,7 +190,7 @@ public class CvrModel {
     }
 
     private void findKnownCvrNumbers() {
-        this.knownCvrNumbers = new HashSet<Long>(this.companyRepository.getIdentifiers());
+        this.knownCvrNumbers = this.companyRepository.getKnownDescriptors();
     }
 
     public CompanyEntity getCompany(long cvrNummer, boolean useCache) {
@@ -196,7 +200,7 @@ public class CvrModel {
                 companyEntity = this.companyCache.get(cvrNummer);
             }
             if (companyEntity == null) {
-                companyEntity = this.companyRepository.getByIdentifier(cvrNummer);
+                companyEntity = this.companyRepository.getByDescriptor(cvrNummer);
                 if (useCache) {
                     this.putCompany(companyEntity);
                 }
@@ -252,14 +256,17 @@ public class CvrModel {
         TimeRecorder time = new TimeRecorder();
 
         boolean useCache = false;
+        Session session = registreringInfo.getSession();
 
         CompanyUnitEntity companyUnitEntity = this.getCompanyUnit(pNummer, useCache);
+        boolean entityExists = (companyUnitEntity != null);
         time.record();
 
-        if (companyUnitEntity == null) {
+        if (!entityExists) {
             this.log.trace("Creating new CompanyUnitEntity " + pNummer);
             companyUnitEntity = new CompanyUnitEntity();
             companyUnitEntity.setPNO(pNummer);
+            this.companyUnitRepository.save(companyUnitEntity, session, false);
         }
         time.record();
 
@@ -285,18 +292,19 @@ public class CvrModel {
             companyUnitVersionEntity.setCompanyInfo(companyInfo);
             companyUnitVersionEntity.setPrimaryUnit(isPrimaryUnit);
             companyUnitVersionEntity.setCvrNummer(cvrNummer);
-            this.companyUnitRepository.save(companyUnitEntity);
+            this.companyUnitRepository.save(companyUnitVersionEntity, session, false);
+            this.companyUnitRepository.save(companyUnitEntity, session, true);
             if (useCache) {
                 this.companyUnitCache.put(companyUnitEntity);
             }
             this.addKnownUnitNumber(pNummer);
-            this.companyUnitRepository.detach(companyUnitVersionEntity);
+            //this.companyUnitRepository.detach(companyUnitVersionEntity);
         }
 
         time.record();
         unitRecorder.add(time);
-        this.companyUnitRepository.detach(companyUnitEntity);
-        this.companyUnitRepository.clear();
+        //this.companyUnitRepository.detach(companyUnitEntity);
+        //this.companyUnitRepository.clear();
     }
 
     public CompanyUnitEntity getCompanyUnit(long pNummer, boolean useCache) {
@@ -306,7 +314,7 @@ public class CvrModel {
                 companyUnitEntity = this.companyUnitCache.get(pNummer);
             }
             if (companyUnitEntity == null) {
-                companyUnitEntity = this.companyUnitRepository.getByIdentifier(pNummer);
+                companyUnitEntity = this.companyUnitRepository.getByDescriptor(pNummer);
                 if (useCache) {
                     this.companyUnitCache.put(companyUnitEntity);
                 }
@@ -342,7 +350,7 @@ public class CvrModel {
     }
 
     private void findKnownUnitNumbers() {
-        this.knownUnitNumbers = new HashSet<Long>(this.companyUnitRepository.getIdentifiers());
+        this.knownUnitNumbers = this.companyUnitRepository.getKnownDescriptors();
     }
 
     public TimeRecorder getUnitTimer() {
@@ -387,23 +395,25 @@ public class CvrModel {
                                             CvrAddress locationAddress,
                                             RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
         boolean useCache = false;
-        TimeRecorder t = new TimeRecorder();
+        Session session = registreringInfo.getSession();
 
 
         TimeRecorder time = new TimeRecorder();
         DeltagerEntity deltagerEntity = this.getDeltager(deltagerNummer, useCache);
+        boolean entityExists = (deltagerEntity != null);
         time.record();
 
-        if (deltagerEntity == null) {
+        if (!entityExists) {
             this.log.trace("Creating new DeltagerEntity " + deltagerNummer);
             deltagerEntity = new DeltagerEntity();
             deltagerEntity.setDeltagerNummer(deltagerNummer);
+            this.deltagerRepository.save(deltagerEntity, registreringInfo.getSession(), false);
         }
         time.record();
 
-        TypeEntity typeEntity = this.setType(typeName);
-        RolleEntity rolleEntity = this.setRolle(rolleName);
-        StatusEntity statusEntity = this.setStatus(statusName);
+        TypeEntity typeEntity = this.setType(typeName, session);
+        RolleEntity rolleEntity = this.setRolle(rolleName, session);
+        StatusEntity statusEntity = this.setStatus(statusName, session);
 
         DeltagerVersionEntity deltagerVersionEntity = deltagerEntity.getLatestVersion();
 
@@ -440,7 +450,8 @@ public class CvrModel {
             deltagerVersionEntity.setRolle(rolleEntity);
             deltagerVersionEntity.setStatus(statusEntity);
             deltagerVersionEntity.setLocationAddress(locationAddress);
-            this.deltagerRepository.save(deltagerEntity);
+            this.deltagerRepository.save(deltagerVersionEntity, session, false);
+            this.deltagerRepository.save(deltagerEntity, session, true);
             if (useCache) {
                 this.deltagerCache.put(deltagerEntity);
             }
@@ -460,7 +471,7 @@ public class CvrModel {
                 deltagerEntity = this.deltagerCache.get(deltagerNummer);
             }
             if (deltagerEntity == null) {
-                deltagerEntity = this.deltagerRepository.getByIdentifier(deltagerNummer);
+                deltagerEntity = this.deltagerRepository.getByDescriptor(deltagerNummer);
                 if (useCache) {
                     this.deltagerCache.put(deltagerEntity);
                 }
@@ -495,7 +506,7 @@ public class CvrModel {
     }
 
     private void findKnownDeltagerNumbers() {
-        this.knownDeltagerNumbers = new HashSet<Long>(this.deltagerRepository.getIdentifiers());
+        this.knownDeltagerNumbers = this.deltagerRepository.getKnownDescriptors();
     }
 
 
@@ -523,10 +534,10 @@ public class CvrModel {
     @SuppressWarnings("SpringJavaAutowiringInspection")
     private IndustryRepository industryRepository;
 
-    public IndustryEntity setIndustry(int code, String name) {
-        return this.setIndustry(code, name, false);
+    public IndustryEntity setIndustry(int code, String name, Session session) {
+        return this.setIndustry(code, name, session, false);
     }
-    public IndustryEntity setIndustry(int code, String name, boolean noUpdate) {
+    public IndustryEntity setIndustry(int code, String name, Session session, boolean noUpdate) {
         IndustryEntity industryEntity = this.getIndustryCache().get(code);
         boolean created = false;
         if (industryEntity == null) {
@@ -539,7 +550,7 @@ public class CvrModel {
                         ((industryEntity.getName() == null) || !(noUpdate || industryEntity.getName().equals(name)))
                 )) {
             industryEntity.setName(name);
-            this.industryRepository.save(industryEntity);
+            this.industryRepository.save(industryEntity, session, !created);
             this.putIndustryCache(industryEntity);
         }
         return industryEntity;
@@ -581,10 +592,10 @@ public class CvrModel {
     @SuppressWarnings("SpringJavaAutowiringInspection")
     private CompanyFormRepository companyFormRepository;
 
-    public CompanyFormEntity setForm(int code, String name) {
-        return this.setForm(code, name, false);
+    public CompanyFormEntity setForm(int code, String name, Session session) {
+        return this.setForm(code, name, session, false);
     }
-    public CompanyFormEntity setForm(int code, String name, boolean noUpdate) {
+    public CompanyFormEntity setForm(int code, String name, Session session, boolean noUpdate) {
         CompanyFormEntity companyFormEntity = this.getFormCache().get(code);
         boolean created = false;
         if (companyFormEntity == null) {
@@ -597,7 +608,7 @@ public class CvrModel {
                         ((companyFormEntity.getName() == null) || !(noUpdate || companyFormEntity.getName().equals(name)))
                 )) {
             companyFormEntity.setName(name);
-            this.companyFormRepository.save(companyFormEntity);
+            this.companyFormRepository.save(companyFormEntity, session, !created);
             this.putFormCache(companyFormEntity);
         }
         return companyFormEntity;
@@ -637,16 +648,16 @@ public class CvrModel {
     @SuppressWarnings("SpringJavaAutowiringInspection")
     private TypeRepository deltagerTypeRepository;
 
-    public TypeEntity setType(String name) {
+    public TypeEntity setType(String name, Session session) {
         TypeEntity typeEntity = this.typeCache.get(name);
         if (typeEntity == null) {
-            typeEntity = this.deltagerTypeRepository.getByName(name);
+            typeEntity = this.deltagerTypeRepository.getByName(name, session);
             this.typeCache.put(name, typeEntity);
         }
         if (typeEntity == null) {
             typeEntity = new TypeEntity();
             typeEntity.setName(name);
-            this.deltagerTypeRepository.save(typeEntity);
+            this.deltagerTypeRepository.save(typeEntity, session, false);
             this.typeCache.put(name, typeEntity);
         }
         return typeEntity;
@@ -664,16 +675,16 @@ public class CvrModel {
     @SuppressWarnings("SpringJavaAutowiringInspection")
     private RolleRepository deltagerRolleRepository;
 
-    public RolleEntity setRolle(String name) {
+    public RolleEntity setRolle(String name, Session session) {
         RolleEntity rolleEntity = this.rolleCache.get(name);
         if (rolleEntity == null) {
-            rolleEntity = this.deltagerRolleRepository.getByName(name);
+            rolleEntity = this.deltagerRolleRepository.getByName(name, session);
             this.rolleCache.put(name, rolleEntity);
         }
         if (rolleEntity == null) {
             rolleEntity = new RolleEntity();
             rolleEntity.setName(name);
-            this.deltagerRolleRepository.save(rolleEntity);
+            this.deltagerRolleRepository.save(rolleEntity, session, false);
             this.rolleCache.put(name, rolleEntity);
         }
         return rolleEntity;
@@ -691,19 +702,19 @@ public class CvrModel {
     @SuppressWarnings("SpringJavaAutowiringInspection")
     private StatusRepository deltagerStatusRepository;
 
-    public StatusEntity setStatus(String name) {
+    public StatusEntity setStatus(String name, Session session) {
         if (name == null) {
             return null;
         } else {
             StatusEntity statusEntity = this.statusCache.get(name);
             if (statusEntity == null) {
-                statusEntity = this.deltagerStatusRepository.getByName(name);
+                statusEntity = this.deltagerStatusRepository.getByName(name, session);
                 this.statusCache.put(name, statusEntity);
             }
             if (statusEntity == null) {
                 statusEntity = new StatusEntity();
                 statusEntity.setName(name);
-                this.deltagerStatusRepository.save(statusEntity);
+                this.deltagerStatusRepository.save(statusEntity, session, false);
                 this.statusCache.put(name, statusEntity);
             }
             return statusEntity;

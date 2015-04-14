@@ -162,6 +162,9 @@ public class KommuneEntity extends TemaBase implements CacheableEntity {
     public static Condition kommuneCondition(int kommuneKode) {
         return RepositoryUtil.whereField(kommuneKode, databaseKey+".kode", null);
     }
+    public static Condition navnCondition(String kommuneNavn) {
+        return RepositoryUtil.whereField(kommuneNavn, null, databaseKey+".navn");
+    }
 
     public static Condition landCondition(SearchParameters parameters) {
         if (parameters.has(Key.LAND)) {
@@ -197,4 +200,9 @@ public class KommuneEntity extends TemaBase implements CacheableEntity {
     public boolean matches(int kode, String navn) {
         return this.kode == kode && Util.compare(this.getNavn(), navn);
     }
+
+    public static int generateDescriptor(int kommuneKode) {
+        return kommuneKode;
+    }
+
 }

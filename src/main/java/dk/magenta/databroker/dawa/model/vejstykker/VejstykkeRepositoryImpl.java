@@ -1,6 +1,8 @@
 package dk.magenta.databroker.dawa.model.vejstykker;
 
-import dk.magenta.databroker.core.model.RepositoryImplementation;
+import dk.magenta.databroker.core.Session;
+import dk.magenta.databroker.core.model.EntityRepositoryCustom;
+import dk.magenta.databroker.core.model.EntityRepositoryImplementation;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.dawa.model.lokalitet.LokalitetEntity;
@@ -8,33 +10,27 @@ import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
 import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
+import dk.magenta.databroker.util.TransactionCallback;
 import dk.magenta.databroker.util.objectcontainers.StringList;
-import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.persistence.Query;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * Created by lars on 19-12-14.
  */
-interface VejstykkeRepositoryCustom {
-    public Collection<VejstykkeEntity> search(SearchParameters parameters);
-    public VejstykkeEntity getByDesc(int descriptor);
-    public void clear();
+interface VejstykkeRepositoryCustom extends EntityRepositoryCustom<VejstykkeEntity, Integer> {
 }
 
-public class VejstykkeRepositoryImpl extends RepositoryImplementation<VejstykkeEntity> implements VejstykkeRepositoryCustom {
+public class VejstykkeRepositoryImpl extends EntityRepositoryImplementation<VejstykkeEntity, Integer> implements VejstykkeRepositoryCustom {
 
-    public VejstykkeEntity getByDesc(int descriptor) {
-        StringList hql = new StringList();
-        hql.append("select distinct "+VejstykkeEntity.databaseKey+" from VejstykkeEntity as "+VejstykkeEntity.databaseKey);
-        ConditionList conditions = new ConditionList();
-        conditions.addCondition(VejstykkeEntity.descriptorCondition(descriptor));
-        hql.append("where");
-        hql.append(conditions.getWhere());
-        Collection<VejstykkeEntity> vejstykkeEntities = this.query(hql, conditions, GlobalCondition.singleCondition);
-        return vejstykkeEntities.size() > 0 ? vejstykkeEntities.iterator().next() : null;
+
+    @Override
+    public List<TransactionCallback> getBulkwireCallbacks() {
+        return null;
     }
-
 
     @Override
     public Collection<VejstykkeEntity> search(SearchParameters parameters) {
@@ -88,5 +84,34 @@ public class VejstykkeRepositoryImpl extends RepositoryImplementation<VejstykkeE
         hql.append("order by "+VejstykkeEntity.databaseKey+".kode");
 
         return this.query(hql, conditions, parameters.getGlobalCondition());
+    }
+
+    @Override
+    public HashSet<Integer> getKnownDescriptors() {
+        Query q = this.entityManager.createQuery("select " + VejstykkeEntity.databaseKey + ".descriptor from VejstykkeEntity as " + VejstykkeEntity.databaseKey);
+        return new HashSet<Integer>(q.getResultList());
+    }
+
+
+    @Override
+    public VejstykkeEntity getByDescriptor(Integer descriptor) {
+        return this.getByDescriptor(descriptor, null);
+    }
+
+    @Override
+    public VejstykkeEntity getByDescriptor(Integer descriptor, Session session) {
+        if (!this.hasKnownDescriptor(descriptor, true)) {
+            return null;
+        }
+        ConditionList conditions = new ConditionList();
+        conditions.addCondition(VejstykkeEntity.descriptorCondition(descriptor));
+        final String key = this.getRandomKey();
+        final String hql = "select distinct " + VejstykkeEntity.databaseKey + " from VejstykkeEntity as " + VejstykkeEntity.databaseKey + " where " + conditions.getWhere(key);
+        Collection<VejstykkeEntity> vejstykkeEntities = this.query(hql, conditions.getParameters(key), GlobalCondition.singleCondition, session);
+        if (vejstykkeEntities != null && vejstykkeEntities.size() > 0) {
+            VejstykkeEntity vejstykkeEntity = vejstykkeEntities.iterator().next();
+            return vejstykkeEntity;
+        }
+        return null;
     }
 }

@@ -20,12 +20,13 @@ public class RegistreringInfo {
     private RegistreringEntity updateRegisterering;
     private DataProviderEntity dataProviderEntity;
     private CountingInputStream inputStream;
+    private Session session;
     private long inputSize;
     private double progress = 0;
 
     private static HashMap<String, RegistreringInfo> registreringInfoHashMap = new HashMap<String, RegistreringInfo>();
 
-    public RegistreringInfo(RegistreringRepository regRepo, RegistreringLivscyklusRepository lsRepo, RegistreringManager registreringManager, DataProviderEntity dataProviderEntity, NamedInputStream inputStream) {
+    public RegistreringInfo(RegistreringRepository regRepo, RegistreringLivscyklusRepository lsRepo, RegistreringManager registreringManager, DataProviderEntity dataProviderEntity, NamedInputStream inputStream, Session session) {
         this.dataProviderEntity = dataProviderEntity;
         RegistreringEntity createRegistrering = registreringManager.createNewRegistrering(regRepo, lsRepo, dataProviderEntity);
         RegistreringEntity updateRegistrering = registreringManager.createUpdateRegistrering(regRepo, lsRepo, dataProviderEntity);
@@ -42,8 +43,11 @@ public class RegistreringInfo {
         this.updateRegisterering = updateRegistrering;
         this.inputStream = new CountingInputStream(inputStream);
         this.inputSize = inputStream.getKnownSize();
+
         dataProviderEntity.setRegistreringInfo(this);
         registreringInfoHashMap.put(dataProviderEntity.getUuid(), this);
+
+        this.session = session;
     }
 
     public DataProviderEntity getDataProviderEntity() {
@@ -107,5 +111,9 @@ public class RegistreringInfo {
 
     public static RegistreringInfo getRegistreringInfo(DataProviderEntity dataProviderEntity) {
         return getRegistreringInfo(dataProviderEntity.getUuid());
+    }
+
+    public Session getSession() {
+        return session;
     }
 }

@@ -129,6 +129,9 @@ public class DeltagerEntity extends DobbeltHistorikBase<DeltagerEntity, Deltager
     public static Condition nummerCondition(long deltagerNummer) {
         return RepositoryUtil.whereField(deltagerNummer, databaseKey + ".deltagerNummer", null);
     }
+    public static Condition descriptorCondition(long descriptor) {
+        return nummerCondition(descriptor);
+    }
 
     @Override
     public String[] getIdentifiers() {

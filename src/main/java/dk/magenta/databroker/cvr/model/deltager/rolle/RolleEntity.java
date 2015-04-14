@@ -75,4 +75,7 @@ public class RolleEntity extends UniqueBase implements OutputFormattable, Cachea
     public static Condition nameCondition(String name) {
         return RepositoryUtil.whereField(name, null, databaseKey + ".name");
     }
+    public static Condition descriptorCondition(String descriptor) {
+        return nameCondition(descriptor);
+    }
 }

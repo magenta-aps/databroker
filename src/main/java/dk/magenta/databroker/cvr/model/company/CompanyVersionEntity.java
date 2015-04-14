@@ -19,7 +19,7 @@ import java.util.*;
 @Table(name = "cvr_company_version",
         indexes = {
                 @Index(name = "locationAddressDescriptorIndex", columnList = "locationAddressDescriptor"),
-                @Index(name = "postalAddressDescriptorIndex", columnList = "postalAddressDescriptor"),
+                @Index(name = "postalAddressDescriptorIndex", columnList = "postalAddressDescriptor")
         }
 )
 public class CompanyVersionEntity extends DobbeltHistorikVersion<CompanyEntity, CompanyVersionEntity> {

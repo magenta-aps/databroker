@@ -20,6 +20,8 @@ public class IndustryEntity implements OutputFormattable {
     public IndustryEntity() {
     }
 
+    public static String databaseKey = "industry";
+
     //----------------------------------------------------
 
     @Column(nullable = true, unique = true)
@@ -93,4 +95,8 @@ public class IndustryEntity implements OutputFormattable {
     public static Condition industryCondition(String[] value, String pathPrefix) {
         return RepositoryUtil.whereField(value, pathPrefix + ".code", pathPrefix + ".name");
     }
+    public static Condition descriptorCondition(int descriptor) {
+        return RepositoryUtil.whereField(descriptor, databaseKey + ".code", null);
+    }
+
 }

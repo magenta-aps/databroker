@@ -2,6 +2,7 @@ package dk.magenta.databroker.cprvejregister.dataproviders.registers;
 
 import dk.magenta.databroker.core.DataProviderConfiguration;
 import dk.magenta.databroker.core.RegistreringInfo;
+import dk.magenta.databroker.core.Session;
 import dk.magenta.databroker.core.model.DataProviderEntity;
 import dk.magenta.databroker.dawa.model.DawaModel;
 import dk.magenta.databroker.register.LineRegister;
@@ -50,14 +51,14 @@ public class CprRegister extends LineRegister {
             this.log.info("Beginning push");
             runTransacationCallback(new TransactionCallback() {
                 // the code in this method executes in a transactional context
-                public void run() {
+                public void run(Session session) throws Exception {
                     for (Pair<CprSubRegister, File> p : input) {
                         CprSubRegister cprSubRegister = p.getLeft();
                         File file = p.getRight();
                         if (cprSubRegister != null && file != null) {
                             try {
                                 InputStream inputStream = new FileInputStream(file);
-                                cprSubRegister.handlePush(true, dataProviderEntity, inputStream);
+                                cprSubRegister.handlePush(true, dataProviderEntity, inputStream, session);
                                 inputStream.close();
                             } catch (FileNotFoundException e) {
                                 e.printStackTrace();
@@ -71,8 +72,9 @@ public class CprRegister extends LineRegister {
                         }
                     }
                     CprRegister.this.dawaModel.flush();
+                    CprRegister.this.dawaModel.onTransactionEnd();
                 }
-            }, false);
+            }, true);
 
             this.log.info("Push complete");
         }
@@ -95,9 +97,9 @@ public class CprRegister extends LineRegister {
 
             runTransacationCallback(new TransactionCallback() {
                 // the code in this method executes in a transactional context
-                public void run() {
+                public void run(Session session) throws Exception {
                     for (CprSubRegister subRegister : registers) {
-                        subRegister.pull(true, true, dataProviderEntity);
+                        subRegister.pull(true, true, dataProviderEntity, session);
                     }
                     CprRegister.this.dawaModel.flush();
                     CprRegister.this.dawaModel.onTransactionEnd();
@@ -153,22 +155,15 @@ public class CprRegister extends LineRegister {
         // Do nothing
     }
 
-    @Transactional
     public void pull(boolean forceFetch, boolean forceParse, DataProviderEntity dataProviderEntity) {
-        for (CprSubRegister cprSubRegister : this.subRegisters) {
-            cprSubRegister.pull(forceFetch, forceParse, dataProviderEntity);
+        CprPuller cprPuller = new CprPuller(dataProviderEntity, this.subRegisters);
+        cprPuller.start();
+        try {
+            cprPuller.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
-
-
-    @Transactional
-    @Override
-    public void handlePush(DataProviderEntity dataProviderEntity, HttpServletRequest request) {
-        for (CprSubRegister cprSubRegister : this.subRegisters) {
-            cprSubRegister.handlePush(dataProviderEntity, request);
-        }
-    }
-
 
     public Thread asyncPush(DataProviderEntity dataProviderEntity, HttpServletRequest request) {
         List<Pair<CprSubRegister, File>> list = new ArrayList<Pair<CprSubRegister, File>>();

@@ -1,6 +1,8 @@
 package dk.magenta.databroker.dawa.model.enhedsadresser;
 
-import dk.magenta.databroker.core.model.RepositoryImplementation;
+import dk.magenta.databroker.core.Session;
+import dk.magenta.databroker.core.model.EntityRepositoryCustom;
+import dk.magenta.databroker.core.model.EntityRepositoryImplementation;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
 import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseEntity;
@@ -10,32 +12,30 @@ import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.register.RepositoryUtil;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
+import dk.magenta.databroker.util.TransactionCallback;
 import dk.magenta.databroker.util.objectcontainers.StringList;
 
+import javax.persistence.Query;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.UUID;
 
 
 /**
  * Created by lars on 09-12-14.
  */
 
-interface EnhedsAdresseRepositoryCustom {
-    public Collection<EnhedsAdresseEntity> search(SearchParameters parameters);
-    public EnhedsAdresseEntity getByDescriptor(String descriptor);
-    public void clear();
+interface EnhedsAdresseRepositoryCustom extends EntityRepositoryCustom<EnhedsAdresseEntity, String> {
+
 }
 
-public class EnhedsAdresseRepositoryImpl extends RepositoryImplementation<EnhedsAdresseEntity> implements EnhedsAdresseRepositoryCustom {
+public class EnhedsAdresseRepositoryImpl extends EntityRepositoryImplementation<EnhedsAdresseEntity, String> implements EnhedsAdresseRepositoryCustom {
 
-    public EnhedsAdresseEntity getByDescriptor(String descriptor) {
-        StringList hql = new StringList();
-        hql.append("select distinct "+EnhedsAdresseEntity.databaseKey+" from EnhedsAdresseEntity as "+EnhedsAdresseEntity.databaseKey);
-        ConditionList conditions = new ConditionList();
-        conditions.addCondition(EnhedsAdresseEntity.descriptorCondition(descriptor));
-        hql.append("where");
-        hql.append(conditions.getWhere());
-        Collection<EnhedsAdresseEntity> enhedsAdresseEntities = this.query(hql, conditions, GlobalCondition.singleCondition);
-        return enhedsAdresseEntities.size() > 0 ? enhedsAdresseEntities.iterator().next() : null;
+
+    @Override
+    public List<TransactionCallback> getBulkwireCallbacks() {
+        return null;
     }
 
     @Override
@@ -107,5 +107,30 @@ public class EnhedsAdresseRepositoryImpl extends RepositoryImplementation<Enheds
         }
 
         return this.query(hql, conditions, parameters.getGlobalCondition());
+    }
+
+    @Override
+    public HashSet<String> getKnownDescriptors() {
+        Query q = this.entityManager.createQuery("select " + EnhedsAdresseEntity.databaseKey + ".descriptor from EnhedsAdresseEntity as " + EnhedsAdresseEntity.databaseKey);
+        return new HashSet<String>(q.getResultList());
+    }
+
+
+    @Override
+    public EnhedsAdresseEntity getByDescriptor(String descriptor) {
+        return this.getByDescriptor(descriptor, null);
+    }
+
+    @Override
+    public EnhedsAdresseEntity getByDescriptor(String descriptor, Session session) {
+        if (!this.hasKnownDescriptor(descriptor, true)) {
+            return null;
+        }
+        ConditionList conditions = new ConditionList();
+        conditions.addCondition(EnhedsAdresseEntity.descriptorCondition(descriptor));
+        final String key = "id_"+ UUID.randomUUID().toString().replace("-","");
+        final String hql = "select distinct " + EnhedsAdresseEntity.databaseKey + " from EnhedsAdresseEntity as " + EnhedsAdresseEntity.databaseKey + " where " + conditions.getWhere(key);
+        Collection<EnhedsAdresseEntity> enhedsAdresseEntities = this.query(hql, conditions.getParameters(key), GlobalCondition.singleCondition, session);
+        return enhedsAdresseEntities.size() > 0 ? enhedsAdresseEntities.iterator().next() : null;
     }
 }

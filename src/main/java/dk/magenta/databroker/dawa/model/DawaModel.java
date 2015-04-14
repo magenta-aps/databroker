@@ -1,6 +1,7 @@
 package dk.magenta.databroker.dawa.model;
 
 import dk.magenta.databroker.core.RegistreringInfo;
+import dk.magenta.databroker.core.Session;
 import dk.magenta.databroker.util.TimeRecorder;
 import dk.magenta.databroker.core.model.oio.VirkningEntity;
 import dk.magenta.databroker.dawa.model.lokalitet.LokalitetEntity;
@@ -20,15 +21,12 @@ import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeRepository;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeVersionEntity;
 import dk.magenta.databroker.util.TransactionCallback;
-import dk.magenta.databroker.util.cache.Level2Cache;
 import dk.magenta.databroker.util.objectcontainers.*;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import javax.persistence.EntityManagerFactory;
-import java.sql.Time;
 import java.util.*;
 
 /**
@@ -38,12 +36,9 @@ import java.util.*;
 @Component
 public class DawaModel {
 
-
-    @Autowired
-    private EntityManagerFactory entityManagerFactory;
-
     public void flush() {
-        this.kommuneRepository.flush();
+        System.out.println("DawaModel.flush()");
+        /*this.kommuneRepository.flush();
         this.kommuneRepository.clear();
         this.vejstykkeRepository.flush();
         this.vejstykkeRepository.clear();
@@ -56,7 +51,7 @@ public class DawaModel {
         this.postNummerRepository.flush();
         this.postNummerRepository.clear();
         this.entityManagerFactory.getCache().evictAll();
-        this.resetAllCaches();
+        this.resetAllCaches();*/
     }
 
     private int itemCounter = 0;
@@ -77,12 +72,13 @@ public class DawaModel {
     }
 
     public void onTransactionEnd() {
-        this.transactionKommuneCache.clear();
+        System.out.println("DawaModel.onTransactionEnd()");
+        /*this.transactionKommuneCache.clear();
         this.transactionVejstykkeCache.clear();
         this.transactionPostnummerCache.clear();
         this.transactionAdgangsAdresseCache.clear();
         this.transactionEnhedsAdresseCache.clear();
-        this.transactionLokalitetCache.clear();
+        this.transactionLokalitetCache.clear();*/
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -90,6 +86,12 @@ public class DawaModel {
     @Autowired
     @SuppressWarnings("SpringJavaAutowiringInspection")
     private KommuneRepository kommuneRepository;
+
+
+    @PostConstruct
+    private void setupKommuneRepository() {
+        this.kommuneRepository.setUseCachedDescriptorList(true);
+    }
 
     public KommuneEntity setKommune(int kode, String navn,
                                     RegistreringInfo registreringInfo) {
@@ -99,8 +101,10 @@ public class DawaModel {
     public KommuneEntity setKommune(int kode, String navn,
                                     RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
         boolean changed = false;
-        KommuneEntity kommuneEntity = this.getKommune(kode);
-        if (kommuneEntity == null) {
+        Session session = registreringInfo.getSession();
+        KommuneEntity kommuneEntity = this.kommuneRepository.getByDescriptor(KommuneEntity.generateDescriptor(kode), session);
+        boolean entityExists = (kommuneEntity != null);
+        if (!entityExists) {
             this.log.trace("Creating new KommuneEntity " + kode);
             kommuneEntity = new KommuneEntity();
             kommuneEntity.setKode(kode);
@@ -113,7 +117,8 @@ public class DawaModel {
 
         if (changed) {
             this.putKommune(kommuneEntity);
-            this.kommuneRepository.save(kommuneEntity);
+            this.kommuneRepository.save(kommuneEntity, session, entityExists);
+
         }
         return kommuneEntity;
     }
@@ -130,9 +135,20 @@ public class DawaModel {
         }
         return kommuneEntity;
     }
+    public KommuneEntity getKommune(int kode, Session session) {
+        KommuneEntity kommuneEntity = null;//this.transactionKommuneCache.get(kode);
+        if (kommuneEntity == null) {
+            kommuneEntity = this.kommuneRepository.getByDescriptor(kode, session);
+            if (kommuneEntity != null) {
+                this.putKommune(kommuneEntity);
+            }
+        }
+        return kommuneEntity;
+    }
 
     private void putKommune(KommuneEntity kommuneEntity) {
         this.transactionKommuneCache.put(kommuneEntity.getKode(), kommuneEntity);
+        //this.kommuneRepository.addKnownDescriptor(kommuneEntity.getKode(), true);
     }
 
     public Collection<KommuneEntity> getKommune(SearchParameters parameters) {
@@ -145,6 +161,11 @@ public class DawaModel {
     @Autowired
     @SuppressWarnings("SpringJavaAutowiringInspection")
     private VejstykkeRepository vejstykkeRepository;
+
+    @PostConstruct
+    private void setupVejstykkeRepository() {
+        this.vejstykkeRepository.setUseCachedDescriptorList(true);
+    }
 
 
     private int roadCount = 0;
@@ -162,13 +183,15 @@ public class DawaModel {
     public VejstykkeEntity setVejstykke(int kommuneKode, int vejKode, String vejNavn, String vejAddresseringsnavn,
                                         RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
         TimeRecorder time = new TimeRecorder();
+        Session session = registreringInfo.getSession();
 
         //VejstykkeEntity vejstykkeEntity = this.vejstykkeRepository.getByKommunekodeAndVejkode(kommuneKode, vejKode);
-        VejstykkeEntity vejstykkeEntity = this.getVejstykke(kommuneKode, vejKode);
+        VejstykkeEntity vejstykkeEntity = this.getVejstykke(kommuneKode, vejKode, session);
         time.record();
         //VejstykkeEntity vejstykkeEntity = this.vejstykkeCache.get(kommuneKode, vejKode);
-        if (vejstykkeEntity == null) {
-            KommuneEntity kommuneEntity = this.getKommune(kommuneKode);
+        boolean entityExists = (vejstykkeEntity != null);
+        if (!entityExists) {
+            KommuneEntity kommuneEntity = this.getKommune(kommuneKode, session);
             if (kommuneEntity == null) {
                 this.log.warn("Unable to create vej " + kommuneKode + ":" + vejKode + " (" + vejNavn + "); Kommune with kode " + kommuneKode + " not found. (There are " + this.kommuneRepository.count() + " KommuneEntities in the table)");
                 return null;
@@ -178,13 +201,14 @@ public class DawaModel {
             vejstykkeEntity.setKode(vejKode);
             vejstykkeEntity.setKommune(kommuneEntity);
             vejstykkeEntity.generateDescriptor();
+            this.vejstykkeRepository.save(vejstykkeEntity, session, false);
+
         }
         time.record();
         VejstykkeVersionEntity vejstykkeVersionEntity = vejstykkeEntity.getLatestVersion();
         if (vejstykkeVersionEntity == null) {
             this.log.trace("Creating initial VejstykkeVersionEntity");
             vejstykkeVersionEntity = vejstykkeEntity.addVersion(registreringInfo.getCreateRegistrering(), virkninger);
-
         } else {
             if (!vejstykkeVersionEntity.matches(vejNavn, vejAddresseringsnavn)) {
                 this.log.trace("Creating updated VejstykkeVersionEntity");
@@ -197,16 +221,15 @@ public class DawaModel {
         time.record();
 
         if (vejstykkeVersionEntity != null) {
+
             vejstykkeVersionEntity.setVejnavn(vejNavn);
             vejstykkeVersionEntity.setVejadresseringsnavn(vejAddresseringsnavn);
-            vejstykkeEntity.setLatestVersion(vejstykkeVersionEntity); // TODO: may not always be relevant
             this.putVejstykke(vejstykkeEntity);
-            this.vejstykkeRepository.save(vejstykkeEntity);
+            this.vejstykkeRepository.save(vejstykkeVersionEntity, session, false);
+            this.vejstykkeRepository.save(vejstykkeEntity, session, true);
         }
         time.record();
         this.itemAdded(false);
-
-
 
         roadTimeRecorder.add(time);
         roadCount++;
@@ -227,18 +250,20 @@ public class DawaModel {
 
     @PostConstruct
     private void loadVejstykkeCache() {
-        this.preloadVejstykkeCache = new Level2Cache<VejstykkeEntity>(this.vejstykkeRepository);
+        //this.preloadVejstykkeCache = new Level2Cache<VejstykkeEntity>(this.vejstykkeRepository);
     }
 
     public VejstykkeEntity getVejstykke(int kommuneKode, int vejKode) {
-        //VejstykkeEntity vejstykkeEntity = this.transactionVejstykkeCache.get(kommuneKode, vejKode);
-        VejstykkeEntity vejstykkeEntity = this.preloadVejstykkeCache.get(kommuneKode, vejKode);
+        return this.getVejstykke(kommuneKode, vejKode, null);
+    }
+
+    public VejstykkeEntity getVejstykke(int kommuneKode, int vejKode, Session session) {
+        VejstykkeEntity vejstykkeEntity = null;
         if (vejstykkeEntity == null) {
-            vejstykkeEntity = this.vejstykkeRepository.getByDesc(VejstykkeEntity.generateDescriptor(kommuneKode, vejKode));
+            vejstykkeEntity = this.vejstykkeRepository.getByDescriptor(VejstykkeEntity.generateDescriptor(kommuneKode, vejKode), session);
             if (vejstykkeEntity != null) {
-                //this.putVejstykke(vejstykkeEntity);
                 //this.transactionVejstykkeCache.put(kommuneKode, vejKode, vejstykkeEntity);
-                this.preloadVejstykkeCache.put(kommuneKode, vejKode, vejstykkeEntity);
+                //this.preloadVejstykkeCache.put(kommuneKode, vejKode, vejstykkeEntity);
             }
         }
         return vejstykkeEntity;
@@ -246,7 +271,8 @@ public class DawaModel {
 
     private void putVejstykke(VejstykkeEntity vejstykkeEntity) {
         //this.transactionVejstykkeCache.put(vejstykkeEntity.getKommune().getKode(), vejstykkeEntity.getKode(), vejstykkeEntity);
-        this.preloadVejstykkeCache.put(vejstykkeEntity.getKommune().getKode(), vejstykkeEntity.getKode(), vejstykkeEntity);
+        //this.preloadVejstykkeCache.put(vejstykkeEntity.getKommune().getKode(), vejstykkeEntity.getKode(), vejstykkeEntity);
+        //this.vejstykkeRepository.addKnownDescriptor(vejstykkeEntity.getDescriptor(), true);
     }
 
     public Collection<VejstykkeEntity> getVejstykke(SearchParameters parameters) {
@@ -272,11 +298,21 @@ public class DawaModel {
     public PostNummerEntity setPostNummer(int nummer, String navn, Set<RawVej> veje,
                                           RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
 
-        PostNummerEntity postNummerEntity = this.transactionPostnummerCache.get(nummer);
-        if (postNummerEntity == null) {
+        Session session = registreringInfo.getSession();
+        //PostNummerEntity postNummerEntity = this.transactionPostnummerCache.get(nummer);
+        PostNummerEntity postNummerEntity = this.getPostnummer(nummer, session);
+        boolean entityExists = (postNummerEntity != null);
+        if (!entityExists) {
             this.log.trace("Creating new postnummerEntity " + nummer);
             postNummerEntity = new PostNummerEntity();
+            postNummerEntity.setNr(nummer);
+            this.putPostnummer(nummer, postNummerEntity);
+            this.postNummerRepository.save(postNummerEntity, session, false);
         }
+
+        // VejstykkeVersionEntities must point to postnumre
+        // KommuneEntities must be linked to postnumre by M2M intermediate table
+
 
         // Convert List of RawVej to a lists of Veje
 
@@ -286,23 +322,23 @@ public class DawaModel {
             int vejKode = delvej.getVejKode();
 
             // Obtain a VejstykkeVersion to update
-            VejstykkeEntity vejstykkeEntity = this.getVejstykke(kommuneKode, vejKode);
+            VejstykkeEntity vejstykkeEntity = this.getVejstykke(kommuneKode, vejKode, session);
             if (vejstykkeEntity != null) {
                 vejListe.add(vejstykkeEntity);
             } else {
-                this.log.warn("Not associating postnummer " + nummer + " with road " + kommuneKode + ":" + vejKode + "; road not found");
+                this.log.warn("Not associating postnummer " + nummer + " with road " + kommuneKode + ":" + vejKode + " (" + VejstykkeEntity.generateDescriptor(kommuneKode,vejKode) + "); road not found");
             }
         }
 
 
         // Convert List of RawVej to a list of Kommuner
-        Level1Container<KommuneEntity> kommuneMap = new Level1Container<KommuneEntity>();
+        /*Level1Container<KommuneEntity> kommuneMap = new Level1Container<KommuneEntity>();
         for (RawVej delvej : veje) {
             int kommuneKode = delvej.getKommuneKode();
             if (!kommuneMap.containsKey(kommuneKode)) {
                 kommuneMap.put(kommuneKode, this.getKommune(kommuneKode));
             }
-        }
+        }*/
 
 
         PostNummerVersionEntity postNummerVersionEntity = postNummerEntity.getLatestVersion();
@@ -311,19 +347,19 @@ public class DawaModel {
             postNummerVersionEntity = postNummerEntity.addVersion(registreringInfo.getCreateRegistrering(), virkninger);
 
         } else {
-
+/*
             boolean allHaveThisPostnr = true;
             for (VejstykkeEntity vejstykkeEntity : vejListe) {
                 if (!vejstykkeEntity.getLatestVersion().getPostnumre().contains(postNummerEntity)) {
                     allHaveThisPostnr = false;
                     break;
                 }
-            }
+            }*/
 
             // TODO: consider putting this logic into the entity class, exposing just setter methods and handling versioning from there
-            if (!postNummerVersionEntity.matches(nummer, navn) ||
+            if (!postNummerVersionEntity.matches(navn)/* ||
                     !allHaveThisPostnr ||
-                    !postNummerVersionEntity.getKommuner().containsAll(kommuneMap.getList())) {
+                    !postNummerVersionEntity.getKommuner().containsAll(kommuneMap.getList())*/) {
                 this.log.trace("Creating updated PostNummerVersionEntity");
                 postNummerVersionEntity = postNummerEntity.addVersion(registreringInfo.getUpdateRegisterering(), virkninger);
             } else {
@@ -333,22 +369,17 @@ public class DawaModel {
         }
 
         if (postNummerVersionEntity != null) {
-            postNummerVersionEntity.setNr(nummer);
             postNummerVersionEntity.setNavn(navn);
-
+/*
             for (KommuneEntity kommuneEntity : kommuneMap.getList()) {
                 if (kommuneEntity != null && !kommuneEntity.getPostnumre().contains(postNummerVersionEntity)) {
                     postNummerVersionEntity.addKommune(kommuneEntity);
-                    this.kommuneRepository.save(kommuneEntity);
+                    this.kommuneRepository.save(kommuneEntity, registreringInfo.getSession(), true);
                 }
-            }
+            }*/
 
-            this.postNummerRepository.save(postNummerEntity);
-            if (postNummerVersionEntity != postNummerEntity.getLatestVersion()) {
-                postNummerEntity.setLatestVersion(postNummerVersionEntity); // TODO: may not always be relevant
-                this.putPostnummer(nummer, postNummerEntity);
-                this.postNummerRepository.save(postNummerEntity);
-            }
+            this.postNummerRepository.save(postNummerVersionEntity, session, false);
+            this.postNummerRepository.save(postNummerEntity, session, true);
         }
 
 
@@ -357,26 +388,33 @@ public class DawaModel {
             VejstykkeVersionEntity vejstykkeVersionEntity = vejstykkeEntity.getLatestVersion();
             // If the newest version isn't made by us (TODO: make sure we really want that)
             // create a new version copied from the old
-            if (!registreringInfo.has(vejstykkeVersionEntity.getRegistrering())) {
-                this.vejstykkeRepository.save(vejstykkeEntity);
-                VejstykkeVersionEntity oldVersion = vejstykkeVersionEntity;
-                vejstykkeVersionEntity = vejstykkeEntity.addVersion(registreringInfo.getUpdateRegisterering());
-                vejstykkeVersionEntity.copyFrom(oldVersion);
-                vejstykkeEntity.setLatestVersion(vejstykkeVersionEntity);
+            if (vejstykkeVersionEntity != null) {
+                boolean useOldVersion = true;
+                if (!registreringInfo.has(vejstykkeVersionEntity.getRegistrering())) {
+                    useOldVersion = false;
+                    this.vejstykkeRepository.save(vejstykkeEntity, session, true);
+                    VejstykkeVersionEntity oldVersion = vejstykkeVersionEntity;
+                    vejstykkeVersionEntity = vejstykkeEntity.addVersion(registreringInfo.getUpdateRegisterering());
+                    vejstykkeVersionEntity.copyFrom(oldVersion);
+                }
+                vejstykkeVersionEntity.addPostnummer(postNummerEntity);
+                this.vejstykkeRepository.save(vejstykkeVersionEntity, session, useOldVersion);
+                this.vejstykkeRepository.save(vejstykkeEntity, session, true);
+            } else {
+                System.err.println("vej ("+vejstykkeEntity.getDescriptor()+") has no version");
             }
-            vejstykkeVersionEntity.addPostnummer(postNummerEntity);
-            this.vejstykkeRepository.save(vejstykkeEntity);
         }
 
-
+/*
         for (RawVej delvej : veje) {
             int kommuneKode = delvej.getKommuneKode();
             int vejKode = delvej.getVejKode();
             int husnrFra = delvej.getHusnrFra();
             int husnrTil = delvej.getHusnrTil();
 
-            VejstykkeEntity vejstykkeEntity = this.getVejstykke(kommuneKode, vejKode);
+            VejstykkeEntity vejstykkeEntity = this.getVejstykke(kommuneKode, vejKode, session);
             if (vejstykkeEntity != null) {
+
                 for (AdgangsAdresseEntity adgangsAdresseEntity : vejstykkeEntity.getAdgangsAdresser()) {
                     int husnr = adgangsAdresseEntity.getIntHusnr();
                     if (husnr % 2 == husnrFra % 2 && husnr >= husnrFra && husnr <= husnrTil) {
@@ -390,12 +428,14 @@ public class DawaModel {
                         }
                         if (adgangsAdresseVersionEntity != null) {
                             adgangsAdresseEntity.getLatestVersion().setPostnummer(postNummerEntity);
-                            this.adgangsAdresseRepository.save(adgangsAdresseEntity);
+
+                            this.adgangsAdresseRepository.save(adgangsAdresseVersionEntity, session, false);
+                            this.adgangsAdresseRepository.save(adgangsAdresseEntity, session, true);
                         }
                     }
                 }
             }
-        }
+        }*/
         this.itemAdded(false);
         return postNummerEntity;
     }
@@ -403,11 +443,15 @@ public class DawaModel {
     private Level1Container<PostNummerEntity> transactionPostnummerCache = new Level1Container<PostNummerEntity>();
 
     public PostNummerEntity getPostnummer(int postnr) {
-        PostNummerEntity postNummerEntity = this.transactionPostnummerCache.get(postnr);
+        return this.getPostnummer(postnr, null);
+    }
+
+    public PostNummerEntity getPostnummer(int postnr, Session session) {
+        PostNummerEntity postNummerEntity = null;//this.transactionPostnummerCache.get(postnr);
         if (postNummerEntity == null) {
-            postNummerEntity = this.postNummerRepository.getByNr(postnr);
+            postNummerEntity = this.postNummerRepository.getByDescriptor(postnr, session);
             if (postNummerEntity != null) {
-                this.putPostnummer(postnr, postNummerEntity);
+                //this.putPostnummer(postnr, postNummerEntity);
             }
         }
         return postNummerEntity;
@@ -443,6 +487,8 @@ public class DawaModel {
     public EnhedsAdresseEntity setAdresse(int kommuneKode, int vejKode, String husNr, String bnr, String etage, String doer, String kaldenavn,
                                           RegistreringInfo registreringInfo, List<VirkningEntity> virkninger, boolean deferWiring, boolean noFlush) {
 
+        Session session = registreringInfo.getSession();
+
         AdgangsAdresseEntity adgangsAdresseEntity = null;
         EnhedsAdresseEntity enhedsAdresseEntity = null;
 
@@ -460,21 +506,22 @@ public class DawaModel {
         }
         TimeRecorder time = new TimeRecorder();
 
-        adgangsAdresseEntity = this.getAdgangsAdresse(kommuneKode, vejKode, husNr);
+        adgangsAdresseEntity = this.getAdgangsAdresse(kommuneKode, vejKode, husNr, session);
+        boolean entityExists = (adgangsAdresseEntity != null);
 
         time.record();
 
-        if (adgangsAdresseEntity == null) {
+        if (!entityExists) {
             //System.out.println("didn't find adgangsadresse " + kommuneKode + ":" + vejKode + ":" + husNr + ", creating");
 
             adgangsAdresseEntity = new AdgangsAdresseEntity();
             if (deferWiring) {
                 adgangsAdresseEntity.setVejstykkeDescriptor(VejstykkeEntity.generateDescriptor(kommuneKode, vejKode));
             } else {
-                VejstykkeEntity vejstykkeEntity = this.getVejstykke(kommuneKode, vejKode);
+                VejstykkeEntity vejstykkeEntity = this.getVejstykke(kommuneKode, vejKode, session);
                 if (vejstykkeEntity == null) {
                     //this.log.warn("Not adding address " + husNr + " on road " + kommuneKode + ":" + vejKode + "; road not found (vejstykkecache size: "+this.transactionVejstykkeCache.totalSize()+")");
-                    this.log.warn("Not adding address " + husNr + " on road " + kommuneKode + ":" + vejKode + "; road not found (vejstykkecache size: "+this.preloadVejstykkeCache.totalSize()+")");
+                    //this.log.warn("Not adding address " + husNr + " on road " + kommuneKode + ":" + vejKode + "; road not found (vejstykkecache size: "+this.preloadVejstykkeCache.totalSize()+")");
                     return null;
                 }
                 adgangsAdresseEntity.setVejstykke(vejstykkeEntity);
@@ -482,6 +529,7 @@ public class DawaModel {
             adgangsAdresseEntity.setHusnr(husNr);
             adgangsAdresseEntity.setBnr(bnr);
             adgangsAdresseEntity.generateDescriptor();
+            this.adgangsAdresseRepository.save(adgangsAdresseEntity, session, false);
             this.log.trace("Creating new AdgangsAdresseEntity");
         } else {
             //System.out.println("Did find adgangsadresse "+kommuneKode+":"+vejKode+":"+husNr);
@@ -503,13 +551,14 @@ public class DawaModel {
 
 
         if (adgangsAdresseVersionEntity != null) {
-            adgangsAdresseEntity.setLatestVersion(adgangsAdresseVersionEntity);
-            this.adgangsAdresseRepository.save(adgangsAdresseEntity);
+            this.adgangsAdresseRepository.save(adgangsAdresseVersionEntity, session, false);
+            this.adgangsAdresseRepository.save(adgangsAdresseEntity, session, true);
             this.putAdgangsAdresse(kommuneKode, vejKode, husNr, adgangsAdresseEntity);
         }
         time.record();
 
-        enhedsAdresseEntity = this.getEnhedsAdresse(kommuneKode, vejKode, husNr, etage, doer);
+        enhedsAdresseEntity = this.getEnhedsAdresse(kommuneKode, vejKode, husNr, etage, doer, session);
+        entityExists = (enhedsAdresseEntity != null);
 
         time.record();
         if (enhedsAdresseEntity == null) {
@@ -518,6 +567,7 @@ public class DawaModel {
             enhedsAdresseEntity.setEtage(etage);
             enhedsAdresseEntity.setDoer(doer);
             enhedsAdresseEntity.setDescriptor(enhedsAdresseEntity.generateDescriptor(kommuneKode, vejKode, husNr, etage, doer));
+            this.enhedsAdresseRepository.save(enhedsAdresseEntity, session, false);
             this.log.trace("Creating new EnhedsAdresseEntity");
         }
         time.record();
@@ -537,7 +587,8 @@ public class DawaModel {
         if (enhedsAdresseVersionEntity != null) {
             enhedsAdresseVersionEntity.setKaldenavn(kaldenavn);
             this.putEnhedsAdresse(kommuneKode, vejKode, husNr, enhedsAdresseEntity);
-            this.enhedsAdresseRepository.save(enhedsAdresseEntity);
+            this.enhedsAdresseRepository.save(enhedsAdresseVersionEntity, session, false);
+            this.enhedsAdresseRepository.save(enhedsAdresseEntity, session, true);
         }
 
 
@@ -565,11 +616,15 @@ public class DawaModel {
     private Level3Container<AdgangsAdresseEntity> transactionAdgangsAdresseCache = new Level3Container<AdgangsAdresseEntity>();
 
     public AdgangsAdresseEntity getAdgangsAdresse(int kommunekode, int vejkode, String husnr) {
-        AdgangsAdresseEntity adgangsAdresseEntity = this.transactionAdgangsAdresseCache.get(kommunekode, vejkode, husnr);
+        return this.getAdgangsAdresse(kommunekode, vejkode, husnr, null);
+    }
+
+    public AdgangsAdresseEntity getAdgangsAdresse(int kommunekode, int vejkode, String husnr, Session session) {
+        AdgangsAdresseEntity adgangsAdresseEntity = null;//this.transactionAdgangsAdresseCache.get(kommunekode, vejkode, husnr);
         if (adgangsAdresseEntity == null) {
-            adgangsAdresseEntity = this.adgangsAdresseRepository.getByDescriptor(AdgangsAdresseEntity.generateDescriptor(kommunekode, vejkode, husnr));
+            adgangsAdresseEntity = this.adgangsAdresseRepository.getByDescriptor(AdgangsAdresseEntity.generateDescriptor(kommunekode, vejkode, husnr), session);
             if (adgangsAdresseEntity != null) {
-                this.putAdgangsAdresse(kommunekode, vejkode, husnr, adgangsAdresseEntity);
+                //this.putAdgangsAdresse(kommunekode, vejkode, husnr, adgangsAdresseEntity);
             }
 
         }
@@ -594,11 +649,14 @@ public class DawaModel {
     private Level4Container<EnhedsAdresseEntity> transactionEnhedsAdresseCache = new Level4Container<EnhedsAdresseEntity>();
 
     public EnhedsAdresseEntity getEnhedsAdresse(int kommuneKode, int vejKode, String husnr, String etage, String doer) {
-        EnhedsAdresseEntity enhedsAdresseEntity = this.transactionEnhedsAdresseCache.get(kommuneKode, vejKode, husnr, EnhedsAdresseEntity.getFinalIdentifier(etage, doer));
+        return this.getEnhedsAdresse(kommuneKode, vejKode, husnr, etage, doer, null);
+    }
+    public EnhedsAdresseEntity getEnhedsAdresse(int kommuneKode, int vejKode, String husnr, String etage, String doer, Session session) {
+        EnhedsAdresseEntity enhedsAdresseEntity = null;//this.transactionEnhedsAdresseCache.get(kommuneKode, vejKode, husnr, EnhedsAdresseEntity.getFinalIdentifier(etage, doer));
         if (enhedsAdresseEntity == null) {
-            enhedsAdresseEntity = this.enhedsAdresseRepository.getByDescriptor(EnhedsAdresseEntity.generateDescriptor(kommuneKode, vejKode, husnr, etage, doer));
+            enhedsAdresseEntity = this.enhedsAdresseRepository.getByDescriptor(EnhedsAdresseEntity.generateDescriptor(kommuneKode, vejKode, husnr, etage, doer), session);
             if (enhedsAdresseEntity != null) {
-                this.putEnhedsAdresse(kommuneKode, vejKode, husnr, enhedsAdresseEntity);
+                //this.putEnhedsAdresse(kommuneKode, vejKode, husnr, enhedsAdresseEntity);
             }
         }
         return enhedsAdresseEntity;
@@ -632,17 +690,19 @@ public class DawaModel {
                              RegistreringInfo registreringInfo, List<VirkningEntity> virkninger) {
 
         TimeRecorder time = new TimeRecorder();
+        Session session = registreringInfo.getSession();
         LokalitetEntity lokalitetEntity = this.getLokalitet(kommuneKode, lokalitetsnavn);
+        boolean entityExists = (lokalitetEntity != null);
 
         time.record();
-        if (lokalitetEntity == null) {
-            KommuneEntity kommuneEntity = this.getKommune(kommuneKode);
+        if (!entityExists) {
+            KommuneEntity kommuneEntity = this.getKommune(kommuneKode, session);
             if (kommuneEntity != null) {
                 lokalitetEntity = new LokalitetEntity();
                 lokalitetEntity.setNavn(lokalitetsnavn);
                 lokalitetEntity.setKommune(kommuneEntity);
                 this.putLokalitet(kommuneKode, lokalitetsnavn, lokalitetEntity);
-                this.lokalitetRepository.save(lokalitetEntity);
+                this.lokalitetRepository.save(lokalitetEntity, registreringInfo.getSession(), entityExists);
             }
         }
         time.record();
@@ -654,13 +714,13 @@ public class DawaModel {
                 VejstykkeVersionEntity vejstykkeVersionEntity = vejstykkeEntity.getLatestVersion();
                 if (vejstykkeVersionEntity != null) {
                     if (!vejstykkeVersionEntity.hasLokalitet(lokalitetEntity) && !registreringInfo.has(vejstykkeVersionEntity.getRegistrering())) {
-                        this.vejstykkeRepository.save(vejstykkeEntity);
                         VejstykkeVersionEntity oldVersionEntity = vejstykkeVersionEntity;
                         vejstykkeVersionEntity = vejstykkeEntity.addVersion(registreringInfo.getUpdateRegisterering());
                         vejstykkeVersionEntity.copyFrom(oldVersionEntity);
                     }
                     vejstykkeVersionEntity.addLokalitet(lokalitetEntity);
-                    this.vejstykkeRepository.save(vejstykkeEntity);
+                    this.vejstykkeRepository.save(vejstykkeVersionEntity, registreringInfo.getSession(), false);
+                    this.vejstykkeRepository.save(vejstykkeEntity, registreringInfo.getSession(), true);
                 }
             }
         }
