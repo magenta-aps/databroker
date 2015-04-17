@@ -2,6 +2,8 @@ package dk.magenta.databroker.core;
 
 import org.hibernate.*;
 
+import java.sql.SQLException;
+
 /**
  * Created by lars on 13-04-15.
  */
@@ -15,6 +17,12 @@ public class Session {
 
     public Session(org.hibernate.StatelessSession statelessSession) {
         this.statelessSession = statelessSession;
+        /*try {
+            this.statelessSession.connection().setTransactionIsolation(1);
+            System.out.println(this.statelessSession.connection().getTransactionIsolation());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }*/
     }
 
     public void save(Object item, boolean alreadyExists) {

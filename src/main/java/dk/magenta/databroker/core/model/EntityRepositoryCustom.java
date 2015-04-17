@@ -19,7 +19,11 @@ public interface EntityRepositoryCustom<T,C> {
     public T getByDescriptor(C descriptor);
     public T getByDescriptor(C descriptor, Session session);
     public void setUseCachedDescriptorList(boolean useCachedDescriptorList);
-    //public void addKnownDescriptor(C descriptor, boolean dbLoad);
+    public void addKnownDescriptor(C descriptor, boolean dbLoad);
+
+
+    public long count(Session session);
+    public List<T> findAll(Session session);
 /*
     public void save(T item);
     public int count();

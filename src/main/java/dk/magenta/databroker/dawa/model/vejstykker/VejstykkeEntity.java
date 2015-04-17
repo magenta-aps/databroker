@@ -53,7 +53,7 @@ public class VejstykkeEntity extends DobbeltHistorikBase<VejstykkeEntity, Vejsty
 
     @Override
     public VejstykkeVersionEntity getLatestVersion() {
-        return latestVersion;
+        return this.latestVersion;
     }
 
     @Override

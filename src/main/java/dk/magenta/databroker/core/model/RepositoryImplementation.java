@@ -20,7 +20,7 @@ public abstract class RepositoryImplementation<T> {
 
     protected EntityManager entityManager;
 
-    @PersistenceContext(type = PersistenceContextType.EXTENDED, name="statelessEntityManagerFactoryName")
+    @PersistenceContext(type = PersistenceContextType.EXTENDED)
     public void setEntityManager(EntityManager entityManager){
         this.entityManager = entityManager;
     }
@@ -206,19 +206,7 @@ public abstract class RepositoryImplementation<T> {
         return (List<T>) q.getResultList();
     }
 
-    protected void runNativeQuery(String query) {
-        this.log.info(query);
-        this.entityManager.createNativeQuery(query).executeUpdate();
+    public int update(String queryString, Session session) {
+        return session.createQuery(queryString).executeUpdate();
     }
-
-
-
-
-    // public void saveInSession(T item, Session session) {
-    // For bulk saving, chuck it in here
-    // }
-
-    // public T getFromSession(something) {
-    // When bulk saving, check db here
-    // }
 }

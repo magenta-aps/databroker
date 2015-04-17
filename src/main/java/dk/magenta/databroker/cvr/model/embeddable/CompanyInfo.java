@@ -225,7 +225,7 @@ public class CompanyInfo {
 
     //----------------------------------------------------
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     private Collection<IndustryEntity> secondaryIndustries;
 
     public Collection<IndustryEntity> getSecondaryIndustries() {

@@ -104,16 +104,13 @@ public class KommuneRepositoryImpl extends EntityRepositoryImplementation<Kommun
     @Override
     public KommuneEntity getByDescriptor(Integer descriptor, Session session) {
         if (!this.hasKnownDescriptor(descriptor, true)) {
-            //System.out.println("noooooo");
             return null;
         }
-        //System.out.println("yay");
         ConditionList conditions = new ConditionList();
         conditions.addCondition(KommuneEntity.kommuneCondition(descriptor));
         final String key = this.getRandomKey();
         final String hql = "select distinct " + KommuneEntity.databaseKey + " from KommuneEntity as " + KommuneEntity.databaseKey + " where " + conditions.getWhere(key);
         Collection<KommuneEntity> kommuneEntities = this.query(hql, conditions.getParameters(key), GlobalCondition.singleCondition, session);
-        //System.out.println("Found "+kommuneEntities.size()+" candidates for descriptor "+descriptor);
         if (kommuneEntities != null && kommuneEntities.size() > 0) {
             return kommuneEntities.iterator().next();
         }
@@ -125,4 +122,28 @@ public class KommuneRepositoryImpl extends EntityRepositoryImplementation<Kommun
         return this.getByDescriptor(kommunekode);
     }
 
+    @Override
+    public void addKnownDescriptor(Integer descriptor, boolean dbLoad) {
+        super.addKnownDescriptor(descriptor, dbLoad);
+    }
+
+/*
+    public int count(Session session) {
+        session.createQuery("select count(*) from ")
+    }
+
+    public Collection<T> findAll() {
+        return null;
+    };*/
+
+
+    @Override
+    public long count(Session session) {
+        return (Long) session.createQuery("select count(*) from KommuneEntity").uniqueResult();
+    }
+
+    @Override
+    public List<KommuneEntity> findAll(Session session) {
+        return session.createQuery("select entity from KommuneEntity entity").list();
+    }
 }

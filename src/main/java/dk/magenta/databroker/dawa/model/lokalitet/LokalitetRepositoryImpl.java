@@ -5,7 +5,6 @@ import dk.magenta.databroker.core.model.EntityRepositoryCustom;
 import dk.magenta.databroker.core.model.EntityRepositoryImplementation;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
-import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseEntity;
 import dk.magenta.databroker.dawa.model.postnummer.PostNummerEntity;
 import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.dawa.model.vejstykker.VejstykkeEntity;
@@ -117,5 +116,20 @@ public class LokalitetRepositoryImpl extends EntityRepositoryImplementation<Loka
     @Override
     public LokalitetEntity getByDescriptor(Long descriptor, Session session) {
         return null;
+    }
+
+    @Override
+    public void addKnownDescriptor(Long descriptor, boolean dbLoad) {
+        super.addKnownDescriptor(descriptor, dbLoad);
+    }
+
+    @Override
+    public long count(Session session) {
+        return (Long) session.createQuery("select count(*) from LokalitetEntity").uniqueResult();
+    }
+
+    @Override
+    public List<LokalitetEntity> findAll(Session session) {
+        return session.createQuery("select entity from LokalitetEntity entity").list();
     }
 }

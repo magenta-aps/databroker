@@ -4,7 +4,7 @@
 <hibernate-configuration>
     <session-factory name="CoreSessionFactory">
         <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
-        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/DataBrokerCore</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/DataBrokerCore?autoReconnect=true</property>
         <property name="hibernate.connection.autocommit">false</property>
         <property name="hibernate.connection.pool_size">3</property>
         <property name="hibernate.connection.isolation">1</property>
@@ -16,8 +16,8 @@
 
 
 
-        <property name="hibernate.cache.use_second_level_cache">true</property>
-        <property name="hibernate.cache.use_query_cache">true</property>
+        <property name="hibernate.cache.use_second_level_cache">false</property>
+        <property name="hibernate.cache.use_query_cache">false</property>
 
         <!-- core -->
         <mapping class="dk.magenta.databroker.core.model.oio.DobbeltHistorikBase"/>

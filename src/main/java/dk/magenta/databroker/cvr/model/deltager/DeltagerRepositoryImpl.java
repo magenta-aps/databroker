@@ -4,7 +4,6 @@ import dk.magenta.databroker.core.Session;
 import dk.magenta.databroker.core.model.EntityRepositoryCustom;
 import dk.magenta.databroker.core.model.EntityRepositoryImplementation;
 import dk.magenta.databroker.dawa.model.SearchParameters;
-import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.util.TransactionCallback;
@@ -69,9 +68,9 @@ public class DeltagerRepositoryImpl extends EntityRepositoryImplementation<Delta
         if (!this.hasKnownDescriptor(descriptor, true)) {
             return null;
         }
-        final String key = "id_"+ UUID.randomUUID().toString().replace("-","");
         ConditionList conditions = new ConditionList();
         conditions.addCondition(DeltagerEntity.descriptorCondition(descriptor));
+        final String key = "id_"+ UUID.randomUUID().toString().replace("-","");
         final String hql = "select " + DeltagerEntity.databaseKey + " from DeltagerEntity " + DeltagerEntity.databaseKey + " where " + conditions.getWhere(key);
         List<DeltagerEntity> items = this.query(hql, conditions.getParameters(key), GlobalCondition.singleCondition, session);
         return items != null && !items.isEmpty() ? items.iterator().next() : null;
@@ -86,5 +85,20 @@ public class DeltagerRepositoryImpl extends EntityRepositoryImplementation<Delta
     }
 
 
+    @Override
+    public void addKnownDescriptor(Long descriptor, boolean dbLoad) {
+        super.addKnownDescriptor(descriptor, dbLoad);
+    }
+
+
+    @Override
+    public long count(Session session) {
+        return (Long) session.createQuery("select count(*) from DeltagerEntity").uniqueResult();
+    }
+
+    @Override
+    public List<DeltagerEntity> findAll(Session session) {
+        return session.createQuery("select entity from DeltagerEntity entity").list();
+    }
 
 }

@@ -531,7 +531,7 @@ public class CvrRegister extends Register {
 
             try {
 
-                if (false && companyCount > 0) {
+                if (companyCount > 0) {
                     TimeRecorder sumTime = new TimeRecorder();
                     for (VirksomhedRecord virksomhed : cRun.getVirksomheder().getList()) {
                         TimeRecorder itemTimer = new TimeRecorder();
@@ -568,7 +568,7 @@ public class CvrRegister extends Register {
                 }
 
 
-                if (false && unitCount > 0) {
+                if (unitCount > 0) {
                     TimeRecorder sumTime = new TimeRecorder();
 
                     for (ProductionUnitRecord unit : cRun.getProductionUnits().getList()) {
@@ -582,7 +582,7 @@ public class CvrRegister extends Register {
 
                         // Fetch basic fields
                         long pNummer = unit.getLong("pNummer");
-                        String cvrNummer = unit.get("cvrNummer");
+                        long cvrNummer = unit.getLong("cvrNummer");
                         boolean isPrimaryUnit = unit.getBoolean("isPrimary");
 
                         itemTimer.record();

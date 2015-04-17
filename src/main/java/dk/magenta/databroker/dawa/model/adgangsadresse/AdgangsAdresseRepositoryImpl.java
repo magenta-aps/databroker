@@ -15,7 +15,6 @@ import dk.magenta.databroker.util.TransactionCallback;
 import dk.magenta.databroker.util.Util;
 import dk.magenta.databroker.util.objectcontainers.StringList;
 import org.apache.log4j.Logger;
-import org.hibernate.StatelessSession;
 
 import javax.persistence.Query;
 import java.util.ArrayList;
@@ -131,7 +130,7 @@ public class AdgangsAdresseRepositoryImpl extends EntityRepositoryImplementation
                 AdgangsAdresseRepositoryImpl repositoryImplementation = AdgangsAdresseRepositoryImpl.this;
                 repositoryImplementation.log.info("Updating references between addresses and roads");
                 double time = Util.getTime();
-                repositoryImplementation.entityManager.createNativeQuery("update dawa_adgangsadresse adresse join dawa_vejstykke vej on adresse.vejstykke_descriptor=vej.descriptor set adresse.vejstykke_id=vej.id where adresse.vejstykke_id is NULL").executeUpdate();
+                repositoryImplementation.update("update AdgangsAdresseEntity adresse set adresse.vejstykke = (select vej from VejstykkeEntity vej where vej.descriptor = adresse.vejstykkeDescriptor) where adresse.vejstykke = NULL", session);
                 repositoryImplementation.log.info("References updated in "+(Util.getTime()-time)+" ms");
             }
         });
@@ -142,5 +141,21 @@ public class AdgangsAdresseRepositoryImpl extends EntityRepositoryImplementation
     public HashSet<Long> getKnownDescriptors() {
         Query q = this.entityManager.createQuery("select " + AdgangsAdresseEntity.databaseKey + ".descriptor from AdgangsAdresseEntity as " + AdgangsAdresseEntity.databaseKey);
         return new HashSet<Long>(q.getResultList());
+    }
+
+
+    @Override
+    public void addKnownDescriptor(Long descriptor, boolean dbLoad) {
+        super.addKnownDescriptor(descriptor, dbLoad);
+    }
+
+    @Override
+    public long count(Session session) {
+        return (Long) session.createQuery("select count(*) from AdgangsAdresseEntity").uniqueResult();
+    }
+
+    @Override
+    public List<AdgangsAdresseEntity> findAll(Session session) {
+        return session.createQuery("select entity from AdgangsAdresseEntity entity").list();
     }
 }

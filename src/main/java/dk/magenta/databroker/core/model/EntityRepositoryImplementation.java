@@ -2,7 +2,9 @@ package dk.magenta.databroker.core.model;
 
 import dk.magenta.databroker.core.Session;
 
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -10,18 +12,8 @@ import java.util.UUID;
  */
 public abstract class EntityRepositoryImplementation<T,C> extends RepositoryImplementation {
 
-
-    /*public T get(C identifier) {
-
-    }*/
-
     public abstract T getByDescriptor(C descriptor);
     public abstract T getByDescriptor(C descriptor, Session session);
-
-    protected String getRandomKey() {
-        return "id_"+ UUID.randomUUID().toString().replace("-","");
-    }
-
 
     public abstract HashSet<C> getKnownDescriptors();
 
@@ -37,7 +29,7 @@ public abstract class EntityRepositoryImplementation<T,C> extends RepositoryImpl
         return true;
     }
 
-    /*public void addKnownDescriptor(C descriptor, boolean dbLoad) {
+    public void addKnownDescriptor(C descriptor, boolean dbLoad) {
         if (this.getUseCachedDescriptorList() && descriptor != null) {
             if (this.knownDescriptors == null && dbLoad) {
                 this.knownDescriptors = this.getKnownDescriptors();
@@ -46,7 +38,11 @@ public abstract class EntityRepositoryImplementation<T,C> extends RepositoryImpl
                 this.knownDescriptors.add(descriptor);
             }
         }
-    }*/
+    }
+
+    protected String getRandomKey() {
+        return "id_"+ UUID.randomUUID().toString().replace("-","");
+    }
 
     private boolean useCachedDescriptorList;
 
@@ -73,21 +69,12 @@ public abstract class EntityRepositoryImplementation<T,C> extends RepositoryImpl
             } else {
                 session.save(item, alreadyExists);
             }
-
         }
     }
 
 
 
+    public abstract long count(Session session);
 
-
-
-
-
-/*
-    public int count() {return 0;}
-
-    public Collection<T> findAll() {
-        return null;
-    };*/
+    public abstract List<T> findAll(Session session);
 }

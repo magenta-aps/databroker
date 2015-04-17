@@ -124,7 +124,7 @@ public class BynavnRegister extends CprSubRegister {
         counter.printFinalEntriesProcessed();
         this.log.info("Links created in " + this.toc(time) + " ms");
 
-        this.log.info("Storing LokalitetEntities in database");
+        this.log.info("Storing "+lokalitetData.totalSize()+" LokalitetEntities in database");
         time = this.indepTic();
         counter.reset();
         for (int kommuneKode : lokalitetData.intKeySet()) {

@@ -192,14 +192,8 @@ public class AdgangsAdresseEntity extends DobbeltHistorikBase<AdgangsAdresseEnti
     }
 
     public void generateDescriptor() {
-        VejstykkeEntity vejstykkeEntity = this.getVejstykke();
-        if (vejstykkeEntity != null) {
-            KommuneEntity kommuneEntity = vejstykkeEntity.getKommune();
-            long descriptor = generateDescriptor(kommuneEntity.getKode(), vejstykkeEntity.getKode(), this.getHusnr());
-            this.setDescriptor(descriptor);
-        } else if (this.vejstykkeDescriptor != 0) {
-            this.setDescriptor(((long)this.vejstykkeDescriptor << 40) | hashHusnr(husnr));
-        }
+        long vejstykkeDescriptor = this.vejstykke != null ? this.vejstykke.getDescriptor() : this.vejstykkeDescriptor;
+        this.setDescriptor((vejstykkeDescriptor << 40) | hashHusnr(husnr));
     }
 
     public static String getDescriptorKey() {

@@ -4,7 +4,6 @@ import dk.magenta.databroker.core.Session;
 import dk.magenta.databroker.core.model.EntityRepositoryCustom;
 import dk.magenta.databroker.core.model.EntityRepositoryImplementation;
 import dk.magenta.databroker.dawa.model.SearchParameters;
-import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.util.TransactionCallback;
@@ -63,5 +62,20 @@ public class IndustryRepositoryImpl extends EntityRepositoryImplementation<Indus
     @Override
     public IndustryEntity getByCode(int code) {
         return this.getByDescriptor(code);
+    }
+
+    @Override
+    public void addKnownDescriptor(Integer descriptor, boolean dbLoad) {
+        super.addKnownDescriptor(descriptor, dbLoad);
+    }
+
+    @Override
+    public long count(Session session) {
+        return (Long) session.createQuery("select count(*) from IndustryEntity").uniqueResult();
+    }
+
+    @Override
+    public List<IndustryEntity> findAll(Session session) {
+        return session.createQuery("select entity from IndustryEntity entity").list();
     }
 }

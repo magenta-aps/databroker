@@ -3,6 +3,7 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:jaxws="http://cxf.apache.org/jaxws"
        xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+       xmlns:jpa="http://www.springframework.org/schema/data/jpa"
        xmlns:task="http://www.springframework.org/schema/task"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans.xsd
@@ -11,7 +12,9 @@
        http://cxf.apache.org/jaxrs
        http://cxf.apache.org/schemas/jaxrs.xsd
        http://www.springframework.org/schema/task
-       http://www.springframework.org/schema/task/spring-task.xsd">
+       http://www.springframework.org/schema/task/spring-task.xsd
+       http://www.springframework.org/schema/data/jpa
+       http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
 
     <import resource="classpath:META-INF/cxf/cxf.xml"/>
 

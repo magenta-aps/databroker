@@ -46,6 +46,9 @@ public class PostNummerEntity extends DobbeltHistorikBase<PostNummerEntity, Post
         this.nr = nr;
     }
 
+    public Integer getDescriptor() {
+        return this.nr;
+    }
 
     //------------------------------------------------------------------------------------------------------------------
     /* Versioning */

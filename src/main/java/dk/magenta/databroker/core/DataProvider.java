@@ -138,7 +138,7 @@ public abstract class DataProvider {
             ArrayList<TransactionCallback> transactionCallbacks = new ArrayList<TransactionCallback>();
 
             final DataProviderPusher pusher = this;
-            transactionCallbacks.add(new TransactionCallback(){
+            transactionCallbacks.add(new TransactionCallback() {
                 @Override
                 public void run(Session session) throws Exception {
                     FileInputStream inputStream = null;
@@ -151,7 +151,11 @@ public abstract class DataProvider {
                 }
             });
 
-            transactionCallbacks.addAll(this.getDataProvider().getBulkwireCallbacks(this.getDataProviderEntity()));
+
+            List<TransactionCallback> bulkwireCallbacks = this.getDataProvider().getBulkwireCallbacks(this.getDataProviderEntity());
+            if (bulkwireCallbacks != null) {
+                transactionCallbacks.addAll(bulkwireCallbacks);
+            }
 
             return transactionCallbacks;
         }
@@ -173,14 +177,17 @@ public abstract class DataProvider {
             ArrayList<TransactionCallback> transactionCallbacks = new ArrayList<TransactionCallback>();
 
             final DataProviderPuller puller = this;
-            transactionCallbacks.add(new TransactionCallback(){
+            transactionCallbacks.add(new TransactionCallback() {
                 @Override
                 public void run(Session session) throws Exception {
                     DataProvider.this.pull(puller.getDataProviderEntity(), session);
                 }
             });
 
-            transactionCallbacks.addAll(this.getDataProvider().getBulkwireCallbacks(this.getDataProviderEntity()));
+            List<TransactionCallback> bulkwireCallbacks = this.getDataProvider().getBulkwireCallbacks(this.getDataProviderEntity());
+            if (bulkwireCallbacks != null) {
+                transactionCallbacks.addAll(bulkwireCallbacks);
+            }
 
             return transactionCallbacks;
         }

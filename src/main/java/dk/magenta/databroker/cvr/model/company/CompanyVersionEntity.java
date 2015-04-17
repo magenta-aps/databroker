@@ -43,7 +43,7 @@ public class CompanyVersionEntity extends DobbeltHistorikVersion<CompanyEntity, 
 
     //------------------------------------------------------------------------------------------------------------------
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private CompanyEntity entity;
 
     @Override
@@ -59,7 +59,7 @@ public class CompanyVersionEntity extends DobbeltHistorikVersion<CompanyEntity, 
     //------------------------------------------------------------------------------------------------------------------
     /* Domain specific fields */
 
-    @OneToMany(mappedBy = "companyVersion")
+    @OneToMany(mappedBy = "companyVersion", fetch = FetchType.LAZY)
     private Collection<CompanyUnitVersionEntity> unitVersions;
 
     public Collection<CompanyUnitVersionEntity> getUnitVersions() {
@@ -72,7 +72,7 @@ public class CompanyVersionEntity extends DobbeltHistorikVersion<CompanyEntity, 
 
     //----------------------------------------------------
 
-    @OneToOne(optional = true)
+    @OneToOne(optional = true, fetch = FetchType.LAZY)
     private CompanyUnitEntity primaryUnit;
 
     public CompanyUnitEntity getPrimaryUnit() {
@@ -145,7 +145,7 @@ public class CompanyVersionEntity extends DobbeltHistorikVersion<CompanyEntity, 
 
 
 
-    @OneToMany(mappedBy = "companyVersionEntity", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "companyVersionEntity", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Collection<CompanyDeltagerRelationEntity> companyDeltagerRelationEntities;
 
     public Collection<CompanyDeltagerRelationEntity> getCompanyDeltagerRelationEntities() {

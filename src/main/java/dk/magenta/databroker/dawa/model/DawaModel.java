@@ -123,10 +123,10 @@ public class DawaModel {
         return kommuneEntity;
     }
 
-    private Level1Container<KommuneEntity> transactionKommuneCache = new Level1Container<KommuneEntity>();
+    //private Level1Container<KommuneEntity> transactionKommuneCache = new Level1Container<KommuneEntity>();
 
     public KommuneEntity getKommune(int kode) {
-        KommuneEntity kommuneEntity = this.transactionKommuneCache.get(kode);
+        KommuneEntity kommuneEntity = null;//this.transactionKommuneCache.get(kode);
         if (kommuneEntity == null) {
             kommuneEntity = this.kommuneRepository.getByKode(kode);
             if (kommuneEntity != null) {
@@ -136,19 +136,15 @@ public class DawaModel {
         return kommuneEntity;
     }
     public KommuneEntity getKommune(int kode, Session session) {
-        KommuneEntity kommuneEntity = null;//this.transactionKommuneCache.get(kode);
-        if (kommuneEntity == null) {
-            kommuneEntity = this.kommuneRepository.getByDescriptor(kode, session);
-            if (kommuneEntity != null) {
-                this.putKommune(kommuneEntity);
-            }
+        KommuneEntity kommuneEntity = this.kommuneRepository.getByDescriptor(kode, session);
+        if (kommuneEntity != null) {
+            this.putKommune(kommuneEntity);
         }
         return kommuneEntity;
     }
 
     private void putKommune(KommuneEntity kommuneEntity) {
-        this.transactionKommuneCache.put(kommuneEntity.getKode(), kommuneEntity);
-        //this.kommuneRepository.addKnownDescriptor(kommuneEntity.getKode(), true);
+        this.kommuneRepository.addKnownDescriptor(kommuneEntity.getKode(), true);
     }
 
     public Collection<KommuneEntity> getKommune(SearchParameters parameters) {
@@ -193,7 +189,7 @@ public class DawaModel {
         if (!entityExists) {
             KommuneEntity kommuneEntity = this.getKommune(kommuneKode, session);
             if (kommuneEntity == null) {
-                this.log.warn("Unable to create vej " + kommuneKode + ":" + vejKode + " (" + vejNavn + "); Kommune with kode " + kommuneKode + " not found. (There are " + this.kommuneRepository.count() + " KommuneEntities in the table)");
+                this.log.warn("Unable to create vej " + kommuneKode + ":" + vejKode + " (" + vejNavn + "); Kommune with kode " + kommuneKode + " not found. (There are " + this.kommuneRepository.count(session) + " KommuneEntities in the table)");
                 return null;
             }
             this.log.trace("Creating new VejstykkeEntity " + kommuneKode + ":" + vejKode);
@@ -245,8 +241,8 @@ public class DawaModel {
     * Obtain roads from DB
     * */
 
-    private Level2Container<VejstykkeEntity> transactionVejstykkeCache = new Level2Container<VejstykkeEntity>();
-    private Level2Container<VejstykkeEntity> preloadVejstykkeCache;
+    //private Level2Container<VejstykkeEntity> transactionVejstykkeCache = new Level2Container<VejstykkeEntity>();
+    //private Level2Container<VejstykkeEntity> preloadVejstykkeCache;
 
     @PostConstruct
     private void loadVejstykkeCache() {
@@ -272,7 +268,7 @@ public class DawaModel {
     private void putVejstykke(VejstykkeEntity vejstykkeEntity) {
         //this.transactionVejstykkeCache.put(vejstykkeEntity.getKommune().getKode(), vejstykkeEntity.getKode(), vejstykkeEntity);
         //this.preloadVejstykkeCache.put(vejstykkeEntity.getKommune().getKode(), vejstykkeEntity.getKode(), vejstykkeEntity);
-        //this.vejstykkeRepository.addKnownDescriptor(vejstykkeEntity.getDescriptor(), true);
+        this.vejstykkeRepository.addKnownDescriptor(vejstykkeEntity.getDescriptor(), true);
     }
 
     public Collection<VejstykkeEntity> getVejstykke(SearchParameters parameters) {
@@ -382,7 +378,7 @@ public class DawaModel {
             this.postNummerRepository.save(postNummerEntity, session, true);
         }
 
-
+/*
         // Update postnummer ref on vejstykkeEntities
         for (VejstykkeEntity vejstykkeEntity : vejListe) {
             VejstykkeVersionEntity vejstykkeVersionEntity = vejstykkeEntity.getLatestVersion();
@@ -401,9 +397,10 @@ public class DawaModel {
                 this.vejstykkeRepository.save(vejstykkeVersionEntity, session, useOldVersion);
                 this.vejstykkeRepository.save(vejstykkeEntity, session, true);
             } else {
-                System.err.println("vej ("+vejstykkeEntity.getDescriptor()+") has no version");
+                //System.err.println("vej ("+vejstykkeEntity.getDescriptor()+") has no version");
             }
         }
+*/
 
 /*
         for (RawVej delvej : veje) {
@@ -462,7 +459,8 @@ public class DawaModel {
     }
 
     private void putPostnummer(int nr, PostNummerEntity postNummerEntity) {
-        this.transactionPostnummerCache.put(nr, postNummerEntity);
+        //this.transactionPostnummerCache.put(nr, postNummerEntity);
+        this.postNummerRepository.addKnownDescriptor(postNummerEntity.getDescriptor(), true);
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -530,6 +528,7 @@ public class DawaModel {
             adgangsAdresseEntity.setBnr(bnr);
             adgangsAdresseEntity.generateDescriptor();
             this.adgangsAdresseRepository.save(adgangsAdresseEntity, session, false);
+            this.putAdgangsAdresse(kommuneKode, vejKode, husNr, adgangsAdresseEntity);
             this.log.trace("Creating new AdgangsAdresseEntity");
         } else {
             //System.out.println("Did find adgangsadresse "+kommuneKode+":"+vejKode+":"+husNr);
@@ -568,6 +567,7 @@ public class DawaModel {
             enhedsAdresseEntity.setDoer(doer);
             enhedsAdresseEntity.setDescriptor(enhedsAdresseEntity.generateDescriptor(kommuneKode, vejKode, husNr, etage, doer));
             this.enhedsAdresseRepository.save(enhedsAdresseEntity, session, false);
+            this.putEnhedsAdresse(kommuneKode, vejKode, husNr, enhedsAdresseEntity);
             this.log.trace("Creating new EnhedsAdresseEntity");
         }
         time.record();
@@ -632,7 +632,8 @@ public class DawaModel {
     }
 
     public void putAdgangsAdresse(int kommuneKode, int vejKode, String husNr, AdgangsAdresseEntity adgangsAdresseEntity) {
-        this.transactionAdgangsAdresseCache.put(kommuneKode, vejKode, husNr, adgangsAdresseEntity);
+        //this.transactionAdgangsAdresseCache.put(kommuneKode, vejKode, husNr, adgangsAdresseEntity);
+        this.adgangsAdresseRepository.addKnownDescriptor(adgangsAdresseEntity.getDescriptor(), true);
     }
 
 
@@ -662,7 +663,8 @@ public class DawaModel {
         return enhedsAdresseEntity;
     }
     private void putEnhedsAdresse(int kommuneKode, int vejKode, String husnr, EnhedsAdresseEntity enhedsAdresseEntity) {
-        this.transactionEnhedsAdresseCache.put(kommuneKode, vejKode, husnr, EnhedsAdresseEntity.getFinalIdentifier(enhedsAdresseEntity.getEtage(), enhedsAdresseEntity.getDoer()), enhedsAdresseEntity);
+        //this.transactionEnhedsAdresseCache.put(kommuneKode, vejKode, husnr, EnhedsAdresseEntity.getFinalIdentifier(enhedsAdresseEntity.getEtage(), enhedsAdresseEntity.getDoer()), enhedsAdresseEntity);
+        this.enhedsAdresseRepository.addKnownDescriptor(enhedsAdresseEntity.getDescriptor(), true);
     }
 
 
@@ -703,6 +705,7 @@ public class DawaModel {
                 lokalitetEntity.setKommune(kommuneEntity);
                 this.putLokalitet(kommuneKode, lokalitetsnavn, lokalitetEntity);
                 this.lokalitetRepository.save(lokalitetEntity, registreringInfo.getSession(), entityExists);
+                this.putLokalitet(kommuneKode, lokalitetsnavn, lokalitetEntity);
             }
         }
         time.record();
@@ -758,7 +761,8 @@ public class DawaModel {
     }
 
     private void putLokalitet(int kommuneKode, String lokalitetsNavn, LokalitetEntity lokalitetEntity) {
-        this.transactionLokalitetCache.put(kommuneKode, lokalitetsNavn, lokalitetEntity);
+        //this.transactionLokalitetCache.put(kommuneKode, lokalitetsNavn, lokalitetEntity);
+        this.lokalitetRepository.addKnownDescriptor(lokalitetEntity.getDescriptor(), true);
     }
 
 }

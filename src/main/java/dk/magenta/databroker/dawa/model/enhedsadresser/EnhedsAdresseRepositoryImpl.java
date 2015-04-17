@@ -133,4 +133,19 @@ public class EnhedsAdresseRepositoryImpl extends EntityRepositoryImplementation<
         Collection<EnhedsAdresseEntity> enhedsAdresseEntities = this.query(hql, conditions.getParameters(key), GlobalCondition.singleCondition, session);
         return enhedsAdresseEntities.size() > 0 ? enhedsAdresseEntities.iterator().next() : null;
     }
+
+    @Override
+    public void addKnownDescriptor(String descriptor, boolean dbLoad) {
+        super.addKnownDescriptor(descriptor, dbLoad);
+    }
+
+    @Override
+    public long count(Session session) {
+        return (Long) session.createQuery("select count(*) from EnhedsAdresseEntity").uniqueResult();
+    }
+
+    @Override
+    public List<EnhedsAdresseEntity> findAll(Session session) {
+        return session.createQuery("select entity from EnhedsAdresseEntity entity").list();
+    }
 }

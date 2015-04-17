@@ -86,13 +86,13 @@ public class CompanyUnitVersionEntity extends DobbeltHistorikVersion<CompanyUnit
     //------------------------------------------------------
 
     @Column
-    private String cvrNummer;
+    private long cvrNummer;
 
-    public String getCvrNummer() {
+    public long getCvrNummer() {
         return cvrNummer;
     }
 
-    public void setCvrNummer(String cvrNummer) {
+    public void setCvrNummer(long cvrNummer) {
         this.cvrNummer = cvrNummer;
     }
 
@@ -125,7 +125,7 @@ public class CompanyUnitVersionEntity extends DobbeltHistorikVersion<CompanyUnit
     //----------------------------------------------------
 
 
-    public boolean matches(String cvrNummer, CompanyInfo companyInfo, boolean isPrimaryUnit) {
+    public boolean matches(long cvrNummer, CompanyInfo companyInfo, boolean isPrimaryUnit) {
         return Util.compare(this.cvrNummer, cvrNummer) &&
                 Util.compare(this.isPrimaryUnit, isPrimaryUnit) &&
                 Util.compare(this.companyInfo, companyInfo);

@@ -37,10 +37,18 @@ public class CompanyUnitRepositoryImpl extends EntityRepositoryImplementation<Co
                 CompanyUnitRepositoryImpl repositoryImplementation = CompanyUnitRepositoryImpl.this;
                 repositoryImplementation.log.info("Updating references between units and companies");
                 double time = Util.getTime();
-                repositoryImplementation.runNativeQuery("update cvr_companyunit_version unitversion " +
+
+                repositoryImplementation.update("update CompanyUnitVersionEntity unitversion " +
+                        "set unitversion.companyVersion = " +
+                        "(select companyversion from CompanyVersionEntity companyversion where companyversion.entity.cvrNummer = unitversion.cvrNummer) " +
+                        "where unitversion.companyVersion = NULL", session);
+
+
+                /*repositoryImplementation.runNativeQuery("update cvr_companyunit_version unitversion " +
                         "join cvr_company company on unitversion.cvr_nummer=company.cvr_nummer " +
                         "set unitversion.company_version_id=company.latest_version_id " +
-                        "where unitversion.company_version_id is NULL");
+                        "where unitversion.company_version_id is NULL");*/
+
                 repositoryImplementation.log.info("References updated in " + (Util.getTime() - time) + " ms");
             }
         });
@@ -52,6 +60,19 @@ public class CompanyUnitRepositoryImpl extends EntityRepositoryImplementation<Co
                 CompanyUnitRepositoryImpl repositoryImplementation = CompanyUnitRepositoryImpl.this;
                 repositoryImplementation.log.info("Updating references between units and addresses");
                 double time = Util.getTime();
+
+                repositoryImplementation.update("update CompanyUnitVersionEntity unitversion " +
+                        "set unitversion.companyInfo.postalAddress.enhedsAdresse = " +
+                        "(select address.id from EnhedsAdresseEntity address where address.descriptor = unitversion.companyInfo.postalAddress.descriptor) " +
+                        "where unitversion.companyInfo.postalAddress.enhedsAdresse = NULL", session);
+
+                repositoryImplementation.update("update CompanyUnitVersionEntity unitversion " +
+                        "set unitversion.companyInfo.locationAddress.enhedsAdresse = " +
+                        "(select address.id from EnhedsAdresseEntity address where address.descriptor = unitversion.companyInfo.locationAddress.descriptor) " +
+                        "where unitversion.companyInfo.locationAddress.enhedsAdresse = NULL", session);
+
+
+/*
                 repositoryImplementation.runNativeQuery("update cvr_companyunit_version unitversion " +
                         "join dawa_enhedsadresse address on unitversion.postal_address_descriptor=address.descriptor " +
                         "set unitversion.postal_address_enheds_adresse=address.id " +
@@ -60,6 +81,7 @@ public class CompanyUnitRepositoryImpl extends EntityRepositoryImplementation<Co
                         "join dawa_enhedsadresse address on unitversion.location_address_descriptor=address.descriptor " +
                         "set unitversion.location_address_enheds_adresse=address.id " +
                         "where unitversion.location_address_enheds_adresse is NULL");
+                        */
                 repositoryImplementation.log.info("References updated in " + (Util.getTime() - time) + " ms");
             }
         });
@@ -184,5 +206,21 @@ public class CompanyUnitRepositoryImpl extends EntityRepositoryImplementation<Co
     public HashSet<Long> getKnownDescriptors() {
         Query q = this.entityManager.createQuery("select " + CompanyUnitEntity.databaseKey + ".pno from CompanyUnitEntity as " + CompanyUnitEntity.databaseKey);
         return new HashSet<Long>(q.getResultList());
+    }
+
+    @Override
+    public void addKnownDescriptor(Long descriptor, boolean dbLoad) {
+        super.addKnownDescriptor(descriptor, dbLoad);
+    }
+
+
+    @Override
+    public long count(Session session) {
+        return (Long) session.createQuery("select count(*) from CompanyUnitEntity").uniqueResult();
+    }
+
+    @Override
+    public List<CompanyUnitEntity> findAll(Session session) {
+        return session.createQuery("select entity from CompanyUnitEntity entity").list();
     }
 }

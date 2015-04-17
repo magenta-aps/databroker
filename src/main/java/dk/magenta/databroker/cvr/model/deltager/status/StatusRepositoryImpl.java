@@ -4,7 +4,6 @@ import dk.magenta.databroker.core.Session;
 import dk.magenta.databroker.core.model.EntityRepositoryCustom;
 import dk.magenta.databroker.core.model.EntityRepositoryImplementation;
 import dk.magenta.databroker.dawa.model.SearchParameters;
-import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.util.TransactionCallback;
@@ -39,7 +38,6 @@ public class StatusRepositoryImpl extends EntityRepositoryImplementation<StatusE
     }
 
     public StatusEntity getByName(String name, Session session) {
-        log.info("getByName(" + name + ")");
         ConditionList conditions = new ConditionList();
         conditions.addCondition(StatusEntity.nameCondition(name));
         final String key = this.getRandomKey();
@@ -74,6 +72,22 @@ public class StatusRepositoryImpl extends EntityRepositoryImplementation<StatusE
     @Override
     public StatusEntity getByDescriptor(String descriptor, Session session) {
         return null;
+    }
+
+    @Override
+    public void addKnownDescriptor(String descriptor, boolean dbLoad) {
+        super.addKnownDescriptor(descriptor, dbLoad);
+    }
+
+
+    @Override
+    public long count(Session session) {
+        return (Long) session.createQuery("select count(*) from StatusEntity").uniqueResult();
+    }
+
+    @Override
+    public List<StatusEntity> findAll(Session session) {
+        return session.createQuery("select entity from StatusEntity entity").list();
     }
 
 }

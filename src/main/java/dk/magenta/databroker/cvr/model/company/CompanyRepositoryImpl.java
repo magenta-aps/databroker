@@ -5,14 +5,12 @@ import dk.magenta.databroker.core.model.EntityRepositoryCustom;
 import dk.magenta.databroker.core.model.EntityRepositoryImplementation;
 import dk.magenta.databroker.dawa.model.SearchParameters;
 import dk.magenta.databroker.dawa.model.SearchParameters.Key;
-import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseEntity;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.util.TransactionCallback;
 import dk.magenta.databroker.util.Util;
 import dk.magenta.databroker.util.objectcontainers.StringList;
 import org.apache.log4j.Logger;
-import org.hibernate.StatelessSession;
 
 import javax.persistence.*;
 import java.util.*;
@@ -38,21 +36,25 @@ public class CompanyRepositoryImpl extends EntityRepositoryImplementation<Compan
             public void run(Session session) {
                 log.info("Updating references between companies and addresses");
                 double time = Util.getTime();
-                /*repositoryImplementation.query("update cvr_company_version companyversion " +
-                        "set companyversion.postal_address_enheds_adresse= " +
-                        "(select address.id from dawa_enhedsadresse address where address.descriptor = companyversion.postal_address_descriptor)" +
-                        " where companyversion.postal_address_enheds_adresse = NULL", session);*/
+                repositoryImplementation.update("update CompanyVersionEntity companyversion " +
+                        "set companyversion.companyInfo.postalAddress.enhedsAdresse = " +
+                        "(select address.id from EnhedsAdresseEntity address where address.descriptor = companyversion.companyInfo.postalAddress.descriptor) " +
+                        "where companyversion.companyInfo.postalAddress.enhedsAdresse = NULL", session);
 
+                repositoryImplementation.update("update CompanyVersionEntity companyversion " +
+                        "set companyversion.companyInfo.locationAddress.enhedsAdresse = " +
+                        "(select address.id from EnhedsAdresseEntity address where address.descriptor = companyversion.companyInfo.locationAddress.descriptor) " +
+                        "where companyversion.companyInfo.locationAddress.enhedsAdresse = NULL", session);
 
-                repositoryImplementation.runNativeQuery("update cvr_company_version companyversion " +
+                /*repositoryImplementation.runNativeQuery("update cvr_company_version companyversion " +
                         "join dawa_enhedsadresse address on companyversion.postal_address_descriptor=address.descriptor " +
                         "set companyversion.postal_address_enheds_adresse=address.id " +
-                        "where companyversion.postal_address_enheds_adresse is NULL");
+                        "where companyversion.postal_address_enheds_adresse is NULL");*/
 
-                repositoryImplementation.runNativeQuery("update cvr_companyunit_version companyversion " +
+                /*repositoryImplementation.runNativeQuery("update cvr_companyunit_version companyversion " +
                         "join dawa_enhedsadresse address on companyversion.location_address_descriptor=address.descriptor " +
                         "set companyversion.location_address_enheds_adresse=address.id " +
-                        "where companyversion.location_address_enheds_adresse is NULL");
+                        "where companyversion.location_address_enheds_adresse is NULL");*/
                 log.info("References updated in " + (Util.getTime() - time) + " ms");
             }
         });
@@ -169,5 +171,20 @@ public class CompanyRepositoryImpl extends EntityRepositoryImplementation<Compan
         final String hql = "select distinct "+CompanyEntity.databaseKey+" from CompanyEntity as "+CompanyEntity.databaseKey+" where "+conditions.getWhere(key);
         Collection<CompanyEntity> companyEntities = this.query(hql, conditions.getParameters(key), GlobalCondition.singleCondition, session);
         return companyEntities.size() > 0 ? companyEntities.iterator().next() : null;
+    }
+
+    @Override
+    public void addKnownDescriptor(Long descriptor, boolean dbLoad) {
+        super.addKnownDescriptor(descriptor, dbLoad);
+    }
+
+    @Override
+    public long count(Session session) {
+        return (Long) session.createQuery("select count(*) from CompanyEntity").uniqueResult();
+    }
+
+    @Override
+    public List<CompanyEntity> findAll(Session session) {
+        return session.createQuery("select entity from CompanyEntity entity").list();
     }
 }

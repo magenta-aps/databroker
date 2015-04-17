@@ -14,8 +14,6 @@ import dk.magenta.databroker.util.TransactionCallback;
 import dk.magenta.databroker.util.objectcontainers.Pair;
 import dk.magenta.databroker.util.objectcontainers.StringList;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.util.Collection;
 import java.util.HashSet;
@@ -118,5 +116,20 @@ public class PostNummerRepositoryImpl extends EntityRepositoryImplementation<Pos
     @Override
     public PostNummerEntity getByNr(int nr) {
         return this.getByDescriptor(nr);
+    }
+
+    @Override
+    public void addKnownDescriptor(Integer descriptor, boolean dbLoad) {
+        super.addKnownDescriptor(descriptor, dbLoad);
+    }
+
+    @Override
+    public long count(Session session) {
+        return (Long) session.createQuery("select count(*) from PostNummerEntity").uniqueResult();
+    }
+
+    @Override
+    public List<PostNummerEntity> findAll(Session session) {
+        return session.createQuery("select entity from PostNummerEntity entity").list();
     }
 }

@@ -74,6 +74,10 @@ public class LokalitetEntity extends UniqueBase implements OutputFormattable, Ca
         this.navn = navn;
     }
 
+    public Long getDescriptor() {
+        return this.getId(); // Todo: use a better descriptor
+    }
+
     //------------------------------------------------------------------------------------------------------------------
 
     public String getTypeName() {

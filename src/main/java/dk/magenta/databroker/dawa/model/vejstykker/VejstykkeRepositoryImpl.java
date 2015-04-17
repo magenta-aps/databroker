@@ -114,4 +114,20 @@ public class VejstykkeRepositoryImpl extends EntityRepositoryImplementation<Vejs
         }
         return null;
     }
+
+    @Override
+    public void addKnownDescriptor(Integer descriptor, boolean dbLoad) {
+        super.addKnownDescriptor(descriptor, dbLoad);
+    }
+
+
+    @Override
+    public long count(Session session) {
+        return (Long) session.createQuery("select count(*) from VejstykkeEntity").uniqueResult();
+    }
+
+    @Override
+    public List<VejstykkeEntity> findAll(Session session) {
+        return session.createQuery("select entity from VejstykkeEntity entity").list();
+    }
 }

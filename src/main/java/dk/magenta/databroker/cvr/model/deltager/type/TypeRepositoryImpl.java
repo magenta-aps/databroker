@@ -4,11 +4,9 @@ import dk.magenta.databroker.core.Session;
 import dk.magenta.databroker.core.model.EntityRepositoryCustom;
 import dk.magenta.databroker.core.model.EntityRepositoryImplementation;
 import dk.magenta.databroker.dawa.model.SearchParameters;
-import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseEntity;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.util.TransactionCallback;
-import dk.magenta.databroker.util.objectcontainers.StringList;
 import org.apache.log4j.Logger;
 
 import javax.persistence.Query;
@@ -83,6 +81,23 @@ public class TypeRepositoryImpl extends EntityRepositoryImplementation<TypeEntit
         final String hql = "select distinct " + TypeEntity.databaseKey + " from TypeEntity " + TypeEntity.databaseKey + " where " + conditions.getWhere(key);
         List<TypeEntity> items = this.query(hql, conditions.getParameters(key), GlobalCondition.singleCondition, session);
         return items != null && !items.isEmpty() ? items.iterator().next() : null;
+    }
+
+
+    @Override
+    public void addKnownDescriptor(String descriptor, boolean dbLoad) {
+        super.addKnownDescriptor(descriptor, dbLoad);
+    }
+
+
+    @Override
+    public long count(Session session) {
+        return (Long) session.createQuery("select count(*) from TypeEntity").uniqueResult();
+    }
+
+    @Override
+    public List<TypeEntity> findAll(Session session) {
+        return session.createQuery("select entity from TypeEntity entity").list();
     }
 
 }

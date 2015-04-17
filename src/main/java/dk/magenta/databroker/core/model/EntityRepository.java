@@ -22,7 +22,10 @@ public interface EntityRepository<T,C> extends JpaRepository<T, Long> {
     public T getByDescriptor(C descriptor);
     public T getByDescriptor(C descriptor, Session session);
     public void setUseCachedDescriptorList(boolean useCachedDescriptorList);
-    //public void addKnownDescriptor(C descriptor, boolean dbLoad);
-
+    public void addKnownDescriptor(C descriptor, boolean dbLoad);
     public void save(Object item, Session session, boolean alreadyExists);
+
+
+    public long count(Session session);
+    public List<T> findAll(Session session);
 }

@@ -5,7 +5,6 @@ import dk.magenta.databroker.core.model.EntityRepositoryCustom;
 import dk.magenta.databroker.core.model.EntityRepositoryImplementation;
 import dk.magenta.databroker.cvr.model.industry.IndustryEntity;
 import dk.magenta.databroker.dawa.model.SearchParameters;
-import dk.magenta.databroker.dawa.model.adgangsadresse.AdgangsAdresseEntity;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.util.TransactionCallback;
@@ -64,5 +63,20 @@ public class CompanyFormRepositoryImpl extends EntityRepositoryImplementation<Co
     @Override
     public CompanyFormEntity getByCode(int code) {
         return this.getByDescriptor(code);
+    }
+
+    @Override
+    public void addKnownDescriptor(Integer descriptor, boolean dbLoad) {
+        super.addKnownDescriptor(descriptor, dbLoad);
+    }
+
+    @Override
+    public long count(Session session) {
+        return (Long) session.createQuery("select count(*) from CompanyFormEntity").uniqueResult();
+    }
+
+    @Override
+    public List<CompanyFormEntity> findAll(Session session) {
+        return session.createQuery("select entity from CompanyFormEntity entity").list();
     }
 }

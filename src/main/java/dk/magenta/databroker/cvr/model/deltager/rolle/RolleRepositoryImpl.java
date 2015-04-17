@@ -4,7 +4,6 @@ import dk.magenta.databroker.core.Session;
 import dk.magenta.databroker.core.model.EntityRepositoryCustom;
 import dk.magenta.databroker.core.model.EntityRepositoryImplementation;
 import dk.magenta.databroker.dawa.model.SearchParameters;
-import dk.magenta.databroker.dawa.model.temaer.KommuneEntity;
 import dk.magenta.databroker.register.conditions.ConditionList;
 import dk.magenta.databroker.register.conditions.GlobalCondition;
 import dk.magenta.databroker.util.TransactionCallback;
@@ -14,7 +13,6 @@ import javax.persistence.Query;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Created by lars on 02-02-15.
@@ -83,6 +81,22 @@ public class RolleRepositoryImpl extends EntityRepositoryImplementation<RolleEnt
         final String hql = "select distinct " + RolleEntity.databaseKey + " from RolleEntity " + RolleEntity.databaseKey + " where " + conditions.getWhere(key);
         List<RolleEntity> items = this.query(hql, conditions.getParameters(key), GlobalCondition.singleCondition, session);
         return items != null && !items.isEmpty() ? items.iterator().next() : null;
+    }
+
+    @Override
+    public void addKnownDescriptor(String descriptor, boolean dbLoad) {
+        super.addKnownDescriptor(descriptor, dbLoad);
+    }
+
+
+    @Override
+    public long count(Session session) {
+        return (Long) session.createQuery("select count(*) from RolleEntity").uniqueResult();
+    }
+
+    @Override
+    public List<RolleEntity> findAll(Session session) {
+        return session.createQuery("select entity from RolleEntity entity").list();
     }
 
 }
